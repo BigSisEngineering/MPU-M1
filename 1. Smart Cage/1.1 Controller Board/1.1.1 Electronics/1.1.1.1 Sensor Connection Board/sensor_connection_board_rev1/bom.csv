@@ -1,0 +1,4 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+"H1, H2, H3, H4",MountingHole_3.2mm_M3_ISO7380,4,MountingHole,
+"J1, J2, J3, J4, J5, J6",JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical,6,Conn_01x03,C131339
+J7,JST_PH_B8B-PH-K_1x08_P2.00mm_Vertical,1,Conn_01x08,C157974

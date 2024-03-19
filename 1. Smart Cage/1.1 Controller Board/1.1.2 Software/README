@@ -1,0 +1,114 @@
+# Control Board firmware 
+
+## History
+24 Nov 2023
+- Change the unloader load limit from 100 to 150
+- Fixed unloader overshot issue
+
+22 Nov 2023
+- Implement Stall Protection
+- Change the unloader load limit from 150 to 100
+
+## TODO:
+- Star wheel homing offset communication
+- Optimise the communication
+- Load monitoring to stop for unloader
+- Show firmware version
+
+### Communication Protocol
+#### Action
+```
+https://www.tablesgenerator.com/markdown_tables
+```
+
+|         |            |               | Header | Target | Action | Param-1 | Param-2 | Param-3 | CRC_H | CRC_L |
+|:-------:|:----------:|:-------------:|:------:|:------:|:------:|:-------:|:-------:|:-------:|:-----:|:-----:|
+|  Action |            |               |  0XAA  |        |        |         |         |         |       |       |
+|         | Star Wheel |               |        |  0x01  |        |         |         |         |       |       |
+|         |            |   Move Step   |        |        |  0x01  |   0x??  |   0x00  |   0x00  |       |       |
+|         |            |      Turn     |        |        |  0x02  |   0x??  |   0x00  |   0x00  |       |       |
+|         |            |     Homing    |        |        |  0x03  |   0x00  |   0x00  |   0x00  |       |       |
+|         |            | Move by Count |        |        |  0x04  |   0x??  |   0x00  |   0x00  |       |       |
+|         |            |  Move by time |        |        |  0x05  |   0x??  |   0x??  |   0x00  |       |       |
+|         |            |  Reset Error  |        |        |  0x06  |   0x00  |   0x00  |   0x00  |       |       |
+|         |  Unloader  |               |        |  0x02  |        |         |         |         |       |       |
+|         |            |     Unload    |        |        |  0x01  |   0x00  |   0x00  |   0x00  |       |       |
+|         |            |      Home     |        |        |  0x03  |   0x00  |   0x00  |   0x00  |       |       |
+|         |            |  Reset Error  |        |        |  0x06  |   0x00  |   0x00  |   0x00  |       |       |
+| Sensing |            |               |  0xBB  |        |        |         |         |         |       |       |
+|         | Star Wheel |               |        |  0x01  |        |         |         |         |       |       |
+
+```
+//              [  ]
+    // move step                  [ 0x01 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Turn                       [ 0x02 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Home                       [ 0x03 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    //  return  [ 0xCC ]          [ 0x00 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // move count                 [ 0x04 ] [ 0x??  ] [ 0x??  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // move by time               [ 0x05 ] [ 0x??  ] [ 0x??  ] [ 0x00  ] [CRC_H] [CRC_L]
+    //  return  [ 0xCC ]          [ 0x00 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Reset Error                [ 0x06 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Move by count              [ 0x07 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Save offset to EEPROM      [ 0x08 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+// Unloader              [ 0x02 ] 
+    // Unload                     [ 0x01 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Home                       [ 0x03 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Reset Error                [ 0x06 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+``````
+
+| Description               | Hex   | Remark                                        |
+| ---                       | ---   | ---                                           |
+|Start Wheel Steps          | 0x01  |  int8,  PARAM_1                               |
+|Start Wheel Turn           | 0x02  |  int8,  PARAM_1                               |
+|Start Wheel Home           | 0x03  |  return Status Lookup Table                   |
+|Start Wheel Count          | 0x04  |  int16, count                                 |
+|Start Wheel Step by time   | 0x05  |  uint16, time in ms, 600-5000, return Status Lookup Table|
+|Reset Error                | 0x06  |  Clear the error flag                         |
+
+| Description               | Hex   | Remark                                        |
+| ---                       | ---   | ---                                           |
+|Unloader unload            | 0x01  |                                               |
+|Unloader Home              | 0x03  |  uint8 PARAM_1, 0 -by sensor, 1 -by load      |
+|Reset Error                | 0x06  |  Clear the error flag                         |
+
+#### Sensor 
+```
+                        [HEADER] [TARGET] [ACTION] [PARAM_1] [PARAM_2] [PARAM_3] [CRC_H] [CRC_L]
+                         
+// StarWheel                     [ 0x01 ]
+    // Error?           [ 0xBB ]          [ 0x01 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Error? return    [ 0xCC ]          [ 0x?? ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+// Unloader                      [ 0x02 ] 
+    // Error?           [ 0xBB ]          [ 0x01 ] [ 0x??  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // Error? return    [ 0xCC ]          [ 0x?? ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+// GPIO                          [ 0x03 ]
+    // sensor reading   [ 0xBB ]          [ 0x00 ] [ 0x00  ] [ 0x00  ] [ 0x00  ] [CRC_H] [CRC_L]
+    // sensor return    [ 0xCC ]          [sense4] [ sense3] [ sense2] [ sense1] [CRC_H] [CRC_L]
+```
+| Description               | Hex   | Remark                                        |
+| ---                       | ---   | ---                                           |
+|Star wheel Error flag      | 0x01  |  Return status, check the table               |  
+|GPIO                       | 0x03  |  4 sensors                                    |  
+|                           |       |  1-255, 0 is uC error                         |  
+
+### Status Lookup Table
+| Status        | Index | Description     |
+| ---           | ---   | ---             |
+|Overload       | 0     |                 |  
+|ERROR          | 1     |                 |  
+|TIMEOUT        | 2     |                 |  
+|NORMAL         | 3     |                 |  
+|IDLE           | 8     |                 |  
+|NOT_INIT       | 9     |                 |  
+
+
+### Pinout
+![32u4 Pro Micro Pinout](doc/pro_micro_pinout.jpg)
+
+### Load and step speed relateion
+![Load/ms graph](doc/Inversely%20Proportional%20Fit.png)
+```
+Its inversely proportional fit with equation:
+load = (207458.549078)/ms - 3.393769
+with factor, load*1.1 + 40
+```

@@ -1,0 +1,46 @@
+FROM python:3.7-slim
+
+# No pycache
+ENV PYTHONDONTWRITEBYTECODE=1 
+
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 8080
+EXPOSE 8501
+
+# System package
+RUN apt-get update -y
+RUN apt-get upgrade -y
+
+# For opencv
+RUN apt-get install libgl1 libglib2.0-0 -y
+
+# Clean Up
+RUN apt-get clean -y
+
+# Install pip requirements
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+COPY . /tmp
+WORKDIR /tmp
+
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /tmp
+USER appuser
+
+# ENTRYPOINT ["python", "-m", "streamlit", "run", "/tmp/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# CMD ["python", "-m",  "main" ]
+# CMD ["python", "-m", "http.server", "8080"]
+ENTRYPOINT ["python", "-m", "streamlit", "run", "/tmp/main.py", "--server.port=8501" ]
+
+
+# cmd
+# docker build -f ./Dockerfile --tag streamlit .
+# docker run -it -d --name tester -p 8080:8080 streamlit
+
+# [LINUX]
+# docker build -t smartcage . && docker run -it --rm -p 192.168.73.212:8080:8080 -p 192.168.73.212:8501:8501 smartcage
+
+# [WINDOW]
+# docker build -t smartcage . ; docker run -it --rm -p 8501:8501 smartcage
+# from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
