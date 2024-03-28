@@ -13,7 +13,7 @@ from src.app import utils, session
 
 @utils.main_display
 def main():
-    app.write()
+    # app.write()
     key = session.generate_random_string()
 
     CLI.printline(Level.INFO, f"Key generated: {key}")
@@ -27,16 +27,16 @@ def main():
         with session.lock:
             global_key = session.KEY
 
-        if global_key == key:
-            # DO THE UI UPDATE HERE
-            app.update(is_new_run)
-            app.play_frame()
-            # BscbAPI.execute()
-            is_new_run = False
+        # if global_key == key:
+        #     # DO THE UI UPDATE HERE
+        #     app.update(is_new_run)
+        #     app.play_frame()
+        #     # BscbAPI.execute()
+        #     is_new_run = False
 
-        else:
-            app.logout()
-            break
+        # else:
+        #     app.logout()
+        #     break
 
         # time.sleep(1 / 24)
 
