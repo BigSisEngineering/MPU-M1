@@ -3,7 +3,7 @@ from src import BscbAPI
 from src import data
 from src.BscbAPI.BscbAPI import BScbAPI
 
-from src.app import handler
+# from src.app import handler
 
 
 POST_LIST = [
@@ -48,7 +48,7 @@ def post_STAR_WHEEL_INIT(server):
     send_200_response(server)
     if not data.dummy_enabled:
         server.wfile.write("star wheel init will be proceed".encode())
-        handler.init_star_wheel()
+        # handler.init_star_wheel()
     else:
         server.wfile.write("Error, disable dummy".encode())
 
@@ -57,7 +57,7 @@ def post_UNLOADER_INIT(server):
     send_200_response(server)
     if not data.dummy_enabled:
         server.wfile.write("unloader init will be proceed".encode())
-        handler.init_unloader()
+        # handler.init_unloader()
     else:
         server.wfile.write("Error, disable dummy".encode())
 
@@ -148,34 +148,34 @@ def post_SET_PNP_CONFIDENCE_LEVEL(server):
 def post_CLEAR_STAR_WHEEL_ERROR(server):
     send_200_response(server)
     server.wfile.write("post_CLEAR_STAR_WHEEL_ERROR".encode())
-    handler.clear_star_wheel_error()
+    # handler.clear_star_wheel_error()
 
 
 def post_CLEAR_UNLOADER_ERROR(server):
     send_200_response(server)
     server.wfile.write("CLEAR_UNLOADER_ERROR".encode())
-    handler.clear_unloader_error()
+    # handler.clear_unloader_error()
 
 
 def post_MOVE_CW(server):
     send_200_response(server)
     server.wfile.write("MOVE CW".encode())
-    handler.move_star_wheel_cw()
+    # handler.move_star_wheel_cw()
 
 
 def post_MOVE_CCW(server):
     send_200_response(server)
     server.wfile.write("MOVE CCW".encode())
-    handler.move_star_wheel_ccw()
+    # handler.move_star_wheel_ccw()
 
 
 def post_CLEAR_UNLOADER_ERROR(server):
     send_200_response(server)
     server.wfile.write("CLEAR_UNLOADER_ERROR".encode())
-    handler.clear_unloader_error()
+    # handler.clear_unloader_error()
 
 
 def post_UNLOAD(server):
     send_200_response(server)
     server.wfile.write("UNLOAD".encode())
-    handler.unload()
+    # handler.unload()

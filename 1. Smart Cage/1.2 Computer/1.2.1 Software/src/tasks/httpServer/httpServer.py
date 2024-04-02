@@ -1,6 +1,9 @@
 import http.server
 import time
 import threading
+import os
+from urllib.parse import unquote
+from http import HTTPStatus
 
 # ------------------------------------------------------------------------------------------------ #
 from src.tasks.httpServer import httpGetHandler, httpPostHandler
@@ -13,10 +16,60 @@ KILLER = threading.Event()
 class httpHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         self.parsed_url = (self.path).split("/")
+
+        # Serve static files (css, js, images)
+        if self.path.startswith('/static/'):
+            self.serve_static_file()
+            return
+        
+        # Serve the index.html file when the root is requested
+        if self.path in ('/', '/index.html'):
+            self.serve_file('templates/index.html', 'text/html')
+            return
+
         if self.parsed_url[1] in httpGetHandler.GET_LIST:
             func_name = httpGetHandler.generateFuncName(self.parsed_url[1])
             func = getattr(httpGetHandler, func_name, lambda: "Invalid")
             func(self)
+        
+         # If no matching route or static file is found, return a 404
+        self.send_error(HTTPStatus.NOT_FOUND, "File not found")
+    
+    def serve_static_file(self):
+        # Remove the leading '/static/' from the path
+        file_path = self.path[len('/static/'):]
+        file_path = os.path.join('static', file_path)
+        
+        # Security check: do not serve hidden files or climb above the static directory
+        if not os.path.normpath(file_path).startswith(os.path.join(os.getcwd(), 'static')) or file_path.startswith('.'):
+            self.send_error(HTTPStatus.FORBIDDEN, "Access denied")
+            return
+        
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            self.send_error(HTTPStatus.NOT_FOUND, "File not found")
+            return
+        
+        # Determine the content type
+        content_type = 'text/plain' # default to text/plain
+        if file_path.endswith('.css'):
+            content_type = 'text/css'
+        elif file_path.endswith('.js'):
+            content_type = 'application/javascript'
+        elif file_path.endswith('.html'):
+            content_type = 'text/html'
+        
+        self.serve_file(file_path, content_type)
+
+    def serve_file(self, file_path, content_type):
+        try:
+            with open(file_path, 'rb') as file:
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", content_type)
+                self.end_headers()
+                self.wfile.write(file.read())
+        except OSError:
+            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Failed to read file")
 
     def do_POST(self):
         self.parsed_url = (self.path).split("/")
