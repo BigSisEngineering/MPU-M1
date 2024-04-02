@@ -128,3 +128,18 @@ input[type="range"]:focus::-webkit-slider-runnable-track {
     padding: 5px;
     position: absolute;
 }
+
+.camera-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1em;
+  background-color: #f0f0f0;
+}
+
+#camera {
+  width: 100%;
+  max-width: 640px;
+  border: 3px solid #333;
+}
+
