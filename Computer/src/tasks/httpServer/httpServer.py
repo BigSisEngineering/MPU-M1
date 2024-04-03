@@ -16,64 +16,67 @@ KILLER = threading.Event()
 
 class httpHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
-        # print(f"Current Working Directory: {os.getcwd()}")
-        self.parsed_url = (self.path).split("/")
-
-        # Serve static files (css, js, images)
-        if self.path.startswith('/static/'):
-            self.serve_static_file()
-            return
-        
-        # Serve the index.html file when the root is requested
-        if self.path in ('/', '/index.html'):
-            self.serve_file('index.html', 'text/html')  # Corrected to serve index.html with the correct content type
-            return
-        
-        # if self.path == '/dev/video10':
-        #     # self.handle_camera_stream()
-        #     print('start camera on webpage ...')
-        self.handle_camera_stream()
-            # return
-
-        if self.parsed_url[1] in httpGetHandler.GET_LIST:
-            func_name = httpGetHandler.generateFuncName(self.parsed_url[1])
-            func = getattr(httpGetHandler, func_name, lambda: "Invalid")
-            func(self)
-        else:
-            # If no matching route or static file is found, return a 404
-            self.send_error(HTTPStatus.NOT_FOUND, "File not found")
-    
-    def handle_camera_stream(self):
-        self.send_response(HTTPStatus.OK)
-        self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=frame')
-        self.end_headers()
-
         try:
-            while not KILLER.is_set():
-                frame = camera.CAMERA.get_frame()  # Retrieve frame from the camera
+            # print(f"Current Working Directory: {os.getcwd()}")
+            self.parsed_url = (self.path).split("/")
+
+            # Serve static files (css, js, images)
+            if self.path.startswith('/static/'):
+                self.serve_static_file()
+                return
+            
+            # Serve the index.html file when the root is requested
+            if self.path in ('/', '/index.html'):
+                self.serve_file('index.html', 'text/html')  # Corrected to serve index.html with the correct content type
+                return
+
+            self.do_camera_stream()
+
+            if self.parsed_url[1] in httpGetHandler.GET_LIST:
+                func_name = httpGetHandler.generateFuncName(self.parsed_url[1])
+                func = getattr(httpGetHandler, func_name, lambda: "Invalid")
+                func(self)
+            else:
+                # If no matching route or static file is found, return a 404
+                self.send_error(HTTPStatus.NOT_FOUND, "File not found")
+        except BrokenPipeError:
+            # Client has disconnected, so we can just log it and return
+            CLI.printline(Level.ERROR, "Client disconnected abruptly (BrokenPipeError).")
+        except Exception as e:
+            # Handle other kinds of exceptions which might be critical
+            CLI.printline(Level.ERROR, f"An unexpected error occurred: {e}")
+
+    def do_camera_stream(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
+        self.end_headers()
+        try:
+            while True:
+                frame = camera.CAMERA.get_frame()
                 if frame is not None:
-                    ret, jpeg_frame = cv2.imencode('.jpg', frame)
+                    ret, jpeg = cv2.imencode('.jpg', frame)
                     if not ret:
-                        continue
+                        break
                     try:
                         self.wfile.write(b'--frame\r\n')
-                        self.wfile.write(b'Content-Type: image/jpeg\r\n')
-                        self.wfile.write('Content-Length: {}\r\n'.format(len(jpeg_frame)).encode())
+                        self.wfile.write(b'Content-Type: image/jpeg\r\n\r\n')
+                        self.wfile.write(jpeg.tobytes())
                         self.wfile.write(b'\r\n')
-                        self.wfile.write(jpeg_frame.tobytes())
-                        self.wfile.write(b'\r\n')
+                        self.wfile.flush()
+                    except BrokenPipeError:
+                        CLI.printline(Level.ERROR, "(CameraThreading)-Client disconnected abruptly")
+                        break
                     except Exception as e:
-                        CLI.printline(Level.ERROR, f"An error occurred in httpServer - handle_camera_stream (1): {e}")
-                        break  # Exit the loop if client disconnects
-        except Exception as e:
-            CLI.printline(Level.ERROR, f"An error occurred in httpServer - handle_camera_stream (2): {e}")
+                        CLI.printline(Level.ERROR, f"Error streaming frame: {e}")
+                        break
+        finally:
+            CLI.printline(Level.INFO, "Stopping camera stream.")
+            self.finish()
 
 
-    
     def serve_static_file(self):
         file_path = self.path[len('/static/'):]  # Correctly removes '/static/' from the path
         file_path = os.path.join('src', 'tasks', 'httpServer', 'static', file_path)  # Adjusted path
-
         content_type = 'text/plain'  # Default to text/plain
         if file_path.endswith('.css'):
             content_type = 'text/css'
@@ -81,8 +84,6 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
             content_type = 'application/javascript'
         elif file_path.endswith('.html'):
             content_type = 'text/html'
-        # Add other content types as needed
-
         self.serve_file(file_path, content_type)
 
     def serve_file(self, file_path, content_type):
@@ -93,7 +94,6 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         else:  # For static files
             base_dir = os.getcwd()
             full_path = os.path.join(base_dir, file_path)
-
         try:
             with open(full_path, 'rb') as file:
                 self.send_response(HTTPStatus.OK)
@@ -103,6 +103,7 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         except OSError as e:
             print(f"Failed to read file {full_path}: {e}")
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Failed to read file")
+
 
     def do_POST(self):
         self.parsed_url = (self.path).split("/")
@@ -133,10 +134,6 @@ if __name__ == "__main__":
     stopEvent_http_server = threading.Event()
     thread_server = threading.Thread(target=start_server, args=(stopEvent_http_server,))
     thread_server.start()
-
-    # # Initialize and start the camera thread
-    # camera_thread = camera.create_thread()
-    # camera_thread.start()
 
     # Main Loop
     while True:
