@@ -10,6 +10,7 @@ class Duet(Enum):
     A3 = "192.168.83.102"
     C1 = "192.168.83.103"
     C2 = "192.168.83.104"
+    C3 = "192.168.83.105"
 
 
 class SharedVariables:
@@ -21,20 +22,34 @@ class SharedVariables:
     # todo: A1, A2 pause event
 
     def __init__(self) -> None:
-        self._run = False
-        self._lock_run = threading.Lock()
+        self._run_1a = False
+        self._lock_run_1a = threading.Lock()
+
+        self._run_1c = False
+        self._lock_run_1c = threading.Lock()
 
     # -------------------------------------------------------- #
     @property
-    def run(self) -> bool:
-        with self._lock_run:
-            _run = self._run
-        return _run
+    def run_1a(self) -> bool:
+        with self._lock_run_1a:
+            _run_1a = self._run_1a
+        return _run_1a
 
-    def w_run(self, w: bool) -> str:
-        with self._lock_run:
-            self._run = w
-        return "{:^10} RUN -> {}".format(print_name, w)
+    def w_run_1a(self, w: bool) -> str:
+        with self._lock_run_1a:
+            self._run_1a = w
+        return "{:^10} RUN 1A -> {}".format(print_name, w)
+
+    @property
+    def run_1c(self) -> bool:
+        with self._lock_run_1c:
+            _run_1c = self._run_1c
+        return _run_1c
+
+    def w_run_1c(self, w: bool) -> str:
+        with self._lock_run_1c:
+            self._run_1c = w
+        return "{:^10} RUN 1C -> {}".format(print_name, w)
 
 
 SV = SharedVariables()

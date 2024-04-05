@@ -121,9 +121,15 @@ def get_request_for_board_data(url, ctn):
 
         sensor_values = ast.literal_eval(response["sensors_values"])
         is_sensor_ok = (sensor_values[0] >= 100) and (sensor_values[2] >= 100)
-        if response["star_wheel_status"] == "overload" or response["unloader_status"] == "overload":
+        if (
+            response["star_wheel_status"] == "overload"
+            or response["unloader_status"] == "overload"
+        ):
             cage_status_list[ctn] = Status.error
-        elif response["star_wheel_status"] == "not_init" or response["unloader_status"] == "not_init":
+        elif (
+            response["star_wheel_status"] == "not_init"
+            or response["unloader_status"] == "not_init"
+        ):
             cage_status_list[ctn] = Status.not_init
         elif not is_sensor_ok:
             cage_status_list[ctn] = Status.slot_empty
@@ -168,13 +174,13 @@ def main():
     )
     # ------------------------------------------------------------------------------------------------ #
     # todo:
-    tasks.start()    # !MAKE SURE THIS ONLY STARTS ONCE
+    tasks.start()  # !MAKE SURE THIS ONLY STARTS ONCE
 
     st.title("M1 Control")
     cols = st.columns(4)
     with cols[0]:
         if st.button("Start 1A"):
-            SV.w_run(True)
+            SV.w_run_1a(True)
 
     with cols[1]:
         if st.button("add 10 pots"):
@@ -185,10 +191,18 @@ def main():
         if st.button("set zero"):
             tasks.a3_task.set_zero()
             print("set zero")
-            
+
     with cols[3]:
         if st.button("Stop 1A"):
-            SV.w_run(False)
+            SV.w_run_1a(False)
+
+    with cols[4]:
+        if st.button("Start 1C"):
+            SV.w_run_1c(True)
+
+    with cols[5]:
+        if st.button("Stop 1C"):
+            SV.w_run_1c(False)
     # ------------------------------------------------------------------------------------------------ #
     st.divider()
     last_update_time = get_first_init_time()
@@ -219,7 +233,9 @@ def main():
     with cols[0]:
         st.write(f"🟢 PnP Mode |  🔵 Dummy Mode  |  🟡 Idle  |  ⚫ offline")
     with cols[1]:
-        st.write(f"🟩 Normal  |  🟨 Slot(s) Empty  |  🟥 overload  |  🟦 not init  |  ⬛ offline")
+        st.write(
+            f"🟩 Normal  |  🟨 Slot(s) Empty  |  🟥 overload  |  🟦 not init  |  ⬛ offline"
+        )
     with cols[2]:
         st.write(f"Last update time: {last_update_time}")
     # ID

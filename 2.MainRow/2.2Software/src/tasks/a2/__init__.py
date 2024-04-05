@@ -20,10 +20,11 @@ class A2:
 
         while not SV.KILLER_EVENT.is_set():
             if time.time() - time_stamp > SV.WATCHDOG:
-                components.A2.start() if SV.run else components.A2.stop()
+                components.A2.start() if SV.run_1a else components.A2.stop()
 
                 time_stamp = time.time()
 
     # -------------------------------------------------------- #
     def start(self):
+        print("{:^10} Start.".format(print_name))
         self.loop_thread.start()
