@@ -1,12 +1,9 @@
 ```
-Install  Win32DiskImager Software from https://win32diskimager.org/ to write OS image to eMMC module through eMMC reader
+Install  Win32DiskImager Software from https://win32diskimager.org/ to write OS image to eMMC module through eMMC reader.
 
-![alt text](image-1.png)
-![alt text](image-2.png)
+you can follow the guide provided in this link https://docs.radxa.com/en/rock5/rock5a/getting-started/install-os?target=emmc-module
 
 Official OS for Rock5A can be downloaded from https://docs.radxa.com/en/rock5/official-images
-
-![alt text](<Screenshot 2024-04-05 111007.png>)
 ```
 
 ```

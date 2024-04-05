@@ -48,20 +48,6 @@ function updateSliderValue(sliderId, valueId) {
     });
   });
   
-//   document.addEventListener('DOMContentLoaded', (event) => {
-//     // Your DOM is fully loaded. You can place event listeners or initialize components here.
-//     console.log('DOM fully loaded and parsed');
-
-//     // Example: Refresh the camera feed periodically
-//     const cameraFeed = document.getElementById('camera-feed');
-//     setInterval(() => {
-//         // This will force the img tag to refresh the camera feed by changing its src attribute.
-//         // Note that appending a unique query string prevents the browser from caching the image.
-//         cameraFeed.src = '/dev/video10?' + new Date().getTime();
-//     }, 5000); // Refresh every 5000 milliseconds (5 seconds)
-// });
-
-
 
 
 // Assuming you have an <img> element with id="camera-feed"
@@ -97,6 +83,25 @@ function setupCameraFeed() {
 }
 
 // Call this function when the document is ready
-setupCameraFeed();
+// setupCameraFeed();
 
-  
+
+document.addEventListener('DOMContentLoaded', function() {
+  var starWheelInitButton = document.getElementById('star-wheel-init-button'); // Make sure the button has this ID
+  starWheelInitButton.addEventListener('click', function() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/STAR_WHEEL_INIT', true); // Modify URL if necessary
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      
+      xhr.onload = function() {
+          if (xhr.status === 200) {
+              // Handle successful response
+              console.log(xhr.responseText);
+          } else {
+              // Handle error response
+              console.error('Error initializing star wheel');
+          }
+      };
+      xhr.send();
+  });
+});
