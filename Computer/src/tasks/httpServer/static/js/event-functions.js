@@ -161,11 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize each button with the appropriate action
   setupButton('sw-init-button', '/STAR_WHEEL_INIT');
-  setupButton('clear-sw-error-button', '/SET_STAR_WHEEL_SPEED');
   setupButton('unloader-init-button', '/UNLOADER_INIT');
+  setupButton('clear-sw-error-button', '/CLEAR_STAR_WHEEL_ERROR');
+  setupButton('clear-unloader-error-button', '/CLEAR_UNLOADER_ERROR');
   setupButton('unload-button', '/UNLOAD');
-  setupButton('move-sw-ccw-button', '/MOVE_CCW');
   setupButton('move-sw-cw-button', '/MOVE_CW');
+  setupButton('move-sw-ccw-button', '/MOVE_CCW');
   setupButton('enable-pnp-button', '/ENABLE_PNP');
   setupButton('enable-dummy-button', '/ENABLE_DUMMY');
 });
