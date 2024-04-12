@@ -488,7 +488,7 @@ if __name__ == "__main__":
                 # print(board.star_wheel_move_ms(600))
 
                 board.starWheel_init()
-                # count = 290
+                count = 0
                 # print(board.star_wheel_move_count(count))
                 # time.sleep(1)
                 # print(board.starWheel_save_offset(count))
