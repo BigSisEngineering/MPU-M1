@@ -6,6 +6,7 @@ from src.tasks.heartbeat import heartbeat
 from src.tasks.httpServer import httpServer
 from src.tasks import camera
 from src.tasks import aws
+from src.tasks import findCircle
 
 from src import BscbAPI
 
@@ -15,6 +16,7 @@ TASK_THREADS: Dict[str, threading.Thread] = {
     "camera": camera.create_thread(),
     "control": BscbAPI.create_thread(),
     "aws": aws.create_thread(),
+    "find_circle": findCircle.create_thread()
 }
 
 

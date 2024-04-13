@@ -11,6 +11,8 @@ from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src import CLI
 from src.CLI import Level
 from src.tasks import camera
+from src.tasks import findCircle
+
 
 KILLER = threading.Event()
 
@@ -46,56 +48,27 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
             # Handle other kinds of exceptions which might be critical
             CLI.printline(Level.ERROR, f"An unexpected error occurred: {e}")
 
-    # def do_camera_stream(self):
-    #     self.send_response(200)
-    #     self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
-    #     self.end_headers()
-    #     try:
-    #         while True:
-    #             frame = camera.CAMERA.get_frame()
-    #             if frame is not None:
-    #                 ret, jpeg = cv2.imencode('.jpg', frame)
-    #                 if not ret:
-    #                     break
-    #                 try:
-    #                     self.wfile.write(b'--frame\r\n')
-    #                     self.wfile.write(b'Content-Type: image/jpeg\r\n\r\n')
-    #                     self.wfile.write(jpeg.tobytes())
-    #                     self.wfile.write(b'\r\n')
-    #                     self.wfile.flush()
-    #                     time.sleep(0.5)
-    #                 except BrokenPipeError:
-    #                     CLI.printline(Level.ERROR, "(CameraThreading)-Client disconnected abruptly")
-    #                     break
-    #                 except Exception as e:
-    #                     CLI.printline(Level.ERROR, f"Error streaming frame: {e}")
-    #                     break
-    #     finally:
-    #         CLI.printline(Level.INFO, "Stopping camera stream.")
-    #         self.finish()
-
     def do_camera_stream(self):
         self.send_response(200)
         self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
         self.end_headers()
         
         frame = camera.CAMERA.get_frame()
+        # frame = findCircle.CircularMask(frame)
         if frame is not None:
-            _, jpeg = cv2.imencode('.jpg', frame)
-                    
-        try:
-            self.wfile.write(b'--frame\r\n')
-            self.wfile.write(b'Content-Type: image/jpeg\r\n\r\n')
-            self.wfile.write(jpeg.tobytes())
-            self.wfile.write(b'\r\n')
-            time.sleep(0.1)
-        except BrokenPipeError:
-            CLI.printline(Level.ERROR, "(CameraThreading)-Client disconnected abruptly")
-        except Exception as e:
-            CLI.printline(Level.ERROR, f"Error streaming frame: {e}")
-        # finally:
-        #     CLI.printline(Level.INFO, "Stopping camera stream.")
-            # self.finish()
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            if ret:          
+                try:
+                    self.wfile.write(b'--frame\r\n')
+                    self.wfile.write(b'Content-Type: image/jpeg\r\n\r\n')
+                    self.wfile.write(jpeg.tobytes())
+                    self.wfile.write(b'\r\n')
+                    time.sleep(0.1)
+                except Exception as e:
+                    CLI.printline(Level.ERROR, f"(do_camera_stream)-{e}")
+        else:
+            # Handle encoding failure
+            CLI.printline(Level.ERROR, "Failed to encode frame.")
 
 
     def serve_static_file(self):

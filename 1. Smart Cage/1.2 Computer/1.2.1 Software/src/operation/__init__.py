@@ -2,13 +2,14 @@ import random
 import time
 import threading
 from typing import Dict
+from datetime import datetime  # NOTE FOR TESTING ONLY
 
 # ------------------------------------------------------------------------------------------------ #
 from src import data, cloud, comm
 from src.tasks import camera
 from src.BscbAPI.BscbAPI import BScbAPI
 from src import vision
-
+from src import setup
 from src import CLI
 from src.CLI import Level
 
@@ -18,6 +19,7 @@ sw_thread: threading.Thread = None
 unload_thread: threading.Thread = None
 star_wheel_move_time: int = 600
 ai_result = 0
+find_circle_cnt = 0
 threads: Dict[str, threading.Thread] = {
     "sw": None,
     "ul": None,
@@ -29,7 +31,7 @@ threads: Dict[str, threading.Thread] = {
 def test_pnp(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, pnp_confidence: float
 ):
-    global threads
+    global threads, find_circle_cnt, circular_mask
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -42,12 +44,12 @@ def test_pnp(
         ai_result = vision.PNP.is_egg_detected(image, pnp_confidence)
         CLI.printline(Level.INFO, f"(PnP)-ai done")
 
-    def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter):
+    def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter, timestamp_of_image):
         global ai_result
         if ai_result <= 0 and BOARD.timer.is_it_overtime():
-            camera.CAMERA.save_raw_frame(image, 0, 0)  # NOTE FOR TESTING ONLY
+            camera.CAMERA.save_raw_frame(image, 0, 0, timestamp_of_image)  # NOTE FOR TESTING ONLY
         else:
-            camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result)  # NOTE FOR TESTING ONLY
+            camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result, timestamp_of_image)  # NOTE FOR TESTING ONLY
         with data.lock:
             data.pot_processed += 1
             data.pot_unloaded += tmp_egg_pot_counter
@@ -69,10 +71,19 @@ def test_pnp(
         # ======================================== Camera ======================================== #
         wait_thread_to_finish("sw")
         image = camera.CAMERA.get_raw_frame()
+        image = camera.CircularMask(image)
+        # if find_circle_cnt ==0 or find_circle_cnt %30 ==0:
+        #     CLI.printline(Level.INFO, "finding circle ...")
+        #     print('circle counter : ',find_circle_cnt)
+        #     circular_mask = camera.find_circle(image)
+        #     image[~circular_mask.astype(bool)]=0
+        # else:
+        #     image[~circular_mask.astype(bool)]=0
+        # find_circle_cnt +=1
+        timestamp_of_image = datetime.now()
         CLI.printline(Level.INFO, f"(PnP)-image captured")
 
         # ======================================= sw thread ====================================== #
-        wait_thread_to_finish("sw")
         wait_thread_to_finish("ul")
         threads["sw"] = threading.Thread(
             target=_move_sw,
@@ -96,7 +107,6 @@ def test_pnp(
         threads["ai"].start()
         CLI.printline(Level.INFO, f"(PnP)-ai started")
         # ======================================= ul thread ====================================== #
-        wait_thread_to_finish("ul")
         wait_thread_to_finish("sw")
         wait_thread_to_finish("ai")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or BOARD.timer.is_it_overtime()) else 0
@@ -111,8 +121,19 @@ def test_pnp(
             threads["ul"].start()
         # ====================================== comm thread ===================================== #
 
-        threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, image, pnp_confidence, tmp_egg_pot_counter))
+        threads["comm"] = threading.Thread(
+            target=comm_thread,
+            args=(
+                BOARD,
+                image,
+                pnp_confidence,
+                tmp_egg_pot_counter,
+                timestamp_of_image,
+            ),
+        )
         threads["comm"].start()
+        cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+        cloud.DataBase.data_upload()
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(PnP)-{e}")
@@ -206,7 +227,7 @@ def pnp(
 def test_dummy(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, unload_probability: float
 ):
-    global threads, ai_result
+    global threads
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -217,6 +238,7 @@ def test_dummy(
     def get_ai_result(unload_probability):
         global ai_result
         ai_result = random.random() < unload_probability
+        # ai_result = (ai_result + 1) % 2
         time.sleep(0.9)
         CLI.printline(Level.INFO, f"(dummy)-fake ai done")
 
@@ -261,14 +283,14 @@ def test_dummy(
         threads["ai"].start()
         CLI.printline(Level.INFO, f"(dummy)-fake ai started")
         # ======================================= ul thread ====================================== #
-        wait_thread_to_finish("ul")
         wait_thread_to_finish("sw")
         wait_thread_to_finish("ai")
-        # timer_unload = need_unload_in_interval(ai_result > 0)
+        timer_unload = need_unload_in_interval(ai_result > 0)
 
-        # CLI.printline(Level.INFO, f"(dummy)-{timer_unload}/{ai_result}")
-        # tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
-        tmp_egg_pot_counter = 1 if (ai_result > 0) else 0
+        CLI.printline(Level.INFO, f"(dummy)-{timer_unload}/{ai_result}")
+        tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
+        cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+        cloud.DataBase.data_upload()
         if tmp_egg_pot_counter > 0:
             threads["ul"] = threading.Thread(
                 target=_unload,
