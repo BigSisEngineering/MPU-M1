@@ -13,10 +13,6 @@ MASTER_SERVER_PORT: str = None
 SOFTWARE_VERSION: str = None
 ROW_NUMBER = "V3.Beta"
 
-# CENTER_X: int = 542
-# CENTER_Y: int = 461
-# RADIUS: int = 162
-
 config_parser = configparser.ConfigParser()
 config_parser.read(
     os.path.join(
@@ -64,16 +60,16 @@ def get_software_version(arg=None):
 
 
 def read_mask_coordinates():
-    center_x = config_parser.getint("MaskCoordinates", "Center_X")
-    center_y = config_parser.getint("MaskCoordinates", "Center_Y")
-    radius = config_parser.getint("MaskCoordinates", "Radius")
-    return center_x, center_y, radius
+    CENTER_X = config_parser.getint("MaskCoordinates", "center_x")
+    CENTER_Y = config_parser.getint("MaskCoordinates", "center_y")
+    RADIUS = config_parser.getint("MaskCoordinates", "radius")
+    return CENTER_X, CENTER_Y, RADIUS
 
 
 def save_mask_coordinates(mask_coordinates):
-    config_parser.set("MaskCoordinates", "Center_X", str(mask_coordinates[0]))
-    config_parser.set("MaskCoordinates", "Center_Y", str(mask_coordinates[1]))
-    config_parser.set("MaskCoordinates", "Radius", str(mask_coordinates[2]))
+    config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
+    config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
+    config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
     
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), 'w') as configfile:
         config_parser.write(configfile)

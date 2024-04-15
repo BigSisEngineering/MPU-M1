@@ -42,20 +42,26 @@ def FindCircle(img, crop_factor=1, resize_factor=1):
     return mask 
 
 def CircularMask(image):
+    global CENTER_X, CENTER_Y, RADIUS
     mask = np.zeros_like(image)
-    cv2.circle(mask, (setup.CENTER_X, setup.CENTER_Y), setup.RADIUS, (255, 255, 255), -1)
+    CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
+    cv2.circle(mask, (CENTER_X, CENTER_Y), RADIUS, (255, 255, 255), -1)
     masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
 KILLER = threading.Event()
+CIRCLE_FLAG = False
+CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
 
 def FindCircleThread(stop_event: threading.Event):
+    global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS
     while not stop_event.is_set():
         try:
             if camera.CAMERA.get_frame() is not None:
-                CLI.printline(Level.INFO, "finding circle ...")
+                print( "finding circle ...")
                 FindCircle(camera.CAMERA.get_raw_frame())
-                print(f'Circle found with coordinates {setup.CENTER_X}, {setup.CENTER_Y}, {setup.RADIUS}')
+                CIRCLE_FLAG = True
+                print(f'Circle found with coordinates {CENTER_X}, {CENTER_Y}, {RADIUS}')
         except Exception as e:
             CLI.printline(Level.ERROR, f"(finding Circle)-{e}")
             continue
