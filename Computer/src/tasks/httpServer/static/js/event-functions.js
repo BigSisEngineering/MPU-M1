@@ -1,172 +1,117 @@
 // Function to update the slider value
 function updateSliderValue(sliderId, valueId) {
-    var slider = document.getElementById(sliderId);
-    var output = document.getElementById(valueId);
-    output.innerHTML = slider.value + '%';
-    
-    slider.oninput = function() {
-      output.innerHTML = this.value + '%';
-    };
-  }
+  var slider = document.getElementById(sliderId);
+  var output = document.getElementById(valueId);
+  output.innerHTML = slider.value + '%';
   
-// Function to toggle button text and change Mode circle color
-function toggleButtonTextAndColor(buttonElement, modeCircle) {
+  slider.oninput = function() {
+      console.log(`Slider value for ${sliderId} updated to ${slider.value}%`);
+      output.innerHTML = slider.value + '%';
+  };
+}
+
+// Function to toggle button text, change Mode circle color, and send disable requests
+function toggleButtonTextAndColor(buttonElement, modeCircleId, otherButtonId) {
   buttonElement.addEventListener('click', function() {
-    if (this.textContent.includes('Enable')) {
-      this.textContent = this.textContent.replace('Enable', 'Disable');
-      // Check which button was pressed and change Mode circle color accordingly
-      if (this.textContent.includes('P&P')) {
-        modeCircle.style.backgroundColor = 'green';
-      } else if (this.textContent.includes('Dummy')) {
-        modeCircle.style.backgroundColor = 'blue';
+      var otherButton = document.getElementById(otherButtonId);
+      var modeCircle = document.getElementById(modeCircleId);
+      console.log(`Attempting to toggle button: ${this.id}`);
+
+      if (otherButton.dataset.state === 'enabled') {
+          console.log(`Cannot enable ${this.id} as ${otherButton.id} is currently enabled.`);
+          alert("You cannot enable " + (this.id.includes('pnp') ? "P&P" : "Dummy") + 
+                " while " + (otherButton.id.includes('pnp') ? "P&P" : "Dummy") + " is enabled. Disable it first.");
+      } else {
+          if (this.dataset.state === 'disabled') {
+              this.dataset.state = 'enabled';
+              this.textContent = 'Disable ' + (this.id.includes('pnp') ? "P&P" : "Dummy");
+              modeCircle.style.backgroundColor = (this.id.includes('pnp') ? 'green' : 'blue');
+              sendRequestWithRetry('/ENABLE_' + (this.id.includes('pnp') ? 'PNP' : 'DUMMY'));
+          } else {
+              this.dataset.state = 'disabled';
+              this.textContent = 'Enable ' + (this.id.includes('pnp') ? "P&P" : "Dummy");
+              modeCircle.style.backgroundColor = '#555';
+              sendRequestWithRetry('/DISABLE_' + (this.id.includes('pnp') ? 'PNP' : 'DUMMY'));
+          }
       }
-    } else {
-      this.textContent = this.textContent.replace('Disable', 'Enable');
-      // Revert Mode circle color to original grey
-      modeCircle.style.backgroundColor = '#555';
-    }
+      console.log(`${this.id} toggled to ${this.dataset.state}`);
   });
 }
 
+// Function to send POST requests with retry logic
+function sendRequestWithRetry(endpoint) {
+  console.log(`Sending request to ${endpoint}`);
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', endpoint, true);
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
+  xhr.onload = function() {
+      if (xhr.status === 200) {
+          console.log('Request successful:', xhr.responseText);
+      } else {
+          console.error('Error with request to ' + endpoint);
+      }
+  };
+  xhr.onerror = function() {
+      console.error('Network error occurred while attempting to request ' + endpoint);
+  };
+  xhr.send();
+}
 
-
+// Function to load camera feed
 function loadCameraFeed() {
   const cameraImage = document.getElementById('camera-feed');
+  if (!cameraImage) {
+      console.error("Camera feed element not found");
+      return;
+  }
   cameraImage.onload = function() {
-      // Refresh the image periodically to get the latest frame
-      setTimeout(loadCameraFeed, 50); // Adjust the timeout to your needs
+      setTimeout(loadCameraFeed, 50);
+      // console.log("Camera feed loaded successfully.");
   };
   cameraImage.onerror = function() {
       console.error("Failed to load camera feed.");
-      // Retry loading the feed or provide feedback to the user
-      setTimeout(loadCameraFeed, 5000); // Adjust the retry timeout to your needs
+      setTimeout(loadCameraFeed, 5000);
   };
-  // Set the src to the dedicated endpoint for the camera feed
-  cameraImage.src = '/dev/video10?' + new Date().getTime();
+  cameraImage.src = '/video10?' + new Date().getTime();
+  // console.log("Camera feed request sent.");
 }
 
-// Call this function when the document is ready
-document.addEventListener('DOMContentLoaded', function() {
-  loadCameraFeed(); // This will start the process of loading the camera feed
-});
-
-
-
-// DOMContentLoaded to ensure HTML is fully loaded before executing
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize slider values
-  updateSliderValue('pp-confidence', 'pp-confidence-value');
-  updateSliderValue('unload-probability', 'unload-probability-value');
-  
-  // Find the Mode circle
-  var modeCircle = Array.from(document.querySelectorAll('.circle')).find(function(circle) {
-    return circle.textContent.includes('Mode');
-  });
-  
-  // Find buttons by text and apply toggle functionality and color change
-  var buttons = document.querySelectorAll('button');
-  buttons.forEach(function(button) {
-    if (button.textContent.includes('Enable P&P') || button.textContent.includes('Enable Dummy')) {
-      toggleButtonTextAndColor(button, modeCircle);
-    }
-  });
-  // Load the camera feed
-  loadCameraFeed();
-});
-  
-
-// document.addEventListener('DOMContentLoaded', function() {
-//   var starWheelInitButton = document.getElementById('sw-init-button'); // Make sure the button has this ID
-//   starWheelInitButton.addEventListener('click', function() {
-//       var xhr = new XMLHttpRequest();
-//       xhr.open('POST', '/STAR_WHEEL_INIT', true); // Modify URL if necessary
-//       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      
-//       xhr.onload = function() {
-//           if (xhr.status === 200) {
-//               // Handle successful response
-//               console.log(xhr.responseText);
-//           } else {
-//               // Handle error response
-//               console.error('Error initializing star wheel');
-//           }
-//       };
-//       xhr.send();
-//   });
-// });
-
-
-// document.addEventListener('DOMContentLoaded', function() {
-//   var starWheelInitButton = document.getElementById('unloader-init-button'); // Make sure the button has this ID
-//   starWheelInitButton.addEventListener('click', function() {
-//       var xhr = new XMLHttpRequest();
-//       xhr.open('POST', '/UNLOADER_INIT', true); // Modify URL if necessary
-//       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      
-//       xhr.onload = function() {
-//           if (xhr.status === 200) {
-//               // Handle successful response
-//               console.log(xhr.responseText);
-//           } else {
-//               // Handle error response
-//               console.error('Error initializing star wheel');
-//           }
-//       };
-//       xhr.send();
-//   });
-// });
-
-
-// document.addEventListener('DOMContentLoaded', function() {
-//   var starWheelInitButton = document.getElementById('unload-button'); // Make sure the button has this ID
-//   starWheelInitButton.addEventListener('click', function() {
-//       var xhr = new XMLHttpRequest();
-//       xhr.open('POST', '/UNLOAD', true); // Modify URL if necessary
-//       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      
-//       xhr.onload = function() {
-//           if (xhr.status === 200) {
-//               // Handle successful response
-//               console.log(xhr.responseText);
-//           } else {
-//               // Handle error response
-//               console.error('Error initializing star wheel');
-//           }
-//       };
-//       xhr.send();
-//   });
-// });
-
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Function to initialize a button with an XMLHttpRequest to a specified endpoint
-  function setupButton(buttonId, endpoint) {
-    var button = document.getElementById(buttonId);
-    button.addEventListener('click', function() {
+// General function to setup button to send POST requests
+function setupButton(buttonId, endpoint) {
+  var button = document.getElementById(buttonId);
+  button.addEventListener('click', function() {
       var xhr = new XMLHttpRequest();
       xhr.open('POST', endpoint, true);
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       
       xhr.onload = function() {
-        if (xhr.status === 200) {
-          console.log(xhr.responseText);
-        } else {
-          console.error('Error with request to ' + endpoint);
-        }
+          if (xhr.status === 200) {
+              console.log(xhr.responseText);
+          } else {
+              console.error('Error with request to ' + endpoint);
+          }
       };
       xhr.send();
-    });
-  }
+  });
+}
 
-  // Initialize each button with the appropriate action
+// DOMContentLoaded to ensure HTML is fully loaded before executing scripts
+document.addEventListener('DOMContentLoaded', function() {
+  updateSliderValue('pp-confidence', 'pp-confidence-value');
+  updateSliderValue('unload-probability', 'unload-probability-value');
+  
+  toggleButtonTextAndColor(document.getElementById('enable-pnp-button'), 'pnp-mode-circle', 'enable-dummy-button');
+  toggleButtonTextAndColor(document.getElementById('enable-dummy-button'), 'dummy-mode-circle', 'enable-pnp-button');
+
   setupButton('sw-init-button', '/STAR_WHEEL_INIT');
+  setupButton('move-sw-ccw-button', '/MOVE_CCW');
+  setupButton('clear-sw-error-button', '/CLEAR_SW_ERROR');
   setupButton('unloader-init-button', '/UNLOADER_INIT');
-  setupButton('clear-sw-error-button', '/CLEAR_STAR_WHEEL_ERROR');
-  setupButton('clear-unloader-error-button', '/CLEAR_UNLOADER_ERROR');
   setupButton('unload-button', '/UNLOAD');
   setupButton('move-sw-cw-button', '/MOVE_CW');
-  setupButton('move-sw-ccw-button', '/MOVE_CCW');
-  setupButton('enable-pnp-button', '/ENABLE_PNP');
-  setupButton('enable-dummy-button', '/ENABLE_DUMMY');
+  // setupButton('enable-pnp-button', '/ENABLE_PNP');
+  // setupButton('enable-dummy-button', '/ENABLE_DUMMY');
+
+  loadCameraFeed(); // Start loading the camera feed
 });

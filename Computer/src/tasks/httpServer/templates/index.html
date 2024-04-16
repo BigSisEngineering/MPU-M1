@@ -22,8 +22,8 @@
         <button id="sw-init-button">Star Wheel Init</button>
       </div>
       <div class="control-set">
-        <button id="enable-pnp-button">Enable P&P</button>
-        <button id="enable-dummy-button">Enable Dummy</button>
+        <button id="enable-pnp-button" data-state="disabled">Enable P&P</button>
+        <button id="enable-dummy-button" data-state="disabled">Enable Dummy</button>
       </div>
       <div class="control-set">
         <button id="unloader-init-button">Unload Init</button>
@@ -56,8 +56,11 @@
       <div class="circle">
         <span class="circle-label">Sensor Buffer</span>
       </div>
-      <div class="circle">
-        <span class="circle-label">Mode</span>
+      <div class="circle" id="pnp-mode-circle"> <!-- Added ID for P&P mode circle -->
+        <span class="circle-label">Mode P&P</span>
+      </div>
+      <div class="circle" id="dummy-mode-circle"> <!-- Added ID for Dummy mode circle -->
+        <span class="circle-label">Mode Dummy</span>
       </div>
       <div class="circle">
         <span class="circle-label">Sensor Load</span>
@@ -69,6 +72,7 @@
     <div class="camera-preview">
       <img id="camera-feed" src="/dev/video10" alt="Camera Feed">
     </div>
+    
   </div>
 
   <script src="/static/js/event-functions.js"></script>

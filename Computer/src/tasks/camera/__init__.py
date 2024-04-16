@@ -108,10 +108,11 @@ class CameraThreading:
         with self.frame_lock:
             try:
                 frame = self.raw_frame
-                print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
-                # if findCircle.CIRCLE_FLAG == True:
-                # print( f'(CameraThreading)- get_frame CIRCLE FOUND {findCircle.CIRCLE_FLAG}')
-                frame = findCircle.CircularMask(frame)
+                if frame is not None:
+                    print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
+                    # if findCircle.CIRCLE_FLAG == True:
+                    # print( f'(CameraThreading)- get_frame CIRCLE FOUND {findCircle.CIRCLE_FLAG}')
+                    frame = findCircle.CircularMask(frame)
                 return frame
             except Exception as e:
                 CLI.printline(Level.ERROR, f"(CameraThreading - get_frame)-{e}")

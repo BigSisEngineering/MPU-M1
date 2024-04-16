@@ -70,8 +70,8 @@ def test_pnp(
             return
         # ======================================== Camera ======================================== #
         wait_thread_to_finish("sw")
-        image = camera.CAMERA.get_raw_frame()
-        image = camera.CircularMask(image)
+        image = camera.CAMERA.get_frame()
+        # image = camera.CircularMask(image)
         # if find_circle_cnt ==0 or find_circle_cnt %30 ==0:
         #     CLI.printline(Level.INFO, "finding circle ...")
         #     print('circle counter : ',find_circle_cnt)
