@@ -31,8 +31,12 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
             if self.path in ('/', '/index.html'):
                 self.serve_file('index.html', 'text/html')  # Corrected to serve index.html with the correct content type
                 return
+            
+            if self.path.startswith('/video10') or self.path.startswith('/video11'):
+                self.do_camera_stream()
+                return  
 
-            self.do_camera_stream()
+            # self.do_camera_stream()
 
             if self.parsed_url[1] in httpGetHandler.GET_LIST:
                 func_name = httpGetHandler.generateFuncName(self.parsed_url[1])
@@ -41,9 +45,6 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
             else:
                 # If no matching route or static file is found, return a 404
                 self.send_error(HTTPStatus.NOT_FOUND, "File not found")
-        except BrokenPipeError:
-            # Client has disconnected, so we can just log it and return
-            CLI.printline(Level.ERROR, "Client disconnected abruptly (BrokenPipeError).")
         except Exception as e:
             # Handle other kinds of exceptions which might be critical
             CLI.printline(Level.ERROR, f"An unexpected error occurred: {e}")
@@ -54,7 +55,6 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         
         frame = camera.CAMERA.get_frame()
-        # frame = findCircle.CircularMask(frame)
         if frame is not None:
             ret, jpeg = cv2.imencode('.jpg', frame)
             if ret:          

@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cage Controller</title>
+<title>🥚 Loading Controller...</title>
 <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
   <div class="container">
     <header>
       <div class="header-title">
-        <h1>Cage Controller</h1>
-        <div>ID: cageX0001</div>
+        <h1> Cage Controller</h1>
+        <!-- <div>ID: cage0X0001</div> -->
+        <div id="device-id">ID: loading...</div>
       </div>
       <div class="version">version: 4.10.6</div>
     </header>
@@ -50,22 +51,25 @@
     </div>
 
     <div class="circles">
-      <div class="circle">
+      <div class="circle" id="sw-init">
         <span class="circle-label">Star Wheel</span>
       </div>
-      <div class="circle">
+      <div class="circle" id="sensor-buffer-circle">
         <span class="circle-label">Sensor Buffer</span>
       </div>
-      <div class="circle" id="pnp-mode-circle"> <!-- Added ID for P&P mode circle -->
+      <div class="circle" id="pnp-mode-circle"> 
         <span class="circle-label">Mode P&P</span>
       </div>
-      <div class="circle" id="dummy-mode-circle"> <!-- Added ID for Dummy mode circle -->
+      <div class="circle" id="dummy-mode-circle"> 
         <span class="circle-label">Mode Dummy</span>
       </div>
-      <div class="circle">
+      <div class="circle" id="sensor-load-circle">
         <span class="circle-label">Sensor Load</span>
       </div>
-      <div class="circle">
+      <div class="circle" id="sensor-unload-circle">
+        <span class="circle-label">Sensor Unload</span>
+      </div>
+      <div class="circle" id="unloader-init">
         <span class="circle-label">Unloader</span>
       </div>
     </div>
