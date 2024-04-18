@@ -7,10 +7,10 @@ from src import components
 # -------------------------------------------------------- #
 from src._shared_variables import SV
 
-print_name = "CHIMNEY_SORTER"
+print_name = "CHIMNEY_PLACER"
 
 
-class C1:
+class C2:
     def __init__(self):
         # -------------------------------------------------------- #
         self.loop_thread = threading.Thread(target=self._loop)
@@ -19,7 +19,7 @@ class C1:
         time_stamp = time.time() - 300  # set to 5 mins ago for instant 1st pulse
         while not SV.KILLER_EVENT.is_set():
             if time.time() - time_stamp > SV.WATCHDOG:
-                components.C1.start() if SV.run else components.C1.stop()
+                components.C2.start() if SV.run_1c else components.C2.stop()
 
                 time_stamp = time.time()
 

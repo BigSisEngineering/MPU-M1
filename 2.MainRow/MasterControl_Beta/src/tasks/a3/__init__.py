@@ -5,29 +5,9 @@ import time
 from src import components
 
 # -------------------------------------------------------- #
-from src._shared_variables import SV
+from src._shared_variables import SV, Cages
 
 print_name = "LOADER_M"
-
-# -------------------------------------------------------- #
-import requests
-
-cage_list = [
-    "02",
-    "03",
-    "04",
-    "05",
-    "06",
-    "07",
-    "08",
-    "09",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-]
 
 
 class A3:
@@ -38,22 +18,7 @@ class A3:
         # -------------------------------------------------------- #
         self.loop_thread = threading.Thread(target=self._loop)
 
-    @property
-    def accumulated_pots(self) -> int:
-        with self._lock_accumulated_pots:
-            _accumulated_pots = self._accumulated_pots
-        return _accumulated_pots
-
-    def add_pots(self, w: int) -> str:
-        with self._lock_accumulated_pots:
-            self._accumulated_pots = self._accumulated_pots + w
-        return "Added {:^3} pots".format(w)
-
-    def set_zero(self) -> str:
-        with self._lock_accumulated_pots:
-            self._accumulated_pots = 0
-        return "Accumulated pots -> 0"
-
+    # -------------------------------------------------------- #
     def _loop(self):
         time_stamp = time.time() - 300  # set to 5 mins ago for instant 1st pulse
 
@@ -69,13 +34,8 @@ class A3:
 
     def _get_num_pots(self):
         num_pots = 0
-        for i in cage_list:
-            try:
-                url = f"http://cage0x00{i}.local:8080/potData"
-                print(f"number of pots {num_pots} for {i}")
-                num_pots += requests.get(url, timeout=(2, 10)).json()
-            except Exception as e:
-                print(f"The request of {url} - failed")
+        for cage in Cages:
+            num_pots += components.cage_dict[cage].fetch_pot_data()
 
         print(f"num of pots needed for all: {num_pots}")
         return num_pots
@@ -101,6 +61,23 @@ class A3:
 
         self.add_pots(num_pots)
         return False
+
+    # -------------------------------------------------------- #
+    @property
+    def accumulated_pots(self) -> int:
+        with self._lock_accumulated_pots:
+            _accumulated_pots = self._accumulated_pots
+        return _accumulated_pots
+
+    def add_pots(self, w: int) -> str:
+        with self._lock_accumulated_pots:
+            self._accumulated_pots = self._accumulated_pots + w
+        return "Added {:^3} pots".format(w)
+
+    def set_zero(self) -> str:
+        with self._lock_accumulated_pots:
+            self._accumulated_pots = 0
+        return "Accumulated pots -> 0"
 
     # -------------------------------------------------------- #
     def start(self):
