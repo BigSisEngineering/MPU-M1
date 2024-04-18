@@ -30,7 +30,7 @@
         <button id="unloader-init-button">Unload Init</button>
         <button id="clear-unloader-error-button">Clear UL Error</button>
       </div>
-      <div class="control-set special-buttons">
+      <div class="control-set move-buttons">
         <button id="move-sw-ccw-button">↪️</button>
         <button id="unload-button">⤵️</button>
         <button id="move-sw-cw-button">↩️</button>
@@ -40,12 +40,14 @@
     <div class="status">
       <div class="status-bar">
         <label for="pp-confidence">P&P Confidence</label>
-        <input type="range" id="pp-confidence" name="pp-confidence" min="0" max="100" value="87">
+        <!-- <input type="range" id="pp-confidence" name="pp-confidence" min="0" max="100" value="87"> -->
+        <input type="range" id="pp-confidence" name="pp-confidence" min="0" max="100" step="10" value="70">
         <span id="pp-confidence-value">87%</span>
       </div>
       <div class="status-bar">
         <label for="unload-probability">Unload Probability</label>
-        <input type="range" id="unload-probability" name="unload-probability" min="0" max="100" value="60">
+        <!-- <input type="range" id="unload-probability" name="unload-probability" min="0" max="100" value="60"> -->
+        <input type="range" id="unload-probability" name="unload-probability" min="0" max="100" step="10" value="60">
         <span id="unload-probability-value">60%</span>
       </div>
     </div>

@@ -1,42 +1,34 @@
-// Function to update the slider value
-function updateSliderValue(sliderId, valueId) {
-  var slider = document.getElementById(sliderId);
-  var output = document.getElementById(valueId);
-  output.innerHTML = slider.value + '%';
-  
-  slider.oninput = function() {
-      console.log(`Slider value for ${sliderId} updated to ${slider.value}%`);
-      output.innerHTML = slider.value + '%';
-  };
+// Function to update the slider value and send it to the server
+function updateSliderValue(sliderId, valueId, endpoint) {
+    var slider = document.getElementById(sliderId);
+    var output = document.getElementById(valueId);
+    output.innerHTML = slider.value + '%'; // Initial display
+    
+    slider.oninput = function() {
+        output.innerHTML = slider.value + '%'; // Update display on input
+        console.log(`Slider value for ${sliderId} updated to ${slider.value}%`);
+        sendSliderValue(this.value, endpoint); // Send the updated value to the server
+    };
 }
 
-// // Function to toggle button text, change Mode circle color, and send disable requests
-// function productionMode(buttonElement, modeCircleId, otherButtonId) {
-//   buttonElement.addEventListener('click', function() {
-//       var otherButton = document.getElementById(otherButtonId);
-//       var modeCircle = document.getElementById(modeCircleId);
-//       console.log(`Attempting to toggle button: ${this.id}`);
+// Function to send slider values to the server
+function sendSliderValue(value, endpoint) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', endpoint.replace('{value}', value), true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-//       if (otherButton.dataset.state === 'enabled') {
-//           console.log(`Cannot enable ${this.id} as ${otherButton.id} is currently enabled.`);
-//           alert("You cannot enable " + (this.id.includes('pnp') ? "P&P" : "Dummy") + 
-//                 " while " + (otherButton.id.includes('pnp') ? "P&P" : "Dummy") + " is enabled. Disable it first.");
-//       } else {
-//           if (this.dataset.state === 'disabled') {
-//               this.dataset.state = 'enabled';
-//               this.textContent = 'Disable ' + (this.id.includes('pnp') ? "P&P" : "Dummy");
-//               modeCircle.style.backgroundColor = (this.id.includes('pnp') ? 'green' : 'blue');
-//               sendRequestWithRetry('/ENABLE_' + (this.id.includes('pnp') ? 'PNP' : 'DUMMY'));
-//           } else {
-//               this.dataset.state = 'disabled';
-//               this.textContent = 'Enable ' + (this.id.includes('pnp') ? "P&P" : "Dummy");
-//               modeCircle.style.backgroundColor = '#555';
-//               sendRequestWithRetry('/DISABLE_' + (this.id.includes('pnp') ? 'PNP' : 'DUMMY'));
-//           }
-//       }
-//       console.log(`${this.id} toggled to ${this.dataset.state}`);
-//   });
-// }
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('Slider value set successfully:', xhr.responseText);
+        } else {
+            console.error('Failed to set slider value:', xhr.responseText);
+        }
+    };
+    xhr.onerror = function() {
+        console.error('Network error occurred while setting slider value');
+    };
+    xhr.send();
+}
 
 
 // Function to toggle button text, change Mode circle color, and send disable requests
@@ -113,12 +105,12 @@ function CameraFeed() {
       return;
   }
   cameraImage.onload = function() {
-      setTimeout(loadCameraFeed, 50);
+      setTimeout(CameraFeed, 50);
       // console.log("Camera feed loaded successfully.");
   };
   cameraImage.onerror = function() {
       console.error("Failed to load camera feed.");
-      setTimeout(loadCameraFeed, 5000);
+      setTimeout(CameraFeed, 5000);
   };
   cameraImage.src = '/video10?' + new Date().getTime();
   // console.log("Camera feed request sent.");
@@ -185,24 +177,25 @@ function fetchAndUpdateBoardData() {
 setInterval(fetchAndUpdateBoardData, 1000);
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Obtain the hostname from the URL
-    var hostname = window.location.hostname;
+// document.addEventListener('DOMContentLoaded', function() {
+//     // Obtain the hostname from the URL
+//     var hostname = window.location.hostname;
 
-    // Update the device ID element with the hostname
-    var deviceIdElement = document.getElementById('device-id');
-    deviceIdElement.textContent = 'ID: ' + hostname;
-    document.title = `🥚 ${hostname}`;
-});
-
-  
-
+//     // Update the device ID element with the hostname
+//     var deviceIdElement = document.getElementById('device-id');
+//     deviceIdElement.textContent = 'ID: ' + hostname;
+//     document.title = `🥚 ${hostname}`;
+// });
 
 
 // DOMContentLoaded to ensure HTML is fully loaded before executing scripts
 document.addEventListener('DOMContentLoaded', function() {
-  updateSliderValue('pp-confidence', 'pp-confidence-value');
-  updateSliderValue('unload-probability', 'unload-probability-value');
+
+  var hostname = window.location.hostname;
+  // Update the device ID element with the hostname
+  var deviceIdElement = document.getElementById('device-id');
+  deviceIdElement.textContent = 'ID: ' + hostname;
+  document.title = `🥚 ${hostname}`;
   
   productionMode(document.getElementById('enable-pnp-button'), 'pnp-mode-circle', 'enable-dummy-button');
   productionMode(document.getElementById('enable-dummy-button'), 'dummy-mode-circle', 'enable-pnp-button');
@@ -215,3 +208,5 @@ document.addEventListener('DOMContentLoaded', function() {
   setupButton('move-sw-cw-button', '/MOVE_CW');
   CameraFeed(); 
 });
+
+

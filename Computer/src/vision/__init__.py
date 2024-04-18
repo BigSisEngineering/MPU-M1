@@ -20,17 +20,21 @@ RKNN_MODEL = os.path.join(
 class ProcessAndPrediction:
     def __init__(self):
         self.computer_vision = ComputerVision()
+        self.boxes= None
+        self.classes= None
+        self.scores= None
         threading.Thread(target=self.computer_vision.load_rknn_model).start()
 
     @comm.timer()
-    def is_egg_detected(self, image, confident_level=0.85):
+    def is_egg_detected(self, image, confident_level=0.70):
         if self.computer_vision.is_rknn_ready():
-            _, _, scores = self.computer_vision.prepare_inference_data(
+            image = self.computer_vision.letterbox(image)
+            self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
                 self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
             )
-            print(scores)
-            if scores is not None:
-                egg_list = [score for score in scores if score > confident_level]
+            print(self.scores, self.boxes, self.classes)
+            if self.scores is not None:
+                egg_list = [score for score in self.scores if score > confident_level]
                 return len(egg_list)
         return 0
         # Boxes can be ignore, the position of the egg

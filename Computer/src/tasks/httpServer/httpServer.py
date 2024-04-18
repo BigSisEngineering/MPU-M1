@@ -11,8 +11,6 @@ from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src import CLI
 from src.CLI import Level
 from src.tasks import camera
-from src.tasks import findCircle
-
 
 KILLER = threading.Event()
 
@@ -56,6 +54,9 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         
         frame = camera.CAMERA.get_frame()
         if frame is not None:
+            # if vision.PNP.boxes is not None:
+            #     print(f'CV data : {vision.PNP.boxes} ')
+            #     frame = ComputerVision.draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
             ret, jpeg = cv2.imencode('.jpg', frame)
             if ret:          
                 try:

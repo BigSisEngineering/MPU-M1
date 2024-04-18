@@ -19,6 +19,7 @@ class PNPData:
     egg_pot_detected: int
     detection: bool
     number_of_egg_pot_since_last_ask: int
+    pnp_confidence: int
 
     def dict(self):
         return {k: str(v) for k, v in asdict(self).items()}
@@ -33,6 +34,7 @@ pnp_data: PNPData = PNPData(
     egg_pot_detected=0,
     detection=False,
     number_of_egg_pot_since_last_ask=0,
+    pnp_confidence=75
 )
 
 is_star_wheel_error: bool = False

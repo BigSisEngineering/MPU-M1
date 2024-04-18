@@ -15,6 +15,8 @@ from src import CLI
 from src.CLI import Level
 from src import setup
 from src.tasks import findCircle
+from src import vision
+from src.vision.prediction import ComputerVision
 
 
 def getUSBCameraID():
@@ -109,11 +111,13 @@ class CameraThreading:
             try:
                 frame = self.raw_frame
                 if frame is not None:
-                    print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
-                    # if findCircle.CIRCLE_FLAG == True:
-                    # print( f'(CameraThreading)- get_frame CIRCLE FOUND {findCircle.CIRCLE_FLAG}')
+                    # print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
                     frame = findCircle.CircularMask(frame)
-                return frame
+                    frame = ComputerVision().letterbox(frame)
+                    if vision.PNP.boxes is not None:
+                        # print(f'boxes : {vision.PNP.boxes}, scores : {vision.PNP.scores}, classes : {vision.PNP.classes} ')
+                        ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
+                return frame[80:560,80:560]
             except Exception as e:
                 CLI.printline(Level.ERROR, f"(CameraThreading - get_frame)-{e}")
         # if frame is not None:

@@ -16,7 +16,7 @@ TASK_THREADS: Dict[str, threading.Thread] = {
     "camera": camera.create_thread(),
     "control": BscbAPI.create_thread(),
     "aws": aws.create_thread(),
-    "find_circle": findCircle.create_thread()
+    # "find_circle": findCircle.create_thread()
 }
 
 

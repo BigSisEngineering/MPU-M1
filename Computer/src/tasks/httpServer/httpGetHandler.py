@@ -52,7 +52,8 @@ def get_PNPData(server):
     CLI.printline(Level.DEBUG, "(http_server)-PNPData")
     send_200_response(server)
     with data.lock:
-        pnp_data = data.pnp_data.copy()
+        # pnp_data = data.pnp_data.copy()
+        pnp_data = data.pnp_data
     server.wfile.write(json.dumps(pnp_data.dict()).encode())
 
 

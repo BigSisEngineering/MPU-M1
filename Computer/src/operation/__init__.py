@@ -19,7 +19,6 @@ sw_thread: threading.Thread = None
 unload_thread: threading.Thread = None
 star_wheel_move_time: int = 600
 ai_result = 0
-find_circle_cnt = 0
 threads: Dict[str, threading.Thread] = {
     "sw": None,
     "ul": None,
@@ -31,7 +30,7 @@ threads: Dict[str, threading.Thread] = {
 def test_pnp(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, pnp_confidence: float
 ):
-    global threads, find_circle_cnt, circular_mask
+    global threads
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -71,15 +70,6 @@ def test_pnp(
         # ======================================== Camera ======================================== #
         wait_thread_to_finish("sw")
         image = camera.CAMERA.get_frame()
-        # image = camera.CircularMask(image)
-        # if find_circle_cnt ==0 or find_circle_cnt %30 ==0:
-        #     CLI.printline(Level.INFO, "finding circle ...")
-        #     print('circle counter : ',find_circle_cnt)
-        #     circular_mask = camera.find_circle(image)
-        #     image[~circular_mask.astype(bool)]=0
-        # else:
-        #     image[~circular_mask.astype(bool)]=0
-        # find_circle_cnt +=1
         timestamp_of_image = datetime.now()
         CLI.printline(Level.INFO, f"(PnP)-image captured")
 
@@ -289,8 +279,8 @@ def test_dummy(
 
         CLI.printline(Level.INFO, f"(dummy)-{timer_unload}/{ai_result}")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
-        cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
-        cloud.DataBase.data_upload()
+        # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+        # cloud.DataBase.data_upload()
         if tmp_egg_pot_counter > 0:
             threads["ul"] = threading.Thread(
                 target=_unload,

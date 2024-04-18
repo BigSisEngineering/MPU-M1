@@ -286,8 +286,9 @@ class ComputerVision:
                 (0, 0, 255),
                 1,
             )
+        return image
 
-    def letterbox(self, im, new_shape=(640, 640), color=(255, 255, 255)):
+    def letterbox(self, im, new_shape=(640, 640), color=(0, 0, 0)):
         # Resize and pad image while meeting stride-multiple constraints
         shape = im.shape[:2]  # current shape [height, width]
         if isinstance(new_shape, int):
