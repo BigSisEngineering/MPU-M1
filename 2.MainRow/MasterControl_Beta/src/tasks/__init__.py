@@ -17,6 +17,9 @@ c3_task = c3.C3()
 a1_task.start()
 a2_task.start()
 a3_task.start()
+# c1_task.start()
+# c2_task.start()
+# c3_task.start()
 
 
 # -------------------------------------------------------- #
