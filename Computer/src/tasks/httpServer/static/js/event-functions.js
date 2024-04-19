@@ -136,56 +136,99 @@ function setupButton(buttonId, endpoint) {
 }
 
 
+// // Function to fetch sensor data and update the circles
+// function fetchAndUpdateBoardData() {
+//     fetch('/BoardData')
+//       .then(response => response.json())  // Convert the response to JSON
+//       .then(data => {
+//         // Parse the sensor values string into an array of numbers
+//         const sensorValuesString = data.sensors_values.slice(1, -1); // Remove the parentheses
+//         const sensorValues = sensorValuesString.split(', ').map(Number);
+  
+//         // Directly access the circles by their ID
+//         const sensorLoadCircle = document.getElementById('sensor-load-circle');
+//         const sensorUnloadCircle = document.getElementById('sensor-unload-circle');
+//         const sensorBufferCircle = document.getElementById('sensor-buffer-circle');
+
+//         const starWheelCircle = document.getElementById('sw-init');
+//         const unloaderCircle = document.getElementById('unloader-init');
+  
+//         // Update the background color of the circles based on sensor values
+//         sensorLoadCircle.style.backgroundColor = sensorValues[0] > 100 ? 'green' : '';
+//         sensorUnloadCircle.style.backgroundColor = sensorValues[1] > 100 ? 'green' : '';
+//         sensorBufferCircle.style.backgroundColor = sensorValues[2] > 100 ? 'green' : '';
+
+//         // Update the background color of the circles based on their statuses
+//         if (data.star_wheel_status === "normal") {
+//             starWheelCircle.style.backgroundColor = 'green';
+//         } else if (data.star_wheel_status === "overload") {
+//             starWheelCircle.style.backgroundColor = 'red';
+//         } else {
+//             starWheelCircle.style.backgroundColor = ''; // Default or another color
+//         }
+//         unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : '';
+//       })
+//       .catch(error => {
+//         console.error('Failed to fetch sensor data:', error);
+//       });
+//   }
+
+
 // Function to fetch sensor data and update the circles
 function fetchAndUpdateBoardData() {
-    fetch('/BoardData')
-      .then(response => response.json())  // Convert the response to JSON
-      .then(data => {
-        // Parse the sensor values string into an array of numbers
+    fetch('/BoardData').then(response => response.json()).then(data => {
         const sensorValuesString = data.sensors_values.slice(1, -1); // Remove the parentheses
         const sensorValues = sensorValuesString.split(', ').map(Number);
-  
-        // Directly access the circles by their ID
+
         const sensorLoadCircle = document.getElementById('sensor-load-circle');
         const sensorUnloadCircle = document.getElementById('sensor-unload-circle');
         const sensorBufferCircle = document.getElementById('sensor-buffer-circle');
-
         const starWheelCircle = document.getElementById('sw-init');
         const unloaderCircle = document.getElementById('unloader-init');
-  
-        // Update the background color of the circles based on sensor values
+        const pnpButton = document.getElementById('enable-pnp-button');
+        const dummyButton = document.getElementById('enable-dummy-button');
+        const pnpCircle = document.getElementById('pnp-mode-circle');
+        const dummyCircle = document.getElementById('dummy-mode-circle');
+
         sensorLoadCircle.style.backgroundColor = sensorValues[0] > 100 ? 'green' : '';
         sensorUnloadCircle.style.backgroundColor = sensorValues[1] > 100 ? 'green' : '';
         sensorBufferCircle.style.backgroundColor = sensorValues[2] > 100 ? 'green' : '';
 
-        // Update the background color of the circles based on their statuses
-        if (data.star_wheel_status === "normal") {
-            starWheelCircle.style.backgroundColor = 'green';
-        } else if (data.star_wheel_status === "overload") {
-            starWheelCircle.style.backgroundColor = 'red';
-        } else {
-            starWheelCircle.style.backgroundColor = ''; // Default or another color
-        }
+        starWheelCircle.style.backgroundColor = data.star_wheel_status === "normal" ? 'green' :
+                                                 data.star_wheel_status === "overload" ? 'red' : '';
+
         unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : '';
-      })
-      .catch(error => {
+
+        // Update PnP and Dummy button states based on mode
+        if (data.mode === "pnp") {
+            pnpButton.textContent = 'Disable P&P';
+            dummyButton.textContent = 'Enable Dummy';
+            pnpCircle.style.backgroundColor = 'green';
+            dummyCircle.style.backgroundColor = '';
+            pnpButton.dataset.state = 'enabled';
+            dummyButton.dataset.state = 'disabled';
+        } else if (data.mode === "dummy") {
+            dummyButton.textContent = 'Disable Dummy';
+            pnpButton.textContent = 'Enable P&P';
+            dummyCircle.style.backgroundColor = 'blue';
+            pnpCircle.style.backgroundColor = '';
+            dummyButton.dataset.state = 'enabled';
+            pnpButton.dataset.state = 'disabled';
+        } else {
+            pnpButton.textContent = 'Enable P&P';
+            dummyButton.textContent = 'Enable Dummy';
+            pnpCircle.style.backgroundColor = '';
+            dummyCircle.style.backgroundColor = '';
+            pnpButton.dataset.state = 'disabled';
+            dummyButton.dataset.state = 'disabled';
+        }
+    }).catch(error => {
         console.error('Failed to fetch sensor data:', error);
-      });
-  }
+    });
+}
   
   // Fetch and update sensor data every 1 seconds
 setInterval(fetchAndUpdateBoardData, 1000);
-
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Obtain the hostname from the URL
-//     var hostname = window.location.hostname;
-
-//     // Update the device ID element with the hostname
-//     var deviceIdElement = document.getElementById('device-id');
-//     deviceIdElement.textContent = 'ID: ' + hostname;
-//     document.title = `🥚 ${hostname}`;
-// });
 
 
 // DOMContentLoaded to ensure HTML is fully loaded before executing scripts
@@ -196,13 +239,16 @@ document.addEventListener('DOMContentLoaded', function() {
   var deviceIdElement = document.getElementById('device-id');
   deviceIdElement.textContent = 'ID: ' + hostname;
   document.title = `🥚 ${hostname}`;
+
+  updateSliderValue('pp-confidence', 'pp-confidence-value', '/SET_PNP_CONFIDENCE_LEVEL/{value}');
+  updateSliderValue('unload-probability', 'unload-probability-value', '/SET_DUMMY_UNLOAD_PROBABILITY/{value}');
   
   productionMode(document.getElementById('enable-pnp-button'), 'pnp-mode-circle', 'enable-dummy-button');
   productionMode(document.getElementById('enable-dummy-button'), 'dummy-mode-circle', 'enable-pnp-button');
 
   setupButton('sw-init-button', '/STAR_WHEEL_INIT');
   setupButton('move-sw-ccw-button', '/MOVE_CCW');
-  setupButton('clear-sw-error-button', '/CLEAR_SW_ERROR');
+  setupButton('clear-sw-error-button', '/CLEAR_STAR_WHEEL_ERROR');
   setupButton('unloader-init-button', '/UNLOADER_INIT');
   setupButton('unload-button', '/UNLOAD');
   setupButton('move-sw-cw-button', '/MOVE_CW');
