@@ -156,3 +156,8 @@ body, html {
     background-color: #3399ff; /* Even darker shade for the click effect */
   }
   
+
+  mode-cell.active::before,
+  .sensor-cell.active::before {
+    background-color: black; /* Example active state color */
+  }

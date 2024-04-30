@@ -1,47 +1,59 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const tableHead = document.querySelector('thead tr');
-    const tableBody = document.querySelector('tbody');
+document.addEventListener("DOMContentLoaded", function () {
+    // Initial setup tasks
+    setupPageElements();
 
-    // Ensure table elements are found
-    if (!tableHead || !tableBody) {
-        console.error('Table head or body elements are not found!');
-        return;
-    }
+    // Fetch and update cage statuses
+    fetchCageStatus();
+});
+
+function setupPageElements() {
+    const tableHead = document.querySelector("thead tr");
+    const tableBody = document.querySelector("tbody");
 
     // Generate headers for cages
     for (let i = 2; i <= 15; i++) {
-        let th = document.createElement('th');
-        let a = document.createElement('a');
-        let cageNum = (i <= 9) ? `cage0x000${i}` : `cage0x00${i}`;
+        let th = document.createElement("th");
+        let a = document.createElement("a");
+        let cageNum = `cage${i.toString().padStart(2, "0")}`;
         a.textContent = cageNum;
         a.href = `http://${cageNum}:8080`;
-        a.target = "_blank";
+        a.target = "_blank"; // Opens link in a new tab
         th.appendChild(a);
         tableHead.appendChild(th);
     }
 
-    // Define the rows and their respective classes and symbols
+    // Define and generate rows
+    generateRows(tableBody);
+
+    // Setup checkboxes for cage selection
+    setupCageSelection();
+  
+    // Setup action execution
+    setupActionExecution();
+}
+
+function generateRows(tableBody) {
     const rows = [
-        { name: 'Mode', className: 'mode-cell', symbol: '' },
-        { name: 'Star Wheel', className: 'gear-cell star-wheel', symbol: 'fa-solid fa-gear' },
-        { name: 'Unloader', className: 'gear-cell unloader', symbol: 'fa-solid fa-gear' },
-        { name: 'Buffer Sensor', className: 'sensor-cell', symbol: '' },
-        { name: 'Load Sensor', className: 'sensor-cell', symbol: '' },
-        { name: 'Unload Sensor', className: 'sensor-cell', symbol: '' }
+        { name: "Mode", className: "mode-cell", symbol: "" },
+        { name: "Star Wheel", className: "gear-cell", symbol: "fa-solid fa-gear" },
+        { name: "Unloader", className: "gear-cell", symbol: "fa-solid fa-gear" },
+        { name: "Buffer Sensor", className: "sensor-cell", symbol: "" },
+        { name: "Load Sensor", className: "sensor-cell", symbol: "" },
+        { name: "Unload Sensor", className: "sensor-cell", symbol: "" }
     ];
 
     rows.forEach(row => {
-        let tr = document.createElement('tr');
-        let tdName = document.createElement('td');
+        let tr = document.createElement("tr");
+        let tdName = document.createElement("td");
         tdName.textContent = row.name;
         tr.appendChild(tdName);
 
         for (let i = 2; i <= 15; i++) {
-            let td = document.createElement('td');
+            let td = document.createElement("td");
+            td.id = `cage${i.toString().padStart(2, "0")}`;
             td.className = row.className;
-            td.dataset.cage = `cage0x00${i <= 9 ? `0${i}` : i}`;
             if (row.symbol) {
-                let icon = document.createElement('i');
+                let icon = document.createElement("i");
                 icon.className = row.symbol;
                 td.appendChild(icon);
             }
@@ -49,17 +61,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         tableBody.appendChild(tr);
     });
+}
 
-    // Adding checkboxes for cage selection
-    const container = document.getElementById('cage-checkboxes');
+function setupCageSelection() {
+    const container = document.getElementById("cage-checkboxes");
     for (let i = 2; i <= 15; i++) {
-        let cageNum = (i <= 9) ? `cage0x000${i}` : `cage0x00${i}`;
-        const checkboxDiv = document.createElement('div');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
+        const cageNum = `cage${i.toString().padStart(2, "0")}`;
+        const checkboxDiv = document.createElement("div");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
         checkbox.id = cageNum;
-        checkbox.className = 'cage-checkbox';
-        const label = document.createElement('label');
+        checkbox.className = "cage-checkbox";
+        const label = document.createElement("label");
         label.htmlFor = cageNum;
         label.textContent = cageNum;
 
@@ -68,26 +81,71 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(checkboxDiv);
     }
 
-    // Function to select or deselect all cages
-    const selectAllCheckbox = document.getElementById('select-all');
-    selectAllCheckbox.addEventListener('change', function() {
-        document.querySelectorAll('.cage-checkbox').forEach(chk => {
+    const selectAllCheckbox = document.getElementById("select-all");
+    selectAllCheckbox.addEventListener("change", function () {
+        document.querySelectorAll(".cage-checkbox").forEach((chk) => {
             chk.checked = this.checked;
         });
     });
+}
 
-    // Function to check execution conditions
-    const executeButton = document.getElementById('execute-action');
-    executeButton.addEventListener('click', function() {
-        const cagesSelected = Array.from(document.querySelectorAll('.cage-checkbox:checked')).length;
-        const actionsSelected = Array.from(document.querySelectorAll('.action-checkbox:checked')).length;
+function setupActionExecution() {
+    const executeButton = document.getElementById("execute-action");
+    const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
+    const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
 
-        if (cagesSelected === 0) {
-            alert('Please select at least one cage.');
-        } else if (actionsSelected === 0) {
-            alert('Please select an action.');
-        } else if (actionsSelected > 1) {
-            alert('Only one action can be selected at a time.');
+    executeButton.addEventListener("click", function () {
+        const cagesSelected = Array.from(cageCheckboxes).some(chk => chk.checked);
+        const actionsSelected = Array.from(actionCheckboxes).filter(chk => chk.checked);
+
+        if (!cagesSelected) {
+            alert("Please select at least one cage.");
+        } else if (actionsSelected.length === 0) {
+            alert("Please select an action.");
+        } else if (actionsSelected.length > 1) {
+            alert("Only one action can be selected at a time.");
         }
     });
-});
+}
+
+function fetchCageStatus() {
+    fetch('http://localhost:8080/get_all_cages_status')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            updateCageIndicators(data);
+        })
+        .catch(error => {
+            console.error('Error fetching cage status:', error);
+        });
+}
+
+function updateCageIndicators(data) {
+    Object.keys(data).forEach(cage => {
+        const cageStatus = data[cage];
+        // Convert 'cage0x0008' to 'cage08'
+        const cageId = 'cage' + parseInt(cage.match(/0x(\d+)/)[1], 16).toString().padStart(2, '0');
+        const modeIndicator = document.querySelector('#' + cageId + ' .mode-cell span');
+
+        if (modeIndicator) {
+            modeIndicator.className = 'status-circle'; // Reset the class to default
+            switch (cageStatus.mode) {
+                case 'pnp':
+                    modeIndicator.classList.add('green');
+                    break;
+                case 'dummy':
+                    modeIndicator.classList.add('blue');
+                    break;
+                case 'idle':
+                    modeIndicator.classList.add('grey');
+                    break;
+                default:
+                    modeIndicator.classList.add('black');
+            }
+        }
+    });
+}
