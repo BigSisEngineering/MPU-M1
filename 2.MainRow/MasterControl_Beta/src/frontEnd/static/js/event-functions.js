@@ -124,37 +124,42 @@ function fetchCageStatus() {
         });
 }
 
+
+
 function updateCageIndicators(data) {
     Object.keys(data).forEach(cage => {
         const cageStatus = data[cage];
-        // Check if there's an error in the status; if so, skip this cage.
         if (typeof cageStatus === 'string' && cageStatus.startsWith("<urlopen error")) {
             console.log(cage + " has an error: " + cageStatus);
             return;
         }
 
-        // Convert 'cage0x0008' to 'cage08'
         const cageId = 'cage' + parseInt(cage.match(/0x(\d+)/)[1], 16).toString().padStart(2, '0');
-        const modeIndicator = document.querySelector('#' + cageId + ' .mode-cell span.status-circle');
+        const modeIndicator = document.querySelector('#' + cageId);
 
         if (modeIndicator) {
-            modeIndicator.className = 'status-circle'; // Reset the class to default
+            // Remove previous color classes
+            modeIndicator.classList.remove('indicator-pnp', 'indicator-dummy', 'indicator-idle', 'indicator-offline');
+
+            // Add the appropriate class based on the mode
+            let statusClass = '';
             switch (cageStatus.mode) {
                 case 'pnp':
-                    modeIndicator.classList.add('green');
+                    statusClass = 'indicator-pnp';
                     break;
                 case 'dummy':
-                    modeIndicator.classList.add('blue');
+                    statusClass = 'indicator-dummy';
                     break;
                 case 'idle':
-                    modeIndicator.classList.add('grey');
+                    statusClass = 'indicator-idle';
                     break;
                 default:
-                    modeIndicator.classList.add('black');
+                    statusClass = 'indicator-offline'; // Use for unknown or error states
+                    break;
             }
+            modeIndicator.classList.add(statusClass);
         } else {
             console.error("No mode indicator found for " + cageId);
         }
     });
 }
-

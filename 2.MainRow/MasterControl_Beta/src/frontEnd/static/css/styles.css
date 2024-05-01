@@ -42,6 +42,21 @@ body, html {
   vertical-align: middle;
 }
 
+/* Styles for mode circles within the table */
+.table-mode-circle {
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: black; /* Default color */
+}
+
+/* Specific mode colors for table mode circles */
+.table-mode-circle.pnp { background-color: #00ff00; } /* Green for pnp */
+.table-mode-circle.dummy { background-color: #0000ff; } /* Blue for dummy */
+.table-mode-circle.idle { background-color: #808080; } /* Grey for idle */
+.table-mode-circle.error { background-color: #000000; } /* Black for error */
+
 
 .gear-icon {
   font-size: 15px; /* Set the size of the gear icons */
@@ -157,7 +172,18 @@ th, td {
 }
   
 
-  /* mode-cell.active::before,
-  .sensor-cell.active::before {
-    background-color: green; /* Example active state color */
-  /* } */ 
+
+
+.indicator-pnp::before {
+  background-color: #00ff00; /* Green */
+}
+.indicator-idle::before {
+  background-color: #808080; /* Red */
+}
+.indicator-dummy::before {
+  background-color: #0000ff; /* Blue */
+}
+
+.indicator-offline::before {
+  background-color: #000000; /* Blue */
+}
