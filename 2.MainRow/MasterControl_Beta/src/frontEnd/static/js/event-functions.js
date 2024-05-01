@@ -37,9 +37,9 @@ function generateRows(tableBody) {
         { name: "Mode", className: "mode-cell", symbol: "" },
         { name: "Star Wheel", className: "gear-cell", symbol: "fa-solid fa-gear" },
         { name: "Unloader", className: "gear-cell", symbol: "fa-solid fa-gear" },
-        { name: "Buffer Sensor", className: "sensor-cell", symbol: "" },
-        { name: "Load Sensor", className: "sensor-cell", symbol: "" },
-        { name: "Unload Sensor", className: "sensor-cell", symbol: "" }
+        { name: "Load Sensor", className: "load-sensor-cell", symbol: "" },
+        { name: "Unload Sensor", className: "unload-sensor-cell", symbol: "" },
+        { name: "Buffer Sensor", className: "buffer-sensor-cell", symbol: "" }
     ];
 
     rows.forEach(row => {
@@ -108,25 +108,31 @@ function setupActionExecution() {
     });
 }
 
+
+
 function fetchCageStatus() {
-    fetch('/get_all_cages_status')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            updateCageIndicators(data);
-        })
-        .catch(error => {
-            console.error('Error fetching cage status:', error);
-        });
+    setInterval(() => {
+        fetch('/get_all_cages_status')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            
+            .then(data => {
+                updateModeIndicators(data);
+                updateSensorIndicators(data);
+            })
+            .catch(error => {
+                console.error('Error fetching cage status:', error);
+            });
+    }, 3000); // Fetch every 3 seconds
 }
 
 
 
-function updateCageIndicators(data) {
+function updateModeIndicators(data) {
     Object.keys(data).forEach(cage => {
         const cageStatus = data[cage];
         if (typeof cageStatus === 'string' && cageStatus.startsWith("<urlopen error")) {
@@ -163,3 +169,41 @@ function updateCageIndicators(data) {
         }
     });
 }
+
+
+function updateSensorIndicators(data) {
+    console.log("Updating sensor indicators with data:", data); // Check incoming data
+    Object.keys(data).forEach(cage => {
+        const cageStatus = data[cage];
+        console.log(`Processing cage: ${cage}`, cageStatus); // Log each cage's status
+
+        if (typeof cageStatus === 'string' && cageStatus.startsWith("<urlopen error")) {
+            console.error(cage + " has an error: " + cageStatus);
+            return;
+        }
+
+        const cageId = `cage${parseInt(cage.match(/0x(\d+)/)[1], 16).toString().padStart(2, '0')}`;
+        const sensorElementsExist = document.querySelector(`#${cageId} .load-sensor-cell`) !== null;
+        console.log(`Sensor elements exist for ${cageId}:`, sensorElementsExist); // Verify element selection
+
+        const sensors = cageStatus.sensors_values ? cageStatus.sensors_values.slice(1, -1).split(',').map(Number) : [];
+        console.log(`Sensor values for ${cageId}:`, sensors); // Log parsed sensor values
+
+        updateSensorIndicator(document.querySelector(`#${cageId} .load-sensor-cell`), sensors[0]);
+        updateSensorIndicator(document.querySelector(`#${cageId} .unload-sensor-cell`), sensors[1]);
+        updateSensorIndicator(document.querySelector(`#${cageId} .buffer-sensor-cell`), sensors[2]);
+    });
+}
+
+
+function updateSensorIndicator(sensorElement, value) {
+    if (sensorElement) {
+        sensorElement.classList.remove('indicator-sensor');
+        if (value > 100) {
+            sensorElement.classList.add('indicator-sensor');
+        }
+    }
+}
+
+
+
