@@ -109,7 +109,7 @@ function setupActionExecution() {
 }
 
 function fetchCageStatus() {
-    fetch('http://localhost:8080/get_all_cages_status')
+    fetch('/get_all_cages_status')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok: ' + response.statusText);
@@ -127,9 +127,15 @@ function fetchCageStatus() {
 function updateCageIndicators(data) {
     Object.keys(data).forEach(cage => {
         const cageStatus = data[cage];
+        // Check if there's an error in the status; if so, skip this cage.
+        if (typeof cageStatus === 'string' && cageStatus.startsWith("<urlopen error")) {
+            console.log(cage + " has an error: " + cageStatus);
+            return;
+        }
+
         // Convert 'cage0x0008' to 'cage08'
         const cageId = 'cage' + parseInt(cage.match(/0x(\d+)/)[1], 16).toString().padStart(2, '0');
-        const modeIndicator = document.querySelector('#' + cageId + ' .mode-cell span');
+        const modeIndicator = document.querySelector('#' + cageId + ' .mode-cell span.status-circle');
 
         if (modeIndicator) {
             modeIndicator.className = 'status-circle'; // Reset the class to default
@@ -146,6 +152,9 @@ function updateCageIndicators(data) {
                 default:
                     modeIndicator.classList.add('black');
             }
+        } else {
+            console.error("No mode indicator found for " + cageId);
         }
     });
 }
+
