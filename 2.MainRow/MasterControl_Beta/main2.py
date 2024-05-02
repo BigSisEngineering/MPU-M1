@@ -29,7 +29,7 @@ class MyHttpRequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
 def get_all_cages_status():
-    cage_addresses = [f"cage0x000{i}" for i in range(2, 10)] + [f"cage0x00{i}" for i in range(10, 16)]
+    cage_addresses = [f"cage0x000{i}" for i in range(1, 10)] + [f"cage0x00{i}" for i in range(10, 16)]
     results = {}
     with threading.Lock():  # Locking to ensure thread safety for the shared 'results' dictionary
         threads = []
@@ -65,7 +65,7 @@ def request_cage_data(address, results):
 def fetch_data_periodically():
     while True:
         get_all_cages_status()
-        time.sleep(2)  # Fetch data every 3 seconds, can be adjusted as needed
+        time.sleep(3)  # Fetch data every 3 seconds, can be adjusted as needed
 
 def run():
     port = 8080
