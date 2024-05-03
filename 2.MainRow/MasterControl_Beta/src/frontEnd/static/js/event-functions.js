@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     setupPageElements();
     fetchCageStatus();
+    // simulateFetchCageStatus();
   });
   
   function setupPageElements() {
@@ -31,7 +32,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function generateRows(tableBody, cages) {
     const rows = [
       { name: "Mode", className: "mode-cell", symbol: "" },
-      { name: "Star Wheel", className: "sw-gear-cell", symbol: "fa-solid fa-gear" },
+      {
+        name: "Star Wheel",
+        className: "sw-gear-cell",
+        symbol: "fa-solid fa-gear"
+      },
       { name: "Unloader", className: "ul-gear-cell", symbol: "fa-solid fa-gear" },
       { name: "Load Sensor", className: "load-sensor-cell", symbol: "" },
       { name: "Unload Sensor", className: "unload-sensor-cell", symbol: "" },
@@ -86,11 +91,15 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupActionExecution() {
     const executeButton = document.getElementById("execute-action");
     const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
-    const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
+    const actionCheckboxes = document.querySelectorAll(
+      '.action-checkboxes input[type="checkbox"]'
+    );
   
     executeButton.addEventListener("click", function () {
       const cagesSelected = Array.from(cageCheckboxes).some((chk) => chk.checked);
-      const actionsSelected = Array.from(actionCheckboxes).filter((chk) => chk.checked);
+      const actionsSelected = Array.from(actionCheckboxes).filter(
+        (chk) => chk.checked
+      );
   
       if (!cagesSelected) {
         alert("Please select at least one cage.");
@@ -101,93 +110,152 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-
-  function fetchCageStatus() {
-    setInterval(() => {
-      fetch('/get_all_cages_status')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
-          }
-          return response.json();
-        })
-        .then(data => {
-          updateModeIndicators(data);
-          updateSensorIndicators(data);
-        })
-        .catch(error => {
-          console.error('Error fetching cage status:', error);
-        });
-    }, 3000); // Fetch every 3 seconds
-  }
   
-  function updateModeIndicators(data) {
-    Object.keys(data).forEach((cage) => {
-      const modeIndicator = document.querySelector(`#${cage}_mode-cell`);
-      if (modeIndicator) {
-        modeIndicator.classList.remove("indicator-pnp", "indicator-dummy", "indicator-idle", "indicator-offline");
-        let statusClass = "indicator-" + (data[cage].mode || "offline");
-        modeIndicator.classList.add(statusClass);
-      } else {
-        console.error("No mode indicator found for " + cage);
-      }
-    });
-  }
-  function updateSensorIndicators(data) {
-    console.log("Updating sensor indicators with data:", data);
-    Object.keys(data).forEach((cage) => {
-      // Split and map the sensors_values string to an array of numbers
-      const sensors = data[cage].sensors_values.replace(/[()]/g, "").split(",").map(Number);
+//    function fetchCageStatus() {
+    //     setInterval(() => {
+    //     fetch('/get_all_cages_status')
+    //         .then(response => {
+    //         if (!response.ok) {
+    //             throw new Error('Network response was not ok: ' + response.statusText);
+    //         }
+    //         return response.json();
+    //         })
+    //         .then(data => {
+    //         // updateModeIndicators(data);
+    //         // updateSensorIndicators(data);
+    //         const statusUpdater = new CageStatusUpdater(data);
+    //         statusUpdater.updateAllStatuses();
+    //         })
+    //         .catch(error => {
+    //         console.error('Error fetching cage status:', error);
+    //         });
+    //     }, 3000); // Fetch every 3 seconds
+    // }
+    function fetchCageStatus() {
+        setInterval(() => {
+            // Adjust the path to point to the location of the JSON file relative to the HTML file
+            fetch('./static/js/cage_status.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const statusUpdater = new CageStatusUpdater(data);
+                    statusUpdater.updateAllStatuses();
+                })
+                .catch(error => {
+                    console.error('Error fetching cage status:', error);
+                });
+        }, 3000); // Fetch every 3 seconds
+    }
+    
+    
+  class CageStatusUpdater {
+    constructor(data) {
+      this.data = data;
+    }
   
-      // Update Load Sensor Cell
-      const loadSensorCell = document.querySelector(`#${cage}_load-sensor-cell`);
-      if (loadSensorCell) {
-        loadSensorCell.classList.remove("indicator-sensor");
-        if (sensors.length > 0 && sensors[0] > 100) {
-          loadSensorCell.classList.add("indicator-sensor");
+    updateAllStatuses() {
+      this.updateModeIndicators();
+      this.updateSensorIndicators();
+      this.updateGearStatuses();
+    }
+  
+    updateModeIndicators() {
+      Object.keys(this.data).forEach((cage) => {
+        const modeIndicator = document.querySelector(`#${cage}_mode-cell`);
+        if (modeIndicator) {
+          modeIndicator.classList.remove(
+            "indicator-pnp",
+            "indicator-dummy",
+            "indicator-idle",
+            "indicator-offline"
+          );
+          const statusClass = "indicator-" + (this.data[cage].mode || "offline");
+          modeIndicator.classList.add(statusClass);
+        } else {
+          console.error("No mode indicator found for " + cage);
+        }
+      });
+    }
+  
+    updateSensorIndicators() {
+      Object.keys(this.data).forEach((cage) => {
+        if (
+          typeof this.data[cage] === "string" ||
+          this.data[cage].sensors_values === undefined ||
+          this.data[cage].sensors_values.startsWith("<error>")
+        ) {
+          const sensorCells = [
+            document.querySelector(`#${cage}_load-sensor-cell`),
+            document.querySelector(`#${cage}_unload-sensor-cell`),
+            document.querySelector(`#${cage}_buffer-sensor-cell`)
+          ];
+          sensorCells.forEach((cell) => {
+            if (cell) {
+              cell.classList.remove("indicator-sensor");
+              cell.classList.add("indicator-not-triggered");
+            } else {
+              console.error(`No sensor cell found for ${cage}`);
+            }
+          });
+          return;
+        }
+        const sensors = this.data[cage].sensors_values
+          .replace(/[()]/g, "")
+          .split(",")
+          .map(Number);
+        this.updateSensorIndicator(`${cage}_load-sensor-cell`, sensors, 0);
+        this.updateSensorIndicator(`${cage}_unload-sensor-cell`, sensors, 1);
+        this.updateSensorIndicator(`${cage}_buffer-sensor-cell`, sensors, 2);
+      });
+    }
+  
+    updateSensorIndicator(elementId, sensors, index) {
+      const sensorCell = document.querySelector(`#${elementId}`);
+      if (sensorCell) {
+        sensorCell.classList.remove(
+          "indicator-sensor",
+          "indicator-not-triggered"
+        );
+        if (sensors.length > index && sensors[index] > 100) {
+          sensorCell.classList.add("indicator-sensor");
         }
       } else {
-        console.error(`No load sensor cell found for ${cage}`);
+        console.error(`No sensor cell found for ${elementId}`);
       }
+    }
   
-      // Update Unload Sensor Cell
-      const unloadSensorCell = document.querySelector(`#${cage}_unload-sensor-cell`);
-      if (unloadSensorCell) {
-        unloadSensorCell.classList.remove("indicator-sensor");
-        if (sensors.length > 1 && sensors[1] > 100) {
-          unloadSensorCell.classList.add("indicator-sensor");
+    updateGearStatuses() {
+      Object.keys(this.data).forEach((cage) => {
+        this.updateGearColor(
+          cage,
+          "star_wheel",
+          this.data[cage].star_wheel_status
+        );
+        this.updateGearColor(cage, "unloader", this.data[cage].unloader_status);
+      });
+    }
+  
+    updateGearColor(cage, gearType, status) {
+      const gearMap = {
+        star_wheel: "_sw-gear-cell",
+        unloader: "_ul-gear-cell"
+      };
+      const iconSelector = `#${cage}${gearMap[gearType]} i`;
+      const icon = document.querySelector(iconSelector);
+      if (icon) {
+        icon.style.color = "black"; // Default color for undefined or unexpected statuses
+        if (status === "normal") {
+          icon.style.color = "#00ff00"; // Green for normal
+        } else if (status === "overload") {
+          icon.style.color = "red"; // Red for overload
         }
       } else {
-        console.error(`No unload sensor cell found for ${cage}`);
+        console.error(`No ${gearType} icon found for ${cage}`);
       }
-  
-      // Update Buffer Sensor Cell
-      const bufferSensorCell = document.querySelector(`#${cage}_buffer-sensor-cell`);
-      if (bufferSensorCell) {
-        bufferSensorCell.classList.remove("indicator-sensor");
-        if (sensors.length > 2 && sensors[2] > 100) {
-          bufferSensorCell.classList.add("indicator-sensor");
-        }
-      } else {
-        console.error(`No buffer sensor cell found for ${cage}`);
-      }
-    });
+    }
   }
-  
-  
-//   function updateSensorIndicators(data) {
-//     console.log("Updating sensor indicators with data:", data);
-//     Object.keys(data).forEach((cage) => {
-//       const sensors = data[cage].sensors_values.replace(/[()]/g, "").split(",").map(Number);
-//       const loadSensorCell = document.querySelector(`#${cage}_load-sensor-cell`);
-//       if (loadSensorCell) {
-//         loadSensorCell.classList.remove("indicator-sensor");
-//         if (sensors.length > 0 && sensors[0] > 100) {
-//           loadSensorCell.classList.add("indicator-sensor");
-//         }
-//       } else {
-//         console.error(`No load sensor cell found for ${cage}`);
-//       }
-//     });
-//   }
   

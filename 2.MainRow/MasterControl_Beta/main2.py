@@ -7,6 +7,7 @@ import time
 
 # Assuming DIRECTORY is correctly set up as previously shown
 DIRECTORY = os.path.join(os.path.dirname(__file__), 'src', 'frontEnd')
+JSON_FILE_PATH = os.path.join(DIRECTORY, 'static', 'js', 'cage_status.json')
 
 class MyHttpRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -40,10 +41,13 @@ def get_all_cages_status():
 
         for thread in threads:
             thread.join()
+    # Save results to a JSON file
+    with open(JSON_FILE_PATH, 'w') as f:
+        json.dump(results, f)
 
-    print("All cages status:")
-    for address, data in results.items():
-        print(f"{address}: {data}")
+    print(f"All cages status : {results}")
+    # for address, data in results.items():
+    #     print(f"{address}: {data}")
 
     return results
 
@@ -58,7 +62,7 @@ def request_cage_data(address, results):
             # print(f"Data for {address}: {results[address]}")  # Print fetched data
     except Exception as e:
         results[address] = str(e)
-        print(f"Error fetching data for {address}: {e}")  # Print errors
+        # print(f"Error fetching data for {address}: {e}")  # Print errors
 
 
 
