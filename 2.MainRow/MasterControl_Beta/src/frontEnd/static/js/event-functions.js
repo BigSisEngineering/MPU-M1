@@ -133,7 +133,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // }
     function fetchCageStatus() {
         setInterval(() => {
-            // Adjust the path to point to the location of the JSON file relative to the HTML file
             fetch('./static/js/cage_status.json')
                 .then(response => {
                     if (!response.ok) {
