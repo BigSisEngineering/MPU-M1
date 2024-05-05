@@ -7,8 +7,9 @@ from src.BscbAPI.BscbAPI import BScbAPI
 from src.BscbAPI.BscbAPI import SensorID, Status
 from src import CLI
 from src.CLI import Level
-from src import data, app, operation, comm
+from src import data, app, operation, comm, cloud
 
+MongoDB_INIT = False
 
 @dataclass
 class BoardData:
@@ -52,7 +53,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -86,11 +87,13 @@ def execute():
             unload_probability = data.unload_probability
             run_dummy = data.dummy_enabled
             run_pnp = data.pnp_enabled
+            # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             if is_star_wheel_error or is_unloader_error:
                 data.dummy_enabled = False
                 data.pnp_enabled = False
+                MongoDB_INIT == False
         # ======================================= PNP? ======================================= #
         if run_pnp:
             CLI.printline(Level.INFO, f"(Background)-Running PNP")
@@ -98,6 +101,11 @@ def execute():
             with lock:
                 BOARD_DATA.mode = "pnp"
             # FIXME
+            print(f'mongo DB variable before : {MongoDB_INIT}')
+            if MongoDB_INIT == False:
+                cloud.DataBase = cloud.EggCounter()
+                MongoDB_INIT = True
+            print(f'mongo DB variable after : {MongoDB_INIT}')
             # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
             operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
         # ====================================== Dummy? ====================================== #
@@ -106,6 +114,7 @@ def execute():
             with lock:
                 BOARD_DATA.mode = "dummy"
             CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
+            MongoDB_INIT == False
             # FIXME
             # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
             operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
@@ -123,6 +132,7 @@ def execute():
             # app.indicators["mode"].set_black(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "idle"
+            MongoDB_INIT = False
             CLI.printline(Level.INFO, f"(Background)-Running NOTHING")
     except Exception as e:
         CLI.printline(Level.ERROR, f"(BscbAPI)-Loop error-{e}")

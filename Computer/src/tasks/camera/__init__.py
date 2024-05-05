@@ -158,7 +158,7 @@ class CameraThreading:
             else:
                 timestamp_now = arg_timestamp_now
 
-            timestamp = timestamp_now.strftime("%Y%m%d%H%M%S")
+            timestamp = timestamp_now.strftime("%Y_%m_%d_%H_%M_%S_")
             timestamp_ms = timestamp_now.strftime("%f")[:2]
             # [CAGE_ID]_[DATE][TIME]_[CONFIDENCE]_[RESULT].jpg
             file_name = os.path.join(

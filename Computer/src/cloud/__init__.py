@@ -25,7 +25,7 @@ class EggCounter:
             "start_time": self.start_date_time,
             "end_time": self.start_date_time,
         }
-        print("Initializing EggCounter")
+        print(f"Initializing EggCounter at {self.start_date_time}")
         self.data_init()
 
     def post_api_data(self, data):
@@ -119,4 +119,5 @@ class EggCounter:
             print(f"Upload data error: {e}")
 
 
-DataBase = EggCounter()
+# DataBase = EggCounter()
+DataBase = None

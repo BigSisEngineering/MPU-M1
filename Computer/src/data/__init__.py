@@ -48,6 +48,8 @@ unload_probability: float = 1.0
 pnp_enabled: bool = False
 pnp_confidence: float = 0.75
 
+MongoDB_INIT : bool = False
+
 pot_processed: int = 0
 pot_unloaded: int = 0
 pot_unloaded_since_last_request: int = 0
