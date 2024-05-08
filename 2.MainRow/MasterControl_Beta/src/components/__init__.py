@@ -12,7 +12,6 @@ from src.components import (
     a3_pot_dispenser,
     c1_chimney_sorter,
     c2_chimney_placer,
-    c3_channelizer,
     cages,
 )
 
@@ -21,7 +20,6 @@ A2 = a2_diet_dispenser.DietDispenser()
 A3 = a3_pot_dispenser.PotDispenser()
 C1 = c1_chimney_sorter.ChimneySorter()
 C2 = c2_chimney_placer.ChimneyPlacer()
-C3 = c3_channelizer.Channelizer()
 
 cage_dict: Optional[Dict[Cages, cages.Cage]] = {}
 

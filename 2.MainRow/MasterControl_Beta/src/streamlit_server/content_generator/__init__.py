@@ -95,9 +95,17 @@ def get_status_emoji(status: Status):
         return "🟦"
 
 
+
+# example
+# cage_status = components.cage_dict[Cages.CAGE01].status_ui
+
 def get_request_for_board_data(cage: Cages):
     try:
+        # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ #
+        #                      this                      #
+        # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ #
         response = components.cage_dict[cage].status_ui
+        # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ #
 
         sensor_values = ast.literal_eval(response["sensors_values"])
         is_sensor_ok = (sensor_values[0] >= 100) and (sensor_values[2] >= 100)

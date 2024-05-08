@@ -108,8 +108,8 @@ def main():
 
     with cols[4]:
         if st.button("Start 1C"):
-            st.write("nope.")
-            # SV.w_run_1c(True)
+            # st.write("nope.")
+            SV.w_run_1c(True)
 
     with cols[5]:
         if st.button("Stop 1C"):
