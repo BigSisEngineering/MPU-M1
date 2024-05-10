@@ -26,7 +26,7 @@ class ProcessAndPrediction:
         threading.Thread(target=self.computer_vision.load_rknn_model).start()
 
     @comm.timer()
-    def is_egg_detected(self, image, confident_level=0.70):
+    def is_egg_detected(self, image, confident_level=0.80):
         if self.computer_vision.is_rknn_ready():
             image = self.computer_vision.letterbox(image)
             self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(

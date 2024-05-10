@@ -141,18 +141,31 @@ def get_all_cages_status():
     return results
 
 
-def request_cage_data(address, results):
-    # print(f"Fetching data for {address}")  # Debugging line to ensure threads are running
-    try:
-        url = f"http://{address}:8080/BoardData"
-        with urllib.request.urlopen(url, timeout=5) as response:  
-            data = response.read()
-            results[address] = json.loads(data)
-            # print(f"Data for {address}: {results[address]}")  # Print fetched data
-    except Exception as e:
-        results[address] = str(e)
-        # print(f"Error fetching data for {address}: {e}")  # Print errors
+# def request_cage_data(address, results):
+#     # print(f"Fetching data for {address}")  # Debugging line to ensure threads are running
+#     try:
+#         url = f"http://{address}:8080/BoardData"
+#         with urllib.request.urlopen(url, timeout=5) as response:  
+#             data = response.read()
+#             results[address] = json.loads(data)
+#             # print(f"Data for {address}: {results[address]}")  # Print fetched data
+#     except Exception as e:
+#         results[address] = str(e)
+#         # print(f"Error fetching data for {address}: {e}")  # Print errors
 
+
+def request_cage_data(address, results):
+    url = f"http://{address}:8080/BoardData"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            results[address] = response.json()
+        else:
+            results[address] = {'error': f"Failed to fetch data with status code {response.status_code}"}
+        print(f"Data for {address}: {results[address]}")  # Print fetched data
+    except requests.exceptions.RequestException as e:
+        results[address] = {'error': str(e)}
+        # print(f"Error fetching data for {address}: {e}")  # Print errors
 
 
 def fetch_data_periodically():
