@@ -1,0 +1,15 @@
+[Unit]
+Description=BigSis Row Master
+After=network.target
+Wants=time-sync.target
+
+[Service]
+Type=simple
+ExecStart=nice -20 /usr/bin/python3 -m streamlit run /home/linaro/MasterControl/main.py
+WorkingDirectory=/home/linaro/MasterControl/
+User=linaro
+Environment="STREAMLIT_CONFIG_PATH=/path/to/.streamlit/config.toml"
+
+[Install]
+WantedBy=multi-user.target
+
