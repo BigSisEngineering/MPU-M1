@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   setupPageElements();
   fetchCageStatus();
   // simulateFetchCageStatus();
-  const controller = new ProcessController();
+  const controller = new Controller_1A_1C();
 });
 
 function setupPageElements() {
@@ -89,50 +89,110 @@ function setupCageSelection(cages) {
   });
 }
 
+// function setupActionExecution() {
+//   const executeButton = document.getElementById("execute-action");
+//   const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
+//   const actionCheckboxes = document.querySelectorAll(
+//     '.action-checkboxes input[type="checkbox"]'
+//   );
+
+//   executeButton.addEventListener("click", function () {
+//     const cagesSelected = Array.from(cageCheckboxes).some((chk) => chk.checked);
+//     const actionsSelected = Array.from(actionCheckboxes).filter(
+//       (chk) => chk.checked
+//     );
+
+//     if (!cagesSelected) {
+//       alert("Please select at least one cage.");
+//     } else if (actionsSelected.length === 0) {
+//       alert("Please select an action.");
+//     } else if (actionsSelected.length > 1) {
+//       alert("Only one action can be selected at a time.");
+//     } else {
+//       // Assuming only one action can be selected and is being handled here
+//       sendCagesAndActionToBackend(selectedCages, selectedActions[0]);
+//     }
+//   });
+// }
+
 function setupActionExecution() {
   const executeButton = document.getElementById("execute-action");
   const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
-  const actionCheckboxes = document.querySelectorAll(
-    '.action-checkboxes input[type="checkbox"]'
-  );
+  const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
+  const post_request_dict = {
+      "star-wheel-init": "STAR_WHEEL_INIT",
+      "unloader-init": "UNLOADER_INIT",
+      "clear-star-wheel-error": "CLEAR_STAR_WHEEL_ERROR",
+      "clear-unloader-error": "CLEAR_UNLOADER_ERROR",
+      "enable-dummy": "ENABLE_DUMMY",
+      "disable-dummy": "DISABLE_DUMMY",
+      "enable-pnp": "ENABLE_PNP",
+      "disable-pnp": "DISABLE_PNP",
+      "move-star-wheel-cw": 'MOVE_CW',
+      "move-star-wheel-ccw": 'MOVE_CCW'
+  };
 
   executeButton.addEventListener("click", function () {
-    const cagesSelected = Array.from(cageCheckboxes).some((chk) => chk.checked);
-    const actionsSelected = Array.from(actionCheckboxes).filter(
-      (chk) => chk.checked
-    );
+      const selectedCages = Array.from(cageCheckboxes).filter(chk => chk.checked).map(chk => chk.id);
+      const selectedActions = Array.from(actionCheckboxes).filter(chk => chk.checked).map(chk => post_request_dict[chk.value]);
 
-    if (!cagesSelected) {
-      alert("Please select at least one cage.");
-    } else if (actionsSelected.length === 0) {
-      alert("Please select an action.");
-    } else if (actionsSelected.length > 1) {
-      alert("Only one action can be selected at a time.");
-    }
+      if (selectedCages.length === 0) {
+          alert("Please select at least one cage.");
+      } else if (selectedActions.length === 0) {
+          alert("Please select an action.");
+      } else if (selectedActions.length > 1) {
+          alert("Only one action can be selected at a time.");
+      } else {
+          // Assuming only one action can be selected and is being handled here
+          sendCagesAndActionToBackend(selectedCages, selectedActions[0]);
+      }
   });
 }
 
-//    function fetchCageStatus() {
-  //     setInterval(() => {
-  //     fetch('/get_all_cages_status')
-  //         .then(response => {
-  //         if (!response.ok) {
-  //             throw new Error('Network response was not ok: ' + response.statusText);
-  //         }
-  //         return response.json();
-  //         })
-  //         .then(data => {
-  //         // updateModeIndicators(data);
-  //         // updateSensorIndicators(data);
-  //         const statusUpdater = new CageStatusUpdater(data);
-  //         statusUpdater.updateAllStatuses();
-  //         })
-  //         .catch(error => {
-  //         console.error('Error fetching cage status:', error);
-  //         });
-  //     }, 3000); // Fetch every 3 seconds
-  // }
-  function fetchCageStatus() {
+function sendCagesAndActionToBackend(cages, action) {
+  fetch('/execute_actions', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cages: cages, action: action })
+  })
+  .then(response => {
+    if (!response.ok) {
+        throw new Error(`HTTP error, status = ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => console.log('Server response:', data))
+  .catch(error => console.error('Error sending data to the server:', error));
+}
+
+
+
+
+
+
+// function fetchCageStatus() {
+//       setInterval(() => {
+//       fetch('/get_all_cages_status')
+//           .then(response => {
+//           if (!response.ok) {
+//               throw new Error('Network response was not ok: ' + response.statusText);
+//           }
+//           return response.json();
+//           })
+//           .then(data => {
+//           // updateModeIndicators(data);
+//           // updateSensorIndicators(data);
+//           const statusUpdater = new CageStatusUpdater(data);
+//           statusUpdater.updateAllStatuses();
+//           })
+//           .catch(error => {
+//           console.error('Error fetching cage status:', error);
+//           });
+//       }, 3000); // Fetch every 3 seconds
+//   }
+function fetchCageStatus() {
       setInterval(() => {
           // Adjust the path to point to the location of the JSON file relative to the HTML file
           fetch('./static/js/cage_status.json')
@@ -262,65 +322,86 @@ class CageStatusUpdater {
 
 
 
-class ProcessController {
-  constructor() {
-      this.is1AActive = false;
-      this.is1CActive = false;
-      this.setupEventListeners();
-  }
+class Controller_1A_1C {
+constructor() {
+    this.is1AActive = false;
+    this.is1CActive = false;
+    this.addTen = false;
+    this.setZero = false;
+    this.setupEventListeners();
+}
 
-  setupEventListeners() {
-      const start1AButton = document.getElementById('start');
-      const stop1AButton = document.getElementById('stop');
-      const start1CButton = document.getElementById('start-1C');
-      const stop1CButton = document.getElementById('stop-1C');
+setupEventListeners() {
+    const start1AButton = document.getElementById('start-1A');
+    const stop1AButton = document.getElementById('stop-1A');
+    const start1CButton = document.getElementById('start-1C');
+    const stop1CButton = document.getElementById('stop-1C');
+    const addTenButton = document.getElementById('add');
+    const setZeroButton = document.getElementById('zero');
 
-      if (start1AButton && stop1AButton && start1CButton && stop1CButton) {
-          start1AButton.addEventListener('click', () => this.start1A());
-          stop1AButton.addEventListener('click', () => this.stop1A());
-          start1CButton.addEventListener('click', () => this.start1C());
-          stop1CButton.addEventListener('click', () => this.stop1C());
-      } else {
-          console.error('One or more buttons not found. Please check your button IDs.');
-      }
-  }
+    if (start1AButton && stop1AButton && start1CButton && stop1CButton && addTenButton && setZeroButton) {
+        start1AButton.addEventListener('click', () => this.start1A());
+        stop1AButton.addEventListener('click', () => this.stop1A());
+        start1CButton.addEventListener('click', () => this.start1C());
+        stop1CButton.addEventListener('click', () => this.stop1C());
+        addTenButton.addEventListener('click', () => this.addTenPots());
+        setZeroButton.addEventListener('click', () => this.setZeroPots());
+    } else {
+        console.error('One or more buttons not found. Please check your button IDs.');
+    }
+}
 
-  sendState() {
-      fetch('/update_state', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              is1AActive: this.is1AActive,
-              is1CActive: this.is1CActive
-          })
-      }).then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
-  }
+sendState() {
+    fetch('/update_state', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            is1AActive: this.is1AActive,
+            is1CActive: this.is1CActive,
+            addTen: this.addTen,
+            setZero: this.setZero
+        })
+    }).then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+}
 
-  start1A() {
-      this.is1AActive = true;
-      console.log("1A started:", this.is1AActive);
-      this.sendState();
-  }
+start1A() {
+    this.is1AActive = true;
+    console.log("1A started:", this.is1AActive);
+    this.sendState();
+}
 
-  stop1A() {
-      this.is1AActive = false;
-      console.log("1A stopped:", this.is1AActive);
-      this.sendState();
-  }
+stop1A() {
+    this.is1AActive = false;
+    console.log("1A stopped:", this.is1AActive);
+    this.sendState();
+}
 
-  start1C() {
-      this.is1CActive = true;
-      console.log("1C started:", this.is1CActive);
-      this.sendState();
-  }
+start1C() {
+    this.is1CActive = true;
+    console.log("1C started:", this.is1CActive);
+    this.sendState();
+}
 
-  stop1C() {
-      this.is1CActive = false;
-      console.log("1C stopped:", this.is1CActive);
-      this.sendState();
-  }
+stop1C() {
+    this.is1CActive = false;
+    console.log("1C stopped:", this.is1CActive);
+    this.sendState();
+}
+addTenPots() {
+  this.addTen = true;
+  console.log("Added 10 Pots:", this.addTen);
+  this.sendState();
+  this.addTen = false;
+}
+
+setZeroPots() {
+  this.setZero = true;
+  console.log("Set to 0:", this.setZero);
+  this.sendState();
+  this.setZero = false;
+}
 }

@@ -1,17 +1,19 @@
 import threading
 import os
 import json
-import urllib.request
+# import urllib.request
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import time
+import tempfile
+import requests
 
 
 # ------------------------------------------------------------------------------------------------ #
 from src import tasks
 from src._shared_variables import SV
 
-# Assuming DIRECTORY is correctly set up as previously shown
-DIRECTORY = os.path.join(os.path.dirname(__file__), 'src', 'frontEnd')
+
+DIRECTORY = os.path.join(os.path.dirname(__file__), 'src', 'front_end')
 JSON_FILE_PATH = os.path.join(DIRECTORY, 'static', 'js', 'cage_status.json')
 
 class MyHttpRequestHandler(SimpleHTTPRequestHandler):
@@ -30,6 +32,9 @@ class MyHttpRequestHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/update_state':
             self.handle_state_update()
+        
+        elif self.path == '/execute_actions':
+            self.handle_execute_actions()
         else:
             self.send_error(404, "File not found.")
 
@@ -49,11 +54,69 @@ class MyHttpRequestHandler(SimpleHTTPRequestHandler):
         SV.is1AActive = data.get("is1AActive", False)
         SV.is1CActive = data.get("is1CActive", False)
 
+
+        # Check for toggles and execute associated tasks
+        if data.get("addTen", False):
+            tasks.a3_task.add_pots(10)
+        if data.get("setZero", False):
+            tasks.a3_task.set_zero()
+
+        # Reset toggles immediately after processing
+        data["addTen"] = False
+        data["setZero"] = False
+
         # Send a response back to the client
         self.send_response(200)
         self.end_headers()
         response = {'status': 'success'}
         self.wfile.write(json.dumps(response).encode('utf-8'))
+
+   
+    def handle_execute_actions(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length).decode('utf-8')
+        data = json.loads(post_data)
+        print("Received data for execution:", data)
+
+        results = self.execute_actions_on_cages(data.get('cages', []), data.get('action', ''))
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(results).encode('utf-8'))
+
+    def execute_actions_on_cages(self, cages, action):
+        results = {}
+        for cage_id in cages:
+            url = f"http://{cage_id}:8080/{action}"
+            headers = {'Content-Type': 'application/json'}
+            try:
+                # Assuming POST is the correct method for executing actions
+                response = requests.post(url, headers=headers, json={}, timeout=5)
+                
+                if response.status_code == 200:
+                    response_text = response.content.decode('utf-8')
+                    results[cage_id] = {
+                        'status': 'success',
+                        'response': response_text,
+                        'status_code': response.status_code
+                    }
+                else:
+                    results[cage_id] = {
+                        'status': 'error',
+                        'message': f"Failed with status code {response.status_code}",
+                        'response': response.text
+                    }
+                print(f"Request sent to {url} with headers {headers} received response: {response.text}")
+                time.sleep(0.1)
+            except requests.exceptions.RequestException as e:
+                results[cage_id] = {
+                    'status': 'error',
+                    'message': str(e)
+                }
+                print(f"Failed to send request to {url} with headers {headers}")
+        return results
+
+
 
 def get_all_cages_status():
     cage_addresses = [f"cage0x000{i}" for i in range(2, 10)] + [f"cage0x00{i}" for i in range(10, 16)]
@@ -71,42 +134,56 @@ def get_all_cages_status():
     with open(JSON_FILE_PATH, 'w') as f:
         json.dump(results, f)
 
-    print(f"All cages status : {results}")
+    # print(f"All cages status : {results}")
     # for address, data in results.items():
     #     print(f"{address}: {data}")
 
     return results
 
 
-def request_cage_data(address, results):
-    # print(f"Fetching data for {address}")  # Debugging line to ensure threads are running
-    try:
-        url = f"http://{address}:8080/BoardData"
-        with urllib.request.urlopen(url, timeout=5) as response:  # 2-second timeout
-            data = response.read()
-            results[address] = json.loads(data)
-            # print(f"Data for {address}: {results[address]}")  # Print fetched data
-    except Exception as e:
-        results[address] = str(e)
-        # print(f"Error fetching data for {address}: {e}")  # Print errors
+# def request_cage_data(address, results):
+#     # print(f"Fetching data for {address}")  # Debugging line to ensure threads are running
+#     try:
+#         url = f"http://{address}:8080/BoardData"
+#         with urllib.request.urlopen(url, timeout=5) as response:  
+#             data = response.read()
+#             results[address] = json.loads(data)
+#             # print(f"Data for {address}: {results[address]}")  # Print fetched data
+#     except Exception as e:
+#         results[address] = str(e)
+#         # print(f"Error fetching data for {address}: {e}")  # Print errors
 
+
+def request_cage_data(address, results):
+    url = f"http://{address}:8080/BoardData"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            results[address] = response.json()
+        else:
+            results[address] = {'error': f"Failed to fetch data with status code {response.status_code}"}
+        print(f"Data for {address}: {results[address]}")  # Print fetched data
+    except requests.exceptions.RequestException as e:
+        results[address] = {'error': str(e)}
+        # print(f"Error fetching data for {address}: {e}")  # Print errors
 
 
 def fetch_data_periodically():
     while True:
         get_all_cages_status()
-        time.sleep(3)  # Fetch data every 3 seconds, can be adjusted as needed
+        time.sleep(5)  # Fetch data every 3 seconds, can be adjusted as needed
 
 
-def monitor_variables():
+def variables_1a_1c():
     while True:
-        print(f"Current States -> is1AActive: {SV.is1AActive}, is1CActive: {SV.is1CActive}")
-        SV.w_run_1c(SV.is1CActive)
+        # print(f"Current States -> is1AActive: {SV.is1AActive}, is1CActive: {SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
+        SV.w_run_1c(SV.is1CActive)
         time.sleep(3)  
 
 
 def run():
+    # tasks.start()
     port = 8080
     server_address = ('', port)
     httpd = HTTPServer(server_address, MyHttpRequestHandler)
@@ -116,7 +193,7 @@ def run():
     data_fetch_thread.daemon = True
     data_fetch_thread.start()
 
-    monitoring_thread = threading.Thread(target=monitor_variables)
+    monitoring_thread = threading.Thread(target=variables_1a_1c)
     monitoring_thread.daemon = True
     monitoring_thread.start()
 

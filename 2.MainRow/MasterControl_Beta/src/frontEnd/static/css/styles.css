@@ -1,17 +1,18 @@
 /* styles.css */
-body, html {
-    height: 100%;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-  }
-  
+body,
+html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
 .control-1A-1C {
   text-align: center;
   padding: 20px;
   background-color: #fff;
   margin: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .button-group button {
@@ -20,14 +21,14 @@ body, html {
   cursor: pointer;
 }
 
-
-
 .status-panel {
   margin-top: 20px;
   position: relative; /* Needed for absolute positioning of Mode and SW */
 }
 
-.status-mode-description, .status-servos-description, .status-sensors-description {
+.status-mode-description,
+.status-servos-description,
+.status-sensors-description {
   margin-bottom: 15px;
   display: inline-block;
   margin-right: 60px;
@@ -38,7 +39,7 @@ body, html {
   width: 15px;
   border-radius: 50%;
   display: inline-block;
-  margin:  5px;
+  margin: 5px;
   vertical-align: middle;
 }
 
@@ -46,62 +47,81 @@ body, html {
   font-size: 15px; /* Set the size of the gear icons */
   color: black; /* Set the color of the gear icons */
   margin: 5px auto; /* Center the icons and add some space around them */
-  margin:  5px;
+  margin: 5px;
 }
 
 /* Styles for each status */
-.gear-icon.normal { color: #00ff00; } /* Green for normal */
-.gear-icon.overload { color: #ff0000; } /* Red for overload */
-.gear-icon.not-init { color: #000000; } /* Purple for not init */
-
+.gear-icon.normal {
+  color: #00ff00;
+} /* Green for normal */
+.gear-icon.overload {
+  color: #ff0000;
+} /* Red for overload */
+.gear-icon.not-init {
+  color: #000000;
+} /* Purple for not init */
 
 .status-square {
   height: 15px;
   width: 15px;
   display: inline-block;
-  margin:  5px;
+  margin: 5px;
   vertical-align: middle;
 }
 
-
 /* Color classes */
-.green { background-color: #00ff00; }
-.blue { background-color: #0000ff; }
-.grey { background-color: #808080; }
-.black { background-color: #000000; }
-.yellow { background-color: #ffff00; }
-.orange { background-color: #ffa500; }
-.red { background-color: #ff0000; }
-.purple { background-color: #800080; }
+.green {
+  background-color: #00ff00;
+}
+.blue {
+  background-color: #0000ff;
+}
+.grey {
+  background-color: #808080;
+}
+.black {
+  background-color: #000000;
+}
+.yellow {
+  background-color: #ffff00;
+}
+.orange {
+  background-color: #ffa500;
+}
+.red {
+  background-color: #ff0000;
+}
+.purple {
+  background-color: #800080;
+}
 
 .table-container {
-    margin: 20px;
-    overflow-x: auto;
+  margin: 20px;
+  overflow-x: auto;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    border: none; /* No border around the table */
+  width: 100%;
+  border-collapse: collapse;
+  border: none; /* No border around the table */
 }
 
-th, td {
-    padding: 8px;
-    text-align: center;
-    border: none; /* No borders around each cell */
+th,
+td {
+  padding: 8px;
+  text-align: center;
+  border: none; /* No borders around each cell */
 }
 
 .mode-cell::before {
-    content: "";
-    display: block;
-    margin: 0 auto;
-    width: 15px;
-    height: 15px;
-    background-color: black;
-    border-radius: 50%;
+  content: "";
+  display: block;
+  margin: 0 auto;
+  width: 15px;
+  height: 15px;
+  background-color: black;
+  border-radius: 50%;
 }
-
-
 
 .load-sensor-cell::before {
   content: "";
@@ -113,13 +133,13 @@ th, td {
   border-radius: 0; /* Make it a square */
 }
 .unload-sensor-cell::before {
-    content: "";
-    display: block;
-    margin: 0 auto;
-    width: 15px;
-    height: 15px;
-    background-color: black;
-    border-radius: 0; /* Make it a square */
+  content: "";
+  display: block;
+  margin: 0 auto;
+  width: 15px;
+  height: 15px;
+  background-color: black;
+  border-radius: 0; /* Make it a square */
 }
 
 .buffer-sensor-cell::before {
@@ -134,22 +154,26 @@ th, td {
 
 .cage-selection,
 .action-selection {
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 50px;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 40px;
   font-weight: bold;
   text-align: left;
 }
 
 .cage-selection .cage-checkboxes,
 .action-selection .action-checkboxes {
-    margin-top: 5px;
+  margin-top: px;
 }
 
-
-
-.action-selection .action-checkboxes {
-    text-align: left; /* Aligns the content of the action checkboxes to the left */
+.action-selection .action-checkboxes,
+.pot-sorter,
+.diet-dispenser,
+.pot-dispenser,
+.chimney-sorter,
+.chimney-placer {
+  text-align: left; /* Aligns the content of the action checkboxes to the left */
+  margin-right: 10px;
 }
 
 /* Style for the Execute button */
@@ -164,19 +188,51 @@ th, td {
   font-size: 1em; /* Matches the font size to the rest of the form */
 }
 
+.status-panels {
+  display: flex;
+  justify-content: space-between; /* Adjusts the space between the child elements */
+  align-items: start; /* Aligns items to the top of the container */
+  padding: 10px; /* Padding around the entire container for some space from the edges */
+  background-color: #f4f4f4; /* Optional background color */
+}
+
+.status-1A,
+.status-1C {
+  flex: 1; /* Ensures each section takes equal space */
+  padding: 10px; /* Padding inside each status box */
+  background-color: #fff; /* Background color for visibility */
+  border: 1px solid #ccc; /* Borders for neat separation */
+  margin: 5px; /* Space between the two sections */
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  width: 100%;
+}
+
+.status-panels {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.status-1A,
+.status-1C {
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-top: 20px;
+}
+
 /* Hover effect for the button */
 #execute-action:hover {
   background-color: #0056b3; /* Darker shade when hovered for visual feedback */
 }
 
-
 /* Active state for the button - when it is being clicked */
 #execute-action:active {
   background-color: #3399ff; /* Even darker shade for the click effect */
 }
-  
-
-
 
 .indicator-pnp::before {
   background-color: #00ff00; /* Green */
@@ -192,8 +248,60 @@ th, td {
   background-color: #000000; /* Blue */
 }
 
-
 .indicator-sensor::before {
   background-color: #00ff00; /* Green */
 }
 
+/* Lays out the indicators in a row with space between each */
+.pot-sorter-indicators,
+.diet-dispenser-indicators,
+.pot-dispenser-indicators,
+.sw-diet-dispenser-indicators,
+.sw-pot-dispenser-indicators,
+.chimney-sorter-indicators,
+.chimney-placer-indicators {
+  display: flex;
+  gap: 10px;
+}
+
+/* Common styles for all status indicators */
+.status-pot-sorter,
+.status-diet-dispenser,
+.status-pot-dispenser,
+.status-sw-diet-dispenser,
+.status-sw-pot-dispenser,
+.status-chimney-sorter,
+.status-chimney-placer,
+.status-channel-1,
+.status-channel-2,
+.status-channel-3,
+.status-pot-sensor,
+.status-chimney-sensor {
+  width: 20%; /* Sets a fixed width for all rectangles */
+  height: 30px; /* Sets a fixed height for all rectangles */
+  display: flex;
+  align-items: center; /* Centers text vertically */
+  justify-content: center; /* Centers text horizontally */
+  color: white; /* White text for better contrast */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 0.9em; /* Slightly smaller text */
+}
+
+/* Background color for disconnected status */
+.disconnected {
+  background-color: grey; /* Grey indicates no connection */
+}
+
+/* Background color for connected status */
+.connected {
+  background-color: #4caf50; /* Green indicates an active connection */
+}
+
+/* Background color for error status */
+.error {
+  background-color: grey; /* Red indicates an error condition */
+}
+
+.sensor {
+  background-color: grey; /* Red indicates an error condition */
+}
