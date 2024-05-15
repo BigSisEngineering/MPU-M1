@@ -7,7 +7,7 @@ from src.BscbAPI.BscbAPI import BScbAPI
 from src.BscbAPI.BscbAPI import SensorID, Status
 from src import CLI
 from src.CLI import Level
-from src import data, app, operation, comm, cloud
+from src import data, operation, comm, cloud
 
 MongoDB_INIT = False
 
