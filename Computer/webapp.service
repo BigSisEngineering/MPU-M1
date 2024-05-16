@@ -6,7 +6,7 @@ Wants=time-sync.target
 [Service]
 ExecStartPre=/bin/sleep 10
 ExecStartPre=sudo systemctl restart systemd-timesyncd
-ExecStartPre=/home/linaro/check_date.sh
+ExecStartPre=/home/linaro/Computer/check_date.sh
 ExecStart=/usr/bin/python3 /home/linaro/Computer/main.py
 WorkingDirectory=/home/linaro/Computer
 Restart=always
