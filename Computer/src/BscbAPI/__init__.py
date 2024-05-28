@@ -55,7 +55,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp
     try:
         # ===================================== Update board data ==================================== #
         with lock:
