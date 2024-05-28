@@ -11,19 +11,19 @@ from src.tasks import findCircle
 from src import BscbAPI
 
 TASK_THREADS: Dict[str, threading.Thread] = {
-    "heartbeat": heartbeat.create_thread(),
-    "http_server": httpServer.create_thread(),
+    # "heartbeat": heartbeat.create_thread(),
+    # "http_server": httpServer.create_thread(),
     "camera": camera.create_thread(),
     "control": BscbAPI.create_thread(),
     "aws": aws.create_thread(),
-    "find_circle": findCircle.create_thread()
+    "find_circle": findCircle.create_thread(),
 }
 
 
 def start_all_threads():
     for thread in TASK_THREADS.values():
         if not thread.is_alive():
-            # thread.daemon = True
+            thread.daemon = True
             thread.start()
 
 
