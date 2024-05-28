@@ -1,0 +1,19 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+D1,D_SOD-123,1,1N4148,C81598
+"D2, D3, D4, D5, D6, D7",0805,6,red,C434431
+D8,0805,1,green,C434435
+"H1, H2, H3, H4",MountingHole_3.2mm_M3_ISO7380,4,MountingHole,
+"J1, J5",DB142R-5.08-6P,2,Conn_01x06,C2898713
+J17,DB142R-5.08-4P,1,Conn_01x04,C2898711
+"J2, J6",DB142R-5.08-12P,2,Conn_01x12,C2898718
+J23,PinHeader_1x06_P2.54mm_Vertical,1,Conn_01x06_Socket,
+"J3, J4",PinSocket_1x03_P2.54mm_Vertical,2,Conn_01x03_Pin,
+"JP1, JP2, JP3, JP4, JP5, JP6",SolderJumper-2_P1.3mm_Open_TrianglePad1.0x1.5mm,6,SolderJumper_2_Open,
+OC1,SOIC-16W_5.3x10.2mm_P1.27mm,1,TLP293-4,C3002262
+R1,0805,1,4k7,C229219
+"R10, R11, R12, R13, R14, R15",0805,6,1k,C95781
+R16,0805,1,3k3,C114531
+"R2, R3, R4, R5",0805,4,10k,C84376
+"R6, R7, R8, R9",0805,4,120,C114244
+U1,ProMicro-2x12-Header-B,1,ProMicro,C3975157
+U2,ProMirco-2x12-Header-A,1,ProMicro,C3975157
