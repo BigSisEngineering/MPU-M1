@@ -1,5 +1,4 @@
 import threading
-import streamlit as st
 
 # ------------------------------------------------------------------------------------------------ #
 from src import CLI

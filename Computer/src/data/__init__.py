@@ -20,6 +20,7 @@ class PNPData:
     detection: bool
     number_of_egg_pot_since_last_ask: int
     pnp_confidence: int
+    cycle_time: float
 
     def dict(self):
         return {k: str(v) for k, v in asdict(self).items()}
@@ -34,7 +35,8 @@ pnp_data: PNPData = PNPData(
     egg_pot_detected=0,
     detection=False,
     number_of_egg_pot_since_last_ask=0,
-    pnp_confidence=80
+    pnp_confidence=80,
+    cycle_time=6.0,
 )
 
 is_star_wheel_error: bool = False
@@ -48,7 +50,7 @@ unload_probability: float = 1.0
 pnp_enabled: bool = False
 pnp_confidence: float = 0.80
 
-MongoDB_INIT : bool = False
+MongoDB_INIT: bool = False
 
 pot_processed: int = 0
 pot_unloaded: int = 0

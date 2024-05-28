@@ -22,6 +22,7 @@ POST_LIST = [
     "MOVE_CW",
     "MOVE_CCW",
     "UNLOAD",
+    "SET_CYCLE_TIME",
 ]
 
 
@@ -64,46 +65,26 @@ def post_UNLOADER_INIT(server):
 
 def post_ENABLE_PNP(server):
     send_200_response(server)
-    # with data.lock_board_params:
-    # if not data.unloader_inited or not data.star_wheel_inited or data.is_unloader_error or data.is_star_wheel_error:
-    #     server.wfile.write("Error, pnp cannot enable".encode())
-    # else:
     server.wfile.write("pnp Enabled".encode())
-    with data.lock:
-        data.pnp_enabled = True
-    # handler.enable_pnp()
+    handler.enable_pnp()
 
 
 def post_ENABLE_DUMMY(server):
     send_200_response(server)
-    # with data.lock_board_params:
-    #     if not data.unloader_inited or not data.star_wheel_inited or data.is_unloader_error or data.is_star_wheel_error:
-    #         server.wfile.write("Error, dummy cannot enable".encode())
-    #     else:
     server.wfile.write("Dummy Enabled".encode())
-    with data.lock:
-        data.dummy_enabled = True
-    # handler.enable_dummy()
+    handler.enable_dummy()
 
 
 def post_DISABLE_DUMMY(server):
     send_200_response(server)
     server.wfile.write("Dummy Disabled".encode())
-    with data.lock:
-        data.dummy_enabled = False
-    # handler.enable_dummy()
+    handler.enable_dummy()
 
 
 def post_DISABLE_PNP(server):
     send_200_response(server)
-    # with data.lock_board_params:
-    # if not data.unloader_inited or not data.star_wheel_inited or data.is_unloader_error or data.is_star_wheel_error:
-    #     server.wfile.write("Error, pnp cannot enable".encode())
-    # else:
     server.wfile.write("pnp Disabled".encode())
-    with data.lock:
-        data.pnp_enabled = False
-    # handler.enable_pnp()
+    handler.enable_pnp()
 
 
 def post_SET_STAR_WHEEL_SPEED(server):
@@ -179,3 +160,16 @@ def post_UNLOAD(server):
     send_200_response(server)
     server.wfile.write("UNLOAD".encode())
     handler.unload()
+
+
+def post_SET_CYCLE_TIME(server):
+    send_200_response(server)
+
+    cycle_time = int(server.parsed_url[2])
+    if cycle_time >= 0 and cycle_time <= 20:
+        server.wfile.write(f"Cycle time set to {cycle_time}".encode())
+    else:
+        server.wfile.write(f"Cycle time exceed bounds".encode())
+
+    with data.lock:
+        data.star_wheel_duration_ms = cycle_time

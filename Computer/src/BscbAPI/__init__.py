@@ -10,6 +10,8 @@ from src.CLI import Level
 from src import data, app, operation, comm, cloud
 
 MongoDB_INIT = False
+time_stamp = time.time()
+
 
 @dataclass
 class BoardData:
@@ -90,24 +92,30 @@ def execute():
             # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
+            cycle_time = data.pnp_data.cycle_time
             if is_star_wheel_error or is_unloader_error:
                 data.dummy_enabled = False
                 data.pnp_enabled = False
                 MongoDB_INIT == False
         # ======================================= PNP? ======================================= #
         if run_pnp:
-            CLI.printline(Level.INFO, f"(Background)-Running PNP")
-            # app.indicators["mode"].set_green(using_queue=True)
-            with lock:
-                BOARD_DATA.mode = "pnp"
-            # FIXME
-            print(f'mongo DB variable before : {MongoDB_INIT}')
-            if MongoDB_INIT == False:
-                cloud.DataBase = cloud.EggCounter()
-                MongoDB_INIT = True
-            print(f'mongo DB variable after : {MongoDB_INIT}')
-            # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
-            operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+            if time.time() - time_stamp > cycle_time:
+                time_stamp = time.time() if is_safe_to_move else time_stamp
+
+                CLI.printline(Level.INFO, f"(Background)-Running PNP")
+                # app.indicators["mode"].set_green(using_queue=True)
+                with lock:
+                    BOARD_DATA.mode = "pnp"
+                # FIXME
+                print(f"mongo DB variable before : {MongoDB_INIT}")
+                if MongoDB_INIT == False:
+                    cloud.DataBase = cloud.EggCounter()
+                    MongoDB_INIT = True
+                print(f"mongo DB variable after : {MongoDB_INIT}")
+                # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+                operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+
+            CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
             # app.indicators["mode"].set_blue(using_queue=True)
