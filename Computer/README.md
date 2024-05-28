@@ -3,7 +3,7 @@
 ### Introduction
 
 ### Log
-- [v5.0.0] - 31 Jan 2024
+- [v5.0.0] - 28 May 2024
   - removed streamlit
   - javascript for the frontend
   - implemented find circle algorithm
