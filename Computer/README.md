@@ -3,7 +3,11 @@
 ### Introduction
 
 ### Log
-
+- [v5.0.0] - 31 Jan 2024
+  - removed streamlit
+  - javascript for the frontend
+  - implemented find circle algorithm
+  - added 20 sec logic for monfoDB to initialize new session when sensors (buffer and loader) are not triggered for 20 sec
 - [v4.10.4] - 31 Jan 2024
   - Added a time delay to simulate the AI useage
 - [v4.10.3] - 31 Jan 2024
