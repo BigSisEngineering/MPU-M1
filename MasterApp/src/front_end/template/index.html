@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M1 Control 🥚</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="control-1A-1C">
+        <h1>M1 Control 🥚</h1>
+        <div class="button-group">
+            <button id="start-1A">Start 1A</button>
+            <button id="add">Add 10 pots</button>
+            <button id="zero">Set zero</button>
+            <button id="stop-1A">Stop 1A</button>
+            <button id="start-1C">Start 1C</button>
+            <button id="stop-1C">Stop 1C</button>
+        </div>
+        <hr> <!-- Separation line after buttons -->
+
+        <div class="status-panel">
+            <div class="status-mode-description">
+                <span class="status-circle green"></span><span>PnP</span>
+                <span class="status-circle blue"></span><span>Dummy</span>
+                <span class="status-circle grey"></span><span>Idle</span>
+                <span class="status-circle black"></span><span>Offline</span>
+            </div>
+            <div class="status-servos-description">
+                <i class="fas fa-cog gear-icon normal"></i><span>Normal</span>
+                <i class="fas fa-cog gear-icon overload"></i><span>Overload</span>
+                <i class="fas fa-cog gear-icon not-init"></i><span>Not init</span>
+            </div>
+            <div class="status-sensors-description">
+                <span class="status-square green"></span><span>Triggered</span>
+                <span class="status-square black"></span><span>Not Triggered</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th> <!-- Empty corner cell -->
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <hr> 
+        <div class="cage-selection">
+            <label>Select Cage(s):</label>
+            <div>
+                <input type="checkbox" id="select-all">
+                <label for="select-all">Select All</label>
+            </div>
+            <div class="cage-checkboxes" id="cage-checkboxes">
+                <!-- Checkboxes will be added here by JavaScript -->
+            </div>
+        </div>
+      <div class="action-selection">
+            <label>Select Action:</label>
+            <div class="action-checkboxes">
+                <div>
+                    <input type="checkbox" id="star-wheel-init" value="star-wheel-init">
+                    <label for="star-wheel-init">Star Wheel INIT</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="unloader-init" value="unloader-init">
+                    <label for="unloader-init">Unloader INIT</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="enable-dummy" value="enable-dummy">
+                    <label for="enable-dummy">Enable Dummy</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="disable-dummy" value="disable-dummy">
+                    <label for="disable-dummy">Disable Dummy</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="enable-pnp" value="enable-pnp">
+                    <label for="enable-pnp">Enable PNP</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="disable-pnp" value="disable-pnp">
+                    <label for="disable-pnp">Disable PNP</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="clear-star-wheel-error" value="clear-star-wheel-error">
+                    <label for="clear-star-wheel-error">Clear Star Wheel Error</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="clear-unloader-error" value="clear-unloader-error">
+                    <label for="clear-unloader-error">Clear Unloader Error</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="move-star-wheel-cw" value="move-star-wheel-cw">
+                    <label for="move-star-wheel-cw">Move Star Wheel CW</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="move-star-wheel-ccw" value="move-star-wheel-ccw">
+                    <label for="move-star-wheel-ccw">Move Star Wheel CCW</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="unload" value="unload">
+                    <label for="unload">Unload</label>
+                </div>
+                <div>
+                    <button id="execute-action" type="button">Execute</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/event-functions.js"></script>
+</body>
+</html>
