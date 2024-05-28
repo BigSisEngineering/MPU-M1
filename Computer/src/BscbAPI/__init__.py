@@ -7,7 +7,7 @@ from src.BscbAPI.BscbAPI import BScbAPI
 from src.BscbAPI.BscbAPI import SensorID, Status
 from src import CLI
 from src.CLI import Level
-from src import data, app, operation, comm, cloud
+from src import data, operation, comm, cloud
 
 MongoDB_INIT = False
 time_stamp = time.time()
@@ -103,7 +103,6 @@ def execute():
                 time_stamp = time.time() if is_safe_to_move else time_stamp
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
-                # app.indicators["mode"].set_green(using_queue=True)
                 with lock:
                     BOARD_DATA.mode = "pnp"
                 # FIXME
@@ -118,7 +117,6 @@ def execute():
             CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
-            # app.indicators["mode"].set_blue(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "dummy"
             CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
@@ -128,7 +126,6 @@ def execute():
             operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
         # ======================================== Purge? ======================================== #
         elif run_purge:
-            # app.indicators["mode"].set_yellow(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "purging"
             with data.lock:
@@ -137,7 +134,6 @@ def execute():
             operation.purge(BOARD, lock, data.purge_start_unload)
         # ========================================= IDLE ========================================= #
         else:
-            # app.indicators["mode"].set_black(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "idle"
             MongoDB_INIT = False
