@@ -11,7 +11,8 @@ from src import data, operation, comm, cloud
 
 MongoDB_INIT = False
 time_stamp = time.time()
-
+sensor_timer_flag = False
+t1 = None
 
 @dataclass
 class BoardData:
@@ -55,7 +56,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, t1
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -65,6 +66,12 @@ def execute():
             is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
+            if sensor_timer_flag ==False:
+                t1 = None
+            if sensors_values[0] < 100 or sensors_values[2]<100:
+                if sensor_timer_flag == False:
+                    t1 = time.time()
+                    sensor_timer_flag = True
 
         # ======================================= Check status ======================================= #
         # CLI.printline(Level.INFO, f"SW status-{BOARD.star_wheel_status}, UL-{BOARD.unloader_status}")
@@ -110,6 +117,16 @@ def execute():
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
+                
+                if sensor_timer_flag == True:
+                    print(f'variable t1 :{t1}')
+                    if t1 is not None:
+                        sensor_timer = time.time() - t1
+                        print(f'sensors not triggered for {sensor_timer}')
+                        if sensor_timer > 20 and  sensors_values[0] > 100 and sensors_values[2]>100:
+                            CLI.printline(Level.ERROR,f'sensors triggered again {sensors_values}')
+                            cloud.DataBase = cloud.EggCounter()
+                            sensor_timer_flag = False
                 print(f"mongo DB variable after : {MongoDB_INIT}")
                 # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
                 operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
