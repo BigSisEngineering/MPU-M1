@@ -43,7 +43,7 @@ def get_master_ip(arg=None):
         ip = result[0][4][0]
         CLI.printline(Level.INFO, f"(setup)-Master IP set: {ip}")
     except socket.gaierror:
-        CLI.printline(Level.WARNING, f"(setup)-Master IP cannout found. Is master exist? ")
+        CLI.printline(Level.WARNING, f"(setup)-Master IP cannout found. Does master exist? ")
     return ip
 
 
@@ -70,8 +70,8 @@ def save_mask_coordinates(mask_coordinates):
     config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
     config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
     config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
-    
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), 'w') as configfile:
+
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), "w") as configfile:
         config_parser.write(configfile)
 
 
