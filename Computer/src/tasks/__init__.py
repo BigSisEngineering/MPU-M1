@@ -23,7 +23,6 @@ TASK_THREADS: Dict[str, threading.Thread] = {
 def start_all_threads():
     for thread in TASK_THREADS.values():
         if not thread.is_alive():
-            thread.daemon = True
             thread.start()
 
 

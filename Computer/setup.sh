@@ -7,9 +7,13 @@ nc='\033[0m'
 
 # ======================================= Title ====================================== #
 echo -e "\n=================================================\n"
-echo -e "${green}              SETUP MODULE-1 CAGE                ${nc}"
+echo -e "${success}              SETUP MODULE-1 CAGE                ${nc}"
 echo -e "\n=================================================\n"
 
+# =============================== Enable Chrony Service ============================== #
+sudo apt install chrony -y
+sudo systemctl start chrony
+sudo systemctl enable chrony
 
 # ==================================== User Input ==================================== #
 echo -e "\n=================================================\n"
@@ -19,11 +23,16 @@ echo -e "\n=================================================\n"
 
 # ================================== Validate Input ================================== #
 if ! [[ "$r" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]]; then
-    echo "Error: Both row and cage numbers must be integers."
+    echo -e "${error}[ERROR]: Both row and cage numbers must be integers.${nc}"
     exit 1
 fi
 
 # ================================== Update Hostname ================================= #
+if (( n > 15 )); then
+    echo -e "${error}[ERROR]: The value of n cannot exceed 15.${nc}"
+    exit 1
+fi
+
 if (( n < 10 )); then
     hostname="cage${r}x000${n}"
 elif (( n < 100 )); then
@@ -34,12 +43,12 @@ else
     hostname="cage${r}x${n}"
 fi
 
-# Update /etc/hostname
+# # Update /etc/hostname
 echo "$hostname" | sudo tee /etc/hostname > /dev/null
 sudo hostname "$hostname"
 echo -e "${success}[SUCESS]>> Hostname updated to '$hostname'${nc}"
 
-# Update /etc/hosts
+# # Update /etc/hosts
 sudo sed -i "/^127.0.0.1\s*localhost\s*$/a 127.0.0.1\tlocalhost $hostname" /etc/hosts
 echo -e "${success}[SUCESS]>> Hostname '$hostname' appended to '/etc/hosts'${nc}"
 
@@ -50,13 +59,17 @@ sudo apt-get install -y python3-pip
 
 # install requirements
 pip3 install --upgrade pip --user
-pip3 install --upgrade pip setuptools wheel
-pip3 install -r ./requirements.txt --user
+pip3 install --upgrade pip setuptools wheel --user
+pip3 install -r ~/Computer/requirements.txt --user
 
 # ================================== Setup services ================================== #
-sudo chmod +x ./check_date.sh+  
-sudo cp ./webapp.service /etc/systemd/system/webapp.service
+sudo cp ~/Computer/webapp.service /etc/systemd/system/webapp.service
 sudo systemctl daemon-reload
 sudo systemctl enable webapp.service
-sudo systemctl start webapp.service
-echo "Setup complete."
+
+# ========================== End ========================= #
+echo -e "\n=================================================\n"
+echo -e "${success}System will reboot in 10 seconds.${nc}\nYou can access the cage webpage at $hostname:8080 after the reboot.\n"
+echo -e "\n=================================================\n"
+sleep 10
+sudo reboot
