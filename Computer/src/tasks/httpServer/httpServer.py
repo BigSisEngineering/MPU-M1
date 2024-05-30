@@ -14,6 +14,7 @@ from src.tasks import camera
 
 KILLER = threading.Event()
 
+
 class httpHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         try:
@@ -21,18 +22,20 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
             self.parsed_url = (self.path).split("/")
 
             # Serve static files (css, js, images)
-            if self.path.startswith('/static/'):
+            if self.path.startswith("/static/"):
                 self.serve_static_file()
                 return
-            
+
             # Serve the index.html file when the root is requested
-            if self.path in ('/', '/index.html'):
-                self.serve_file('index.html', 'text/html')  # Corrected to serve index.html with the correct content type
+            if self.path in ("/", "/index.html"):
+                self.serve_file(
+                    "index.html", "text/html"
+                )  # Corrected to serve index.html with the correct content type
                 return
-            
-            if self.path.startswith('/video10') or self.path.startswith('/video11'):
+
+            if self.path.startswith("/video10") or self.path.startswith("/video11"):
                 self.do_camera_stream()
-                return  
+                return
 
             # self.do_camera_stream()
 
@@ -49,21 +52,21 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
 
     def do_camera_stream(self):
         self.send_response(200)
-        self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
+        self.send_header("Content-type", "multipart/x-mixed-replace; boundary=frame")
         self.end_headers()
-        
+
         frame = camera.CAMERA.get_frame()
         if frame is not None:
             # if vision.PNP.boxes is not None:
             #     print(f'CV data : {vision.PNP.boxes} ')
             #     frame = ComputerVision.draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
-            ret, jpeg = cv2.imencode('.jpg', frame)
-            if ret:          
+            ret, jpeg = cv2.imencode(".jpg", frame)
+            if ret:
                 try:
-                    self.wfile.write(b'--frame\r\n')
-                    self.wfile.write(b'Content-Type: image/jpeg\r\n\r\n')
+                    self.wfile.write(b"--frame\r\n")
+                    self.wfile.write(b"Content-Type: image/jpeg\r\n\r\n")
                     self.wfile.write(jpeg.tobytes())
-                    self.wfile.write(b'\r\n')
+                    self.wfile.write(b"\r\n")
                     time.sleep(0.1)
                 except Exception as e:
                     CLI.printline(Level.ERROR, f"(do_camera_stream)-{e}")
@@ -71,29 +74,28 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
             # Handle encoding failure
             CLI.printline(Level.ERROR, "Failed to encode frame.")
 
-
     def serve_static_file(self):
-        file_path = self.path[len('/static/'):]  # Correctly removes '/static/' from the path
-        file_path = os.path.join('src', 'tasks', 'httpServer', 'static', file_path)  # Adjusted path
-        content_type = 'text/plain'  # Default to text/plain
-        if file_path.endswith('.css'):
-            content_type = 'text/css'
-        elif file_path.endswith('.js'):
-            content_type = 'application/javascript'
-        elif file_path.endswith('.html'):
-            content_type = 'text/html'
+        file_path = self.path[len("/static/") :]  # Correctly removes '/static/' from the path
+        file_path = os.path.join("src", "tasks", "httpServer", "static", file_path)  # Adjusted path
+        content_type = "text/plain"  # Default to text/plain
+        if file_path.endswith(".css"):
+            content_type = "text/css"
+        elif file_path.endswith(".js"):
+            content_type = "application/javascript"
+        elif file_path.endswith(".html"):
+            content_type = "text/html"
         self.serve_file(file_path, content_type)
 
     def serve_file(self, file_path, content_type):
         # For templates directory
-        if 'index.html' in file_path:
+        if "index.html" in file_path:
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            full_path = os.path.join(base_dir,  'templates', file_path)
+            full_path = os.path.join(base_dir, "templates", file_path)
         else:  # For static files
             base_dir = os.getcwd()
             full_path = os.path.join(base_dir, file_path)
         try:
-            with open(full_path, 'rb') as file:
+            with open(full_path, "rb") as file:
                 self.send_response(HTTPStatus.OK)
                 self.send_header("Content-Type", content_type)
                 self.end_headers()
@@ -101,7 +103,6 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         except OSError as e:
             print(f"Failed to read file {full_path}: {e}")
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Failed to read file")
-
 
     def do_POST(self):
         self.parsed_url = (self.path).split("/")
@@ -113,16 +114,19 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
-def start_server(stop_event: threading.Event, PORT=8080):
+
+def start_server(stop_event: threading.Event = KILLER, PORT=8080):
     with http.server.HTTPServer(("", PORT), httpHandler) as httpd:
         CLI.printline(Level.INFO, f"(HTTP_Server)-Serving at port {PORT}")
         while not stop_event.is_set():
             httpd.handle_request()
         CLI.printline(Level.ERROR, "(HTTP_Server)-Server Stop")
 
+
 def create_thread():
     global KILLER
     return threading.Thread(target=start_server, args=(KILLER,))
+
 
 # ################################################################################################ #
 #                                              Example                                             #

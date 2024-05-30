@@ -10,6 +10,9 @@ from src.CLI import Level
 from src import data, operation, comm, cloud
 
 MongoDB_INIT = False
+time_stamp = time.time()
+sensor_timer_flag = False
+t1 = None
 
 @dataclass
 class BoardData:
@@ -53,7 +56,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, t1
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -63,6 +66,12 @@ def execute():
             is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
+            if sensor_timer_flag ==False:
+                t1 = None
+            if sensors_values[0] < 100 or sensors_values[2]<100:
+                if sensor_timer_flag == False:
+                    t1 = time.time()
+                    sensor_timer_flag = True
 
         # ======================================= Check status ======================================= #
         # CLI.printline(Level.INFO, f"SW status-{BOARD.star_wheel_status}, UL-{BOARD.unloader_status}")
@@ -90,27 +99,41 @@ def execute():
             # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
+            cycle_time = data.pnp_data.cycle_time
             if is_star_wheel_error or is_unloader_error:
                 data.dummy_enabled = False
                 data.pnp_enabled = False
                 MongoDB_INIT == False
         # ======================================= PNP? ======================================= #
         if run_pnp:
-            CLI.printline(Level.INFO, f"(Background)-Running PNP")
-            # app.indicators["mode"].set_green(using_queue=True)
-            with lock:
-                BOARD_DATA.mode = "pnp"
-            # FIXME
-            print(f'mongo DB variable before : {MongoDB_INIT}')
-            if MongoDB_INIT == False:
-                cloud.DataBase = cloud.EggCounter()
-                MongoDB_INIT = True
-            print(f'mongo DB variable after : {MongoDB_INIT}')
-            # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
-            operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+            if time.time() - time_stamp > cycle_time:
+                time_stamp = time.time() if is_safe_to_move else time_stamp
+
+                CLI.printline(Level.INFO, f"(Background)-Running PNP")
+                with lock:
+                    BOARD_DATA.mode = "pnp"
+                # FIXME
+                print(f"mongo DB variable before : {MongoDB_INIT}")
+                if MongoDB_INIT == False:
+                    cloud.DataBase = cloud.EggCounter()
+                    MongoDB_INIT = True
+                
+                if sensor_timer_flag == True:
+                    print(f'variable t1 :{t1}')
+                    if t1 is not None:
+                        sensor_timer = time.time() - t1
+                        print(f'sensors not triggered for {sensor_timer}')
+                        if sensor_timer > 20 and  sensors_values[0] > 100 and sensors_values[2]>100:
+                            CLI.printline(Level.ERROR,f'sensors triggered again {sensors_values}')
+                            cloud.DataBase = cloud.EggCounter()
+                            sensor_timer_flag = False
+                print(f"mongo DB variable after : {MongoDB_INIT}")
+                # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+                operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+
+            CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
-            # app.indicators["mode"].set_blue(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "dummy"
             CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
@@ -120,7 +143,6 @@ def execute():
             operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
         # ======================================== Purge? ======================================== #
         elif run_purge:
-            # app.indicators["mode"].set_yellow(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "purging"
             with data.lock:
@@ -129,7 +151,6 @@ def execute():
             operation.purge(BOARD, lock, data.purge_start_unload)
         # ========================================= IDLE ========================================= #
         else:
-            # app.indicators["mode"].set_black(using_queue=True)
             with lock:
                 BOARD_DATA.mode = "idle"
             MongoDB_INIT = False

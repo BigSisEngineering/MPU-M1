@@ -16,14 +16,14 @@ TASK_THREADS: Dict[str, threading.Thread] = {
     "camera": camera.create_thread(),
     "control": BscbAPI.create_thread(),
     "aws": aws.create_thread(),
-    "find_circle": findCircle.create_thread()
+    "find_circle": findCircle.create_thread(),
 }
 
 
 def start_all_threads():
     for thread in TASK_THREADS.values():
         if not thread.is_alive():
-            # thread.daemon = True
+            thread.daemon = True
             thread.start()
 
 
