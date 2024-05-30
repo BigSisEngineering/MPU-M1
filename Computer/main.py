@@ -10,7 +10,7 @@ def main():
     CLI.printline(Level.INFO, f"Start")
 
     tasks.start_all_threads()
-    # httpServer.start_server()
+    httpServer.start_server()
 
 
 # ------------------------------------------------------------------------------------ #

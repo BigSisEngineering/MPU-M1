@@ -3,6 +3,7 @@
 ### Introduction
 
 ### Log
+
 - [v5.0.0] - 28 May 2024
   - removed streamlit
   - javascript for the frontend
@@ -45,6 +46,24 @@
   - Removed streamlit. Implemented cycle time for PNP.
 
 ### How to use
+
+1. Copy folder
+
+```
+$ scp -r <path to computer> linaro@<hostname>:~/.
+```
+
+2. Connect to remote tinker
+
+```
+$ ssh linaro@<hostname>
+```
+
+3. Run setup and follow instructions
+
+```
+$ chmod +x ~/Computer/setup.sh && ~/Computer/setup.sh
+```
 
 ### TODO
 

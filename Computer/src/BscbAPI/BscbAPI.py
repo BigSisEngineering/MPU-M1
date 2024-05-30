@@ -3,6 +3,7 @@ import serial.tools.list_ports
 import struct
 import time
 from enum import Enum
+from typing import List
 
 
 class Status(Enum):
@@ -25,8 +26,8 @@ class StarWheelTimer:
     def __init__(self) -> None:
         self.inited: bool = False
         self.index: int = 0
-        self.timer: time.time = [time.time()] * 80
-        self.unloaded_count: int = [0] * 80
+        self.timer: List[time.time] = [time.time()] * 80
+        self.unloaded_count: List[int] = [0] * 80
 
     def is_inited(self):
         return self.inited
@@ -316,7 +317,7 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
         self.unloader_status = self.got_Status_respond()
-        print('unloader time: ',t1- time.time())
+        print("unloader time: ", t1 - time.time())
         if self.is_readback_status_normal(self.unloader_status):
             self.timer.update_slot()
             return True

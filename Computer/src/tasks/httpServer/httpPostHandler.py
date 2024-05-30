@@ -171,4 +171,4 @@ def post_SET_CYCLE_TIME(server):
         server.wfile.write(f"Cycle time exceed bounds".encode())
 
     with data.lock:
-        data.star_wheel_duration_ms = cycle_time
+        data.pnp_data.cycle_time = cycle_time
