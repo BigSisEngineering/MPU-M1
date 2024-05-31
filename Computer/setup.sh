@@ -5,6 +5,38 @@ warning='\033[0;33m'
 error='\033[0;31m'
 nc='\033[0m'
 
+# Function to prompt for input and validate it
+get_valid_input() {
+    local prompt="$1"
+    local value
+
+    while true; do
+        read -p "$prompt" value
+        if [[ "$value" =~ ^[0-9]+$ ]]; then
+            echo "$value"
+            return
+        else
+            echo -e "${error}[ERROR]: Invalid input. Please enter an integer.${nc}"
+        fi
+    done
+}
+
+# Function to prompt for Y/N input and validate it
+get_valid_yn_input() {
+    local prompt="$1"
+    local value
+
+    while true; do
+        read -p "$prompt" value
+        if [[ "$value" =~ ^[YyNn]$ ]]; then
+            echo "$value"
+            return
+        else
+            echo -e "${error}[ERROR]: Invalid input. Please enter Y or N.${nc}"
+        fi
+    done
+}
+
 # ======================================= Title ====================================== #
 echo -e "\n=================================================\n"
 echo -e "${success}              SETUP MODULE-1 CAGE                ${nc}"
@@ -17,40 +49,47 @@ sudo systemctl enable chrony
 
 # ==================================== User Input ==================================== #
 echo -e "\n=================================================\n"
-read -p "Enter row number (r in cage{r}x000{n}): " r
-read -p "Enter cage number (n in cage{r}x000{n}): " n
+userChoice=$(get_valid_yn_input "Skip hostname configuration? (Y/N) ")
 echo -e "\n=================================================\n"
 
-# ================================== Validate Input ================================== #
-if ! [[ "$r" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]]; then
-    echo -e "${error}[ERROR]: Both row and cage numbers must be integers.${nc}"
-    exit 1
-fi
+if [[ $userChoice == [Nn] ]]; then
+    # ==================================== User Input ==================================== #
+    echo -e "\n=================================================\n"
+    r=$(get_valid_input "Enter row number (r in cage{r}x000{n}): ")
+    n=$(get_valid_input "Enter cage number (n in cage{r}x000{n}): ")
+    echo -e "\n=================================================\n"
 
-# ================================== Update Hostname ================================= #
-if (( n > 15 )); then
-    echo -e "${error}[ERROR]: The value of n cannot exceed 15.${nc}"
-    exit 1
-fi
+    # ================================== Validate Input ================================== #
+    while (( n > 15 )); do
+        echo -e "${error}[ERROR]: The value of n cannot exceed 15. Please enter a valid cage number.${nc}"
+        n=$(get_valid_input "Enter cage number (n in cage{r}x000{n}): ")
+    done
 
-if (( n < 10 )); then
-    hostname="cage${r}x000${n}"
-elif (( n < 100 )); then
-    hostname="cage${r}x00${n}"
-elif (( n < 1000 )); then
-    hostname="cage${r}x0${n}"
+    # ================================== Update Hostname ================================= #
+    if (( n < 10 )); then
+        hostname="cage${r}x000${n}"
+    elif (( n < 100 )); then
+        hostname="cage${r}x00${n}"
+    elif (( n < 1000 )); then
+        hostname="cage${r}x0${n}"
+    else
+        hostname="cage${r}x${n}"
+    fi
+
+    # # Update /etc/hostname
+    echo "$hostname" | sudo tee /etc/hostname > /dev/null
+    sudo hostname "$hostname"
+    echo -e "\033[32m[SUCESS]>> Hostname updated to '$hostname'${nc}"
+
+    # # Update /etc/hosts
+    sudo sed -i "/^127.0.0.1\s*localhost\s*$/a 127.0.0.1\tlocalhost $hostname" /etc/hosts
+    echo -e "\033[32m[SUCESS]>> Hostname '$hostname' appended to '/etc/hosts'${nc}"
 else
-    hostname="cage${r}x${n}"
+    # Read the current hostname from /etc/hostname
+    hostname=$(cat /etc/hostname)
+    echo -e "\033[32m[INFO]>> Current hostname is '$hostname'${nc}"
 fi
 
-# # Update /etc/hostname
-echo "$hostname" | sudo tee /etc/hostname > /dev/null
-sudo hostname "$hostname"
-echo -e "${success}[SUCESS]>> Hostname updated to '$hostname'${nc}"
-
-# # Update /etc/hosts
-sudo sed -i "/^127.0.0.1\s*localhost\s*$/a 127.0.0.1\tlocalhost $hostname" /etc/hosts
-echo -e "${success}[SUCESS]>> Hostname '$hostname' appended to '/etc/hosts'${nc}"
 
 # =================================== System Update ================================== #
 sudo apt-get update
