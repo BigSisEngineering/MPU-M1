@@ -12,7 +12,8 @@ from src import data, operation, comm, cloud
 MongoDB_INIT = False
 time_stamp = time.time()
 sensor_timer_flag = False
-t1 = None
+sensor_time = None
+
 
 @dataclass
 class BoardData:
@@ -56,7 +57,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, t1
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -67,10 +68,10 @@ def execute():
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
             if sensor_timer_flag ==False:
-                t1 = None
+                sensor_time = None
             if sensors_values[0] < 100 or sensors_values[2]<100:
                 if sensor_timer_flag == False:
-                    t1 = time.time()
+                    sensor_time = time.time()
                     sensor_timer_flag = True
 
         # ======================================= Check status ======================================= #
@@ -119,9 +120,9 @@ def execute():
                     MongoDB_INIT = True
                 
                 if sensor_timer_flag == True:
-                    print(f'variable t1 :{t1}')
-                    if t1 is not None:
-                        sensor_timer = time.time() - t1
+                    print(f'variable sensor_time :{sensor_time}')
+                    if sensor_time is not None:
+                        sensor_timer = time.time() - sensor_time
                         print(f'sensors not triggered for {sensor_timer}')
                         if sensor_timer > 20 and  sensors_values[0] > 100 and sensors_values[2]>100:
                             CLI.printline(Level.ERROR,f'sensors triggered again {sensors_values}')
