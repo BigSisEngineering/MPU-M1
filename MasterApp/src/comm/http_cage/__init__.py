@@ -19,10 +19,23 @@ hide_exception = True
 USERNAME = "linaro"
 PASSWORD = "linaro"
 
+ACTION_LIST = [
+    "STAR_WHEEL_INIT",
+    "UNLOADER_INIT",
+    "CLEAR_STAR_WHEEL_ERROR",
+    "CLEAR_UNLOADER_ERROR",
+    "ENABLE_DUMMY",
+    "DISABLE_DUMMY",
+    "ENABLE_PNP",
+    "DISABLE_PNP",
+    "MOVE_CW",
+    "MOVE_CCW",
+]
+
 
 class HTTPCage:
     def __init__(self, hostname: str):
-        self._gate_ip: Optional[str] = None
+        self._cage_ip: Optional[str] = None
         self._hostname = hostname
         self._timeout = 2  # seconds
 
@@ -47,7 +60,7 @@ class HTTPCage:
             time_stamp = time.time()
             interval = 5  # seconds
 
-            while not SV.KILLER_EVENT.is_set() and self._gate_ip is None:
+            while not SV.KILLER_EVENT.is_set() and self._cage_ip is None:
                 if (time.time() - time_stamp) > interval:
                     try:
                         # Create an SSH client
@@ -81,7 +94,7 @@ class HTTPCage:
                                     ),
                                 )
 
-                                self._gate_ip = ip_address
+                                self._cage_ip = ip_address
 
                                 # Close the SSH connection
                                 ssh_client.close()
@@ -118,7 +131,7 @@ class HTTPCage:
         if self._lock_request.acquire(timeout=self._timeout):
             try:
                 response = requests.get(
-                    url=f"http://{self._gate_ip}:8080/BoardData",
+                    url=f"http://{self._cage_ip}:8080/BoardData",
                     timeout=self._timeout,
                 )
                 return json.loads(response.text)
@@ -149,7 +162,7 @@ class HTTPCage:
         else:
             try:
                 requests.post(
-                    url=f"http://{self._gate_ip}:8080/{action_name}",
+                    url=f"http://{self._cage_ip}:8080/{action_name}",
                     timeout=1,
                 )
                 CLI.printline(
@@ -171,7 +184,7 @@ class HTTPCage:
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
                 ssh_client.connect(
-                    self._gate_ip + ".local",
+                    self._cage_ip + ".local",
                     username=USERNAME,
                     password=PASSWORD,
                 )
@@ -200,7 +213,7 @@ class HTTPCage:
         if self._lock_request.acquire(timeout=self._timeout):
             try:
                 pot_num = requests.get(
-                    url=f"http://{self._gate_ip}:8080/potData",
+                    url=f"http://{self._cage_ip}:8080/potData",
                     timeout=1,
                 ).json()
 
@@ -240,3 +253,47 @@ class HTTPCage:
                     ),
                 )
         return 0
+
+    def exec_action(self, action) -> None:
+        try:
+            if self._lock_request.acquire(timeout=self._timeout):
+                if action in ACTION_LIST:
+                    url = f"http://{self._cage_ip}:8080/{action}"
+                    headers = {"Content-Type": "application/json"}
+                    # Assuming POST is the correct method for executing actions
+                    response = requests.post(url, headers=headers, json={}, timeout=5)
+
+                    if response is not None:
+                        CLI.printline(
+                            Level.INFO,
+                            "({:^10})-({:^8}) [{:^10}] {}".format(
+                                print_name, action, self._hostname, response.content.decode("utf-8")
+                            ),
+                        )
+                    else:
+                        CLI.printline(
+                            Level.INFO,
+                            "({:^10})-({:^8}) [{:^10}] No response.".format(print_name, action, self._hostname),
+                        )
+                else:
+                    CLI.printline(
+                        Level.WARNING,
+                        "({:^10})-({:^8}) [{:^10}] Invalid action.".format(print_name, action, self._hostname),
+                    )
+
+            else:
+                # if not hide_exception:
+                CLI.printline(
+                    Level.WARNING,
+                    "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(
+                        print_name, action, self._hostname
+                    ),
+                )
+        except Exception as e:
+            CLI.printline(
+                Level.WARNING,
+                "({:^10})-({:^8}) [{:^10}] Error: {}".format(print_name, action, self._hostname, e),
+            )
+
+        finally:
+            self._lock_request.release()

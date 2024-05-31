@@ -6,11 +6,12 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 import time
 import tempfile
 import requests
+from typing import List
 
 
 # ------------------------------------------------------------------------------------------------ #
 from src import tasks
-from src._shared_variables import SV
+from src._shared_variables import SV, Cages
 
 
 DIRECTORY = os.path.join(os.path.dirname(__file__), "src", "front_end")
@@ -26,7 +27,7 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
             self.path = "/template/index.html"
         # if self.path == "/get_all_cages_status":
         #     self.handle_all_cages_status()
-            # return  # Important: Return after handling the request to prevent further processing
+        # return  # Important: Return after handling the request to prevent further processing
         # else:
         return SimpleHTTPRequestHandler.do_GET(self)
 
@@ -83,33 +84,11 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(results).encode("utf-8"))
 
-    def execute_actions_on_cages(self, cages, action):
-        results = {}
+    def execute_actions_on_cages(self, cages: List, action: str):
         for cage_id in cages:
-            url = f"http://{cage_id}:8080/{action}"
-            headers = {"Content-Type": "application/json"}
-            try:
-                # Assuming POST is the correct method for executing actions
-                response = requests.post(url, headers=headers, json={}, timeout=5)
-                if response.status_code == 200:
-                    response_text = response.content.decode("utf-8")
-                    results[cage_id] = {
-                        "status": "success",
-                        "response": response_text,
-                        "status_code": response.status_code,
-                    }
-                else:
-                    results[cage_id] = {
-                        "status": "error",
-                        "message": f"Failed with status code {response.status_code}",
-                        "response": response.text,
-                    }
-                print(f"Request sent to {url} with headers {headers} received response: {response.text}")
-                time.sleep(0.1)
-            except requests.exceptions.RequestException as e:
-                results[cage_id] = {"status": "error", "message": str(e)}
-                print(f"Failed to send request to {url} with headers {headers}")
-        return results
+            for cage in Cages:
+                if cage_id == cage.value:
+                    threading.Thread(target=components.cage_dict[cage].exec_action, args=(action,)).start()
 
 
 # def get_all_cages_status():
