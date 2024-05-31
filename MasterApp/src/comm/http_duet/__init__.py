@@ -30,9 +30,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "CONN", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "CONN", e),
                     )
         return False
 
@@ -52,9 +50,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "IS_IDLE", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "IS_IDLE", e),
                     )
         return False
 
@@ -71,9 +67,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "RUN_MCR", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_MCR", e),
                     )
         return False
 
@@ -90,9 +84,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "RUN_CMD", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_CMD", e),
                     )
         return False
 
@@ -121,9 +113,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "READ_GLB", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_GLB", e),
                     )
                 if len(args) > 1:
                     for arg in args:
@@ -145,9 +135,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "SET_GLB", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "SET_GLB", e),
                     )
         return False
 
@@ -164,9 +152,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "READ_OBJ", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_OBJ", e),
                     )
         return None
 
@@ -182,9 +168,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "ABORT", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "ABORT", e),
                     )
 
 

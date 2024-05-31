@@ -5,8 +5,8 @@ Wants=time-sync.target
 
 [Service]
 Type=simple
-ExecStart=nice -20 /usr/bin/python3 -m streamlit run /home/linaro/MasterControl/main.py
-WorkingDirectory=/home/linaro/MasterControl/
+ExecStart=nice -20 /usr/bin/python3 /home/linaro/MasterApp/main.py
+WorkingDirectory=/home/linaro/MasterApp/
 User=linaro
 Environment="STREAMLIT_CONFIG_PATH=/path/to/.streamlit/config.toml"
 

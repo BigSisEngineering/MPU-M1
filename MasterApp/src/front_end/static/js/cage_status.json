@@ -1,1 +1,125 @@
-{"cage0x0003": {"sensors_values": "(1, 255, 255, 32)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0009": {"sensors_values": "(1, 1, 255, 42)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0015": {"sensors_values": "(4, 255, 255, 22)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0013": {"sensors_values": "(254, 1, 1, 199)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0004": {"sensors_values": "(95, 19, 253, 92)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0011": {"sensors_values": "(253, 255, 1, 219)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0008": {"sensors_values": "(255, 255, 255, 223)", "star_wheel_status": "overload", "unloader_status": "normal", "mode": "idle"}, "cage0x0007": {"sensors_values": "(1, 1, 255, 21)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0010": {"sensors_values": "(248, 1, 1, 222)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0005": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>", "cage0x0006": {"sensors_values": "(246, 245, 255, 160)", "star_wheel_status": "normal", "unloader_status": "normal", "mode": "pnp"}, "cage0x0014": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>", "cage0x0002": "<urlopen error timed out>", "cage0x0012": "<urlopen error timed out>"}
+{
+    "b": {
+        "cage1x0002": {
+            "sensors_values": "(1, 186, 254, 57)",
+            "star_wheel_status": "normal",
+            "unloader_status": "not_init",
+            "mode": "dummy"
+        },
+        "cage1x0003": {
+            "sensors_values": "(255, 250, 255, 195)",
+            "star_wheel_status": "normal",
+            "unloader_status": "not_init",
+            "mode": "dummy"
+        },
+        "cage1x0004": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0005": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0006": {
+            "sensors_values": "(255, 173, 1, 173)",
+            "star_wheel_status": "normal",
+            "unloader_status": "idle",
+            "mode": "dummy"
+        },
+        "cage1x0007": {
+            "sensors_values": "(254, 214, 1, 212)",
+            "star_wheel_status": "normal",
+            "unloader_status": "idle",
+            "mode": "idle"
+        },
+        "cage1x0008": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0009": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0010": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0011": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0012": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0013": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0014": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        },
+        "cage1x0015": {
+            "sensors_values": "None",
+            "star_wheel_status": "None",
+            "unloader_status": "None",
+            "mode": "None"
+        }
+    },
+    "a1": {
+        "connected": "True",
+        "running": "False",
+        "buff_out": "False"
+    },
+    "a2": {
+        "connected": "True",
+        "running": "False",
+        "dispenser_homed": "True",
+        "sw_error": "False",
+        "sw_homed": "False",
+        "buff_in": "True",
+        "buff_out": "False",
+        "pot_sensor": "True"
+    },
+    "a3": {
+        "connected": "True",
+        "running": "False",
+        "sw_error": "False",
+        "sw_homed": "True",
+        "buff_in": "False",
+        "pot_sensor": "False"
+    },
+    "c1": {
+        "connected": "False",
+        "running": "True",
+        "buff_out": "False",
+        "chn1_sensor": "False",
+        "chn2_sensor": "False",
+        "chn3_sensor": "False"
+    },
+    "c2": {
+        "connected": "False",
+        "running": "True",
+        "pot_sensor": "False",
+        "chimney_sensor": "False"
+    }
+}

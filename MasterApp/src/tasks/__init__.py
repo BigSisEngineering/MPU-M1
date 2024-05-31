@@ -13,11 +13,8 @@ c2_task = c2.C2()
 
 
 def start():
-    if not SV.TASK_THREAD_STARTED:
-        SV.TASK_THREAD_STARTED = True
-        a1_task.start()
-        a2_task.start()
-        a3_task.start()
-        c1_task.start()
-        c2_task.start()
-        print("{:^10} Start.".format(print_name))
+    a1_task.start()
+    a2_task.start()
+    a3_task.start()
+    c1_task.start()
+    c2_task.start()

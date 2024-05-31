@@ -1,22 +1,85 @@
 from enum import Enum
 import threading
 
+# ------------------------------------------------------------------------------------ #
+from src import setup
+
+print_name = "SV"
+
+
+from enum import Enum
+from typing import Optional, Dict
+import threading
+
 print_name = "SV"
 
 
 class Duet(Enum):
-    A1 = "192.168.83.100"
-    A2 = "192.168.83.101"
-    A3 = "192.168.83.102"
-    C1 = "192.168.83.103"
-    C2 = "192.168.83.104"
+    # A1 = f"192.168.83.100"
+    # A2 = f"192.168.83.101"
+    # A3 = f"192.168.83.102"
+    # C1 = f"192.168.83.103"
+    # C2 = f"192.168.83.104"
+    A1 = f"10.207.1{setup.ROW}.11"
+    A2 = f"10.207.1{setup.ROW}.12"
+    A3 = f"10.207.1{setup.ROW}.13"
+    C1 = f"10.207.1{setup.ROW}.14"
+    C2 = f"10.207.1{setup.ROW}.15"
+
+
+class Cages(Enum):
+    # CAGE01 = f"cage{setup.ROW-1}x0001"
+    CAGE02 = f"cage{setup.ROW-1}x0002"
+    CAGE03 = f"cage{setup.ROW-1}x0003"
+    CAGE04 = f"cage{setup.ROW-1}x0004"
+    CAGE05 = f"cage{setup.ROW-1}x0005"
+    CAGE06 = f"cage{setup.ROW-1}x0006"
+    CAGE07 = f"cage{setup.ROW-1}x0007"
+    CAGE08 = f"cage{setup.ROW-1}x0008"
+    CAGE09 = f"cage{setup.ROW-1}x0009"
+    CAGE10 = f"cage{setup.ROW-1}x0010"
+    CAGE11 = f"cage{setup.ROW-1}x0011"
+    CAGE12 = f"cage{setup.ROW-1}x0012"
+    CAGE13 = f"cage{setup.ROW-1}x0013"
+    CAGE14 = f"cage{setup.ROW-1}x0014"
+    CAGE15 = f"cage{setup.ROW-1}x0015"
+
+
+# -------------------------------------------------------- #
+class Mode(Enum):
+    pnp_mode = 0
+    dummy_mode = 1
+    idle = 2
+    offline = 3
+
+
+class Status(Enum):
+    normal = 0
+    slot_empty = 1
+    error = 2
+    offline = 3
+    not_init = 4
+
+
+cage_mode_dict: Optional[Dict[Cages, Mode]] = {}
+cage_status_dict: Optional[Dict[Cages, Status]] = {}
+
+for cage in Cages:
+    cage_mode_dict[cage] = Mode.offline
+    cage_status_dict[cage] = Status.offline
+# -------------------------------------------------------- #
 
 
 class SharedVariables:
     WATCHDOG = 1
     KILLER_EVENT = threading.Event()
     PULSE_INTERVAL = 2.5  # seconds
-    TASK_THREAD_STARTED = False
+    THREAD_STARTED = False
+
+    BG_WATCHDOG = 5
+    UI_REFRESH_EVENT = threading.Event()
+
+    last_update_time = "------"
 
     # todo: A1, A2 pause event
 

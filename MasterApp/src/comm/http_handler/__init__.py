@@ -156,7 +156,7 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
 #         time.sleep(5)  # Fetch data every 3 seconds, can be adjusted as needed
 
 
-def variables_1a_1c():
+def fetch_variables_1a_1c():
     while True:
         # print(f"Current States -> is1AActive: {SV.is1AActive}, is1CActive: {SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
@@ -164,8 +164,8 @@ def variables_1a_1c():
         time.sleep(3)
 
 
-def run():
-    tasks.start()
+def start_http_server():
+    # tasks.start()
     port = 8080
     server_address = ("", port)
     httpd = HTTPServer(server_address, HttpRequestHandler)
@@ -175,7 +175,7 @@ def run():
     # data_fetch_thread.daemon = True
     # data_fetch_thread.start()
 
-    monitoring_thread = threading.Thread(target=variables_1a_1c)
+    monitoring_thread = threading.Thread(target=fetch_variables_1a_1c)
     monitoring_thread.daemon = True
     monitoring_thread.start()
 
@@ -183,14 +183,14 @@ def run():
     httpd.serve_forever()
 
 
-if __name__ == "__main__":
-    threading.Thread(target=run).start()
+# if __name__ == "__main__":
+#     threading.Thread(target=run).start()
 
-    # ------------------------------------------------------------------------------------ #
-    from src import components
+#     # ------------------------------------------------------------------------------------ #
+#     from src import components
 
-    try:
-        components.debug()
+#     try:
+#         components.debug()
 
-    except KeyboardInterrupt:
-        SV.KILLER_EVENT.set()
+#     except KeyboardInterrupt:
+#         SV.KILLER_EVENT.set()
