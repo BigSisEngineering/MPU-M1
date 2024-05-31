@@ -1,16 +1,16 @@
 {
     "b": {
         "cage1x0002": {
-            "sensors_values": "(1, 186, 254, 57)",
-            "star_wheel_status": "normal",
-            "unloader_status": "not_init",
-            "mode": "dummy"
+            "sensors_values": "(1, 184, 253, 51)",
+            "star_wheel_status": "not_init",
+            "unloader_status": "idle",
+            "mode": "idle"
         },
         "cage1x0003": {
-            "sensors_values": "(255, 255, 255, 189)",
+            "sensors_values": "(255, 255, 255, 220)",
             "star_wheel_status": "normal",
-            "unloader_status": "not_init",
-            "mode": "dummy"
+            "unloader_status": "idle",
+            "mode": "idle"
         },
         "cage1x0004": {
             "sensors_values": "None",
@@ -25,13 +25,13 @@
             "mode": "None"
         },
         "cage1x0006": {
-            "sensors_values": "(255, 175, 1, 168)",
-            "star_wheel_status": "normal",
+            "sensors_values": "(255, 173, 1, 186)",
+            "star_wheel_status": "not_init",
             "unloader_status": "idle",
-            "mode": "dummy"
+            "mode": "idle"
         },
         "cage1x0007": {
-            "sensors_values": "(254, 214, 1, 212)",
+            "sensors_values": "(255, 204, 1, 207)",
             "star_wheel_status": "normal",
             "unloader_status": "idle",
             "mode": "idle"
@@ -86,25 +86,25 @@
         }
     },
     "a1": {
-        "connected": "True",
+        "connected": "False",
         "running": "False",
         "buff_out": "False"
     },
     "a2": {
-        "connected": "True",
+        "connected": "False",
         "running": "False",
-        "dispenser_homed": "True",
+        "dispenser_homed": "False",
         "sw_error": "False",
         "sw_homed": "False",
-        "buff_in": "True",
+        "buff_in": "False",
         "buff_out": "False",
-        "pot_sensor": "True"
+        "pot_sensor": "False"
     },
     "a3": {
-        "connected": "True",
+        "connected": "False",
         "running": "False",
         "sw_error": "False",
-        "sw_homed": "True",
+        "sw_homed": "False",
         "buff_in": "False",
         "pot_sensor": "False"
     },

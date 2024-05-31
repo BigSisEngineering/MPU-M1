@@ -26,7 +26,7 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
             self.path = "/template/index.html"
         # if self.path == "/get_all_cages_status":
         #     self.handle_all_cages_status()
-        #     return  # Important: Return after handling the request to prevent further processing
+            # return  # Important: Return after handling the request to prevent further processing
         # else:
         return SimpleHTTPRequestHandler.do_GET(self)
 
@@ -91,7 +91,6 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
             try:
                 # Assuming POST is the correct method for executing actions
                 response = requests.post(url, headers=headers, json={}, timeout=5)
-
                 if response.status_code == 200:
                     response_text = response.content.decode("utf-8")
                     results[cage_id] = {
