@@ -63,7 +63,7 @@ $ ssh linaro@<hostname>
 3. Run setup and follow instructions
 
 ```
-$ chmod +x ~/Computer/setup.sh && ~/Computer/setup.sh
+$ sed -i 's/\r//' /home/linaro/Computer/setup.sh && chmod +x ~/Computer/setup.sh && ~/Computer/setup.sh
 ```
 
 ### TODO
