@@ -4,10 +4,12 @@ from scp import SCPClient
 import time
 import os
 
+row = 1
+
 # ======================================= List of hostnames ====================================== #
 hostnames = []
 for n in range(1, 15 + 1):
-    hostnames.append(f"cage1x00{n:02}")
+    hostnames.append(f"cage{row}x00{n:02}")
 # hostnames.append("cage0x0010")
 
 # ========================== Common remote directory path for all hosts ========================== #
