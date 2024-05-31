@@ -11,7 +11,7 @@ from src.tasks import findCircle
 from src import BscbAPI
 
 TASK_THREADS: Dict[str, threading.Thread] = {
-    "heartbeat": heartbeat.create_thread(),
+    # "heartbeat": heartbeat.create_thread(),
     # "http_server": httpServer.create_thread(),
     "camera": camera.create_thread(),
     "control": BscbAPI.create_thread(),
