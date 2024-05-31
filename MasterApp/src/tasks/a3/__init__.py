@@ -1,6 +1,7 @@
 import threading
 import requests
 import time
+from typing import List
 
 # -------------------------------------------------------- #
 from src import components
@@ -18,6 +19,10 @@ class A3:
         self._lock_accumulated_pots = threading.Lock()
         self._accumulated_pots: int = 0
         self._set_zero_flag: bool = False
+
+        #
+        self.lock_num_pots = threading.Lock()
+        self.num_pots: int = 0
 
         # -------------------------------------------------------- #
         self.loop_thread = threading.Thread(target=self._loop)
@@ -37,7 +42,7 @@ class A3:
     def set_zero(self) -> str:
         with self._lock_accumulated_pots:
             self._accumulated_pots = 0
-        
+
         self._set_zero_flag = True
         return f"Accumulated pots -> 0."
 
@@ -55,12 +60,26 @@ class A3:
                     components.A3.stop()
 
     # ------------------------------------------------------------------------------------ #
-    def _get_num_pots(self) -> int:
-        num_pots = 0
-        for cage in Cages:
-            num_pots += components.cage_dict[cage].fetch_pot_data()
+    def _get_pot_cage(self, cage) -> None:
+        result = components.cage_dict[cage].fetch_pot_data()
+        with self.lock_num_pots:
+            self.num_pots += result
 
-        print(f"num of pots needed for all: {num_pots}")
+    def _get_num_pots(self) -> int:
+        threads: List[threading.Thread] = []
+        for cage in Cages:
+            threads.append(threading.Thread(target=self._get_pot_cage, args=(cage,)))
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        with self.lock_num_pots:
+            num_pots = self.num_pots
+            self.num_pots = 0
+
         return num_pots
 
     def _send_pulse(self) -> bool:

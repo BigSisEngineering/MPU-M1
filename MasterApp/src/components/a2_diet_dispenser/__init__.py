@@ -69,14 +69,14 @@ class DietDispenser(HTTPDuet):
     @property
     def status(self) -> Dict:
         data: Data = Data(
-            self.is_connected,
-            True if self.read_global("run") == 1 and self.is_connected else False,
-            True if self.read_global("flag_dispenser_homed") == 1 else False,
-            True if self.read_object("sensors.gpIn[3].value") == 1 else False,
-            True if self.read_object("sensors.gpIn[1].value") == 1 else False,
-            True if self.read_object("sensors.gpIn[2].value") == 1 else False,
-            True if self.read_object("sensors.gpIn[3].value") == 1 else False,
-            True if self.read_global("sw_homed") == 1 else False,
+            connected=self.is_connected,
+            running=True if self.read_global("run") == 1 and self.is_connected else False,
+            dispenser_homed=True if self.read_global("flag_dispenser_homed") == 1 else False,
+            sw_error=True if self.read_object("sensors.gpIn[3].value") == 1 else False,
+            sw_homed=True if self.read_global("sw_homed") == 1 else False,
+            buff_in=True if self.read_object("sensors.gpIn[0].value") == 1 else False,
+            buff_out=True if self.read_object("sensors.gpIn[1].value") == 1 else False,
+            pot_sensor=True if self.read_object("sensors.gpIn[2].value") == 1 else False,
         )
         return data.dict()
 

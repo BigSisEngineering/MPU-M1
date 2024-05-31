@@ -71,12 +71,12 @@ class PotDispenser(HTTPDuet):
     @property
     def status(self) -> Dict:
         data: Data = Data(
-            self.is_connected,
-            True if (self.is_connected and SV.run_1a) else False,
-            True if self.read_object("sensors.gpIn[0].value") == 1 else False,
-            True if self.read_object("sensors.gpIn[1].value") == 1 else False,
-            True if self.read_object("sensors.gpIn[2].value") == 1 else False,
-            True if self.read_global("sw_homed") == 1 else False,
+            connected=self.is_connected,
+            running=True if (self.is_connected and SV.run_1a) else False,
+            sw_error=True if self.read_object("sensors.gpIn[2].value") == 1 else False,
+            sw_homed=True if self.read_global("sw_homed") == 1 else False,
+            buff_in=True if self.read_object("sensors.gpIn[0].value") == 1 else False,
+            pot_sensor=True if self.read_object("sensors.gpIn[1].value") == 1 else False,
         )
         return data.dict()
 
