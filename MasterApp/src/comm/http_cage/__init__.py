@@ -255,8 +255,8 @@ class HTTPCage:
         return 0
 
     def exec_action(self, action) -> None:
-        try:
-            if self._lock_request.acquire(timeout=self._timeout):
+        if self._lock_request.acquire(timeout=self._timeout):
+            try:
                 if action in ACTION_LIST:
                     url = f"http://{self._cage_ip}:8080/{action}"
                     headers = {"Content-Type": "application/json"}
@@ -280,20 +280,18 @@ class HTTPCage:
                         Level.WARNING,
                         "({:^10})-({:^8}) [{:^10}] Invalid action.".format(print_name, action, self._hostname),
                     )
-
-            else:
-                # if not hide_exception:
+            except Exception as e:
                 CLI.printline(
                     Level.WARNING,
-                    "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(
-                        print_name, action, self._hostname
-                    ),
+                    "({:^10})-({:^8}) [{:^10}] Error: {}".format(print_name, action, self._hostname, e),
                 )
-        except Exception as e:
+
+            finally:
+                self._lock_request.release()
+
+        else:
+            # if not hide_exception:
             CLI.printline(
                 Level.WARNING,
-                "({:^10})-({:^8}) [{:^10}] Error: {}".format(print_name, action, self._hostname, e),
+                "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(print_name, action, self._hostname),
             )
-
-        finally:
-            self._lock_request.release()
