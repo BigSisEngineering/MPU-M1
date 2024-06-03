@@ -1,6 +1,7 @@
 import os
 import configparser
 import socket
+import threading
 
 # ------------------------------------------------------------------------------------------------ #
 from src.CLI import Level
@@ -59,20 +60,25 @@ def get_software_version(arg=None):
     return version
 
 
+lock_mask_config = threading.Lock()
+
+
 def read_mask_coordinates():
-    CENTER_X = config_parser.getint("MaskCoordinates", "center_x")
-    CENTER_Y = config_parser.getint("MaskCoordinates", "center_y")
-    RADIUS = config_parser.getint("MaskCoordinates", "radius")
-    return CENTER_X, CENTER_Y, RADIUS
+    with lock_mask_config:
+        CENTER_X = config_parser.getint("MaskCoordinates", "center_x")
+        CENTER_Y = config_parser.getint("MaskCoordinates", "center_y")
+        RADIUS = config_parser.getint("MaskCoordinates", "radius")
+        return CENTER_X, CENTER_Y, RADIUS
 
 
 def save_mask_coordinates(mask_coordinates):
-    config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
-    config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
-    config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
+    with lock_mask_config:
+        config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
+        config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
+        config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
 
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), "w") as configfile:
-        config_parser.write(configfile)
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), "w") as configfile:
+            config_parser.write(configfile)
 
 
 CAGE_ID = get_cage_id()
