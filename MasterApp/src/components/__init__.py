@@ -1,5 +1,6 @@
 from typing import Optional, Dict
-
+import json
+import time
 # -------------------------------------------------------- #
 
 from src._shared_variables import Cages, SV
@@ -25,39 +26,6 @@ cage_dict: Optional[Dict[Cages, cages.Cage]] = {}
 
 for cage in Cages:
     cage_dict[cage] = cages.Cage(cage)
-
-# import json
-# def generate_mega_dict_encoded():
-#     dict = {}
-#     dict_1B = {}
-#     for cage in Cages:
-#         dict_1B[cage.value] = cage_dict[cage].status_ui
-
-#     dict["b"] = dict_1B
-#     dict["a1"] = A1.status_ui
-#     dict["a2"] = A2.status_ui
-#     dict["a3"] = A3.status_ui
-#     dict["c1"] = C2.status_ui
-#     dict["c2"] = C2.status_ui
-
-#     return json.dump(dict).encoded()
-# # ------------------------------------------------------------------------------------ #
-# def debug():
-#     while not SV.KILLER_EVENT.is_set():
-#         for cage in Cages:
-#             print(f"{cage.value}: {cage_dict[cage].status_ui}\n")
-
-#         # ------------------------------------------------------------------------------------ #
-#         print(f"a1: {A1.status_ui}\n")
-#         print(f"a2: {A2.status_ui}\n")
-#         print(f"a3: {A3.status_ui}\n")
-#         print(f"c1: {C1.status_ui}\n")
-#         print(f"c2: {C2.status_ui}\n")
-
-
-import json
-import time
-import os
 
 def generate_mega_dict_encoded():
     mega_dict = {}

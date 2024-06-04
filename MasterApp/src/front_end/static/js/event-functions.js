@@ -1,8 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
     setupPageElements();
-    // fetchCageStatus();
-    // fetchPotSorterStatus(); 
-    // simulateFetchCageStatus();
     fetchStatuses(); 
     const controller = new Controller_1A_1C();
   });
@@ -126,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function sendCagesAndActionToBackend(cages, action) {
-    fetch('/execute_actions', {
+    fetch('/1B', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -518,7 +515,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const cageStatusUpdater = new CageStatusUpdater(data.b);
                 cageStatusUpdater.updateAllStatuses();
 
-                // Update pot sorter status
+                // // Update pot sorter status
                 const potSorterStatusUpdater = new PotSorterStatusUpdater(data.a1);
                 potSorterStatusUpdater.updateStatus();
 
@@ -548,6 +545,13 @@ class Controller_1A_1C {
       this.is1CActive = false;
       this.addTen = false;
       this.setZero = false;
+      this.raiseNozzle = false
+      this.lowerNozzle = false
+      this.clearErrorSW2 = false
+      this.homeSW2 = false
+
+      this.clearErrorSW3 = false
+      this.homeSW3 = false
       this.setupEventListeners();
   }
 
@@ -558,21 +562,35 @@ class Controller_1A_1C {
       const stop1CButton = document.getElementById('stop-1C');
       const addTenButton = document.getElementById('add');
       const setZeroButton = document.getElementById('zero');
+      const raiseNozzleButton = document.getElementById('raise-nozzle');
+      const lowerNozzleButton = document.getElementById('lower-nozzle');
+      const clearErrorSW2Button2 = document.getElementById('clear-sw-error-2');
+      const homeSW2Button2 = document.getElementById('home-sw-2');
 
-      if (start1AButton && stop1AButton && start1CButton && stop1CButton && addTenButton && setZeroButton) {
+      const clearErrorSW2Button3 = document.getElementById('clear-sw-error-3');
+      const homeSW2Button3 = document.getElementById('home-sw-3');
+
+      if (start1AButton && stop1AButton && start1CButton && stop1CButton && addTenButton && setZeroButton && raiseNozzleButton && lowerNozzleButton && clearErrorSW2Button2 && homeSW2Button2 && clearErrorSW2Button3 && homeSW2Button3) {
           start1AButton.addEventListener('click', () => this.start1A());
           stop1AButton.addEventListener('click', () => this.stop1A());
           start1CButton.addEventListener('click', () => this.start1C());
           stop1CButton.addEventListener('click', () => this.stop1C());
           addTenButton.addEventListener('click', () => this.addTenPots());
           setZeroButton.addEventListener('click', () => this.setZeroPots());
+          raiseNozzleButton.addEventListener('click', () => this.nozzleUP());
+          lowerNozzleButton.addEventListener('click', () => this.nozzleDown());
+          clearErrorSW2Button2.addEventListener('click', () => this.clearError2());
+          homeSW2Button2.addEventListener('click', () => this.home2());
+
+          clearErrorSW2Button3.addEventListener('click', () => this.clearError3());
+          homeSW2Button3.addEventListener('click', () => this.home3());
       } else {
           console.error('One or more buttons not found. Please check your button IDs.');
       }
   }
 
   sendState() {
-      fetch('/control_1A_1C', {
+      fetch('/1A_1C', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -581,7 +599,13 @@ class Controller_1A_1C {
               is1AActive: this.is1AActive,
               is1CActive: this.is1CActive,
               addTen: this.addTen,
-              setZero: this.setZero
+              setZero: this.setZero,
+              raiseNozzle: this.raiseNozzle,
+              lowerNozzle: this.lowerNozzle,
+              clearErrorSW2: this.clearErrorSW2,
+              homeSW2: this.homeSW2,
+              clearErrorSW3: this.clearErrorSW3,
+              homeSW3: this.homeSW3
           })
       }).then(response => response.json())
         .then(data => console.log(data))
@@ -623,5 +647,47 @@ class Controller_1A_1C {
     console.log("Set to 0:", this.setZero);
     this.sendState();
     this.setZero = false;
+  }
+
+  nozzleUP() {
+    this.raiseNozzle = true;
+    console.log("Set to 0:", this.raiseNozzle);
+    this.sendState();
+    this.raiseNozzle = false;
+  }
+
+  nozzleDown() {
+    this.lowerNozzle = true;
+    console.log("Set to 0:", this.lowerNozzle);
+    this.sendState();
+    this.lowerNozzle = false;
+  }
+
+  clearError2() {
+    this.clearErrorSW2 = true;
+    console.log("Set to 0:", this.clearErrorSW2);
+    this.sendState();
+    this.clearErrorSW2 = false;
+  }
+
+  home2() {
+    this.homeSW2 = true;
+    console.log("Set to 0:", this.homeSW2);
+    this.sendState();
+    this.homeSW2 = false;
+  }
+
+  clearError3() {
+    this.clearErrorSW3 = true;
+    console.log("Set to 0:", this.clearErrorSW3);
+    this.sendState();
+    this.clearErrorSW3 = false;
+  }
+
+  home3() {
+    this.homeSW3 = true;
+    console.log("Set to 0:", this.homeSW3);
+    this.sendState();
+    this.homeSW3 = false;
   }
 }

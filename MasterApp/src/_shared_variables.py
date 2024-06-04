@@ -28,7 +28,7 @@ class Duet(Enum):
 
 
 class Cages(Enum):
-    # CAGE01 = f"cage{setup.ROW-1}x0001"
+    CAGE01 = f"cage{setup.ROW-1}x0001"
     CAGE02 = f"cage{setup.ROW-1}x0002"
     CAGE03 = f"cage{setup.ROW-1}x0003"
     CAGE04 = f"cage{setup.ROW-1}x0004"
