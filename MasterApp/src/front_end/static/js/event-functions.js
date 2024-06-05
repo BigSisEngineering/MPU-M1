@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const post_request_dict = {
         "star-wheel-init": "STAR_WHEEL_INIT",
         "unloader-init": "UNLOADER_INIT",
+        "all-servos-init":"ALL_SERVOS_INIT",
         "clear-star-wheel-error": "CLEAR_STAR_WHEEL_ERROR",
         "clear-unloader-error": "CLEAR_UNLOADER_ERROR",
         "enable-dummy": "ENABLE_DUMMY",
@@ -603,7 +604,7 @@ class Controller_1A_1C {
   }
 
   sendState() {
-      fetch('/control_1A_1C', {
+      fetch('/1A_1C', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
