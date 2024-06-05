@@ -8,6 +8,7 @@ from src.app import handler
 POST_LIST = [
     "STAR_WHEEL",
     "STAR_WHEEL_INIT",
+    "ALL_SERVOS_INIT",
     "UNLOADER_INIT",
     "ENABLE_DUMMY",
     "ENABLE_PNP",
@@ -46,21 +47,31 @@ def post_STAR_WHEEL(server):
 
 def post_STAR_WHEEL_INIT(server):
     send_200_response(server)
-    if not data.dummy_enabled:
+    if not data.dummy_enabled or data.pnp_enabled:
         server.wfile.write("star wheel init will be proceed".encode())
         handler.init_star_wheel()
     else:
-        server.wfile.write("Error, disable dummy".encode())
+        server.wfile.write("Error, disable dummy/pnp".encode())
 
 
 def post_UNLOADER_INIT(server):
     send_200_response(server)
-    if not data.dummy_enabled:
+    if not data.dummy_enabled or data.pnp_enabled:
         server.wfile.write("unloader init will be proceed".encode())
         handler.init_unloader()
     else:
-        server.wfile.write("Error, disable dummy".encode())
+        server.wfile.write("Error, disable dummy/pnp".encode())
 
+
+def post_ALL_SERVOS_INIT(server):
+    send_200_response(server)
+    if not data.dummy_enabled or data.pnp_enabled:
+        server.wfile.write("all init will be proceed".encode())
+        handler.init_unloader()
+        handler.clear_star_wheel_error()
+        handler.init_star_wheel()
+    else:
+        server.wfile.write("Error, disable dummy/pnp".encode())
 
 def post_ENABLE_PNP(server):
     send_200_response(server)
