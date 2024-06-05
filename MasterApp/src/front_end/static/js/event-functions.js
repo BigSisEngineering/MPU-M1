@@ -104,6 +104,18 @@ document.addEventListener("DOMContentLoaded", function () {
         "move-star-wheel-cw": 'MOVE_CW',
         "move-star-wheel-ccw": 'MOVE_CCW'
     };
+    actionCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                // Uncheck all other checkboxes
+                actionCheckboxes.forEach(otherCheckbox => {
+                    if (otherCheckbox !== checkbox) {
+                        otherCheckbox.checked = false;
+                    }
+                });
+            }
+        });
+    });
 
     executeButton.addEventListener("click", function () {
         const selectedCages = Array.from(cageCheckboxes).filter(chk => chk.checked).map(chk => chk.id);
