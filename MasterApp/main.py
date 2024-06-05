@@ -22,28 +22,23 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
-        self.POST_HANDLER = {
-            "/1A_1C": self.handle_1A_1C,
-            "/1B": self.execute_cages_action,
-        }
-
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self.path = "/template/index.html"
         return SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        for handler in self.POST_HANDLER:
-            if self.path == handler:
-                self.POST_HANDLER[handler]()
-                return
-        # if self.path == "/control_1A_1C":
-        #     self.handle_1A_1C()
+        # for handler in self.POST_HANDLER:
+        #     if self.path == handler:
+        #         self.POST_HANDLER[handler]()
+        #         return
+        if self.path == "/control_1A_1C":
+            self.handle_1A_1C()
 
-        # elif self.path == "/execute_actions":
-        #     self.execute_cages_action()
-        # else:
-        self.send_error(404, "File not found.")
+        elif self.path == "/1B":
+            self.execute_cages_action()
+        else:
+            self.send_error(404, "File not found.")
 
     def handle_1A_1C(self):
         content_length = int(self.headers["Content-Length"])

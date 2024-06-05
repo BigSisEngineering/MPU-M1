@@ -569,6 +569,7 @@ class Controller_1A_1C {
 
       const clearErrorSW2Button3 = document.getElementById('clear-sw-error-3');
       const homeSW2Button3 = document.getElementById('home-sw-3');
+      // && raiseNozzleButton && lowerNozzleButton && clearErrorSW2Button2 && homeSW2Button2 && clearErrorSW2Button3 && homeSW2Button3
 
       if (start1AButton && stop1AButton && start1CButton && stop1CButton && addTenButton && setZeroButton && raiseNozzleButton && lowerNozzleButton && clearErrorSW2Button2 && homeSW2Button2 && clearErrorSW2Button3 && homeSW2Button3) {
           start1AButton.addEventListener('click', () => this.start1A());
@@ -590,7 +591,7 @@ class Controller_1A_1C {
   }
 
   sendState() {
-      fetch('/1A_1C', {
+      fetch('/control_1A_1C', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

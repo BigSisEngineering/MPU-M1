@@ -42,7 +42,7 @@ class Cages(Enum):
     CAGE12 = f"cage{setup.ROW-1}x0012"
     CAGE13 = f"cage{setup.ROW-1}x0013"
     CAGE14 = f"cage{setup.ROW-1}x0014"
-    CAGE15 = f"cage{setup.ROW-1}x0015"
+    # CAGE15 = f"cage{setup.ROW-1}x0015"
 
 
 # -------------------------------------------------------- #
