@@ -32,7 +32,7 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
         #     if self.path == handler:
         #         self.POST_HANDLER[handler]()
         #         return
-        if self.path == "/control_1A_1C":
+        if self.path == "/1A_1C":
             self.handle_1A_1C()
 
         elif self.path == "/1B":
@@ -106,13 +106,13 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
                     threading.Thread(target=components.cage_dict[cage].exec_action, args=(action,)).start()
 
 
-
+ 
 def variables_1a_1c():
     while True:
         # print(f"Current States -> is1AActive: {SV.is1AActive}, is1CActive: {SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
         SV.w_run_1c(SV.is1CActive)
-        time.sleep(3.5)
+        time.sleep(3)
 
 
 def run():

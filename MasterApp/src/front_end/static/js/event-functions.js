@@ -547,7 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Error fetching statuses:', error);
             });
-    }, 3500); // Fetch and update every 3000 milliseconds (3 seconds)
+    }, 5000); // Fetch and update every 3000 milliseconds (3 seconds)
   }
 
 
