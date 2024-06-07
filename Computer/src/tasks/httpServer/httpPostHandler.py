@@ -76,25 +76,29 @@ def post_ALL_SERVOS_INIT(server):
 def post_ENABLE_PNP(server):
     send_200_response(server)
     server.wfile.write("pnp Enabled".encode())
-    handler.enable_pnp()
+    with data.lock:
+        data.pnp_enabled = True
 
 
 def post_ENABLE_DUMMY(server):
     send_200_response(server)
     server.wfile.write("Dummy Enabled".encode())
-    handler.enable_dummy()
+    with data.lock:
+        data.dummy_enabled = True
 
 
 def post_DISABLE_DUMMY(server):
     send_200_response(server)
     server.wfile.write("Dummy Disabled".encode())
-    handler.enable_dummy()
+    with data.lock:
+        data.dummy_enabled = False
 
 
 def post_DISABLE_PNP(server):
     send_200_response(server)
     server.wfile.write("pnp Disabled".encode())
-    handler.enable_pnp()
+    with data.lock:
+        data.pnp_enabled = False
 
 
 def post_SET_STAR_WHEEL_SPEED(server):
