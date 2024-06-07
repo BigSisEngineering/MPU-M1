@@ -263,6 +263,7 @@ class HTTPCage:
                     headers = {"Content-Type": "application/json"}
                     # Assuming POST is the correct method for executing actions
                     response = requests.post(url, headers=headers, json={}, timeout=5)
+                    
 
                     if response is not None:
                         CLI.printline(
