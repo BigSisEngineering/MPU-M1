@@ -135,13 +135,15 @@ def execute():
             CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
-            with lock:
-                BOARD_DATA.mode = "dummy"
-            CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
-            MongoDB_INIT == False
-            # FIXME
-            # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
-            operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+            if time.time() - time_stamp > cycle_time:
+                time_stamp = time.time() if is_safe_to_move else time_stamp
+                with lock:
+                    BOARD_DATA.mode = "dummy"
+                CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
+                MongoDB_INIT == False
+                # FIXME
+                # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+                operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
         # ======================================== Purge? ======================================== #
         elif run_purge:
             with lock:
