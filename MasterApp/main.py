@@ -1,4 +1,5 @@
 import threading
+from concurrent.futures import ThreadPoolExecutor
 import os
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -16,7 +17,7 @@ DIRECTORY = os.path.join(os.path.dirname(__file__), "src", "front_end")
 JSON_FILE_PATH = os.path.join(DIRECTORY, "static", "js", "cage_status.json")
 
 
-
+executor = ThreadPoolExecutor(max_workers=10)
 
 class HttpRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -28,11 +29,7 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
         return SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        # for handler in self.POST_HANDLER:
-        #     if self.path == handler:
-        #         self.POST_HANDLER[handler]()
-        #         return
-        if self.path == "/control_1A_1C":
+        if self.path == "/1A_1C":
             self.handle_1A_1C()
 
         elif self.path == "/1B":
@@ -99,13 +96,22 @@ class HttpRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(results).encode("utf-8"))
 
+    # def get_cages_action(self, cages: List, action: str):
+    #     for cage_id in cages:
+    #         for cage in Cages:
+    #             if cage_id == cage.value:
+    #                 threading.Thread(target=components.cage_dict[cage].exec_action, args=(action,)).start()
+    
+    
+
     def get_cages_action(self, cages: List, action: str):
+        # with ThreadPoolExecutor(max_workers=10) as executor:
         for cage_id in cages:
             for cage in Cages:
                 if cage_id == cage.value:
-                    threading.Thread(target=components.cage_dict[cage].exec_action, args=(action,)).start()
+                    executor.submit(components.cage_dict[cage].exec_action, action)
 
-
+   
 
 def variables_1a_1c():
     while True:

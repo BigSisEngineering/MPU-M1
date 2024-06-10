@@ -27,7 +27,7 @@ cage_dict: Optional[Dict[Cages, cages.Cage]] = {}
 for cage in Cages:
     cage_dict[cage] = cages.Cage(cage)
 
-def generate_mega_dict_encoded():
+def generate_mega_dict():
     mega_dict = {}
     dict_1B = {}
     
@@ -49,7 +49,7 @@ def generate_mega_dict_encoded():
 
 def debug():
     while not SV.KILLER_EVENT.is_set():
-        mega_dict_json = generate_mega_dict_encoded()
-        time.sleep(3.5)
+        generate_mega_dict()
+        time.sleep(5)
 
   

@@ -38,7 +38,7 @@ class HTTPCage:
     def __init__(self, hostname: str):
         self._cage_ip: Optional[str] = None
         self._hostname = hostname
-        self._timeout = 2  # seconds
+        self._timeout = 5  # seconds
 
         # -------------------------------------------------------- #
         self._previous_pot_num = 0
@@ -129,7 +129,7 @@ class HTTPCage:
     # -------------------------------------------------------- #
     @property
     def status(self) -> Optional[Dict]:
-        if self._lock_request.acquire(timeout=self._timeout):
+        if self._lock_request.acquire(timeout=1):
             try:
                 response = requests.get(
                     url=f"http://{self._cage_ip}:8080/BoardData",
@@ -261,7 +261,6 @@ class HTTPCage:
                 if action in ACTION_LIST:
                     url = f"http://{self._cage_ip}:8080/{action}"
                     headers = {"Content-Type": "application/json"}
-                    # Assuming POST is the correct method for executing actions
                     response = requests.post(url, headers=headers, json={}, timeout=5)
 
                     if response is not None:

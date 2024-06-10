@@ -13,7 +13,7 @@ hide_exception = True
 class HTTPDuet:
     def __init__(self, duet_ip: str) -> None:
         self._duet_ip = duet_ip
-        self._timeout = 1  # seconds
+        self._timeout = 5  # seconds
 
         # -------------------------------------------------------- #
         self._lock_request = threading.Lock()
@@ -21,7 +21,7 @@ class HTTPDuet:
     # -------------------------------------------------------- #
     @property
     def is_connected(self) -> bool:
-        with self._lock_request:
+        if self._lock_request.acquire(timeout=self._timeout):
             try:
                 requests.get(url=f"http://{self._duet_ip}/", timeout=self._timeout)
                 return True
@@ -32,11 +32,18 @@ class HTTPDuet:
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "CONN", e),
                     )
+            finally:
+                self._lock_request.release()
+
+        CLI.printline(
+            Level.WARNING,
+            "({:^10})-({:^8}) Request timeout!".format(print_name, "CONN"),
+        )                
         return False
 
     @property
     def is_idle(self) -> bool:
-        with self._lock_request:
+        if self._lock_request.acquire(timeout=self._timeout):
             try:
                 status = requests.get(
                     url=f"http://{self._duet_ip}/rr_status?type=3",
@@ -52,6 +59,13 @@ class HTTPDuet:
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "IS_IDLE", e),
                     )
+            finally:
+                self._lock_request.release()
+
+        CLI.printline(
+            Level.WARNING,
+            "({:^10})-({:^8}) Request timeout!".format(print_name, "IS_IDLE"),
+        )                
         return False
 
     def run_macro(self, macro_name: str, param: str = None) -> bool:
@@ -68,7 +82,7 @@ class HTTPDuet:
                     CLI.printline(
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_MCR", e),
-                    )
+                    )               
         return False
 
     def run_command(self, command_name: str) -> bool:
@@ -90,7 +104,7 @@ class HTTPDuet:
 
     def read_global(self, *args: str) -> Optional[Union[Tuple, int]]:
         return_val = []
-        with self._lock_request:
+        if self._lock_request.acquire(timeout=self._timeout):
             try:
                 global_vars = requests.get(
                     url=f"http://{self._duet_ip}/rr_model?key=global",
@@ -119,11 +133,17 @@ class HTTPDuet:
                     for arg in args:
                         return_val.append(None)
                     return tuple(return_val)
+            finally:
+                self._lock_request.release()
 
+        CLI.printline(
+            Level.WARNING,
+            "({:^10})-({:^8}) Request timeout!".format(print_name, "READ_GLB"),
+        )
         return None
 
     def set_global(self, var_name: str, value: int) -> bool:
-        with self._lock_request:
+        if self._lock_request.acquire(timeout=self._timeout):
             try:
                 requests.get(
                     url=f"http://{self._duet_ip}/rr_gcode?gcode=set global.{var_name}={value}",
@@ -137,10 +157,17 @@ class HTTPDuet:
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "SET_GLB", e),
                     )
+            finally:
+                self._lock_request.release()
+
+        CLI.printline(
+            Level.WARNING,
+            "({:^10})-({:^8}) Request timeout!".format(print_name, "SET_GLB"),
+        )
         return False
 
     def read_object(self, obj_name: str) -> Optional[Any]:
-        with self._lock_request:
+        if self._lock_request.acquire(timeout=self._timeout):
             try:
                 result = requests.get(
                     url=f"http://{self._duet_ip}/rr_model?key={obj_name}",
@@ -154,6 +181,13 @@ class HTTPDuet:
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_OBJ", e),
                     )
+            finally:
+                self._lock_request.release()
+
+        CLI.printline(
+            Level.WARNING,
+            "({:^10})-({:^8}) Request timeout!".format(print_name, "READ_OBJ"),
+        )
         return None
 
     def abort(self) -> None:
@@ -170,6 +204,7 @@ class HTTPDuet:
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "ABORT", e),
                     )
+
 
 
 # -------------------------------------------------------- #
