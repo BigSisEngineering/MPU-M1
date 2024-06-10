@@ -293,6 +293,7 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
         self.star_wheel_status = self.got_ACK_respond()
+        self.star_wheel_status = Status.not_init
         return True if self.is_readback_status_normal(self.star_wheel_status) else False
 
     def unload(self):
