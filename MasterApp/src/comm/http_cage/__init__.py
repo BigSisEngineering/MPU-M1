@@ -262,6 +262,7 @@ class HTTPCage:
                     url = f"http://{self._cage_ip}:8080/{action}"
                     headers = {"Content-Type": "application/json"}
                     response = requests.post(url, headers=headers, json={}, timeout=5)
+                    
 
                     if response is not None:
                         CLI.printline(

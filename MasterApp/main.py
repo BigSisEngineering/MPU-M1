@@ -118,7 +118,7 @@ def variables_1a_1c():
         # print(f"Current States -> is1AActive: {SV.is1AActive}, is1CActive: {SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
         SV.w_run_1c(SV.is1CActive)
-        time.sleep(3.5)
+        time.sleep(3)
 
 
 def run():
