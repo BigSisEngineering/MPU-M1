@@ -1,6 +1,6 @@
 import requests
 import threading
-from typing import Optional, Tuple, Any, Union
+from typing import Optional, Tuple, Any, Union, Callable
 
 # -------------------------------------------------------- #
 from src import CLI
@@ -19,6 +19,13 @@ class HTTPDuet:
         self._lock_request = threading.Lock()
 
     # -------------------------------------------------------- #
+    def _task_handler(func: Callable, arg: Optional[Any] = None) -> None:
+        if arg is not None:
+            arg = (arg,) if not isinstance(arg, tuple) else arg
+            threading.Thread(target=func, args=(*arg,)).start()
+        else:
+            threading.Thread(target=func).start()
+
     @property
     def is_connected(self) -> bool:
         if self._lock_request.acquire(timeout=self._timeout):
@@ -38,7 +45,7 @@ class HTTPDuet:
         CLI.printline(
             Level.WARNING,
             "({:^10})-({:^8}) Request timeout!".format(print_name, "CONN"),
-        )                
+        )
         return False
 
     @property
@@ -65,7 +72,7 @@ class HTTPDuet:
         CLI.printline(
             Level.WARNING,
             "({:^10})-({:^8}) Request timeout!".format(print_name, "IS_IDLE"),
-        )                
+        )
         return False
 
     def run_macro(self, macro_name: str, param: str = None) -> bool:
@@ -82,7 +89,7 @@ class HTTPDuet:
                     CLI.printline(
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_MCR", e),
-                    )               
+                    )
         return False
 
     def run_command(self, command_name: str) -> bool:
@@ -204,7 +211,6 @@ class HTTPDuet:
                         Level.ERROR,
                         "({:^10})-({:^8}) Exception -> {}".format(print_name, "ABORT", e),
                     )
-
 
 
 # -------------------------------------------------------- #

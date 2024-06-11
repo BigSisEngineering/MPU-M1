@@ -114,11 +114,11 @@ class DietDispenser(HTTPDuet):
     def sw_ack_fault(self) -> bool:
         if self.is_ready:
             CLI.printline(Level.INFO, "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name))
-            return self.run_macro("sw_clear_fault.g")
+            return self.set_global("flag_sw_clear_fault", 1)
         return False
 
     def sw_home(self) -> bool:
         if self.is_ready:
             CLI.printline(Level.INFO, "{:^10}-{:^15} SW home.".format(print_name, self._duet_name))
-            return self.run_macro("sw_home.g")
+            return self.set_global("flag_sw_home", 1)
         return False
