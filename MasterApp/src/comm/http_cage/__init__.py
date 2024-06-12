@@ -223,15 +223,15 @@ class HTTPCage:
                         Level.DEBUG,
                         "({:^10})-({:^8}) [{:^10}] {:^3} pots.".format(print_name, "POTDATA", self._hostname, pot_num),
                     )
-                    self._previous_pot_num = pot_num
-                    if pot_num > self._pot_num_thresh and self._previous_pot_num > self._pot_num_thresh:
-                        CLI.printline(
-                            Level.WARNING,
-                            "({:^10})-({:^8}) [{:^10}] Requested more than {} pots twice! Check infeed channel!".format(
-                                print_name, "POTDATA", self._hostname, pot_num
-                            ),
-                        )
-                        pot_num = 0
+                    # self._previous_pot_num = pot_num
+                    # if pot_num > self._pot_num_thresh and self._previous_pot_num > self._pot_num_thresh:
+                    #     CLI.printline(
+                    #         Level.WARNING,
+                    #         "({:^10})-({:^8}) [{:^10}] Requested more than {} pots twice! Check infeed channel!".format(
+                    #             print_name, "POTDATA", self._hostname, pot_num
+                    #         ),
+                    #     )
+                    #     pot_num = 0
 
                     return pot_num
 
