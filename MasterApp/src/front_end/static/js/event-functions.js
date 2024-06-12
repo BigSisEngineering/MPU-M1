@@ -88,6 +88,52 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // function setupActionExecution() {
+  //   const executeButton = document.getElementById("execute-action");
+  //   const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
+  //   const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
+  //   const post_request_dict = {
+  //       "star-wheel-init": "STAR_WHEEL_INIT",
+  //       "unloader-init": "UNLOADER_INIT",
+  //       "all-servos-init":"ALL_SERVOS_INIT",
+  //       "clear-star-wheel-error": "CLEAR_STAR_WHEEL_ERROR",
+  //       "clear-unloader-error": "CLEAR_UNLOADER_ERROR",
+  //       "enable-dummy": "ENABLE_DUMMY",
+  //       "disable-dummy": "DISABLE_DUMMY",
+  //       "enable-pnp": "ENABLE_PNP",
+  //       "disable-pnp": "DISABLE_PNP",
+  //       "move-star-wheel-cw": 'MOVE_CW',
+  //       "move-star-wheel-ccw": 'MOVE_CCW'
+  //   };
+  //   actionCheckboxes.forEach(checkbox => {
+  //     checkbox.addEventListener('change', () => {
+  //           if (checkbox.checked) {
+  //               // Uncheck all other checkboxes
+  //               actionCheckboxes.forEach(otherCheckbox => {
+  //                   if (otherCheckbox !== checkbox) {
+  //                       otherCheckbox.checked = false;
+  //                   }
+  //               });
+  //           }
+  //       });
+  //   });
+
+  //   executeButton.addEventListener("click", function () {
+  //       const selectedCages = Array.from(cageCheckboxes).filter(chk => chk.checked).map(chk => chk.id);
+  //       const selectedActions = Array.from(actionCheckboxes).filter(chk => chk.checked).map(chk => post_request_dict[chk.value]);
+
+  //       if (selectedCages.length === 0) {
+  //           alert("Please select at least one cage.");
+  //       } else if (selectedActions.length === 0) {
+  //           alert("Please select an action.");
+  //       } else if (selectedActions.length > 1) {
+  //           alert("Only one action can be selected at a time.");
+  //       } else {
+  //           // Assuming only one action can be selected and is being handled here
+  //           sendCagesAndActionToBackend(selectedCages, selectedActions[0]);
+  //       }
+  //   });
+  // }
   function setupActionExecution() {
     const executeButton = document.getElementById("execute-action");
     const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
@@ -95,18 +141,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const post_request_dict = {
         "star-wheel-init": "STAR_WHEEL_INIT",
         "unloader-init": "UNLOADER_INIT",
-        "all-servos-init":"ALL_SERVOS_INIT",
+        "all-servos-init": "ALL_SERVOS_INIT",
         "clear-star-wheel-error": "CLEAR_STAR_WHEEL_ERROR",
         "clear-unloader-error": "CLEAR_UNLOADER_ERROR",
         "enable-dummy": "ENABLE_DUMMY",
         "disable-dummy": "DISABLE_DUMMY",
         "enable-pnp": "ENABLE_PNP",
         "disable-pnp": "DISABLE_PNP",
-        "move-star-wheel-cw": 'MOVE_CW',
-        "move-star-wheel-ccw": 'MOVE_CCW'
+        "move-star-wheel-cw": "MOVE_CW",
+        "move-star-wheel-ccw": "MOVE_CCW"
     };
+
+    let lastActionExecutionTime = 0;
+    let actionExecutionCount = 0;
+    let lastAction = null;
+
     actionCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', () => {
+        checkbox.addEventListener('change', () => {
             if (checkbox.checked) {
                 // Uncheck all other checkboxes
                 actionCheckboxes.forEach(otherCheckbox => {
@@ -129,11 +180,27 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (selectedActions.length > 1) {
             alert("Only one action can be selected at a time.");
         } else {
-            // Assuming only one action can be selected and is being handled here
-            sendCagesAndActionToBackend(selectedCages, selectedActions[0]);
+            const actionId = selectedActions[0];
+            const currentTime = new Date().getTime();
+
+            if (lastAction === actionId && currentTime - lastActionExecutionTime < 60000) {
+                actionExecutionCount++;
+                if (actionExecutionCount >= 3) {
+                    alert("Action already executed many times. Please wait for a minute.");
+                    return;
+                }
+            } else {
+                lastActionExecutionTime = currentTime;
+                actionExecutionCount = 1;
+                lastAction = actionId;
+            }
+
+            // Execute the action here
+            sendCagesAndActionToBackend(selectedCages, actionId);
         }
     });
   }
+
 
   function sendCagesAndActionToBackend(cages, action) {
     fetch('/1B', {
