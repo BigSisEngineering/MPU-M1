@@ -1,6 +1,7 @@
 from typing import Optional, Dict
 import json
 import time
+import threading
 # -------------------------------------------------------- #
 
 from src._shared_variables import Cages, SV
@@ -27,29 +28,32 @@ cage_dict: Optional[Dict[Cages, cages.Cage]] = {}
 for cage in Cages:
     cage_dict[cage] = cages.Cage(cage)
 
-def generate_mega_dict():
-    mega_dict = {}
+def generate_status_dict():
+    status_dict = {}
     dict_1B = {}
     
     for cage in Cages:
         dict_1B[cage.value] = cage_dict[cage].status_ui
     
-    mega_dict["b"] = dict_1B
-    mega_dict["a1"] = A1.status_ui
-    mega_dict["a2"] = A2.status_ui
-    mega_dict["a3"] = A3.status_ui
-    mega_dict["c1"] = C1.status_ui
-    mega_dict["c2"] = C2.status_ui
+    status_dict["b"] = dict_1B
+    status_dict["a1"] = A1.status_ui
+    status_dict["a2"] = A2.status_ui
+    status_dict["a3"] = A3.status_ui
+    status_dict["c1"] = C1.status_ui
+    status_dict["c2"] = C2.status_ui
 
     with open('MasterApp/src/front_end/static/js/cage_status.json', 'w') as json_file:
-        json.dump(mega_dict, json_file,  indent=4)
+        json.dump(status_dict, json_file,  indent=4)
     
-    return json.dumps(mega_dict)
+    return json.dumps(status_dict)
   
 
-def debug():
+def _update_status():
+    time_stamp = time.time()
     while not SV.KILLER_EVENT.is_set():
-        generate_mega_dict()
-        time.sleep(5)
+        if time.time() - time_stamp > SV.BG_WATCHDOG:
+            generate_status_dict()
+            time_stamp = time.time()
 
-  
+
+threading.Thread(target=_update_status).start()
