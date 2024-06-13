@@ -88,34 +88,39 @@ class DietDispenser(HTTPDuet):
 
     def start(self) -> bool:
         if self.is_ready and self.read_global("run") == 0:
-            CLI.printline(Level.INFO, "{:^10}-{:^15} Start.".format(print_name, self._duet_name))
-            return self.set_global("run", 1)
+            if self.set_global("run", 1):
+                CLI.printline(Level.INFO, "{:^10}-{:^15} Start.".format(print_name, self._duet_name))
+        CLI.printline(Level.WARNING, "{:^10}-{:^15} Start failed.".format(print_name, self._duet_name))
         return False
 
     def stop(self) -> bool:
         if self.is_ready and self.read_global("run") == 1:
-            CLI.printline(Level.INFO, "{:^10}-{:^15} Stop.".format(print_name, self._duet_name))
-            return self.set_global("run", 0)
+            if self.set_global("run", 0):
+                CLI.printline(Level.INFO, "{:^10}-{:^15} Stop.".format(print_name, self._duet_name))
+        CLI.printline(Level.WARNING, "{:^10}-{:^15} Stop failed.".format(print_name, self._duet_name))
         return False
 
     # ------------------------------------------------------------------------------------ #
     def reposition_nozzle(self) -> bool:
         if self.is_ready and self.read_global("flag_reposition_nozzle") == 0:
-            CLI.printline(Level.INFO, "{:^10}-{:^15} Reposition nozzle.".format(print_name, self._duet_name))
-            return self.set_global("flag_reposition_nozzle", 1)
+            if self.set_global("flag_reposition_nozzle", 1):
+                CLI.printline(Level.INFO, "{:^10}-{:^15} Reposition nozzle.".format(print_name, self._duet_name))
+        CLI.printline(Level.WARNING, "{:^10}-{:^15} Reposition nozzle failed.".format(print_name, self._duet_name))
         return False
 
     def raise_nozzle(self) -> bool:
         if self.is_ready and self.read_global("flag_raise_nozzle") == 0:
-            CLI.printline(Level.INFO, "{:^10}-{:^15} Raise nozzle.".format(print_name, self._duet_name))
-            return self.set_global("flag_raise_nozzle", 1)
+            if self.set_global("flag_raise_nozzle", 1):
+                CLI.printline(Level.INFO, "{:^10}-{:^15} Raise nozzle.".format(print_name, self._duet_name))
+        CLI.printline(Level.WARNING, "{:^10}-{:^15} Raise nozzle failed.".format(print_name, self._duet_name))
         return False
 
     def sw_ack_fault(self) -> bool:
         if self.is_ready:
             if self.set_global("flag_sw_clear_fault", 1):
                 CLI.printline(Level.INFO, "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name))
-            return True
+                return True
+        CLI.printline(Level.WARNING, "{:^10}-{:^15} SW clear fault failed.".format(print_name, self._duet_name))
         return False
 
     def sw_home(self) -> bool:
@@ -123,9 +128,9 @@ class DietDispenser(HTTPDuet):
             if self.set_global("flag_sw_home", 1):
                 CLI.printline(Level.INFO, "{:^10}-{:^15} SW home.".format(print_name, self._duet_name))
                 return True
-            CLI.printline(Level.WARNING, "{:^10}-{:^15} SW home failed.".format(print_name, self._duet_name))
+        CLI.printline(Level.WARNING, "{:^10}-{:^15} SW home failed.".format(print_name, self._duet_name))
         return False
-    
+
 
 def debug():
     obj = DietDispenser()
