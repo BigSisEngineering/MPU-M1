@@ -11,6 +11,7 @@ from typing import List, Callable, Dict
 from src import tasks
 from src._shared_variables import SV, Cages
 from src.components import A2, A3
+from src import components
 
 
 DIRECTORY = os.path.join(os.path.dirname(__file__), "src", "front_end")
@@ -193,7 +194,7 @@ def variables_1a_1c():
         time.sleep(3)
 
 
-def run():
+def main():
     tasks.start()
     port = 8080
     server_address = ("", port)
@@ -209,13 +210,14 @@ def run():
 
 
 if __name__ == "__main__":
-    threading.Thread(target=run).start()
-
-    # ------------------------------------------------------------------------------------ #
-    from src import components
-
+    from src._shared_variables import SV
     try:
-        components.debug()
+        main()
+
+        # ------------------------------------------------------------------------------------ #
+        # from src.components.a2_diet_dispenser import debug
+
+        # debug()
 
     except KeyboardInterrupt:
         SV.KILLER_EVENT.set()

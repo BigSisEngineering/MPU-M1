@@ -113,12 +113,20 @@ class DietDispenser(HTTPDuet):
 
     def sw_ack_fault(self) -> bool:
         if self.is_ready:
-            CLI.printline(Level.INFO, "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name))
-            return self.set_global("flag_sw_clear_fault", 1)
+            if self.set_global("flag_sw_clear_fault", 1):
+                CLI.printline(Level.INFO, "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name))
+            return True
         return False
 
     def sw_home(self) -> bool:
         if self.is_ready:
-            CLI.printline(Level.INFO, "{:^10}-{:^15} SW home.".format(print_name, self._duet_name))
-            return self.set_global("flag_sw_home", 1)
+            if self.set_global("flag_sw_home", 1):
+                CLI.printline(Level.INFO, "{:^10}-{:^15} SW home.".format(print_name, self._duet_name))
+                return True
+            CLI.printline(Level.WARNING, "{:^10}-{:^15} SW home failed.".format(print_name, self._duet_name))
         return False
+    
+
+def debug():
+    obj = DietDispenser()
+    obj.sw_home()
