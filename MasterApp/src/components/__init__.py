@@ -52,8 +52,8 @@ def _update_status():
     time_stamp = time.time()
     while not SV.KILLER_EVENT.is_set():
         if time.time() - time_stamp > SV.BG_WATCHDOG:
-            generate_status_dict()
             time_stamp = time.time()
+            generate_status_dict()
 
 
 threading.Thread(target=_update_status).start()

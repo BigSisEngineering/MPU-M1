@@ -1,88 +1,88 @@
 {
     "b": {
         "cage1x0001": {
-            "sensors_values": "(251, 247, 251, 216)",
+            "sensors_values": "(253, 250, 1, 186)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0002": {
-            "sensors_values": "(254, 254, 1, 202)",
+            "sensors_values": "(0, 0, 0, 0)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0003": {
-            "sensors_values": "(255, 255, 1, 212)",
+            "sensors_values": "(255, 1, 255, 169)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0004": {
-            "sensors_values": "(255, 255, 1, 217)",
+            "sensors_values": "(254, 254, 254, 184)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0005": {
-            "sensors_values": "(254, 254, 1, 198)",
+            "sensors_values": "(1, 254, 255, 61)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0006": {
-            "sensors_values": "(255, 11, 255, 215)",
+            "sensors_values": "(1, 1, 255, 43)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0007": {
-            "sensors_values": "(250, 254, 1, 212)",
-            "star_wheel_status": "normal",
+            "sensors_values": "(247, 237, 254, 217)",
+            "star_wheel_status": "overload",
             "unloader_status": "normal",
             "mode": "idle"
         },
         "cage1x0008": {
-            "sensors_values": "(252, 251, 1, 203)",
+            "sensors_values": "(252, 252, 1, 208)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0009": {
-            "sensors_values": "(163, 163, 1, 133)",
+            "sensors_values": "(174, 162, 1, 130)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0010": {
-            "sensors_values": "(250, 252, 1, 192)",
+            "sensors_values": "(249, 249, 1, 194)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0011": {
-            "sensors_values": "(252, 252, 1, 186)",
+            "sensors_values": "(252, 251, 1, 190)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0012": {
-            "sensors_values": "(1, 1, 253, 89)",
+            "sensors_values": "(1, 1, 255, 74)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0013": {
-            "sensors_values": "(0, 0, 0, 0)",
+            "sensors_values": "(25, 242, 1, 55)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         },
         "cage1x0014": {
-            "sensors_values": "(255, 27, 1, 191)",
+            "sensors_values": "(255, 23, 1, 198)",
             "star_wheel_status": "normal",
             "unloader_status": "normal",
-            "mode": "idle"
+            "mode": "dummy"
         }
     },
     "a1": {
@@ -94,9 +94,9 @@
         "connected": "True",
         "running": "False",
         "dispenser_homed": "True",
-        "sw_error": "True",
+        "sw_error": "False",
         "sw_homed": "True",
-        "buff_in": "False",
+        "buff_in": "True",
         "buff_out": "True",
         "pot_sensor": "False"
     },
@@ -104,9 +104,9 @@
         "connected": "True",
         "running": "False",
         "sw_error": "False",
-        "sw_homed": "False",
+        "sw_homed": "True",
         "buff_in": "False",
-        "pot_sensor": "False"
+        "pot_sensor": "True"
     },
     "c1": {
         "connected": "False",

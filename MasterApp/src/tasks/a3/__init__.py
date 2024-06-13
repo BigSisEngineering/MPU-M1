@@ -104,7 +104,8 @@ class A3:
                 if components.A3.send_capsules(_total_capsules):
                     return True
                 else:
-                    self.accumulated_pots += num_pots  # add pots if not executed
+                    with self._lock_accumulated_pots:
+                        self._accumulated_pots += num_pots  # add pots if not executed
 
         except Exception as e:
             print("{:^10}-{:^15} Exception -> {}".format(print_name, "SEND PULSE", e))
