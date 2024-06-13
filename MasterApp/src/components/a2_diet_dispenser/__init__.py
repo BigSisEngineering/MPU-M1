@@ -64,7 +64,7 @@ class DietDispenser(HTTPDuet):
 
     @property
     def is_ready(self) -> bool:
-        return self.is_connected
+        return self.is_connected and self.read_global("flag_sw_homing") == 0
 
     @property
     def status(self) -> Dict:
