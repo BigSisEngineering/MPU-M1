@@ -36,7 +36,7 @@ class HTTPDuet:
 
     @property
     def is_idle(self) -> bool:
-        with self._lock_request():
+        with self._lock_request:
             try:
                 status = requests.get(
                     url=f"http://{self._duet_ip}/rr_status?type=3",
