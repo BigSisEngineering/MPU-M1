@@ -8,16 +8,17 @@ row = 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-# for n in range(1, 14 + 1):
-#     hostnames.append(f"cage{row}x00{n:02}")
-hostnames.append("cage1x0001")
+for n in range(1, 14 + 1):
+    hostnames.append(f"cage{row}x00{n:02}")
+# hostnames.append("cage1x0001")
 
 # ========================== Common remote directory path for all hosts ========================== #
 remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    f"C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    # f"C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    f"C:/Users/Tan/Documents/Github/MPU-M1/Computer"
 ]
 
 data_path = "~/Computer/Statistics.log"
@@ -221,8 +222,8 @@ def get_cage_photos(hostname):
 
 for hostname in hostnames:
     try:
-        upload_files(hostname)
-        # reboot(hostname)
+        # upload_files(hostname)
+        reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
