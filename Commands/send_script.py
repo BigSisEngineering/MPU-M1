@@ -17,8 +17,8 @@ remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    # f"C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
-    f"C:/Users/Tan/Documents/Github/MPU-M1/Computer"
+    f"C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    # f"C:/Users/Tan/Documents/Github/MPU-M1/Computer"
 ]
 
 data_path = "~/Computer/Statistics.log"
@@ -222,6 +222,7 @@ def get_cage_photos(hostname):
 
 for hostname in hostnames:
     try:
+        
         # upload_files(hostname)
         reboot(hostname)
         # remove(hostname)

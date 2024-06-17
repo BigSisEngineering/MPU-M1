@@ -52,11 +52,10 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
                 )  # Corrected to serve index.html with the correct content type
                 return
 
-            self.do_camera_stream()
-            # if self.path.startswith("/video10") or self.path.startswith("/video11"):
-            # return
-
             # self.do_camera_stream()
+            if self.path.startswith("/video10") or self.path.startswith("/video11"):
+                self.do_camera_stream()
+                return
 
             if self.parsed_url[1] in httpGetHandler.GET_LIST:
                 func_name = httpGetHandler.generateFuncName(self.parsed_url[1])
@@ -78,17 +77,17 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         if frame is None:
             CLI.printline(Level.ERROR, "Failed to encode frame.")
             frame = generate_error_frame("Camera Error")
-
-        ret, jpeg = cv2.imencode(".jpg", frame)
-        if ret:
-            try:
-                self.wfile.write(b"--frame\r\n")
-                self.wfile.write(b"Content-Type: image/jpeg\r\n\r\n")
-                self.wfile.write(jpeg.tobytes())
-                self.wfile.write(b"\r\n")
-                time.sleep(0.1)
-            except Exception as e:
-                CLI.printline(Level.ERROR, f"(do_camera_stream)-{e}")
+        else:
+            ret, jpeg = cv2.imencode(".jpg", frame)
+            if ret:
+                try:
+                    self.wfile.write(b"--frame\r\n")
+                    self.wfile.write(b"Content-Type: image/jpeg\r\n\r\n")
+                    self.wfile.write(jpeg.tobytes())
+                    self.wfile.write(b"\r\n")
+                    time.sleep(0.1)
+                except Exception as e:
+                    CLI.printline(Level.ERROR, f"(do_camera_stream)-{e}")
 
     def serve_static_file(self):
         file_path = self.path[len("/static/") :]  # Correctly removes '/static/' from the path

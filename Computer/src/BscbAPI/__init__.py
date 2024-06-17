@@ -106,10 +106,15 @@ def execute():
                 data.dummy_enabled = False
                 data.pnp_enabled = False
                 MongoDB_INIT == False
+                
+            if not CAMERA.device_ready:
+                data.pnp_enabled = False
+                print('PNP disabled please check camera connacetion ...')
+                
         # ======================================= PNP? ======================================= #
         if run_pnp:
             if time.time() - time_stamp > cycle_time:
-                is_safe_to_move = is_safe_to_move and CAMERA.device_ready  # move when both BOARD and CAMERA are ready
+                # is_safe_to_move = is_safe_to_move and CAMERA.device_ready  # move when both BOARD and CAMERA are ready
                 time_stamp = time.time() if is_safe_to_move else time_stamp
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
