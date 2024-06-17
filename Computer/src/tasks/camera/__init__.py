@@ -61,6 +61,16 @@ class CameraThreading:
         self.raw_frame = None  # NOTE FOR TESTING ONLY
         self.ctn = 0
 
+        # ------------------------------------------------------------------------------------ #
+        self._device_ready: bool = False
+        self._lock_device_ready = threading.Lock()
+
+    @property
+    def device_ready(self):
+        with self._lock_device_ready:
+            r = self._device_ready
+        return r
+
     def start_frame_update(self, killer: threading.Event):
         if self.camera_id is None:
             CLI.printline(Level.ERROR, "(CameraThreading)-Camera ID error")
@@ -69,8 +79,8 @@ class CameraThreading:
         if not cap.isOpened():
             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
         # else:
-            # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # FIXME -
-            # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # FIXME
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # FIXME -
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # FIXME
         # i = 0
         while not killer.is_set():
             try:
@@ -85,8 +95,8 @@ class CameraThreading:
                         if not cap.isOpened():
                             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
                         # else:
-                            # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # FIXME -
-                            # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # FIXME
+                        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # FIXME -
+                        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # FIXME
                         time.sleep(1)
                         continue  # non-return thread
                     except Exception as e:
@@ -111,14 +121,22 @@ class CameraThreading:
             try:
                 frame = self.raw_frame
                 if frame is not None:
+                    with self._lock_device_ready:
+                        self._device_ready = True
                     # print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
                     frame = findCircle.CircularMask(frame)
                     # frame = ComputerVision().letterbox(frame)
                     # if vision.PNP.boxes is not None:
-                        # print(f'boxes : {vision.PNP.boxes}, scores : {vision.PNP.scores}, classes : {vision.PNP.classes} ')
-                        # ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
-                return frame#[80:560,80:560]
+                    # print(f'boxes : {vision.PNP.boxes}, scores : {vision.PNP.scores}, classes : {vision.PNP.classes} ')
+                    # ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
+                else:
+                    with self._lock_device_ready:
+                        self._device_ready = False
+                return frame  # [80:560,80:560]
+
             except Exception as e:
+                with self._lock_device_ready:
+                    self._device_ready = False
                 CLI.printline(Level.ERROR, f"(CameraThreading - get_frame)-{e}")
         # if frame is not None:
         #     # Crop and rotate

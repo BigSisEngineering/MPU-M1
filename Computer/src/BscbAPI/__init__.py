@@ -8,6 +8,7 @@ from src.BscbAPI.BscbAPI import SensorID, Status
 from src import CLI
 from src.CLI import Level
 from src import data, operation, comm, cloud
+from src.tasks.camera import CAMERA
 
 MongoDB_INIT = False
 time_stamp = time.time()
@@ -67,9 +68,9 @@ def execute():
             is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
-            if sensor_timer_flag ==False:
+            if sensor_timer_flag == False:
                 sensor_time = None
-            if sensors_values[0] < 100 or sensors_values[2]<100:
+            if sensors_values[0] < 100 or sensors_values[2] < 100:
                 if sensor_timer_flag == False:
                     sensor_time = time.time()
                     sensor_timer_flag = True
@@ -108,6 +109,7 @@ def execute():
         # ======================================= PNP? ======================================= #
         if run_pnp:
             if time.time() - time_stamp > cycle_time:
+                is_safe_to_move = is_safe_to_move and CAMERA.device_ready  # move when both BOARD and CAMERA are ready
                 time_stamp = time.time() if is_safe_to_move else time_stamp
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
@@ -118,14 +120,14 @@ def execute():
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
-                
+
                 if sensor_timer_flag == True:
-                    print(f'variable sensor_time :{sensor_time}')
+                    print(f"variable sensor_time :{sensor_time}")
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
-                        print(f'sensors not triggered for {sensor_timer}')
-                        if sensor_timer > 20 and  sensors_values[0] > 100 and sensors_values[2]>100:
-                            CLI.printline(Level.ERROR,f'sensors triggered again {sensors_values}')
+                        print(f"sensors not triggered for {sensor_timer}")
+                        if sensor_timer > 20 and sensors_values[0] > 100 and sensors_values[2] > 100:
+                            CLI.printline(Level.ERROR, f"sensors triggered again {sensors_values}")
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
                 print(f"mongo DB variable after : {MongoDB_INIT}")

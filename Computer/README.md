@@ -47,6 +47,7 @@
   - Fixed time sync bug
 - [v5.0.2] - 17 June 2024
   - Display camera error
+  - PNP will not execute if camera is faulty
 
 ### How to use
 
