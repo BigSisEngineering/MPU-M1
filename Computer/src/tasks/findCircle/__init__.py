@@ -10,6 +10,7 @@ from src import CLI
 from src.CLI import Level
 from src import setup
 from src.tasks import camera
+import time
 
 
 def FindCircle(img, crop_factor=1, resize_factor=1):
@@ -67,13 +68,17 @@ CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
 
 def FindCircleThread(stop_event: threading.Event):
     global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS
+    time_stamp = time.time()
+    watchdog = 5  # seconds
     while not stop_event.is_set():
         try:
-            if camera.CAMERA.get_frame() is not None:
-                print("finding circle ...")
-                FindCircle(camera.CAMERA.get_raw_frame())
-                CIRCLE_FLAG = True
-                print(f"Circle found with coordinates {CENTER_X}, {CENTER_Y}, {RADIUS}")
+            if (time.time() - time_stamp) > watchdog:
+                time_stamp = time.time()
+                if camera.CAMERA.get_frame() is not None:
+                    print("finding circle ...")
+                    FindCircle(camera.CAMERA.get_raw_frame())
+                    CIRCLE_FLAG = True
+                    print(f"Circle found with coordinates {CENTER_X}, {CENTER_Y}, {RADIUS}")
         except Exception as e:
             CLI.printline(Level.ERROR, f"(finding Circle)-{e}")
             continue
