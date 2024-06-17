@@ -45,6 +45,8 @@
 - [v5.0.1] - 30 May 2024
   - Reworked setup.sh
   - Fixed time sync bug
+- [v5.0.2] - 17 June 2024
+  - Display camera error
 
 ### How to use
 
