@@ -75,16 +75,23 @@ def post_ALL_SERVOS_INIT(server):
 
 def post_ENABLE_PNP(server):
     send_200_response(server)
-    server.wfile.write("pnp Enabled".encode())
     with data.lock:
-        data.pnp_enabled = True
+        if data.servos_ready:
+            data.pnp_enabled = True
+            server.wfile.write("pnp Enabled".encode())
+        else:
+            server.wfile.write("Initialize servos first".encode())
+
 
 
 def post_ENABLE_DUMMY(server):
     send_200_response(server)
-    server.wfile.write("Dummy Enabled".encode())
     with data.lock:
-        data.dummy_enabled = True
+        if data.servos_ready:
+            data.dummy_enabled = True
+            server.wfile.write("Dummy Enabled".encode())
+        else:
+            server.wfile.write("Initialize servos first".encode())
 
 
 def post_DISABLE_DUMMY(server):

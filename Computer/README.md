@@ -48,6 +48,8 @@
 - [v5.0.2] - 17 June 2024
   - Display camera error
   - PNP will not execute if camera is faulty
+- [v5.0.3] - 17 June 2024
+  - Now prevent PNP or DUMMY to start if servos not init
 
 ### How to use
 

@@ -76,7 +76,7 @@ def execute():
                     sensor_timer_flag = True
 
         # ======================================= Check status ======================================= #
-        # CLI.printline(Level.INFO, f"SW status-{BOARD.star_wheel_status}, UL-{BOARD.unloader_status}")
+        CLI.printline(Level.INFO, f"SW status-{BOARD_DATA.star_wheel_status}, UL-{BOARD_DATA.unloader_status}")
 
         # Check buffer
         is_buffer_full = BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
@@ -85,6 +85,8 @@ def execute():
         is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
 
         is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+
+        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal'
 
         if not is_safe_to_move:
             CLI.printline(Level.DEBUG, f"(background-loop) buffer>{is_buffer_full}-loader>{is_loader_get_pot}")
@@ -98,18 +100,20 @@ def execute():
             unload_probability = data.unload_probability
             run_dummy = data.dummy_enabled
             run_pnp = data.pnp_enabled
+            data.servos_ready = servos_ready
+            print(f'servos state {data.servos_ready}')
             # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
-            if is_star_wheel_error or is_unloader_error:
+            if is_star_wheel_error or is_unloader_error or not servos_ready:
                 data.dummy_enabled = False
                 data.pnp_enabled = False
                 MongoDB_INIT == False
                 
             if not CAMERA.device_ready:
                 data.pnp_enabled = False
-                print('PNP disabled please check camera connacetion ...')
+                print('PNP disabled please check camera connection ...')
                 
         # ======================================= PNP? ======================================= #
         if run_pnp:

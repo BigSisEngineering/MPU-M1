@@ -42,6 +42,8 @@ pnp_data: PNPData = PNPData(
 is_star_wheel_error: bool = False
 is_unloader_error: bool = False
 
+servos_ready: bool = False
+
 star_wheel_duration_ms: int = 600
 
 dummy_enabled: bool = False
