@@ -79,6 +79,8 @@ class SharedVariables:
     BG_WATCHDOG = 5
     UI_REFRESH_EVENT = threading.Event()
 
+    A3_STOPPED = threading.Event()
+
     last_update_time = "------"
 
     # todo: A1, A2 pause event
