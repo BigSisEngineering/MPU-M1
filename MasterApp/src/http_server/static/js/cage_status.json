@@ -93,7 +93,7 @@
     "a2": {
         "connected": "True",
         "running": "False",
-        "dispenser_homed": "True",
+        "dispenser_homed": "False",
         "sw_error": "False",
         "sw_homed": "True",
         "buff_in": "True",

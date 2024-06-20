@@ -372,7 +372,10 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (this.a2Data.connected === "True" && this.a2Data.sw_error === "True") {
           DDIndicator.textContent = 'SW Fault';
           DDIndicator.style.backgroundColor = 'red'; 
-      } 
+        } 
+        else if (this.a2Data.dispenser_homed === "False") {
+          alert('Clean and reposition nozzle');
+        } 
     }
   }
 
