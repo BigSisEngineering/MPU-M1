@@ -50,6 +50,8 @@
   - PNP will not execute if camera is faulty
 - [v5.0.3] - 19 June 2024
   - Now prevent PNP or DUMMY to start if servos not init
+- [v5.0.4] - 20 June 2024
+  - Init servos at the boot and attempt to re-init if servos errors (max = 3)
 
 ### How to use
 
