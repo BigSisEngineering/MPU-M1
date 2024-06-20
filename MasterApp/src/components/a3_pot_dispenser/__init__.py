@@ -119,14 +119,12 @@ class PotDispenser(HTTPDuet):
         if self.is_connected and self.read_global("run") == 0:
             CLI.printline(Level.INFO, "{:^10}-{:^15} Start.".format(print_name, self._duet_name))
             self.run_macro("start.g")
-            SV.A3_STOPPED.clear()
 
     def stop(self) -> None:
         if self.is_connected and self.read_global("run") == 1:
             self.set_global("remaining", 0)  # reset remaining
             CLI.printline(Level.INFO, "{:^10}-{:^15} Stop.".format(print_name, self._duet_name))
             self.run_macro("stop.g")
-            SV.A3_STOPPED.set()
 
     def sw_ack_fault(self) -> bool:
         if self.is_ready:

@@ -88,52 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // function setupActionExecution() {
-  //   const executeButton = document.getElementById("execute-action");
-  //   const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
-  //   const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
-  //   const post_request_dict = {
-  //       "star-wheel-init": "STAR_WHEEL_INIT",
-  //       "unloader-init": "UNLOADER_INIT",
-  //       "all-servos-init":"ALL_SERVOS_INIT",
-  //       "clear-star-wheel-error": "CLEAR_STAR_WHEEL_ERROR",
-  //       "clear-unloader-error": "CLEAR_UNLOADER_ERROR",
-  //       "enable-dummy": "ENABLE_DUMMY",
-  //       "disable-dummy": "DISABLE_DUMMY",
-  //       "enable-pnp": "ENABLE_PNP",
-  //       "disable-pnp": "DISABLE_PNP",
-  //       "move-star-wheel-cw": 'MOVE_CW',
-  //       "move-star-wheel-ccw": 'MOVE_CCW'
-  //   };
-  //   actionCheckboxes.forEach(checkbox => {
-  //     checkbox.addEventListener('change', () => {
-  //           if (checkbox.checked) {
-  //               // Uncheck all other checkboxes
-  //               actionCheckboxes.forEach(otherCheckbox => {
-  //                   if (otherCheckbox !== checkbox) {
-  //                       otherCheckbox.checked = false;
-  //                   }
-  //               });
-  //           }
-  //       });
-  //   });
-
-  //   executeButton.addEventListener("click", function () {
-  //       const selectedCages = Array.from(cageCheckboxes).filter(chk => chk.checked).map(chk => chk.id);
-  //       const selectedActions = Array.from(actionCheckboxes).filter(chk => chk.checked).map(chk => post_request_dict[chk.value]);
-
-  //       if (selectedCages.length === 0) {
-  //           alert("Please select at least one cage.");
-  //       } else if (selectedActions.length === 0) {
-  //           alert("Please select an action.");
-  //       } else if (selectedActions.length > 1) {
-  //           alert("Only one action can be selected at a time.");
-  //       } else {
-  //           // Assuming only one action can be selected and is being handled here
-  //           sendCagesAndActionToBackend(selectedCages, selectedActions[0]);
-  //       }
-  //   });
-  // }
+ 
   function setupActionExecution() {
     const executeButton = document.getElementById("execute-action");
     const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
@@ -584,6 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function fetchStatuses() {
     setInterval(() => {
         fetch('./static/js/cage_status.json')  // Ensure the path matches where your JSON is served
+        // fetch('cage_status.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
@@ -591,6 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
+              // console.log("Fetched Data:", data.b);
                 // Update cage statuses
                 const cageStatusUpdater = new CageStatusUpdater(data.b);
                 cageStatusUpdater.updateAllStatuses();

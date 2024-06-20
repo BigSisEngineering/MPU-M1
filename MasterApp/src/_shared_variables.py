@@ -1,17 +1,11 @@
 from enum import Enum
 import threading
-
+from typing import Optional, Dict
 # ------------------------------------------------------------------------------------ #
 from src import setup
 
 print_name = "SV"
 
-
-from enum import Enum
-from typing import Optional, Dict
-import threading
-
-print_name = "SV"
 
 
 class Duet(Enum):
@@ -78,8 +72,6 @@ class SharedVariables:
 
     BG_WATCHDOG = 5
     UI_REFRESH_EVENT = threading.Event()
-
-    A3_STOPPED = threading.Event()
 
     last_update_time = "------"
 

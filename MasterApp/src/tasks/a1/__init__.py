@@ -19,11 +19,7 @@ class A1:
         time_stamp = time.time() - 300  # set to 5 mins ago for instant 1st pulse
         while not SV.KILLER_EVENT.is_set():
             if time.time() - time_stamp > SV.WATCHDOG:
-                if SV.run_1a:
-                    components.A1.start()
-                else:
-                    if SV.A3_STOPPED.is_set():
-                        components.A1.stop()
+                components.A1.start() if SV.run_1a else components.A1.stop()
 
                 time_stamp = time.time()
 
