@@ -12,6 +12,7 @@ POST_LIST = [
     "UNLOADER_INIT",
     "ENABLE_DUMMY",
     "ENABLE_PNP",
+    "ENABLE_PURGE",
     "DISABLE_DUMMY",
     "DISABLE_PNP",
     "SET_STAR_WHEEL_SPEED",
@@ -93,6 +94,14 @@ def post_ENABLE_DUMMY(server):
         else:
             server.wfile.write("Initialize servos first".encode())
 
+def post_ENABLE_PURGE(server):
+    send_200_response(server)
+    with data.lock:
+        if data.servos_ready:
+            data.purge_enabled = True
+            server.wfile.write("Purge Started".encode())
+        else:
+            server.wfile.write("Initialize servos first".encode())
 
 def post_DISABLE_DUMMY(server):
     send_200_response(server)

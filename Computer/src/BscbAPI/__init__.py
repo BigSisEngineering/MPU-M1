@@ -14,6 +14,7 @@ MongoDB_INIT = False
 time_stamp = time.time()
 sensor_timer_flag = False
 sensor_time = None
+auto_clear_error = 0
 
 
 @dataclass
@@ -58,7 +59,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -68,6 +69,7 @@ def execute():
             is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
+            
             if sensor_timer_flag == False:
                 sensor_time = None
             if sensors_values[0] < 100 or sensors_values[2] < 100:
@@ -100,24 +102,32 @@ def execute():
             unload_probability = data.unload_probability
             run_dummy = data.dummy_enabled
             run_pnp = data.pnp_enabled
+            run_purge = data.purge_enabled
             data.servos_ready = servos_ready
-            print(f'servos state {data.servos_ready}')
+            # print(f'servos state {data.servos_ready}')
             # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
             if is_star_wheel_error or is_unloader_error or not servos_ready:
-                data.dummy_enabled = False
-                data.pnp_enabled = False
-                MongoDB_INIT == False
+                if auto_clear_error < data.max_auto_clear_error:
+                    BOARD.star_wheel_clear_error()
+                    BOARD.starWheel_init()
+                    auto_clear_error +=1
+                else:  
+                    data.dummy_enabled = False
+                    data.pnp_enabled = False
+                    MongoDB_INIT == False
+                    auto_clear_error = 0
                 
             if not CAMERA.device_ready:
                 data.pnp_enabled = False
-                print('PNP disabled please check camera connection ...')
+                # print('PNP disabled please check camera connection ...')
                 
         # ======================================= PNP? ======================================= #
         if run_pnp:
             if time.time() - time_stamp > cycle_time:
+                    
                 # is_safe_to_move = is_safe_to_move and CAMERA.device_ready  # move when both BOARD and CAMERA are ready
                 time_stamp = time.time() if is_safe_to_move else time_stamp
 

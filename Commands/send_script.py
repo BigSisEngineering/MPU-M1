@@ -223,8 +223,8 @@ def get_cage_photos(hostname):
 for hostname in hostnames:
     try:
         
-        upload_files(hostname)
-        # reboot(hostname)
+        # upload_files(hostname)
+        reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
