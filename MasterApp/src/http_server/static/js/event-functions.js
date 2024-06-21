@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const controller = new Controller_1A_1C();
   });
   
-  function setupPageElements() {
+  async function setupPageElements() {
     const tableHead = document.querySelector("thead tr");
     const tableBody = document.querySelector("tbody");
   
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupActionExecution();
   }
   
-  function generateRows(tableBody, cages) {
+  async function generateRows(tableBody, cages) {
     const rows = [
       { name: "Mode", className: "mode-cell", symbol: "" },
       {
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   
-  function setupCageSelection(cages) {
+  async function setupCageSelection(cages) {
     const container = document.getElementById("cage-checkboxes");
     cages.forEach((cageNum) => {
       const checkboxDiv = document.createElement("div");
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
  
-  function setupActionExecution() {
+  async function setupActionExecution() {
     const executeButton = document.getElementById("execute-action");
     const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
     const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  function sendCagesAndActionToBackend(cages, action) {
+  async function sendCagesAndActionToBackend(cages, action) {
     fetch('/1B', {
         method: 'POST',
         headers: {
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
 
 
-  function fetchStatuses() {
+  async function fetchStatuses() {
     setInterval(() => {
         fetch('./static/js/cage_status.json')  // Ensure the path matches where your JSON is served
         // fetch('cage_status.json')
