@@ -15,6 +15,7 @@ time_stamp = time.time()
 sensor_timer_flag = False
 sensor_time = None
 auto_clear_error = 0
+max_attempts = False
 
 
 @dataclass
@@ -59,7 +60,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, max_attempts
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -88,7 +89,7 @@ def execute():
 
         is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
 
-        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal'
+        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal' and not max_attempts
 
         if not is_safe_to_move:
             CLI.printline(Level.DEBUG, f"(background-loop) buffer>{is_buffer_full}-loader>{is_loader_get_pot}")
@@ -109,24 +110,23 @@ def execute():
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
-            if is_star_wheel_error or is_unloader_error or not servos_ready:
-                if auto_clear_error < data.max_auto_clear_error:
-                    CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
-                    BOARD.unloader_init()
-                    time.sleep(2)
-                    BOARD.star_wheel_clear_error()
-                    time.sleep(0.1)
-                    BOARD.starWheel_init()
-                    is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
-                    is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
-                    is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
-                    auto_clear_error = 0 if is_safe_to_move else auto_clear_error + 1
+            if not servos_ready and  auto_clear_error < data.max_auto_clear_error:
+                CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
+                BOARD.unloader_init()
+                time.sleep(2)
+                BOARD.star_wheel_clear_error()
+                time.sleep(0.1)
+                BOARD.starWheel_init()
+                is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
+                is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
+                is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+                auto_clear_error = 0 if is_safe_to_move else auto_clear_error + 1
 
-                else:  
-                    data.dummy_enabled = False
-                    data.pnp_enabled = False
-                    MongoDB_INIT == False
-                    auto_clear_error = 0
+            else:  
+                data.dummy_enabled = False
+                data.pnp_enabled = False
+                MongoDB_INIT == False
+                auto_clear_error = 0
                 
             if not CAMERA.device_ready:
                 data.pnp_enabled = False
