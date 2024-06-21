@@ -9,16 +9,16 @@ print_name = "SV"
 
 
 class Duet(Enum):
-    # A1 = f"192.168.83.100"
-    # A2 = f"192.168.83.101"
-    # A3 = f"192.168.83.102"
-    # C1 = f"192.168.83.103"
-    # C2 = f"192.168.83.104"
-    A1 = f"10.207.1{setup.ROW}.11"
-    A2 = f"10.207.1{setup.ROW}.12"
-    A3 = f"10.207.1{setup.ROW}.13"
-    C1 = f"10.207.1{setup.ROW}.14"
-    C2 = f"10.207.1{setup.ROW}.15"
+    A1 = f"192.168.83.100"
+    A2 = f"192.168.83.101"
+    A3 = f"192.168.83.102"
+    C1 = f"192.168.83.103"
+    C2 = f"192.168.83.104"
+    # A1 = f"10.207.1{setup.ROW}.11"
+    # A2 = f"10.207.1{setup.ROW}.12"
+    # A3 = f"10.207.1{setup.ROW}.13"
+    # C1 = f"10.207.1{setup.ROW}.14"
+    # C2 = f"10.207.1{setup.ROW}.15"
 
 
 class Cages(Enum):
@@ -70,7 +70,7 @@ class SharedVariables:
     PULSE_INTERVAL = 2.5  # seconds
     THREAD_STARTED = False
 
-    BG_WATCHDOG = 5
+    BG_WATCHDOG = 4
     UI_REFRESH_EVENT = threading.Event()
 
     last_update_time = "------"

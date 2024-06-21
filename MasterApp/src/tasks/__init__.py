@@ -21,11 +21,11 @@ def _init():
     c1_task = c1.C1()
     c2_task = c2.C2()
 
-    # a1_task.start()
-    # a2_task.start()
-    # a3_task.start()
-    # c1_task.start()
-    # c2_task.start()
+    a1_task.start()
+    a2_task.start()
+    a3_task.start()
+    c1_task.start()
+    c2_task.start()
 
 def start():
     threading.Thread(target=_init).start()

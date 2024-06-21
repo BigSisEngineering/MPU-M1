@@ -30,7 +30,7 @@ def get_row(arg=None):
     #         CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
     #         return id
 
-    return 2  # !temp
+    return 1 # !temp
 
     CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
 
