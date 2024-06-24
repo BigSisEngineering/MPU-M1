@@ -65,6 +65,7 @@ lock_mask_config = threading.Lock()
 
 def read_mask_coordinates():
     with lock_mask_config:
+        # print("read")
         CENTER_X = config_parser.getint("MaskCoordinates", "center_x")
         CENTER_Y = config_parser.getint("MaskCoordinates", "center_y")
         RADIUS = config_parser.getint("MaskCoordinates", "radius")
@@ -73,12 +74,16 @@ def read_mask_coordinates():
 
 def save_mask_coordinates(mask_coordinates):
     with lock_mask_config:
-        config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
-        config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
-        config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
+        try:
+            # print("save")
+            config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
+            config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
+            config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
 
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), "w") as configfile:
-            config_parser.write(configfile)
+            with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), "w") as configfile:
+                config_parser.write(configfile)
+        except Exception as e:
+            print("oops {}".format(e))
 
 
 CAGE_ID = get_cage_id()

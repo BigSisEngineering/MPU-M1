@@ -18,6 +18,8 @@ auto_clear_error = 0
 max_attempts = False
 
 
+
+
 @dataclass
 class BoardData:
     sensors_values: list
@@ -110,23 +112,24 @@ def execute():
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
-            if not servos_ready and  auto_clear_error < data.max_auto_clear_error:
-                CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
-                BOARD.unloader_init()
-                time.sleep(2)
-                BOARD.star_wheel_clear_error()
-                time.sleep(0.1)
-                BOARD.starWheel_init()
-                is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
-                is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
-                is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
-                auto_clear_error = 0 if is_safe_to_move else auto_clear_error + 1
+            if is_star_wheel_error or is_star_wheel_error:
+                if auto_clear_error < data.max_auto_clear_error:
+                    CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
+                    BOARD.unloader_init()
+                    time.sleep(2)
+                    BOARD.star_wheel_clear_error()
+                    time.sleep(0.1)
+                    BOARD.starWheel_init()
+                    is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
+                    is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
+                    is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+                    auto_clear_error = 0 if is_safe_to_move else auto_clear_error + 1
 
-            else:  
-                data.dummy_enabled = False
-                data.pnp_enabled = False
-                MongoDB_INIT == False
-                auto_clear_error = 0
+                else:  
+                    data.dummy_enabled = False
+                    data.pnp_enabled = False
+                    MongoDB_INIT == False
+                    auto_clear_error = 0
                 
             if not CAMERA.device_ready:
                 data.pnp_enabled = False
@@ -207,3 +210,6 @@ BOARD_DATA = BoardData(
     "",
     "idle",
 )
+
+BOARD.unloader_init()
+BOARD.starWheel_init()

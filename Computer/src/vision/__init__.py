@@ -3,7 +3,8 @@ import os
 import numpy as np
 import cv2
 
-from rknn.api import RKNN
+from rknn.api import RKNN           #for tinker
+# from rknnlite.api import RKNNLite    #for rock
 
 # ------------------------------------------------------------------------------------------------ #
 from src import CLI, comm

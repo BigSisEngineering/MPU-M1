@@ -7,11 +7,12 @@ from src.tasks import httpServer
 from src.BscbAPI.BscbAPI import BScbAPI
 
 # print('start unloader init')
-# BScbAPI(baud_rate=115200).unloader_init()
+# Board =BScbAPI(baud_rate=115200)
+# Board.unloader_init()
 
 # time.sleep(2)
 # print('start SW init')
-# BScbAPI(baud_rate=115200).starWheel_init()
+# Board.starWheel_init()
 
 def main():
 

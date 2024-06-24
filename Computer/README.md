@@ -52,6 +52,8 @@
   - Now prevent PNP or DUMMY to start if servos not init
 - [v5.0.4] - 20 June 2024
   - Init servos at the boot and attempt to re-init if servos errors (max = 3)
+- [v5.0.5] - 24 June 2024
+  - Init servos at the boot and attempt to re-init if servos errors (max = 3) -- bug fix
 
 ### How to use
 
