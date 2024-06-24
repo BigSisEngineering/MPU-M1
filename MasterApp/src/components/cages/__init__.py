@@ -1,6 +1,6 @@
 import time
 import threading
-from src.comm.http_cage import HTTPCage
+from src.comm import http_cage
 from dataclasses import dataclass, asdict
 from typing import Dict, Any
 
@@ -28,7 +28,7 @@ class Data:
         return {k: str(v) for k, v in asdict(self).items()}
 
 
-class Cage(HTTPCage):
+class Cage(http_cage.HTTPCage):
     def __init__(self, cage: Cages):
         super().__init__(cage.value)
 
@@ -52,13 +52,13 @@ class Cage(HTTPCage):
 
         while not SV.KILLER_EVENT.is_set():
             if (time.time() - time_stamp) > SV.BG_WATCHDOG:
+                time_stamp = time.time()
                 if not SV.UI_REFRESH_EVENT.is_set():
                     _status = self.status
                     if _status is not None:
                         with self._lock_status_ui:
                             self._status_ui = _status
 
-                time_stamp = time.time()
         CLI.printline(
             Level.DEBUG,
             "({:^10})-({:^8}) BG ST REFRESH -> Stop".format(print_name, self._cage_name),

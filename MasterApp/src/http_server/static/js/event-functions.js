@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const controller = new Controller_1A_1C();
   });
   
-  function setupPageElements() {
+  async function setupPageElements() {
     const tableHead = document.querySelector("thead tr");
     const tableBody = document.querySelector("tbody");
   
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cages = [
       ...Array.from({ length: 9 }, (_, i) => i + 1), // Generates 1 to 9
       ...Array.from({ length: 5 }, (_, i) => i + 14) // Generates 16 to 21
-    ].map((i) => `cage1x${i.toString(14).padStart(4, "0")}`);
+    ].map((i) => `cage0x${i.toString(14).padStart(4, "0")}`);
   
     cages.forEach((cageNum) => {
       let th = document.createElement("th");
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupActionExecution();
   }
   
-  function generateRows(tableBody, cages) {
+  async function generateRows(tableBody, cages) {
     const rows = [
       { name: "Mode", className: "mode-cell", symbol: "" },
       {
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   
-  function setupCageSelection(cages) {
+  async function setupCageSelection(cages) {
     const container = document.getElementById("cage-checkboxes");
     cages.forEach((cageNum) => {
       const checkboxDiv = document.createElement("div");
@@ -88,53 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // function setupActionExecution() {
-  //   const executeButton = document.getElementById("execute-action");
-  //   const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
-  //   const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
-  //   const post_request_dict = {
-  //       "star-wheel-init": "STAR_WHEEL_INIT",
-  //       "unloader-init": "UNLOADER_INIT",
-  //       "all-servos-init":"ALL_SERVOS_INIT",
-  //       "clear-star-wheel-error": "CLEAR_STAR_WHEEL_ERROR",
-  //       "clear-unloader-error": "CLEAR_UNLOADER_ERROR",
-  //       "enable-dummy": "ENABLE_DUMMY",
-  //       "disable-dummy": "DISABLE_DUMMY",
-  //       "enable-pnp": "ENABLE_PNP",
-  //       "disable-pnp": "DISABLE_PNP",
-  //       "move-star-wheel-cw": 'MOVE_CW',
-  //       "move-star-wheel-ccw": 'MOVE_CCW'
-  //   };
-  //   actionCheckboxes.forEach(checkbox => {
-  //     checkbox.addEventListener('change', () => {
-  //           if (checkbox.checked) {
-  //               // Uncheck all other checkboxes
-  //               actionCheckboxes.forEach(otherCheckbox => {
-  //                   if (otherCheckbox !== checkbox) {
-  //                       otherCheckbox.checked = false;
-  //                   }
-  //               });
-  //           }
-  //       });
-  //   });
-
-  //   executeButton.addEventListener("click", function () {
-  //       const selectedCages = Array.from(cageCheckboxes).filter(chk => chk.checked).map(chk => chk.id);
-  //       const selectedActions = Array.from(actionCheckboxes).filter(chk => chk.checked).map(chk => post_request_dict[chk.value]);
-
-  //       if (selectedCages.length === 0) {
-  //           alert("Please select at least one cage.");
-  //       } else if (selectedActions.length === 0) {
-  //           alert("Please select an action.");
-  //       } else if (selectedActions.length > 1) {
-  //           alert("Only one action can be selected at a time.");
-  //       } else {
-  //           // Assuming only one action can be selected and is being handled here
-  //           sendCagesAndActionToBackend(selectedCages, selectedActions[0]);
-  //       }
-  //   });
-  // }
-  function setupActionExecution() {
+ 
+  async function setupActionExecution() {
     const executeButton = document.getElementById("execute-action");
     const cageCheckboxes = document.querySelectorAll(".cage-checkbox");
     const actionCheckboxes = document.querySelectorAll('.action-checkboxes input[type="checkbox"]');
@@ -202,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  function sendCagesAndActionToBackend(cages, action) {
+  async function sendCagesAndActionToBackend(cages, action) {
     fetch('/1B', {
         method: 'POST',
         headers: {
@@ -417,7 +372,10 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (this.a2Data.connected === "True" && this.a2Data.sw_error === "True") {
           DDIndicator.textContent = 'SW Fault';
           DDIndicator.style.backgroundColor = 'red'; 
-      } 
+        } 
+        else if (this.a2Data.dispenser_homed === "False") {
+          alert('Clean and reposition nozzle');
+        } 
     }
   }
 
@@ -581,9 +539,10 @@ document.addEventListener("DOMContentLoaded", function () {
   
 
 
-  function fetchStatuses() {
+  async function fetchStatuses() {
     setInterval(() => {
         fetch('./static/js/cage_status.json')  // Ensure the path matches where your JSON is served
+        // fetch('cage_status.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
@@ -591,6 +550,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
+              // console.log("Fetched Data:", data.b);
                 // Update cage statuses
                 const cageStatusUpdater = new CageStatusUpdater(data.b);
                 cageStatusUpdater.updateAllStatuses();
@@ -614,7 +574,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Error fetching statuses:', error);
             });
-    }, 5000); // Fetch and update every 3000 milliseconds (3 seconds)
+    }, 3000); // Fetch and update every 3000 milliseconds (3 seconds)
   }
 
 

@@ -9,7 +9,7 @@ from typing import Optional, Dict
 from src import CLI
 from src.CLI import Level
 
-print_name = "HTTPGate"
+print_name = "HTTPCage"
 
 # -------------------------------------------------------- #
 from src._shared_variables import SV
@@ -33,6 +33,12 @@ ACTION_LIST = [
     "MOVE_CCW",
 ]
 
+# DEFAULT_DICT = {
+#     "sensors_values": "(225, 1, 255, 125)",
+#     "star_wheel_status": "normal",
+#     "unloader_status": "normal",
+#     "mode": "dummy"
+# }
 
 class HTTPCage:
     def __init__(self, hostname: str):
@@ -46,95 +52,97 @@ class HTTPCage:
         self._lock_request = threading.Lock()
 
         # -------------------------------------------------------- #
-        threading.Thread(target=self._find_ip_from_hostname).start()
+        # threading.Thread(target=self._find_ip_from_hostname).start()
 
     # PRIVATE
     # -------------------------------------------------------- #
-    def _find_ip_from_hostname(self) -> None:
+    # def _find_ip_from_hostname(self) -> None:
 
-        with self._lock_request:
-            CLI.printline(
-                Level.INFO,
-                "({:^10})-({:^8}) [{:^10}] -> Start".format(print_name, "FIND IP", self._hostname),
-            )
+    #     with self._lock_request:
+    #         CLI.printline(
+    #             Level.INFO,
+    #             "({:^10})-({:^8}) [{:^10}] -> Start".format(print_name, "FIND IP", self._hostname),
+    #         )
 
-            time_stamp = time.time()
-            interval = 5  # seconds
+    #         time_stamp = time.time()
+    #         interval = 5  # seconds
 
-            while not SV.KILLER_EVENT.is_set() and self._cage_ip is None:
-                if (time.time() - time_stamp) > interval:
-                    try:
-                        # Create an SSH client
-                        ssh_client = paramiko.SSHClient()
-                        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #         while not SV.KILLER_EVENT.is_set() and self._cage_ip is None:
+    #             if (time.time() - time_stamp) > interval:
+    #                 try:
+    #                     # Create an SSH client
+    #                     ssh_client = paramiko.SSHClient()
+    #                     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-                        # Connect to the remote device
-                        ssh_client.connect(
-                            self._hostname + ".local",
-                            username=USERNAME,
-                            password=PASSWORD,
-                        )
+    #                     # Connect to the remote device
+    #                     ssh_client.connect(
+    #                         self._hostname + ".local",
+    #                         username=USERNAME,
+    #                         password=PASSWORD,
+    #                     )
 
-                        # Run the 'ip addr show eth0' command to get information about the eth0 interface
-                        stdin, stdout, stderr = ssh_client.exec_command("ip addr show eth0")
+    #                     # Run the 'ip addr show eth0' command to get information about the eth0 interface
+    #                     stdin, stdout, stderr = ssh_client.exec_command("ip addr show eth0")
 
-                        # Read the output and extract the IP address
-                        output = stdout.read().decode()
-                        lines = output.split("\n")
-                        for line in lines:
-                            if "inet " in line:  # Look for the line containing 'inet ' (IPv4 address)
-                                ip_address = line.split()[1].split("/")[0]
+    #                     # Read the output and extract the IP address
+    #                     output = stdout.read().decode()
+    #                     lines = output.split("\n")
+    #                     for line in lines:
+    #                         if "inet " in line:  # Look for the line containing 'inet ' (IPv4 address)
+    #                             ip_address = line.split()[1].split("/")[0]
 
-                                CLI.printline(
-                                    Level.INFO,
-                                    "({:^10})-({:^8}) [{:^10}] -> {}".format(
-                                        print_name,
-                                        "FIND IP",
-                                        self._hostname,
-                                        ip_address,
-                                    ),
-                                )
+    #                             CLI.printline(
+    #                                 Level.INFO,
+    #                                 "({:^10})-({:^8}) [{:^10}] -> {}".format(
+    #                                     print_name,
+    #                                     "FIND IP",
+    #                                     self._hostname,
+    #                                     ip_address,
+    #                                 ),
+    #                             )
 
-                                self._cage_ip = ip_address
+    #                             self._cage_ip = ip_address
 
-                                # Close the SSH connection
-                                ssh_client.close()
+    #                             # Close the SSH connection
+    #                             ssh_client.close()
 
-                        ssh_client.close()
+    #                     ssh_client.close()
 
-                    except Exception as e:
-                        if not hide_exception:
-                            CLI.printline(
-                                Level.ERROR,
-                                "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(
-                                    print_name, "FIND IP", self._hostname, e
-                                ),
-                            )
+    #                 except Exception as e:
+    #                     if not hide_exception:
+    #                         CLI.printline(
+    #                             Level.ERROR,
+    #                             "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(
+    #                                 print_name, "FIND IP", self._hostname, e
+    #                             ),
+    #                         )
 
-                    if self._hostname is None:
-                        CLI.printline(
-                            Level.WARNING,
-                            "({:^10})-({:^8}) IP for {} not found! Retrying in 5s...".format(
-                                print_name, "FIND IP", self._hostname
-                            ),
-                        )
-                        time_stamp = time.time()
+    #                 if self._hostname is None:
+    #                     CLI.printline(
+    #                         Level.WARNING,
+    #                         "({:^10})-({:^8}) IP for {} not found! Retrying in 5s...".format(
+    #                             print_name, "FIND IP", self._hostname
+    #                         ),
+    #                     )
+    #                     time_stamp = time.time()
 
-        CLI.printline(
-            Level.DEBUG,
-            "({:^10})-({:^8}) [{:^10}] -> Stop".format(print_name, "FIND IP", self._hostname),
-        )
+    #     CLI.printline(
+    #         Level.DEBUG,
+    #         "({:^10})-({:^8}) [{:^10}] -> Stop".format(print_name, "FIND IP", self._hostname),
+    #     )
 
     # PUBLIC
     # -------------------------------------------------------- #
     @property
-    def status(self) -> Optional[Dict]:
+    def status(self) -> Dict:
         if self._lock_request.acquire(timeout=1):
             try:
                 response = requests.get(
-                    url=f"http://{self._cage_ip}:8080/BoardData",
+                    url=f"http://{self._hostname}.local:8080/BoardData",
                     timeout=self._timeout,
                 )
+             
+                print(f'{self._hostname} - {response.text}')
                 return json.loads(response.text)
 
             except Exception as e:
@@ -161,22 +169,25 @@ class HTTPCage:
         if action_name == "RESTART":
             return self.restart_software()
         else:
-            try:
-                requests.post(
-                    url=f"http://{self._cage_ip}:8080/{action_name}",
-                    timeout=1,
-                )
-                CLI.printline(
-                    Level.INFO,
-                    "({:^10})-({:^8}) [{:^10}] Execute -> {}".format(print_name, "EXEC", self._hostname, action_name),
-                )
-            except:
-                CLI.printline(
-                    Level.ERROR,
-                    "({:^10})-({:^8}) [{:^10}] Execute -> {} Failed!".format(
-                        print_name, "EXEC", self._hostname, action_name
-                    ),
-                )
+            if self._lock_request.acquire(timeout=self._timeout):
+                try:
+                    requests.post(
+                        url=f"http://{self._hostname}:8080/{action_name}",
+                        timeout=1,
+                    )
+                    CLI.printline(
+                        Level.INFO,
+                        "({:^10})-({:^8}) [{:^10}] Execute -> {}".format(print_name, "EXEC", self._hostname, action_name),
+                    )
+                except:
+                    CLI.printline(
+                        Level.ERROR,
+                        "({:^10})-({:^8}) [{:^10}] Execute -> {} Failed!".format(
+                            print_name, "EXEC", self._hostname, action_name
+                        ),
+                    )
+                finally:
+                    self._lock_request.release()
 
     def restart_software(self) -> None:
         if self._lock_request.acquire(timeout=self._timeout):
@@ -185,7 +196,7 @@ class HTTPCage:
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
                 ssh_client.connect(
-                    self._cage_ip + ".local",
+                    self._hostname + ".local",
                     username=USERNAME,
                     password=PASSWORD,
                 )
@@ -214,7 +225,7 @@ class HTTPCage:
         if self._lock_request.acquire(timeout=self._timeout):
             try:
                 pot_num = requests.get(
-                    url=f"http://{self._cage_ip}:8080/potData",
+                    url=f"http://{self._hostname}.local:8080/potData",
                     timeout=1,
                 ).json()
 
@@ -231,7 +242,6 @@ class HTTPCage:
                     #             print_name, "POTDATA", self._hostname, pot_num
                     #         ),
                     #     )
-                    #     pot_num = 0
 
                     return pot_num
 
@@ -259,7 +269,7 @@ class HTTPCage:
         if self._lock_request.acquire(timeout=self._timeout):
             try:
                 if action in ACTION_LIST:
-                    url = f"http://{self._cage_ip}:8080/{action}"
+                    url = f"http://{self._hostname}.local:8080/{action}"
                     headers = {"Content-Type": "application/json"}
                     response = requests.post(url, headers=headers, json={}, timeout=5)
                     

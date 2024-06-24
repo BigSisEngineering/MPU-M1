@@ -97,7 +97,7 @@ class DietDispenser(HTTPDuet):
         if self.is_ready and self.read_global("run") == 1:
             if self.set_global("run", 0):
                 CLI.printline(Level.INFO, "{:^10}-{:^15} Stop.".format(print_name, self._duet_name))
-        CLI.printline(Level.WARNING, "{:^10}-{:^15} Stop failed.".format(print_name, self._duet_name))
+        # CLI.printline(Level.WARNING, "{:^10}-{:^15} Stop failed.".format(print_name, self._duet_name))
         return False
 
     # ------------------------------------------------------------------------------------ #
