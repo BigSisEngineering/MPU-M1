@@ -45,6 +45,15 @@
 - [v5.0.1] - 30 May 2024
   - Reworked setup.sh
   - Fixed time sync bug
+- [v5.0.2] - 17 June 2024
+  - Display camera error
+  - PNP will not execute if camera is faulty
+- [v5.0.3] - 19 June 2024
+  - Now prevent PNP or DUMMY to start if servos not init
+- [v5.0.4] - 20 June 2024
+  - Init servos at the boot and attempt to re-init if servos errors (max = 3)
+- [v5.0.5] - 24 June 2024
+  - Init servos at the boot and attempt to re-init if servos errors (max = 3) -- bug fix
 
 ### How to use
 

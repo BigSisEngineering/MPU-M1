@@ -136,44 +136,6 @@ function setupButton(buttonId, endpoint) {
 }
 
 
-// // Function to fetch sensor data and update the circles
-// function fetchAndUpdateBoardData() {
-//     fetch('/BoardData')
-//       .then(response => response.json())  // Convert the response to JSON
-//       .then(data => {
-//         // Parse the sensor values string into an array of numbers
-//         const sensorValuesString = data.sensors_values.slice(1, -1); // Remove the parentheses
-//         const sensorValues = sensorValuesString.split(', ').map(Number);
-  
-//         // Directly access the circles by their ID
-//         const sensorLoadCircle = document.getElementById('sensor-load-circle');
-//         const sensorUnloadCircle = document.getElementById('sensor-unload-circle');
-//         const sensorBufferCircle = document.getElementById('sensor-buffer-circle');
-
-//         const starWheelCircle = document.getElementById('sw-init');
-//         const unloaderCircle = document.getElementById('unloader-init');
-  
-//         // Update the background color of the circles based on sensor values
-//         sensorLoadCircle.style.backgroundColor = sensorValues[0] > 100 ? 'green' : '';
-//         sensorUnloadCircle.style.backgroundColor = sensorValues[1] > 100 ? 'green' : '';
-//         sensorBufferCircle.style.backgroundColor = sensorValues[2] > 100 ? 'green' : '';
-
-//         // Update the background color of the circles based on their statuses
-//         if (data.star_wheel_status === "normal") {
-//             starWheelCircle.style.backgroundColor = 'green';
-//         } else if (data.star_wheel_status === "overload") {
-//             starWheelCircle.style.backgroundColor = 'red';
-//         } else {
-//             starWheelCircle.style.backgroundColor = ''; // Default or another color
-//         }
-//         unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : '';
-//       })
-//       .catch(error => {
-//         console.error('Failed to fetch sensor data:', error);
-//       });
-//   }
-
-
 // Function to fetch sensor data and update the circles
 function fetchAndUpdateBoardData() {
     fetch('/BoardData').then(response => response.json()).then(data => {
@@ -194,8 +156,12 @@ function fetchAndUpdateBoardData() {
         sensorUnloadCircle.style.backgroundColor = sensorValues[1] > 100 ? 'green' : '';
         sensorBufferCircle.style.backgroundColor = sensorValues[2] > 100 ? 'green' : '';
 
+        // starWheelCircle.style.backgroundColor = data.star_wheel_status === "normal" ? 'green' :
+        //                                          data.star_wheel_status === "overload" ? 'red' : '';
         starWheelCircle.style.backgroundColor = data.star_wheel_status === "normal" ? 'green' :
-                                                 data.star_wheel_status === "overload" ? 'red' : '';
+                                         data.star_wheel_status === "overload" ? 'red' :
+                                         data.star_wheel_status === "not_init" ? 'grey' : '';
+
 
         unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : '';
 

@@ -5,6 +5,7 @@ import os
 from urllib.parse import unquote
 from http import HTTPStatus
 import cv2
+import numpy as np
 
 # ------------------------------------------------------------------------------------------------ #
 from src.tasks.httpServer import httpGetHandler, httpPostHandler
@@ -13,6 +14,24 @@ from src.CLI import Level
 from src.tasks import camera
 
 KILLER = threading.Event()
+
+
+def generate_error_frame(message="Camera Error"):
+    # Create a black image
+    error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    # Define font, size, and color
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1
+    color = (0, 0, 255)  # Red color
+    thickness = 2
+    # Get the text size
+    text_size = cv2.getTextSize(message, font, font_scale, thickness)[0]
+    # Calculate the center position
+    text_x = (error_frame.shape[1] - text_size[0]) // 2
+    text_y = (error_frame.shape[0] + text_size[1]) // 2
+    # Put the text on the image
+    cv2.putText(error_frame, message, (text_x, text_y), font, font_scale, color, thickness)
+    return error_frame
 
 
 class httpHandler(http.server.BaseHTTPRequestHandler):
@@ -33,11 +52,10 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
                 )  # Corrected to serve index.html with the correct content type
                 return
 
+            # self.do_camera_stream()
             if self.path.startswith("/video10") or self.path.startswith("/video11"):
                 self.do_camera_stream()
                 return
-
-            # self.do_camera_stream()
 
             if self.parsed_url[1] in httpGetHandler.GET_LIST:
                 func_name = httpGetHandler.generateFuncName(self.parsed_url[1])
@@ -56,10 +74,10 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
         frame = camera.CAMERA.get_frame()
-        if frame is not None:
-            # if vision.PNP.boxes is not None:
-            #     print(f'CV data : {vision.PNP.boxes} ')
-            #     frame = ComputerVision.draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
+        if frame is None:
+            CLI.printline(Level.ERROR, "Failed to encode frame.")
+            frame = generate_error_frame("Camera Error")
+        else:
             ret, jpeg = cv2.imencode(".jpg", frame)
             if ret:
                 try:
@@ -70,9 +88,6 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
                     time.sleep(0.1)
                 except Exception as e:
                     CLI.printline(Level.ERROR, f"(do_camera_stream)-{e}")
-        else:
-            # Handle encoding failure
-            CLI.printline(Level.ERROR, "Failed to encode frame.")
 
     def serve_static_file(self):
         file_path = self.path[len("/static/") :]  # Correctly removes '/static/' from the path

@@ -8,9 +8,11 @@ from src.app import handler
 POST_LIST = [
     "STAR_WHEEL",
     "STAR_WHEEL_INIT",
+    "ALL_SERVOS_INIT",
     "UNLOADER_INIT",
     "ENABLE_DUMMY",
     "ENABLE_PNP",
+    "ENABLE_PURGE",
     "DISABLE_DUMMY",
     "DISABLE_PNP",
     "SET_STAR_WHEEL_SPEED",
@@ -46,44 +48,73 @@ def post_STAR_WHEEL(server):
 
 def post_STAR_WHEEL_INIT(server):
     send_200_response(server)
-    if not data.dummy_enabled:
+    if not data.dummy_enabled or data.pnp_enabled:
         server.wfile.write("star wheel init will be proceed".encode())
         handler.init_star_wheel()
     else:
-        server.wfile.write("Error, disable dummy".encode())
+        server.wfile.write("Error, disable dummy/pnp".encode())
 
 
 def post_UNLOADER_INIT(server):
     send_200_response(server)
-    if not data.dummy_enabled:
+    if not data.dummy_enabled or data.pnp_enabled:
         server.wfile.write("unloader init will be proceed".encode())
         handler.init_unloader()
     else:
-        server.wfile.write("Error, disable dummy".encode())
+        server.wfile.write("Error, disable dummy/pnp".encode())
 
+
+def post_ALL_SERVOS_INIT(server):
+    send_200_response(server)
+    if not data.dummy_enabled or data.pnp_enabled:
+        server.wfile.write("all init will be proceed".encode())
+        handler.init_unloader()
+        handler.clear_star_wheel_error()
+        handler.init_star_wheel()
+    else:
+        server.wfile.write("Error, disable dummy/pnp".encode())
 
 def post_ENABLE_PNP(server):
     send_200_response(server)
-    server.wfile.write("pnp Enabled".encode())
-    handler.enable_pnp()
+    with data.lock:
+        if data.servos_ready:
+            data.pnp_enabled = True
+            server.wfile.write("pnp Enabled".encode())
+        else:
+            server.wfile.write("Initialize servos first".encode())
+
 
 
 def post_ENABLE_DUMMY(server):
     send_200_response(server)
-    server.wfile.write("Dummy Enabled".encode())
-    handler.enable_dummy()
+    with data.lock:
+        if data.servos_ready:
+            data.dummy_enabled = True
+            server.wfile.write("Dummy Enabled".encode())
+        else:
+            server.wfile.write("Initialize servos first".encode())
 
+def post_ENABLE_PURGE(server):
+    send_200_response(server)
+    with data.lock:
+        if data.servos_ready:
+            data.purge_enabled = True
+            server.wfile.write("Purge Started".encode())
+        else:
+            server.wfile.write("Initialize servos first".encode())
 
 def post_DISABLE_DUMMY(server):
     send_200_response(server)
     server.wfile.write("Dummy Disabled".encode())
-    handler.enable_dummy()
+    with data.lock:
+        data.dummy_enabled = False
 
 
 def post_DISABLE_PNP(server):
     send_200_response(server)
     server.wfile.write("pnp Disabled".encode())
-    handler.enable_pnp()
+    with data.lock:
+        data.pnp_enabled = False
 
 
 def post_SET_STAR_WHEEL_SPEED(server):

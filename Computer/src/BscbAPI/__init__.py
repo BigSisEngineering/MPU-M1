@@ -8,11 +8,16 @@ from src.BscbAPI.BscbAPI import SensorID, Status
 from src import CLI
 from src.CLI import Level
 from src import data, operation, comm, cloud
+from src.tasks.camera import CAMERA
 
 MongoDB_INIT = False
 time_stamp = time.time()
 sensor_timer_flag = False
 sensor_time = None
+auto_clear_error = 0
+max_attempts = False
+
+
 
 
 @dataclass
@@ -57,7 +62,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, max_attempts
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -67,15 +72,16 @@ def execute():
             is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
-            if sensor_timer_flag ==False:
+            
+            if sensor_timer_flag == False:
                 sensor_time = None
-            if sensors_values[0] < 100 or sensors_values[2]<100:
+            if sensors_values[0] < 100 or sensors_values[2] < 100:
                 if sensor_timer_flag == False:
                     sensor_time = time.time()
                     sensor_timer_flag = True
 
         # ======================================= Check status ======================================= #
-        # CLI.printline(Level.INFO, f"SW status-{BOARD.star_wheel_status}, UL-{BOARD.unloader_status}")
+        CLI.printline(Level.INFO, f"SW status-{BOARD_DATA.star_wheel_status}, UL-{BOARD_DATA.unloader_status}")
 
         # Check buffer
         is_buffer_full = BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
@@ -84,6 +90,8 @@ def execute():
         is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
 
         is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+
+        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal' and not max_attempts
 
         if not is_safe_to_move:
             CLI.printline(Level.DEBUG, f"(background-loop) buffer>{is_buffer_full}-loader>{is_loader_get_pot}")
@@ -97,17 +105,41 @@ def execute():
             unload_probability = data.unload_probability
             run_dummy = data.dummy_enabled
             run_pnp = data.pnp_enabled
+            run_purge = data.purge_enabled
+            data.servos_ready = servos_ready
+            print(f'servos state {data.servos_ready}')
             # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
-            if is_star_wheel_error or is_unloader_error:
-                data.dummy_enabled = False
+            if is_star_wheel_error or is_star_wheel_error:
+                if auto_clear_error < data.max_auto_clear_error:
+                    CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
+                    BOARD.unloader_init()
+                    time.sleep(2)
+                    BOARD.star_wheel_clear_error()
+                    time.sleep(0.1)
+                    BOARD.starWheel_init()
+                    is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
+                    is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
+                    is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+                    auto_clear_error = 0 if is_safe_to_move else auto_clear_error + 1
+
+                else:  
+                    data.dummy_enabled = False
+                    data.pnp_enabled = False
+                    MongoDB_INIT == False
+                    auto_clear_error = 0
+                
+            if not CAMERA.device_ready:
                 data.pnp_enabled = False
-                MongoDB_INIT == False
+                # print('PNP disabled please check camera connection ...')
+                
         # ======================================= PNP? ======================================= #
         if run_pnp:
             if time.time() - time_stamp > cycle_time:
+                    
+                # is_safe_to_move = is_safe_to_move and CAMERA.device_ready  # move when both BOARD and CAMERA are ready
                 time_stamp = time.time() if is_safe_to_move else time_stamp
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
@@ -118,14 +150,14 @@ def execute():
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
-                
+
                 if sensor_timer_flag == True:
-                    print(f'variable sensor_time :{sensor_time}')
+                    print(f"variable sensor_time :{sensor_time}")
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
-                        print(f'sensors not triggered for {sensor_timer}')
-                        if sensor_timer > 20 and  sensors_values[0] > 100 and sensors_values[2]>100:
-                            CLI.printline(Level.ERROR,f'sensors triggered again {sensors_values}')
+                        print(f"sensors not triggered for {sensor_timer}")
+                        if sensor_timer > 20 and sensors_values[0] > 100 and sensors_values[2] > 100:
+                            CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
                 print(f"mongo DB variable after : {MongoDB_INIT}")
@@ -135,13 +167,15 @@ def execute():
             CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
-            with lock:
-                BOARD_DATA.mode = "dummy"
-            CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
-            MongoDB_INIT == False
-            # FIXME
-            # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
-            operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+            if time.time() - time_stamp > cycle_time:
+                time_stamp = time.time() if is_safe_to_move else time_stamp
+                with lock:
+                    BOARD_DATA.mode = "dummy"
+                CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
+                MongoDB_INIT == False
+                # FIXME
+                # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+                operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
         # ======================================== Purge? ======================================== #
         elif run_purge:
             with lock:
@@ -176,3 +210,6 @@ BOARD_DATA = BoardData(
     "",
     "idle",
 )
+
+BOARD.unloader_init()
+BOARD.starWheel_init()
