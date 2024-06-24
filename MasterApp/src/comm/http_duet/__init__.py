@@ -1,6 +1,6 @@
 import requests
 import threading
-from typing import Optional, Tuple, Any, Union
+from typing import Optional, Tuple, Any, Union, Callable
 
 # -------------------------------------------------------- #
 from src import CLI
@@ -13,12 +13,11 @@ hide_exception = True
 class HTTPDuet:
     def __init__(self, duet_ip: str) -> None:
         self._duet_ip = duet_ip
-        self._timeout = 1  # seconds
+        self._timeout = 2  # seconds
 
         # -------------------------------------------------------- #
         self._lock_request = threading.Lock()
 
-    # -------------------------------------------------------- #
     @property
     def is_connected(self) -> bool:
         with self._lock_request:
@@ -30,10 +29,9 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "CONN", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "CONN", e),
                     )
+
         return False
 
     @property
@@ -52,10 +50,9 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "IS_IDLE", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "IS_IDLE", e),
                     )
+
         return False
 
     def run_macro(self, macro_name: str, param: str = None) -> bool:
@@ -71,9 +68,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "RUN_MCR", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_MCR", e),
                     )
         return False
 
@@ -90,9 +85,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "RUN_CMD", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_CMD", e),
                     )
         return False
 
@@ -121,9 +114,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "READ_GLB", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_GLB", e),
                     )
                 if len(args) > 1:
                     for arg in args:
@@ -145,10 +136,9 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "SET_GLB", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "SET_GLB", e),
                     )
+
         return False
 
     def read_object(self, obj_name: str) -> Optional[Any]:
@@ -164,10 +154,9 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "READ_OBJ", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_OBJ", e),
                     )
+
         return None
 
     def abort(self) -> None:
@@ -182,9 +171,7 @@ class HTTPDuet:
                 if not hide_exception:
                     CLI.printline(
                         Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(
-                            print_name, "ABORT", e
-                        ),
+                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "ABORT", e),
                     )
 
 

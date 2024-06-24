@@ -1,86 +1,88 @@
 import threading
+import requests
 import time
+from typing import List
 
 # -------------------------------------------------------- #
 from src import components
 
 # -------------------------------------------------------- #
-from src._shared_variables import SV
+from src._shared_variables import SV, Cages
 
 print_name = "LOADER_M"
 
 # -------------------------------------------------------- #
-import requests
-cage_list = [
-    "02",
-    "03",
-    "04",
-    "05",
-    "06",
-    "07",
-    "08",
-    "09",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-]
+
 
 class A3:
     def __init__(self):
         self._lock_accumulated_pots = threading.Lock()
-        self._accumulated_pots = 0
+        self._accumulated_pots: int = 0
+        self._set_zero_flag: bool = False
+
+        #
+        self.lock_num_pots = threading.Lock()
+        self.num_pots: int = 0
 
         # -------------------------------------------------------- #
         self.loop_thread = threading.Thread(target=self._loop)
 
+    # ------------------------------------------------------------------------------------ #
     @property
     def accumulated_pots(self) -> int:
         with self._lock_accumulated_pots:
             _accumulated_pots = self._accumulated_pots
         return _accumulated_pots
-    
+
     def add_pots(self, w: int) -> str:
         with self._lock_accumulated_pots:
             self._accumulated_pots = self._accumulated_pots + w
         return "Added {:^3} pots".format(w)
-    
+
     def set_zero(self) -> str:
         with self._lock_accumulated_pots:
             self._accumulated_pots = 0
-        return "Accumulated pots -> 0"
 
+        self._set_zero_flag = True
+        return f"Accumulated pots -> 0."
 
-
-    def _loop(self):
+    # ------------------------------------------------------------------------------------ #
+    def _loop(self) -> None:
         time_stamp = time.time() - 300  # set to 5 mins ago for instant 1st pulse
 
         while not SV.KILLER_EVENT.is_set():
             if time.time() - time_stamp > SV.PULSE_INTERVAL:
                 if SV.run_1a:
                     components.A3.start()
-                    self._send_pulse()
+                    if self._send_pulse():
+                        time_stamp = time.time()
                 else:
                     components.A3.stop()
 
-                time_stamp = time.time()
+    # ------------------------------------------------------------------------------------ #
+    def _get_pot_cage(self, cage) -> None:
+        result = components.cage_dict[cage].fetch_pot_data()
+        with self.lock_num_pots:
+            self.num_pots += result
 
-    def _get_num_pots(self):
-        num_pots = 0
-        for i in cage_list:
-            try:
-                url = f"http://cage0x00{i}.local:8080/potData"
-                print(f'number of pots {num_pots} for {i}')
-                num_pots += requests.get(url, timeout=(2, 10)).json()
-            except Exception as e:
-                print(f"The request of {url} - failed")
+    def _get_num_pots(self) -> int:
+        threads: List[threading.Thread] = []
+        for cage in Cages:
+            threads.append(threading.Thread(target=self._get_pot_cage, args=(cage,)))
 
-        print(f"num of pots needed for all: {num_pots}")
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        with self.lock_num_pots:
+            num_pots = self.num_pots
+            self.num_pots = 0
+
         return num_pots
 
-    def _send_pulse(self):
+    def _send_pulse(self) -> bool:
         try:
             num_pots = self._get_num_pots()
 
@@ -88,21 +90,29 @@ class A3:
                 # get leftovers from last pulse
                 remaining = components.A3.get_remaining()
 
+                if self._set_zero_flag:  # reset
+                    remaining = 0
+                    self._set_zero_flag = False
+
                 # add [ current + accumulated + previously_not_sent ]
                 _total_capsules = num_pots + self.accumulated_pots + remaining
 
                 # reset accumulated
-                self.set_zero()
+                with self._lock_accumulated_pots:
+                    self._accumulated_pots = 0
 
-                return components.A3.send_capsules(_total_capsules)
+                if components.A3.send_capsules(_total_capsules):
+                    return True
+                else:
+                    with self._lock_accumulated_pots:
+                        self._accumulated_pots += num_pots  # add pots if not executed
 
         except Exception as e:
             print("{:^10}-{:^15} Exception -> {}".format(print_name, "SEND PULSE", e))
 
-        self.add_pots(num_pots)
         return False
 
     # -------------------------------------------------------- #
-    def start(self):
+    def start(self) -> None:
         print("{:^10} Start.".format(print_name))
         self.loop_thread.start()
