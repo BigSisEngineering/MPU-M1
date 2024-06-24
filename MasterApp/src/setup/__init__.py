@@ -22,15 +22,13 @@ config_parser.read(
 
 def get_row(arg=None):
     # Apply default if no argument given
-    # id = socket.gethostname() if arg is None else arg
-    # if id:
-    #     match = re.search(r"x(\d+)", id)
-    #     if match:
-    #         number = int(match.group(1))
-    #         CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
-    #         return id
-
-    return 1 # !temp
+    id = socket.gethostname() if arg is None else arg
+    if id:
+        match = re.search(r"x(\d+)", id)
+        if match:
+            number = int(match.group(1))
+            CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
+            return id
 
     CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
 

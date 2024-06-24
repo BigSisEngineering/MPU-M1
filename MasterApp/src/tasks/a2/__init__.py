@@ -1,19 +1,24 @@
 import threading
 import time
 
-# -------------------------------------------------------- #
+# ------------------------------------------------------------------------------------ #
 from src import components
 
-# -------------------------------------------------------- #
-from src._shared_variables import SV
+# ------------------------------------------------------------------------------------ #
+from src import CLI
+from src.CLI import Level
 
 print_name = "DIET_DSP"
+
+# ------------------------------------------------------------------------------------ #
+from src._shared_variables import SV
 
 
 class A2:
     def __init__(self):
-        # -------------------------------------------------------- #
+        # ------------------------------------------------------------------------------------ #
         self.loop_thread = threading.Thread(target=self._loop)
+        self._create_fresh_session: bool = True
 
     def _loop(self):
         time_stamp = time.time() - 300  # set to 5 mins ago for instant 1st pulse
@@ -24,7 +29,7 @@ class A2:
 
                 time_stamp = time.time()
 
-    # -------------------------------------------------------- #
+    # ------------------------------------------------------------------------------------ #
     def start(self):
         print("{:^10} Start.".format(print_name))
         self.loop_thread.start()
