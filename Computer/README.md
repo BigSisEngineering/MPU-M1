@@ -54,6 +54,7 @@
   - Init servos at the boot and attempt to re-init if servos errors (max = 3)
 - [v5.0.5] - 24 June 2024
   - Init servos at the boot and attempt to re-init if servos errors (max = 3) -- bug fix
+  - fixed variable to change sw speed
 
 ### How to use
 
