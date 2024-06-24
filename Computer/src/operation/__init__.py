@@ -17,7 +17,7 @@ from src.CLI import Level
 purge_state: int = 0
 sw_thread: threading.Thread = None
 unload_thread: threading.Thread = None
-star_wheel_move_time: int = 600
+star_wheel_move_time: int = data.star_wheel_duration_ms
 ai_result = 0
 threads: Dict[str, threading.Thread] = {
     "sw": None,
@@ -28,7 +28,7 @@ threads: Dict[str, threading.Thread] = {
 
 
 def test_pnp(
-    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, pnp_confidence: float
+    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
 ):
     global threads
 
