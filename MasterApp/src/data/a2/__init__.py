@@ -16,6 +16,7 @@ from src import setup
 class Data:
     def __init__(self):
         self.url = "http://18.135.115.43/api/api/diet_dispense/diet/"
+        self.session_key = None
 
         # ------------------------------------------------------------------------------------ #
         self.lock_data = threading.Lock()
@@ -27,23 +28,47 @@ class Data:
         }
 
         # ------------------------------------------------------------------------------------ #
-        self.lock_PUT = threading.Lock()
+        self.lock_upload = threading.Lock()
 
     def _get_current_time(self) -> str:
         return datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    def _PUT(self):
-        if self.lock_PUT.acquire(timeout=1):
+    def _POST(self) -> None:
+        if self.lock_upload.acquire(timeout=1):
             payload = json.dumps(self.data)
             headers = {"Content-Type": "application/json"}
 
-            response = requests.request("PUT", self.url, headers=headers, data=payload)
+            url = self.url
+            response = requests.request("POST", url, headers=headers, data=payload)
+            self.session_key = response.json().get("id", None)
 
-            CLI.printline(Level.INFO, "({:^10}) PUT -> {}".format(print_name, response.text))
+            CLI.printline(Level.INFO, "({:^10}) POST -> {}".format(print_name, self.session_key))
 
-            self.lock_PUT.release()
-        else:
-            CLI.printline(Level.WARNING, "({:^10}) PUT not executed.".format(print_name))
+            self.lock_upload.release()
+
+            return
+        CLI.printline(Level.WARNING, "({:^10}) POST not executed.".format(print_name))
+
+    def _PUT(self) -> None:
+        if self.lock_upload.acquire(timeout=1):
+            payload = json.dumps(self.data)
+            headers = {"Content-Type": "application/json"}
+
+            if self.session_key is not None:
+                url = "{}{}/".format(self.url, self.session_key)
+
+                requests.request("PUT", url, headers=headers, data=payload, timeout=2)
+
+                CLI.printline(Level.INFO, "({:^10}) PUT -> {}".format(print_name, self.session_key))
+                self.lock_upload.release()
+                return
+            else:
+                CLI.printline(Level.WARNING, "({:^10}) Attempting to repost session".format(print_name))
+                self.lock_upload.release()
+                self._POST()
+                return
+
+        CLI.printline(Level.WARNING, "({:^10}) POST not executed.".format(print_name))
 
     def _update_data_thread(self, num_pots) -> None:
         with self.lock_data:
@@ -57,7 +82,20 @@ class Data:
             self.data["no_of_pots_dispensed"] = 0
             self.data["start_time"] = self._get_current_time()
             self.data["end_time"] = self._get_current_time()
-            self._PUT()
+            self._POST()
 
     def update_data(self, num_pots) -> None:
         threading.Thread(target=self._update_data_thread, args=(num_pots,)).start()
+
+
+def debug():
+    import time
+
+    obj = Data()
+    obj.create_session()
+
+    time.sleep(1)
+    obj.update_data(5)
+
+    time.sleep(1)
+    obj.update_data(5)
