@@ -33,7 +33,7 @@ def create_thread():
                 response = aws_image_upload("egg", f"{file_path}")
                 if response.status_code >= 200 and response.status_code < 300:
                     CLI.printline(Level.INFO, f"(aws)-Uploaded: {file_path}  -- with response {response}")
-                    # os.remove(file_path)
+                    os.remove(file_path)
                 else:
                     CLI.printline(Level.WARNING, f"(aws) internet access fail")
 

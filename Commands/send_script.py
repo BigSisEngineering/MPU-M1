@@ -4,13 +4,13 @@ from scp import SCPClient
 import time
 import os
 
-row = 1
+row = 0
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-# for n in range(1, 14 + 1):
-#     hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage1x0008")
+for n in range(1, 14 + 1):
+    hostnames.append(f"cage{row}x00{n:02}")
+# hostnames.append("cage0x0008")
 # hostnames.append("cage0x0004")
 # hostnames.append("cagetest")
 
@@ -152,8 +152,35 @@ def ssh_remove_log(hostname, username, password, port=22):
         ssh.close()
 
 
+
+def execute_command(hostname, command, username, password, port=22):
+    try:
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname, port=port, username=username, password=password, timeout=60)
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+        print(f"Command executed -> {hostname}: {command}")
+
+    except Exception as e:
+        print(f"Error executing command on {hostname}: {e}")
+
+    finally:
+        ssh.close()
+
+
+
 # Example usage
 import threading
+
+def restart_service(hostname):
+    global username, password
+    command = "sudo systemctl restart webapp.service"
+    threading.Thread(target=execute_command, args=(hostname, command, username, password)).start()
+
+
+
 
 
 def upload_files(hostname):
@@ -226,11 +253,12 @@ def get_cage_photos(hostname):
 for hostname in hostnames:
     try:
         
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
+        restart_service(hostname)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")

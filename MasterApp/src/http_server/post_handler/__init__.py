@@ -85,6 +85,6 @@ def monitor_1A1C_states():
         print(f"Monitoring states: is1AActive={SV.is1AActive}, is1CActive={SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
         SV.w_run_1c(SV.is1CActive)
-        time.sleep(3)
+        time.sleep(2)
 
 threading.Thread(target=monitor_1A1C_states).start()

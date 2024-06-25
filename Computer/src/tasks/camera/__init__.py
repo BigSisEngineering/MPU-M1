@@ -79,8 +79,8 @@ class CameraThreading:
         if not cap.isOpened():
             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
         # else:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)  # FIXME -
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # FIXME
         # i = 0
         while not killer.is_set():
             try:
@@ -95,8 +95,8 @@ class CameraThreading:
                         if not cap.isOpened():
                             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
                         # else:
-                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
-                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)  # FIXME -
+                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # FIXME
                         time.sleep(0.1)
                         continue  # non-return thread
                     except Exception as e:

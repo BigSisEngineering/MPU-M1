@@ -14,7 +14,7 @@ class EggCounter:
         self.row_name = setup.ROW_NUMBER
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
-        self.timeout = 1  # Timeout set to 1 second
+        self.timeout = 2  # Timeout set to 1 second
         self.date = datetime.now().strftime("%Y-%m-%d")
         self.start_date_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         self.count = {
@@ -33,11 +33,11 @@ class EggCounter:
             response = self.session.post(self.url, data=json.dumps(data), timeout=self.timeout)
             return response
         except requests.exceptions.Timeout:
-            print("Request timed out")
+            print("Request timed out in post_api_data")
         except requests.exceptions.ConnectionError:
-            print("Connection error")
+            print("Connection error in post_api_data")
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"Unexpected error in post_api_data: {e}")
         return None
 
     def update_entry(self):
@@ -88,7 +88,7 @@ class EggCounter:
                 self.data_init()
 
         except Exception as e:
-            print(f"Update data error: {e}")
+            print(f"Update data error in data update: {e}")
             pass
 
     def data_upload(self):
@@ -109,12 +109,12 @@ class EggCounter:
                 print("Data successfully uploaded.")
             else:
                 print(
-                    f"Failed to update data. Status code: {response.status_code if response else 'No response'}, Response: {response.text if response else 'No response'}"
+                    f"Failed to upload data. Status code: {response.status_code if response else 'No response'}, Response: {response.text if response else 'No response'}"
                 )
         except requests.exceptions.Timeout:
-            print("Request timed out")
+            print("Request timed out in data upload")
         except requests.exceptions.ConnectionError:
-            print("Connection error")
+            print("Connection error in data upload")
         except Exception as e:
             print(f"Upload data error: {e}")
 
