@@ -12,6 +12,7 @@ from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src import CLI
 from src.CLI import Level
 from src.tasks import camera
+from src import setup
 
 KILLER = threading.Event()
 
@@ -50,6 +51,10 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
                 self.serve_file(
                     "index.html", "text/html"
                 )  # Corrected to serve index.html with the correct content type
+                return
+            
+            if self.path.startswith("/version"):
+                self.serve_version()
                 return
 
             # self.do_camera_stream()
@@ -101,6 +106,13 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         elif file_path.endswith(".html"):
             content_type = "text/html"
         self.serve_file(file_path, content_type)
+    
+    def serve_version(self):
+        version = setup.get_software_version()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(f'{{"version": "{version}"}}', "utf-8"))
 
     def serve_file(self, file_path, content_type):
         # For templates directory

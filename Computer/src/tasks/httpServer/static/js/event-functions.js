@@ -219,6 +219,10 @@ document.addEventListener('DOMContentLoaded', function() {
   setupButton('unload-button', '/UNLOAD');
   setupButton('move-sw-cw-button', '/MOVE_CW');
   CameraFeed(); 
+
+  fetch('/version')
+    .then(r => r.json())
+    .then(d => document.getElementById('software-version').textContent = d.version);
 });
 
 

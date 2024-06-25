@@ -55,7 +55,9 @@
 - [v5.0.5] - 24 June 2024
   - Init servos at the boot and attempt to re-init if servos errors (max = 3) -- bug fix
   - fixed variable to change sw speed
-
+- [v5.0.6] - 25 June 2024
+  - Increased camera resolution
+  - dynamic version of the cage on the front end
 ### How to use
 
 1. Copy folder
