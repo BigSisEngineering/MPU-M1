@@ -10,7 +10,7 @@ row = 1
 hostnames = []
 for n in range(1, 14 + 1):
     hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage1x0001")
+# hostnames.append("cage1x0008")
 # hostnames.append("cage0x0004")`1` 
 
 

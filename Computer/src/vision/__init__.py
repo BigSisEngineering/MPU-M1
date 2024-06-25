@@ -3,8 +3,8 @@ import os
 import numpy as np
 import cv2
 
-# from rknn.api import RKNN           #for tinker
-from rknnlite.api import RKNNLite    #for rock
+from rknn.api import RKNN           #for tinker
+# from rknnlite.api import RKNNLite    #for rock
 
 # ------------------------------------------------------------------------------------------------ #
 from src import CLI, comm
@@ -14,7 +14,7 @@ from src.vision.prediction import ComputerVision
 
 RKNN_MODEL = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
-    "yolov5_m1_rock.rknn",
+    "yolov5_m1.rknn",
 )
 
 

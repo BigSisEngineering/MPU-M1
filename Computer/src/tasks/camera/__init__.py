@@ -79,8 +79,8 @@ class CameraThreading:
         if not cap.isOpened():
             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
         # else:
-        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # FIXME -
-        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # FIXME
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
         # i = 0
         while not killer.is_set():
             try:
@@ -95,9 +95,9 @@ class CameraThreading:
                         if not cap.isOpened():
                             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
                         # else:
-                        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)  # FIXME -
-                        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # FIXME
-                        time.sleep(1)
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
+                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+                        time.sleep(0.1)
                         continue  # non-return thread
                     except Exception as e:
                         CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
@@ -132,24 +132,12 @@ class CameraThreading:
                 else:
                     with self._lock_device_ready:
                         self._device_ready = False
-                return frame  # [80:560,80:560]
+                return frame
 
             except Exception as e:
                 with self._lock_device_ready:
                     self._device_ready = False
                 CLI.printline(Level.ERROR, f"(CameraThreading - get_frame)-{e}")
-        # if frame is not None:
-        #     # Crop and rotate
-        #     height, width, _ = frame.shape
-        #     # Calculate the coordinates for cropping#
-        #     size = 640
-        #     top = (height - size) // 2
-        #     bottom = top + size
-        #     left = (width - size) // 2
-        #     right = left + size
-        #     frame = frame[top:bottom, left:right]  # Expected the size
-        #     frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-        # return frame
 
     def get_raw_frame(self):
         with self.frame_lock:

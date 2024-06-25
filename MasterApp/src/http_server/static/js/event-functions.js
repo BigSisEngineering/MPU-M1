@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cages = [
       ...Array.from({ length: 9 }, (_, i) => i + 1), // Generates 1 to 9
       ...Array.from({ length: 5 }, (_, i) => i + 14) // Generates 16 to 21
-    ].map((i) => `cage0x${i.toString(14).padStart(4, "0")}`);
+    ].map((i) => `cage1x${i.toString(14).padStart(4, "0")}`);
   
     cages.forEach((cageNum) => {
       let th = document.createElement("th");

@@ -11,6 +11,7 @@ from src.CLI import Level
 def aws_image_upload(predict, img_name):
     url = "http://18.135.115.43/api/api/postgres_apis/upload_image_path/"
     payload = {"path_name": f"bigsis-m1/{setup.ROW_NUMBER}/{setup.CAGE_ID}/{predict}/"}
+    print(f'aws-image-upload {predict}')
     files = [("image", (img_name, open(img_name, "rb"), "image/jpg"))]
     headers = {}
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
@@ -31,8 +32,8 @@ def create_thread():
                 file_path = os.path.join("/dev/shm", jpg_file)
                 response = aws_image_upload("egg", f"{file_path}")
                 if response.status_code >= 200 and response.status_code < 300:
-                    CLI.printline(Level.INFO, f"(aws)-Uploaded: {file_path}")
-                    os.remove(file_path)
+                    CLI.printline(Level.INFO, f"(aws)-Uploaded: {file_path}  -- with response {response}")
+                    # os.remove(file_path)
                 else:
                     CLI.printline(Level.WARNING, f"(aws) internet access fail")
 
