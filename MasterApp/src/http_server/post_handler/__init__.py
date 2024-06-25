@@ -95,7 +95,7 @@ def manage_cage_actions(cages, action):
 
 
 def monitor_1A1C_states():
-    while not SV.KILLER_EVENT.is_set:
+    while not SV.KILLER_EVENT.is_set():
         print(f"Monitoring states: is1AActive={SV.is1AActive}, is1CActive={SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
         SV.w_run_1c(SV.is1CActive)

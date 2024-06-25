@@ -35,14 +35,18 @@ class Data:
 
     def _POST(self) -> None:
         if self.lock_upload.acquire(timeout=1):
-            payload = json.dumps(self.data)
-            headers = {"Content-Type": "application/json"}
+            try:
+                payload = json.dumps(self.data)
+                headers = {"Content-Type": "application/json"}
 
-            url = self.url
-            response = requests.request("POST", url, headers=headers, data=payload)
-            self.session_key = response.json().get("id", None)
+                url = self.url
+                response = requests.request("POST", url, headers=headers, data=payload)
+                self.session_key = response.json().get("id", None)
 
-            CLI.printline(Level.INFO, "({:^10}) POST -> {}".format(print_name, self.session_key))
+                CLI.printline(Level.INFO, "({:^10}) POST -> {}".format(print_name, self.session_key))
+
+            except Exception as e:
+                CLI.printline(Level.ERROR, "({:^10}) POST ERROR-> {}".format(print_name, e))
 
             self.lock_upload.release()
 
@@ -51,28 +55,34 @@ class Data:
 
     def _PUT(self) -> None:
         if self.lock_upload.acquire(timeout=1):
-            payload = json.dumps(self.data)
-            headers = {"Content-Type": "application/json"}
+            try:
+                payload = json.dumps(self.data)
+                headers = {"Content-Type": "application/json"}
 
-            if self.session_key is not None:
-                url = "{}{}/".format(self.url, self.session_key)
+                if self.session_key is not None:
+                    url = "{}{}/".format(self.url, self.session_key)
 
-                requests.request("PUT", url, headers=headers, data=payload, timeout=2)
+                    requests.request("PUT", url, headers=headers, data=payload, timeout=2)
 
-                CLI.printline(Level.INFO, "({:^10}) PUT -> {}".format(print_name, self.session_key))
-                self.lock_upload.release()
-                return
-            else:
-                CLI.printline(Level.WARNING, "({:^10}) Attempting to repost session".format(print_name))
-                self.lock_upload.release()
-                self._POST()
-                return
+                    CLI.printline(Level.INFO, "({:^10}) PUT -> {}".format(print_name, self.session_key))
+                    self.lock_upload.release()
+                    return
+                else:
+                    CLI.printline(Level.WARNING, "({:^10}) Attempting to repost session".format(print_name))
+                    self.lock_upload.release()
+                    self._POST()
+                    return
+
+            except Exception as e:
+                CLI.printline(Level.ERROR, "({:^10}) PUT ERROR-> {}".format(print_name, e))
+
+            self.lock_upload.release()
 
         CLI.printline(Level.WARNING, "({:^10}) POST not executed.".format(print_name))
 
     def _update_data_thread(self, num_pots) -> None:
         with self.lock_data:
-            self.data["no_of_pots_dispensed"] += num_pots
+            self.data["no_of_pots_dispensed"] = num_pots
             self.data["end_time"] = self._get_current_time()
             self._PUT()
 

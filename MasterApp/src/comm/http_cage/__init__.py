@@ -40,6 +40,7 @@ ACTION_LIST = [
 #     "mode": "dummy"
 # }
 
+
 class HTTPCage:
     def __init__(self, hostname: str):
         self._cage_ip: Optional[str] = None
@@ -141,8 +142,8 @@ class HTTPCage:
                     url=f"http://{self._hostname}.local:8080/BoardData",
                     timeout=self._timeout,
                 )
-             
-                print(f'{self._hostname} - {response.text}')
+
+                # print(f'{self._hostname} - {response.text}')
                 return json.loads(response.text)
 
             except Exception as e:
@@ -177,7 +178,9 @@ class HTTPCage:
                     )
                     CLI.printline(
                         Level.INFO,
-                        "({:^10})-({:^8}) [{:^10}] Execute -> {}".format(print_name, "EXEC", self._hostname, action_name),
+                        "({:^10})-({:^8}) [{:^10}] Execute -> {}".format(
+                            print_name, "EXEC", self._hostname, action_name
+                        ),
                     )
                 except:
                     CLI.printline(
@@ -272,7 +275,6 @@ class HTTPCage:
                     url = f"http://{self._hostname}.local:8080/{action}"
                     headers = {"Content-Type": "application/json"}
                     response = requests.post(url, headers=headers, json={}, timeout=5)
-                    
 
                     if response is not None:
                         CLI.printline(
