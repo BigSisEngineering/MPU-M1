@@ -6,7 +6,7 @@ import threading
 import time
 import logging
 
-blueprint = Blueprint('post_handler', __name__)
+blueprint = Blueprint("post_handler", __name__)
 logger = logging.getLogger(__name__)
 
 _active_threads = {}
@@ -28,8 +28,7 @@ def exec_function(func, args=None):
         print(f"Execution blocked: {function_name} is already executing.")
 
 
-
-@blueprint.route('/1A_1C', methods=['POST'])
+@blueprint.route("/1A_1C", methods=["POST"])
 def handle_1A_1C_post():
     data = request.get_json()
     if not data:
@@ -41,9 +40,11 @@ def handle_1A_1C_post():
     reset_action_flags(data)
     return jsonify({"status": "success"})
 
+
 def handle_1A1C_state_changes(data):
     SV.is1AActive = data.get("is1AActive", False)
     SV.is1CActive = data.get("is1CActive", False)
+
 
 def handle_1A1C_actions(data):
     actions = {
@@ -54,21 +55,33 @@ def handle_1A1C_actions(data):
         "clearErrorSW2": (A2.sw_ack_fault, None),
         "homeSW2": (A2.sw_home, None),
         "clearErrorSW3": (A3.sw_ack_fault, None),
-        "homeSW3": (A3.sw_home, None)
+        "homeSW3": (A3.sw_home, None),
     }
     for action, (func, arg) in actions.items():
         if data.get(action, False):
             exec_function(func, arg)
 
+
 def reset_action_flags(data):
-    for action in ["addTen", "setZero", "raiseNozzle", "lowerNozzle", "clearErrorSW2", "homeSW2", "clearErrorSW3", "homeSW3"]:
+    for action in [
+        "addTen",
+        "setZero",
+        "raiseNozzle",
+        "lowerNozzle",
+        "clearErrorSW2",
+        "homeSW2",
+        "clearErrorSW3",
+        "homeSW3",
+    ]:
         data[action] = False
 
-@blueprint.route('/1B', methods=['POST'])
+
+@blueprint.route("/1B", methods=["POST"])
 def execute_cages_action():
     data = request.get_json()
     results = manage_cage_actions(data.get("cages", []), data.get("action", ""))
     return jsonify(results)
+
 
 def manage_cage_actions(cages, action):
     results = []
@@ -80,11 +93,13 @@ def manage_cage_actions(cages, action):
                 results.append(f"Action {action} started for cage {cage_id}")
     return results
 
+
 def monitor_1A1C_states():
-    while True:
+    while not SV.KILLER_EVENT.is_set():
         print(f"Monitoring states: is1AActive={SV.is1AActive}, is1CActive={SV.is1CActive}")
         SV.w_run_1a(SV.is1AActive)
         SV.w_run_1c(SV.is1CActive)
         time.sleep(3)
+
 
 threading.Thread(target=monitor_1A1C_states).start()
