@@ -1,0 +1,8 @@
+[Unit]
+Description=Cooling Fan
+
+[Service]
+ExecStart=echo 4 | sudo tee /sys/class/thermal/cooling_device4/cur_state
+
+[Install]
+WantedBy=multi-user.target
