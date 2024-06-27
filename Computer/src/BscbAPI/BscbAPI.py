@@ -469,7 +469,7 @@ if __name__ == "__main__":
     USING_TINKER = False
 
     try:
-        with BScbAPI(port="COM5", baud_rate=115200) as board:
+        with BScbAPI(port="COM10", baud_rate=115200) as board:
             if board.is_com_ready():
                 if not board.star_wheel_clear_error():
                     print(f"Star wheel clear error error, see error {board.star_wheel_status}")
@@ -490,7 +490,7 @@ if __name__ == "__main__":
                 # print(board.star_wheel_move_ms(600))
 
                 board.starWheel_init()
-                count = 0
+                count = 460
                 # print(board.star_wheel_move_count(count))
                 # time.sleep(1)
                 # print(board.starWheel_save_offset(count))

@@ -107,7 +107,7 @@ def execute():
             run_pnp = data.pnp_enabled
             run_purge = data.purge_enabled
             data.servos_ready = servos_ready
-            print(f'servos state {data.servos_ready}')
+            # print(f'servos state {data.servos_ready}')
             # MongoDB_INIT = data.MongoDB_INIT
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
@@ -146,7 +146,7 @@ def execute():
                 with lock:
                     BOARD_DATA.mode = "pnp"
                 # FIXME
-                print(f"mongo DB variable before : {MongoDB_INIT}")
+                # print(f"mongo DB variable before : {MongoDB_INIT}")
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
@@ -160,7 +160,7 @@ def execute():
                             CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
-                print(f"mongo DB variable after : {MongoDB_INIT}")
+                # print(f"mongo DB variable after : {MongoDB_INIT}")
                 # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
                 operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
 

@@ -111,10 +111,10 @@ class EggCounter:
                 print(
                     f"Failed to upload data. Status code: {response.status_code if response else 'No response'}, Response: {response.text if response else 'No response'}"
                 )
-        except requests.exceptions.Timeout:
-            print("Request timed out in data upload")
-        except requests.exceptions.ConnectionError:
-            print("Connection error in data upload")
+        except requests.exceptions.Timeout as e:
+            print(f"Request timed out in data upload {e}")
+        except requests.exceptions.ConnectionError as e:
+            print(f"Connection error in data upload {e}")
         except Exception as e:
             print(f"Upload data error: {e}")
 

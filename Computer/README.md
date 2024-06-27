@@ -58,6 +58,8 @@
 - [v5.0.6] - 25 June 2024
   - Increased camera resolution
   - dynamic version of the cage on the front end
+- [v5.0.7] - 27 June 2024
+  - fixed sw homing issue on new sw. if homing sensor is high sw will move untill it becomes low & viceversa
 ### How to use
 
 1. Copy folder
