@@ -7,7 +7,8 @@ import os
 import math
 from skimage.feature import canny
 from skimage.transform import hough_circle, hough_circle_peaks
-
+import socket
+import logging
 from datetime import datetime  # NOTE FOR TESTING ONLY
 
 # ------------------------------------------------------------------------------------------------ #
@@ -18,6 +19,17 @@ from src.tasks import findCircle
 from src import vision
 from src.vision.prediction import ComputerVision
 
+# Ensure the log file is created if it doesn't exist
+log_file = f'{socket.gethostname()}.log'
+if not os.path.exists(log_file):
+    open(log_file, 'a').close()
+
+# Set up the logger
+logging.basicConfig(
+    filename=log_file,
+    level=logging.INFO,
+    format='%(message)s'
+)
 
 def getUSBCameraID():
     try:
@@ -174,6 +186,7 @@ class CameraThreading:
             )
             cv2.imwrite(f"{file_name}", frame)
             print(f"Image saved: {file_name} ")
+            logging.info(file_name)
 
         threading.Thread(target=take_a_shot, args=(frame,)).start()
 

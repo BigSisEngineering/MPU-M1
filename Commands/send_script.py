@@ -8,10 +8,10 @@ row = 0
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-for n in range(1, 14 + 1):
-    hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage0x0003")
-# hostnames.append("cage0x0006")
+# for n in range(1, 14 + 1):
+#     hostnames.append(f"cage{row}x00{n:02}")
+hostnames.append("cage0x0004")
+# hostnames.append("cage0x0009")
 # hostnames.append("cagetest")
 
 
@@ -253,12 +253,12 @@ def get_cage_photos(hostname):
 for hostname in hostnames:
     try:
         
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
-        # restart_service(hostname)
+        restart_service(hostname)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")

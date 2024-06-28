@@ -2,6 +2,7 @@ from datetime import datetime
 import requests
 import json
 from src import setup
+from typing import Optional
 
 url = "http://18.135.115.43/api/api/cage/egg_count/"
 
@@ -119,5 +120,6 @@ class EggCounter:
             print(f"Upload data error: {e}")
 
 
+
 # DataBase = EggCounter()
-DataBase = None
+DataBase: Optional[EggCounter] = None
