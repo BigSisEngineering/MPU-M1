@@ -8,10 +8,10 @@ row = 0
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-# for n in range(1, 14 + 1):
-#     hostnames.append(f"cage{row}x00{n:02}")
-hostnames.append("cage0x0004")
-# hostnames.append("cage0x0009")
+for n in range(1, 14 + 1):
+    hostnames.append(f"cage{row}x00{n:02}")
+# hostnames.append("cage0x0004")
+# hostnames.append("cage0x0006")
 # hostnames.append("cagetest")
 
 
@@ -30,11 +30,13 @@ img_path = "~/Computer/src/tasks/camera/."
 # SSH credentials
 username = "linaro"
 password = "linaro"  # You may want to use SSH keys for better security
-
+# username = "rock"
+# password = "rock"  # You may want to use SSH keys for better security
 
 def get_data(local_path, remote_path, hostname, username, password, port=22):
     try:
-        path = f"{local_path}/{hostname[len(hostname)-2:]}.txt"
+        # path = f"{local_path}/{hostname[len(hostname)-2:]}.txt"
+        path = f"{local_path}/{hostname}.log"
         # Create an SSH client instance
         ssh = SSHClient()
         ssh.load_system_host_keys()
@@ -250,6 +252,24 @@ def get_cage_photos(hostname):
     ).start()
 
 
+def get_log_file(hostname):
+    global username, password
+    log_remote_path = f"~/Computer/{hostname}.log"
+    local_log_dir = "./logs"
+    if not os.path.exists(local_log_dir):
+        os.makedirs(local_log_dir)
+    threading.Thread(
+        target=get_data,
+        args=(
+            local_log_dir,
+            log_remote_path,
+            hostname,
+            username,
+            password,
+        ),
+    ).start()
+
+
 for hostname in hostnames:
     try:
         
@@ -258,7 +278,8 @@ for hostname in hostnames:
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
-        restart_service(hostname)
+        # restart_service(hostname)
+        get_log_file(hostname)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")

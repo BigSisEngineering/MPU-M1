@@ -15,8 +15,7 @@ time_stamp = time.time()
 sensor_timer_flag = False
 sensor_time = None
 auto_clear_error = 0
-max_attempts = False
-
+sensor_timeout = 3600
 
 
 
@@ -62,7 +61,7 @@ def update(stop_event: threading.Event):
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, max_attempts
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -91,7 +90,7 @@ def execute():
 
         is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
 
-        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal' and not max_attempts
+        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal'
 
         if not is_safe_to_move:
             CLI.printline(Level.DEBUG, f"(background-loop) buffer>{is_buffer_full}-loader>{is_loader_get_pot}")
@@ -156,7 +155,7 @@ def execute():
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
                         print(f"sensors not triggered for {sensor_timer}")
-                        if sensor_timer > 20 and sensors_values[0] > 100 and sensors_values[2] > 100:
+                        if sensor_timer > sensor_timeout and sensors_values[0] > 100 and sensors_values[2] > 100:
                             CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False

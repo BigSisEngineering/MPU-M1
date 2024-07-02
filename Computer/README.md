@@ -62,6 +62,8 @@
   - fixed sw homing issue on new sw. if homing sensor is high sw will move untill it becomes low & viceversa
 - [v5.0.8] - 27 June 2024
   - logging image file names
+- [v5.0.9] - 01 July 2024
+  - sensor logic increased to 3600
 ### How to use
 
 1. Copy folder
