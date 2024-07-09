@@ -362,7 +362,8 @@ class DietDispenserStatusUpdater {
       DDIndicator.textContent = "SW Fault";
       DDIndicator.style.backgroundColor = "red";
     } else if (this.a2Data.dispenser_homed === "False") {
-      alert("Clean and reposition nozzle");
+      // alert("Clean and reposition nozzle");
+      console.log("Clean and reposition nozzle");
     }
   }
 }

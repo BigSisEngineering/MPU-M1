@@ -132,6 +132,7 @@ class DietDispenser(HTTPDuet):
         if self.is_ready and self.read_global("flag_reposition_nozzle") == 0:
             if self.set_global("flag_reposition_nozzle", 1):
                 CLI.printline(Level.INFO, "{:^10}-{:^15} Reposition nozzle.".format(print_name, self._duet_name))
+                return True
         CLI.printline(Level.WARNING, "{:^10}-{:^15} Reposition nozzle failed.".format(print_name, self._duet_name))
         return False
 
@@ -139,6 +140,7 @@ class DietDispenser(HTTPDuet):
         if self.is_ready and self.read_global("flag_raise_nozzle") == 0:
             if self.set_global("flag_raise_nozzle", 1):
                 CLI.printline(Level.INFO, "{:^10}-{:^15} Raise nozzle.".format(print_name, self._duet_name))
+                return True
         CLI.printline(Level.WARNING, "{:^10}-{:^15} Raise nozzle failed.".format(print_name, self._duet_name))
         return False
 

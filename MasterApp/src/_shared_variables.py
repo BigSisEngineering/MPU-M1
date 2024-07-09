@@ -84,9 +84,6 @@ class SharedVariables:
         self._run_1c = False
         self._lock_run_1c = threading.Lock()
 
-        self.is1AActive = False
-        self.is1CActive = False
-
     # -------------------------------------------------------- #
     @property
     def run_1a(self) -> bool:

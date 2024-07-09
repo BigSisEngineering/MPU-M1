@@ -1,10 +1,17 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from src import tasks, components
 from src._shared_variables import SV, Cages
 from src.components import A2, A3
 import threading
 import time
 import logging
+
+# ------------------------------------------------------------------------------------ #
+from src import CLI
+from src.CLI import Level
+
+print_name = "POST"
+# ------------------------------------------------------------------------------------ #
 
 blueprint = Blueprint("post_handler", __name__)
 logger = logging.getLogger(__name__)
@@ -15,7 +22,7 @@ _active_threads = {}
 def exec_function(func, args=None):
     function_name = func.__name__
     if function_name not in _active_threads or not _active_threads[function_name].is_alive():
-        print(f"Executing {function_name}")
+        CLI.printline(Level.INFO, f"Executing {function_name}")
         if args is not None:
             if not isinstance(args, tuple):
                 args = (args,)
@@ -25,25 +32,25 @@ def exec_function(func, args=None):
         _active_threads[function_name] = thread
         thread.start()
     else:
-        print(f"Execution blocked: {function_name} is already executing.")
+        CLI.printline(Level.WARNING, f"Execution blocked: {function_name} is already executing.")
 
 
 @blueprint.route("/1A_1C", methods=["POST"])
 def handle_1A_1C_post():
     data = request.get_json()
     if not data:
-        return jsonify({"status": "error", "message": "No data received"}), 400
+        return make_response({"status": "error", "message": "No data received"}, 400)
 
     logger.info("Received data for 1A_1C: {}".format(data))
     handle_1A1C_state_changes(data)
     handle_1A1C_actions(data)
     reset_action_flags(data)
-    return jsonify({"status": "success"})
+    return make_response({"status": "success"}, 200)
 
 
 def handle_1A1C_state_changes(data):
-    SV.is1AActive = data.get("is1AActive", False)
-    SV.is1CActive = data.get("is1CActive", False)
+    CLI.printline(Level.INFO, SV.w_run_1a(data.get("is1AActive", False)))
+    CLI.printline(Level.INFO, SV.w_run_1c(data.get("is1CActive", False)))
 
 
 def handle_1A1C_actions(data):
@@ -80,7 +87,7 @@ def reset_action_flags(data):
 def execute_cages_action():
     data = request.get_json()
     results = manage_cage_actions(data.get("cages", []), data.get("action", ""))
-    return jsonify(results)
+    return make_response(results, 200)
 
 
 def manage_cage_actions(cages, action):
@@ -92,14 +99,3 @@ def manage_cage_actions(cages, action):
                 thread.start()
                 results.append(f"Action {action} started for cage {cage_id}")
     return results
-
-
-def monitor_1A1C_states():
-    while not SV.KILLER_EVENT.is_set():
-        print(f"Monitoring states: is1AActive={SV.is1AActive}, is1CActive={SV.is1CActive}")
-        SV.w_run_1a(SV.is1AActive)
-        SV.w_run_1c(SV.is1CActive)
-        time.sleep(3)
-
-
-threading.Thread(target=monitor_1A1C_states).start()

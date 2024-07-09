@@ -122,7 +122,7 @@ class PotDispenser(HTTPDuet):
 
     def stop(self) -> None:
         if self.is_connected and self.read_global("run") == 1:
-            self.set_global("remaining", 0)  # reset remaining
+            self.set_global("remaining", 0)
             CLI.printline(Level.INFO, "{:^10}-{:^15} Stop.".format(print_name, self._duet_name))
             self.run_macro("stop.g")
 
