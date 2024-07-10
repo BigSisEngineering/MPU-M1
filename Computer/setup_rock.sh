@@ -117,10 +117,10 @@ echo -e "${green}[SUCESS]>> Configured Cooling Fan${nc}"
 
 # ====================== Setup RKNN ====================== #
 # install rknn
-sudo cp ./rknn_toolkit_lite2-1.5.2-cp39-cp39-linux_aarch64.whl  /tmp/.
+sudo cp ./Computer/rknn_toolkit_lite2-1.5.2-cp39-cp39-linux_aarch64.whl  /tmp/.
 python3 -m pip install /tmp/rknn_toolkit_lite2-1.5.2-cp39-cp39-linux_aarch64.whl
 # move librknnrt.so to /user/lib
-sudo cp ./librknnrt.so  /usr/lib/.
+sudo cp ./Computer/librknnrt.so  /usr/lib/.
 echo -e "${green}[SUCESS]>> Configured RKNN${nc}"
 
 # ========================== End ========================= #

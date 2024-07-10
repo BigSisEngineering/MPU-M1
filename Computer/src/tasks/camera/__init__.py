@@ -9,7 +9,7 @@ from skimage.feature import canny
 from skimage.transform import hough_circle, hough_circle_peaks
 import socket
 import logging
-from datetime import datetime  # NOTE FOR TESTING ONLY
+from datetime import datetime, timedelta  # NOTE FOR TESTING ONLY
 
 # ------------------------------------------------------------------------------------------------ #
 from src import CLI
@@ -30,6 +30,55 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(message)s'
 )
+
+def delete_old_files_from_log(log_file, days_old=4):
+    # Read the log file
+    def read_log_file(file_path):
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+                return [line.strip() for line in lines]
+        else:
+            logging.error(f"Log file {file_path} does not exist.")
+            return []
+
+    # Parse the timestamp from the filename
+    def parse_timestamp_from_filename(filename):
+        parts = filename.split('_')
+        if len(parts) == 10:
+            timestamp_str = f"{parts[1]}-{parts[2]}-{parts[3]} {parts[4]}:{parts[5]}:{parts[6]}"
+            return datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+        return None
+
+    # Calculate the cutoff date
+    cutoff_date = datetime.now() - timedelta(days=days_old)
+    remaining_files = []
+
+    # Process the log file
+    file_paths = read_log_file(log_file)
+    for path in file_paths:
+        filename = os.path.basename(path)
+        timestamp = parse_timestamp_from_filename(filename)
+
+        if timestamp and timestamp < cutoff_date:
+            try:
+                os.remove(path)
+                logging.info(f"Deleted file: {path}")
+            except Exception as e:
+                logging.error(f"Error deleting file {path}: {e}")
+        else:
+            remaining_files.append(path)
+
+    # Update the log file
+    with open(log_file, 'w') as file:
+        for line in remaining_files:
+            file.write(f"{line}\n")
+
+    print("Old files deleted and log file updated.")
+
+# Call the function to delete old files and update the log file
+delete_old_files_from_log(log_file, days_old=4)
+
 
 def getUSBCameraID():
     try:

@@ -43,7 +43,7 @@ class StarWheelTimer:
         self.timer[self.index - 1] = time.time()
         self.unloaded_count[self.index - 1] += 1
 
-    def is_it_overtime(self, timeout_s: int = 3600*6):
+    def is_it_overtime(self, timeout_s: int = 3600):
         return (time.time() - self.timer[self.index]) > timeout_s
 
 

@@ -82,6 +82,9 @@ $ ssh linaro@<hostname>
 
 ```
 $ sed -i 's/\r//' /home/linaro/Computer/setup.sh && chmod +x ~/Computer/setup.sh && ~/Computer/setup.sh
+
+sed -i 's/\r//' /home/rock/Computer/setup_rock.sh && chmod +x ~/Computer/setup_rock.sh && ~/Computer/setup_rock.sh              #for the rock
+
 ```
 
 ### TODO
