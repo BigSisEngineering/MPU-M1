@@ -363,8 +363,15 @@ class DietDispenserStatusUpdater {
       DDIndicator.style.backgroundColor = "red";
     } else if (this.a2Data.dispenser_homed === "False") {
       // alert("Clean and reposition nozzle");
-      console.log("Clean and reposition nozzle");
-    }
+      DDIndicator.textContent = "Clean & Reposition nozzle";
+      DDIndicator.style.backgroundColor = "orange"; 
+    } else if (this.a2Data.connected === "True" && 
+      this.a2Data.sw_error === "False" && 
+      this.a2Data.sw_homed === "False") {
+      // alert("Clean and reposition nozzle");
+      DDIndicator.textContent = "SW not Homed";
+      DDIndicator.style.backgroundColor = "orange"; 
+    } 
   }
 }
 
