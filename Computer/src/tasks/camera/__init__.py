@@ -119,6 +119,7 @@ class CameraThreading:
     def __init__(self, camera_id: int):
         self.camera_id = camera_id
         self.frame_lock = threading.Lock()
+        self.bbox_lock = threading.Lock()
         self.raw_frame = None  # NOTE FOR TESTING ONLY
         self.ctn = 0
 
@@ -140,9 +141,9 @@ class CameraThreading:
         if not cap.isOpened():
             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
         # else:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)  # FIXME -
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # FIXME
-        # i = 0
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+        cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
         while not killer.is_set():
             try:
                 # i+=1
@@ -156,9 +157,9 @@ class CameraThreading:
                         if not cap.isOpened():
                             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
                         # else:
-                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)  # FIXME -
-                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # FIXME
-                        time.sleep(0.1)
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
+                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+                        # time.sleep(0.1)
                         continue  # non-return thread
                     except Exception as e:
                         CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
@@ -186,10 +187,11 @@ class CameraThreading:
                         self._device_ready = True
                     # print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
                     frame = findCircle.CircularMask(frame)
-                    # frame = ComputerVision().letterbox(frame)
-                    # if vision.PNP.boxes is not None:
-                    # print(f'boxes : {vision.PNP.boxes}, scores : {vision.PNP.scores}, classes : {vision.PNP.classes} ')
-                    # ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
+                    with self.bbox_lock:
+                        frame = ComputerVision().letterbox(frame)
+                        if vision.PNP.boxes is not None:
+                            # print(f'boxes : {vision.PNP.boxes}, scores : {vision.PNP.scores}, classes : {vision.PNP.classes} ')
+                            ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
                 else:
                     with self._lock_device_ready:
                         self._device_ready = False
