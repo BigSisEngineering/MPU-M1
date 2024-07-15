@@ -3,14 +3,14 @@ import numpy as np
 import cv2
 
 # ------------------------------------------------------------------------------------------------ #
-from rknn.api import RKNN           #for tinker
-# from rknnlite.api import RKNNLite     #for rock
+# from rknn.api import RKNN           #for tinker
+from rknnlite.api import RKNNLite     #for rock
 from src import CLI
 from src.CLI import Level
 
 RKNN_MODEL = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
-    "yolov5_m1.rknn",
+    "yolov5_m1_rock.rknn",
 )
 
 
@@ -24,8 +24,8 @@ CLASSES = "egg"
 class ComputerVision:
     def __init__(self):
         self.rknn_ready = False
-        self.rknn = RKNN() #for tinker
-        # self.rknn = RKNNLite() #for rock
+        # self.rknn = RKNN() #for tinker
+        self.rknn = RKNNLite() #for rock
 
     def load_rknn_model(self):
         if not os.path.exists(RKNN_MODEL):
