@@ -161,7 +161,7 @@ def execute():
                             sensor_timer_flag = False
                 # print(f"mongo DB variable after : {MongoDB_INIT}")
                 # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
-                operation.test_pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+                operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
 
             CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
@@ -174,7 +174,7 @@ def execute():
                 MongoDB_INIT == False
                 # FIXME
                 # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
-                operation.test_dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+                operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
         # ======================================== Purge? ======================================== #
         elif run_purge:
             with lock:

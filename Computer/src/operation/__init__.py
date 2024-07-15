@@ -27,7 +27,7 @@ threads: Dict[str, threading.Thread] = {
 }
 
 
-def test_pnp(
+def pnp(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
 ):
     global threads
@@ -122,7 +122,13 @@ def test_pnp(
             ),
         )
         threads["comm"].start()
-        cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+        # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+
+        if BOARD.timer.is_it_overtime():
+            cloud.DataBase.data_update("other")
+        else:
+            cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+
         cloud.DataBase.data_upload()
 
     except Exception as e:
@@ -131,7 +137,7 @@ def test_pnp(
 
 
 
-def test_dummy(
+def dummy(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, unload_probability: float
 ):
     global threads
@@ -215,30 +221,6 @@ def test_dummy(
     except Exception as e:
         CLI.printline(Level.ERROR, f"(PnP)-{e}")
 
-
-def dummy(
-    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, unload_probability: float
-) -> None:
-    if BOARD is not None:
-        if is_safe_to_move:
-            need_unload_by_probability = random.random() < unload_probability
-            tmp_egg_counter = 1 if need_unload_by_probability else 0
-            with data.lock:
-                data.pot_processed += 1
-                data.pot_unloaded += tmp_egg_counter
-                data.logging.info(f"dummy,{data.pot_unloaded},{data.pot_processed}")
-
-            # camera.CAMERA.save_raw_frame()  # NOTE FOR TESTING ONLY
-            star_wheel_move_time = (
-                star_wheel_duration_ms if need_unload_by_probability else star_wheel_duration_ms + 2400
-            )  # for ensure same cycle time
-            with lock:
-                time.sleep(0.2)  # AI delay
-                BOARD.star_wheel_move_ms(star_wheel_move_time)
-                time.sleep(0.05)
-                BOARD.unload() if need_unload_by_probability else None
-            # cloud.DataBase.data_update("egg" if need_unload_by_probability else "noegg")
-            # cloud.DataBase.data_upload()
 
 
 def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):

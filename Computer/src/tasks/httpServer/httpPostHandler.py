@@ -1,3 +1,4 @@
+import time
 # ------------------------------------------------------------------------------------------------ #
 from src import BscbAPI
 from src import data
@@ -24,6 +25,10 @@ POST_LIST = [
     "MOVE_CCW",
     "UNLOAD",
     "SET_CYCLE_TIME",
+    "SAVE_STAR_WHEEL_ZERO",
+    "SAVE_STAR_WHEEL_OFFSET",
+    "SET_POS",
+    "MOVE_STAR_WHEEL"
 ]
 
 
@@ -48,7 +53,7 @@ def post_STAR_WHEEL(server):
 
 def post_STAR_WHEEL_INIT(server):
     send_200_response(server)
-    if not data.dummy_enabled or data.pnp_enabled:
+    if not data.dummy_enabled or not data.pnp_enabled:
         server.wfile.write("star wheel init will be proceed".encode())
         handler.init_star_wheel()
     else:
@@ -57,7 +62,7 @@ def post_STAR_WHEEL_INIT(server):
 
 def post_UNLOADER_INIT(server):
     send_200_response(server)
-    if not data.dummy_enabled or data.pnp_enabled:
+    if not data.dummy_enabled or not data.pnp_enabled:
         server.wfile.write("unloader init will be proceed".encode())
         handler.init_unloader()
     else:
@@ -203,3 +208,41 @@ def post_SET_CYCLE_TIME(server):
 
     with data.lock:
         data.pnp_data.cycle_time = cycle_time
+
+
+def post_SET_POS(server):
+    send_200_response(server)
+    sw_pos = int(server.parsed_url[2])
+    with data.lock:
+        if sw_pos >= 0 and sw_pos <= 1000:
+            data.sw_pos = sw_pos
+            server.wfile.write(f"sw position set to {sw_pos}".encode())
+        else:
+            server.wfile.write(f"sw position exceed bounds".encode())
+
+def post_SAVE_STAR_WHEEL_ZERO(server):
+    send_200_response(server)
+    with data.lock:
+        if not data.dummy_enabled or data.pnp_enabled:
+            server.wfile.write(f"Saved the 0 point ".encode())
+            handler.save_star_wheel_zero()
+            time.sleep(1)
+            BscbAPI.BOARD.reboot()
+
+def post_SAVE_STAR_WHEEL_OFFSET(server):
+    send_200_response(server)
+    with data.lock:
+        if not data.dummy_enabled or data.pnp_enabled:
+            server.wfile.write(f"Saved Offset to {data.sw_pos} ".encode())
+            handler.save_star_wheel_offset()
+            time.sleep(1)
+            BscbAPI.BOARD.reboot()
+
+def post_MOVE_STAR_WHEEL(server):
+    sw_pos = int(server.parsed_url[2])
+    send_200_response(server)
+    data.sw_pos = sw_pos
+    with data.lock:
+        if not data.dummy_enabled or data.pnp_enabled:
+            server.wfile.write(f"moved SW to {data.sw_pos} ".encode())
+            handler.move_star_wheel_to_pos()

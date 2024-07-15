@@ -64,6 +64,8 @@ purge_stage: int = 0
 purge_start_unload: bool = False
 purge_counter: int = 0
 
+sw_pos : int = 0
+
 # logging
 # logging.basicConfig(
 #     filename="/home/linaro/SmartCage_4/Statistics.log",

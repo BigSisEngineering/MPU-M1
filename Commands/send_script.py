@@ -4,7 +4,7 @@ from scp import SCPClient
 import time
 import os
 
-row = 0
+row = 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
@@ -278,8 +278,8 @@ for hostname in hostnames:
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
-        # restart_service(hostname)
-        get_log_file(hostname)
+        restart_service(hostname)
+        # get_log_file(hostname)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")

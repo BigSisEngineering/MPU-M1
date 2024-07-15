@@ -64,6 +64,8 @@
   - logging image file names
 - [v5.0.9] - 01 July 2024
   - sensor logic increased to 3600
+- [v5.0.10] - 01 July 2024
+  - other pot count in mongodb 
 ### How to use
 
 1. Copy folder

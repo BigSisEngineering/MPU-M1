@@ -96,6 +96,30 @@ class BScbAPI:
     def close(self):
         self.ser.close()
 
+    def open(self):
+        self.ser.open()
+    
+    def reboot(self):
+        if not self.ser:
+            print("Serial connection not initialized.")
+            return
+
+        print("Rebooting the Arduino...")
+        # Set DTR to False (low) to reset the Arduino
+        self.ser.dtr = False
+        time.sleep(0.5)  # Wait for a short period
+        
+        # Set DTR to True (high)
+        self.ser.dtr = True
+
+        # Close and reopen the serial port to reinitialize the connection
+        self.close()
+        time.sleep(0.5)
+        self.open()
+
+        print("Arduino rebooted.")
+
+
     # ========================================= Responds ========================================= #
 
     def got_ACK_respond(self, timeout=3):
@@ -437,11 +461,11 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
             print(f"Serial error: {e}")
-        self.star_wheel_status = self.got_Status_respond()
+        # self.star_wheel_status = self.got_Status_respond()
         # print(f"Star Wheel Move ms readback: { self.star_wheel_status}")
-        return True if self.is_readback_status_normal(self.star_wheel_status) else False
+        # return True if self.is_readback_status_normal(self.star_wheel_status) else False
         # print("-".join("{:02x}".format(x) for x in hex_message))
-        # return hex_message
+        return hex_message
 
     def starWheel_save_offset(self, count):
         if not self.is_readback_status_normal(self.star_wheel_status):
@@ -461,8 +485,9 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
             print(f"Serial error: {e}")
-        self.star_wheel_status = self.got_Status_respond()
-        return True if self.is_readback_status_normal(self.star_wheel_status) else False
+        # self.star_wheel_status = self.got_Status_respond()
+        # return True if self.is_readback_status_normal(self.star_wheel_status) else False
+        return hex_message
 
 
 if __name__ == "__main__":

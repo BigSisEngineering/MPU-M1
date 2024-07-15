@@ -40,6 +40,41 @@ def _init_star_wheel():
             BscbAPI.BOARD.starWheel_init()
         # sv.star_wheel_inited = True
 
+# ------------------------------------------------------------------------------------------------ #
+def save_star_wheel_offset():
+    thread = threading.Thread(target=_save_star_wheel_offset)
+    thread.start()
+
+
+def _save_star_wheel_offset():
+    CLI.printline(Level.DEBUG, "(handler)-_save_star_wheel_offset")
+    if BscbAPI.BOARD is not None:
+        with BscbAPI.lock:
+            BscbAPI.BOARD.starWheel_save_offset(data.sw_pos)
+
+# ------------------------------------------------------------------------------------------------ #
+def save_star_wheel_zero():
+    thread = threading.Thread(target=_save_star_wheel_zero)
+    thread.start()
+
+
+def _save_star_wheel_zero():
+    CLI.printline(Level.DEBUG, "(handler)-_save_star_wheel_zero")
+    if BscbAPI.BOARD is not None:
+        with BscbAPI.lock:
+            BscbAPI.BOARD.starWheel_save_offset(0)
+
+# ------------------------------------------------------------------------------------------------ #
+def move_star_wheel_to_pos():
+    thread = threading.Thread(target=_move_star_wheel_to_pos)
+    thread.start()
+
+
+def _move_star_wheel_to_pos():
+    CLI.printline(Level.DEBUG, f"(handler)-_move_star_wheel_to_pos")
+    if BscbAPI.BOARD is not None:
+        with BscbAPI.lock:
+            BscbAPI.BOARD.star_wheel_move_count(data.sw_pos)
 
 # ------------------------------------------------------------------------------------------------ #
 def enable_pnp():

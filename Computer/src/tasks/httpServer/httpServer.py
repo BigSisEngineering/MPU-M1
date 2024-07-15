@@ -78,8 +78,8 @@ class httpHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-type", "multipart/x-mixed-replace; boundary=frame")
         self.end_headers()
 
-        frame = camera.CAMERA.get_frame()
-        # frame = cv2.resize(camera.CAMERA.get_frame(),(640,480))
+        # frame = camera.CAMERA.get_frame()
+        frame = cv2.resize(camera.CAMERA.get_frame(),(640,480))
         if frame is None:
             CLI.printline(Level.ERROR, "Failed to encode frame.")
             frame = generate_error_frame("Camera Error")
