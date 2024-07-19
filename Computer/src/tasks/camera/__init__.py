@@ -133,50 +133,90 @@ class CameraThreading:
             r = self._device_ready
         return r
 
+    # def start_frame_update(self, killer: threading.Event):
+    #     if self.camera_id is None:
+    #         CLI.printline(Level.ERROR, "(CameraThreading)-Camera ID error")
+    #         # FIXME
+    #     cap = cv2.VideoCapture(self.camera_id)
+    #     if not cap.isOpened():
+    #         CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
+    #     # else:
+    #     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
+    #     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+    #     cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
+    #     while not killer.is_set():
+    #         try:
+    #             ret, raw_frame = cap.read()
+    #             if not ret:
+    #                 try:
+    #                     CLI.printline(Level.ERROR, f"(CameraThreading)-Could not read frame")
+    #                     cap = cv2.VideoCapture(getUSBCameraID())
+    #                     if not cap.isOpened():
+    #                         CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
+    #                     # else:
+    #                     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
+    #                     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
+    #                     # time.sleep(0.1)
+    #                     continue  # non-return thread
+    #                 except Exception as e:
+    #                     CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
+    #             # CLI.printline(Level.DEBUG, "(camera)-Frame Captured")
+    #             # Update frame
+    #             if self.frame_lock.acquire(timeout=1 / 24):
+    #                 self.raw_frame = raw_frame
+    #                 self.frame_lock.release()
+    #                 # CLI.printline(Level.WARNING, "(camera)-Frames updated")
+
+    #         except Exception as e:
+    #             CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
+    #         else:
+    #             pass
+
+    #     cap.release()
+    #     CLI.printline(Level.ERROR, f"(CameraThreading)-Frame Update thread terminated.")
+
     def start_frame_update(self, killer: threading.Event):
         if self.camera_id is None:
             CLI.printline(Level.ERROR, "(CameraThreading)-Camera ID error")
-            # FIXME
         cap = cv2.VideoCapture(self.camera_id)
         if not cap.isOpened():
             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
-        # else:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
-        cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
+
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        # cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
+
         while not killer.is_set():
             try:
-                # i+=1
                 ret, raw_frame = cap.read()
-                # if ret and i > 10:
-                # raw_frame = findCircle.CircularMask(raw_frame)
                 if not ret:
-                    try:
-                        CLI.printline(Level.ERROR, f"(CameraThreading)-Could not read frame")
-                        cap = cv2.VideoCapture(getUSBCameraID())
-                        if not cap.isOpened():
-                            CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
-                        # else:
-                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # FIXME -
-                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)  # FIXME
-                        # time.sleep(0.1)
-                        continue  # non-return thread
-                    except Exception as e:
-                        CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
-                # CLI.printline(Level.DEBUG, "(camera)-Frame Captured")
+                    CLI.printline(Level.ERROR, f"(CameraThreading)-Could not read frame, attempting to reconnect...")
+                    cap.release()  # Ensure to release the previous capture object
+                    # time.sleep(0.5)  # Optional: Sleep for a short duration before retrying
+                    self.camera_id = getUSBCameraID()  # Re-fetch the camera ID
+                    if self.camera_id is not None:
+                        cap = cv2.VideoCapture(self.camera_id)
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)
+                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+                        # cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
+                        if cap.isOpened():
+                            CLI.printline(Level.INFO, f"(CameraThreading)-Camera reconnected successfully.")
+                        else:
+                            CLI.printline(Level.ERROR, f"(CameraThreading)-Failed to reconnect.")
+                            continue
+                    else:
+                        CLI.printline(Level.ERROR, f"(CameraThreading)-Failed to get a valid camera ID.")
+                        continue
                 # Update frame
                 if self.frame_lock.acquire(timeout=1 / 24):
                     self.raw_frame = raw_frame
                     self.frame_lock.release()
-                    # CLI.printline(Level.WARNING, "(camera)-Frames updated")
-
             except Exception as e:
                 CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
-            else:
-                pass
 
         cap.release()
-        CLI.printline(Level.ERROR, f"(CameraThreading)-Frame Update thread terminated.")
+        CLI.printline(Level.INFO, f"(CameraThreading)-Frame Update thread terminated.")
+
 
     def get_frame(self):
         with self.frame_lock:

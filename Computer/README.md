@@ -66,6 +66,8 @@
   - sensor logic increased to 3600
 - [v5.0.10] - 01 July 2024
   - other pot count in mongodb 
+- [v5.0.11] - 19 July 2024
+  - timer increased to 6h 
 ### How to use
 
 1. Copy folder

@@ -1,22 +1,36 @@
 import os
 import numpy as np
 import cv2
+import socket
 
 # ------------------------------------------------------------------------------------------------ #
 # from rknn.api import RKNN           #for tinker
-from rknnlite.api import RKNNLite     #for rock
+# from rknnlite.api import RKNNLite     #for rock
 from src import CLI
 from src.CLI import Level
 
-RKNN_MODEL = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
-    "yolov5_m1_rock.rknn",
-)
+hostname = socket.gethostname()
+use_rknnlite = "cage" in hostname and int(hostname.split("cage")[1].split("x")[0]) > 1
+
+# Determine if we need to use RKNN or RKNNLite based on the hostname
+if use_rknnlite:
+    from rknnlite.api import RKNNLite  # Import RKNNLite
+    RKNN_MODEL = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "yolov5_m1_rock.rknn",
+    )
+else:
+    from rknn.api import RKNN  # Import RKNN
+    RKNN_MODEL = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "yolov5_m1.rknn",
+    )
+
 
 
 BOX_THRESH = 0.5
 NMS_THRESH = 0.6
-IMG_SIZE = (640, 640)  # (width, height), such as (1280, 736)
+IMG_SIZE = (640, 640)
 CLASSES = "egg"
 
 
@@ -25,7 +39,11 @@ class ComputerVision:
     def __init__(self):
         self.rknn_ready = False
         # self.rknn = RKNN() #for tinker
-        self.rknn = RKNNLite() #for rock
+        # self.rknn = RKNNLite() #for rock
+        if use_rknnlite:
+            self.rknn = RKNNLite()  # Use RKNNLite if the condition is met
+        else:
+            self.rknn = RKNN()
 
     def load_rknn_model(self):
         if not os.path.exists(RKNN_MODEL):

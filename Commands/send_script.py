@@ -4,14 +4,14 @@ from scp import SCPClient
 import time
 import os
 
-row = 1
+row = 0
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
 for n in range(1, 14 + 1):
     hostnames.append(f"cage{row}x00{n:02}")
 # hostnames.append("cage1x0001")
-# hostnames.append("cage0x0006")
+# hostnames.append("cage0x0002")
 # hostnames.append("cagetest")
 
 
@@ -21,17 +21,18 @@ remote_dir = "~/."
 # ==================================== Files need to transfer =================================== #
 local_files = [
     f"C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
-    # f"C:/Users/Tan/Documents/Github/MPU-M1/Computer"
 ]
 
 data_path = "~/Computer/Statistics.log"
 img_path = "~/Computer/src/tasks/camera/."
 
 # SSH credentials
-username = "linaro"
-password = "linaro"  # You may want to use SSH keys for better security
-# username = "rock"
-# password = "rock"  # You may want to use SSH keys for better security
+if row > 1:
+    username = "rock"
+    password = "rock"
+else:
+    username = "linaro"
+    password = "linaro"
 
 def get_data(local_path, remote_path, hostname, username, password, port=22):
     try:
@@ -273,12 +274,12 @@ def get_log_file(hostname):
 for hostname in hostnames:
     try:
         
-        # upload_files(hostname)
+        upload_files(hostname)
         # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
-        restart_service(hostname)
+        # restart_service(hostname)
         # get_log_file(hostname)
 
     except Exception as e:

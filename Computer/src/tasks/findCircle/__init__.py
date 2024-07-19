@@ -12,6 +12,12 @@ from src import setup
 from src.tasks import camera
 import time
 
+KILLER = threading.Event()
+CIRCLE_FLAG = False
+# CENTER_X = setup.CENTER_X
+# CENTER_Y = setup.CENTER_Y
+# RADIUS = setup.RADIUS
+# CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
 
 def FindCircle(img, crop_factor=1, resize_factor=1):
     """
@@ -39,35 +45,33 @@ def FindCircle(img, crop_factor=1, resize_factor=1):
         1,
         -1,
     )
+    # mask_coordinates = (
+    #     int(cx[argmin] / resize_factor),
+    #     int(cy[argmin] / resize_factor),
+    #     int((radii[argmin] + 1) * crop_factor / resize_factor),
+    # )
 
-    mask_coordinates = (
-        int(cx[argmin] / resize_factor),
-        int(cy[argmin] / resize_factor),
-        int((radii[argmin] + 1) * crop_factor / resize_factor),
-    )
-
-    setup.save_mask_coordinates(mask_coordinates)
-
+    # setup.save_mask_coordinates(mask_coordinates)
+    setup.CENTER_X = int(cx[argmin] / resize_factor)
+    setup.CENTER_Y = int(cy[argmin] / resize_factor)
+    setup.RADIUS = int((radii[argmin] + 1) * crop_factor / resize_factor)
+    
     # img[~mask.astype(bool)] = 0
     return mask
 
 
 def CircularMask(image):
-    global CENTER_X, CENTER_Y, RADIUS
+    # global CENTER_X, CENTER_Y, RADIUS
     mask = np.zeros_like(image)
-    CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
-    cv2.circle(mask, (CENTER_X, CENTER_Y), RADIUS, (255, 255, 255), -1)
+    # CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
+    cv2.circle(mask, (setup.CENTER_X, setup.CENTER_Y), setup.RADIUS, (255, 255, 255), -1)
     masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
 
-KILLER = threading.Event()
-CIRCLE_FLAG = False
-CENTER_X, CENTER_Y, RADIUS = setup.read_mask_coordinates()
-
-
 def FindCircleThread(stop_event: threading.Event):
-    global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS
+    # global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS
+    global CIRCLE_FLAG
     time_stamp = time.time()
     watchdog = 5  # seconds
     while not stop_event.is_set():
@@ -78,7 +82,7 @@ def FindCircleThread(stop_event: threading.Event):
                     print("finding circle ...")
                     FindCircle(camera.CAMERA.get_raw_frame())
                     CIRCLE_FLAG = True
-                    print(f"Circle found with coordinates {CENTER_X}, {CENTER_Y}, {RADIUS}")
+                    # print(f"Circle found with coordinates {setup.CENTER_X}, {setup.CENTER_Y}, {setup.RADIUS}")
         except Exception as e:
             CLI.printline(Level.ERROR, f"(finding Circle)-{e}")
             continue
