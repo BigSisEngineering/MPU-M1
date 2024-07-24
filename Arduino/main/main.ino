@@ -19,12 +19,12 @@ static const uint8_t POSITIONER_PIN_UNLOADER   = 7;
 /**
 * Use below for 12V sensor
 */
-// static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_OPT4; //old board
+//static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_OPT4; //old board
 
 /**
 * Use below for 5v sensor
 */
-static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_SIG6; // new board
+ static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_SIG6; // new board
 
 static const uint8_t SENSOR_ARRAY[4]{ 18, 19, 20, 21 };
 
@@ -65,5 +65,3 @@ void loop()
 {
   comm.update();
 }
-
-

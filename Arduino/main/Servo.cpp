@@ -106,7 +106,7 @@ void Servo::overloadProcedure(const uint8_t &id)
   this->release(id);
 }
 
-ReadBack_Status Servo::delayWithLoadDetection(const uint8_t &id, uint16_t ms, uint16_t load_limit = NULL)
+ReadBack_Status Servo::delayWithLoadDetection(const uint8_t &id, uint16_t ms, uint16_t load_limit = 0)
 {
   if (load_limit == NULL)
   {

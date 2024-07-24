@@ -25,7 +25,7 @@ public:
   virtual ReadBack_Status stop(const uint8_t &id);
   virtual ReadBack_Status release(const uint8_t &id);
   virtual void            overloadProcedure(const uint8_t &id);
-  virtual ReadBack_Status delayWithLoadDetection(const uint8_t &id, uint16_t ms, uint16_t load_limit = NULL);
+  virtual ReadBack_Status delayWithLoadDetection(const uint8_t &id, uint16_t ms, uint16_t load_limit = 0);
 
   // Info
   ReadBack_Status getPos(const uint8_t &id, int16_t &position);

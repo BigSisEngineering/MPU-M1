@@ -163,7 +163,9 @@ function fetchAndUpdateBoardData() {
                                          data.star_wheel_status === "not_init" ? 'grey' : '';
 
 
-        unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : '';
+        unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : 
+                                        data.unloader_status === "overload" ? 'red' :
+                                        data.unloader_status === "not_init" ? 'grey' : '';
 
         // Update PnP and Dummy button states based on mode
         if (data.mode === "pnp") {
@@ -215,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setupButton('sw-init-button', '/STAR_WHEEL_INIT');
   setupButton('move-sw-ccw-button', '/MOVE_CCW');
   setupButton('clear-sw-error-button', '/CLEAR_STAR_WHEEL_ERROR');
+  setupButton('clear-unloader-error-button', '/CLEAR_UNLOADER_ERROR');
   setupButton('unloader-init-button', '/UNLOADER_INIT');
   setupButton('unload-button', '/UNLOAD');
   setupButton('move-sw-cw-button', '/MOVE_CW');

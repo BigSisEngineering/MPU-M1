@@ -274,13 +274,13 @@ def get_log_file(hostname):
 for hostname in hostnames:
     try:
         
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
         # restart_service(hostname)
-        # get_log_file(hostname)
+        get_log_file(hostname)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")
