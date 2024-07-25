@@ -54,7 +54,7 @@ ReadBack_Status Unloader::homing() {
   // return ReadBack_Status::NORMAL;
   res                 = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR,
                                                         delayTime,
-                                                        160);
+                                                        1000);
   if (res == ReadBack_Status::OVERLOAD) {
     m_is_error = true;
 //    m_is_init = false;
@@ -94,7 +94,7 @@ ReadBack_Status Unloader::unload() {
 
   // Move the servo to the target position
   m_servo->goPosByCount(ID_UNLOADER_MOTOR, targetPosition, ST3215_MaxSpeed, ST3215_MaxAcc);
-  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, 1500, 950);
+  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, 2000, 1000);
 
 //  // Wait until the servo reaches the target position within tolerance
 //  do {
