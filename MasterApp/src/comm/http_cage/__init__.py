@@ -143,7 +143,7 @@ class HTTPCage:
                     timeout=self._timeout,
                 )
 
-                # print(f'{self._hostname} - {response.text}')
+                print(f'{self._hostname} - {response.text}')
                 return json.loads(response.text)
 
             except Exception as e:
@@ -173,7 +173,7 @@ class HTTPCage:
             if self._lock_request.acquire(timeout=self._timeout):
                 try:
                     requests.post(
-                        url=f"http://{self._hostname}:8080/{action_name}",
+                        url=f"http://{self._hostname}.local:8080/{action_name}",
                         timeout=1,
                     )
                     CLI.printline(

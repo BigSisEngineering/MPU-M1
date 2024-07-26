@@ -18,7 +18,7 @@ async function setupPageElements() {
     let th = document.createElement("th");
     let a = document.createElement("a");
     a.textContent = cageNum;
-    a.href = `http://${cageNum}:8080`;
+    a.href = `http://${cageNum}.local:8080`;
     a.target = "_blank";
     th.appendChild(a);
     tableHead.appendChild(th);
