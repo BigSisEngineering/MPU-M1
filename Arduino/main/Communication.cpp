@@ -1,4 +1,5 @@
 #include <EEPROM.h>
+#include <avr/wdt.h> // Include the watchdog timer library
 /* ---------------------------------------------------------------------------------------------- */
 #include "AnalogSensors.h"
 #include "Communication.h"
@@ -174,6 +175,10 @@ void Communication::pri_starWheelSaveOffsetCount()
   uint16_t count = m_stMsg.params[1] << 8 | m_stMsg.params[0];
   EEPROM.put(0, count);
   replyACK();
+  delay(100);
+  // Enable the watchdog timer to reset the Arduino
+  wdt_enable(WDTO_15MS); // Set the watchdog timer to 15 milliseconds
+  while (1) {} // Wait for the watchdog to reset the Arduino
 }
 
 void Communication::pri_unloaderActionHandler()
