@@ -1,34 +1,34 @@
-// Function to update the slider value and send it to the server
-function updateSliderValue(sliderId, valueId, endpoint) {
-    var slider = document.getElementById(sliderId);
-    var output = document.getElementById(valueId);
-    output.innerHTML = slider.value + '%'; // Initial display
+// // Function to update the slider value and send it to the server
+// function updateSliderValue(sliderId, valueId, endpoint) {
+//     var slider = document.getElementById(sliderId);
+//     var output = document.getElementById(valueId);
+//     output.innerHTML = slider.value + '%'; // Initial display
     
-    slider.oninput = function() {
-        output.innerHTML = slider.value + '%'; // Update display on input
-        console.log(`Slider value for ${sliderId} updated to ${slider.value}%`);
-        sendSliderValue(this.value, endpoint); // Send the updated value to the server
-    };
-}
+//     slider.oninput = function() {
+//         output.innerHTML = slider.value + '%'; // Update display on input
+//         console.log(`Slider value for ${sliderId} updated to ${slider.value}%`);
+//         sendSliderValue(this.value, endpoint); // Send the updated value to the server
+//     };
+// }
 
-// Function to send slider values to the server
-function sendSliderValue(value, endpoint) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', endpoint.replace('{value}', value), true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+// // Function to send slider values to the server
+// function sendSliderValue(value, endpoint) {
+//     var xhr = new XMLHttpRequest();
+//     xhr.open('POST', endpoint.replace('{value}', value), true);
+//     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            console.log('Slider value set successfully:', xhr.responseText);
-        } else {
-            console.error('Failed to set slider value:', xhr.responseText);
-        }
-    };
-    xhr.onerror = function() {
-        console.error('Network error occurred while setting slider value');
-    };
-    xhr.send();
-}
+//     xhr.onload = function() {
+//         if (xhr.status === 200) {
+//             console.log('Slider value set successfully:', xhr.responseText);
+//         } else {
+//             console.error('Failed to set slider value:', xhr.responseText);
+//         }
+//     };
+//     xhr.onerror = function() {
+//         console.error('Network error occurred while setting slider value');
+//     };
+//     xhr.send();
+// }
 
 
 // Function to toggle button text, change Mode circle color, and send disable requests
@@ -98,7 +98,7 @@ function sendRequestWithRetry(endpoint) {
 }
 
 // Function to load camera feed
-function CameraFeed() {
+async function CameraFeed() {
   const cameraImage = document.getElementById('camera-feed');
   if (!cameraImage) {
       console.error("Camera feed element not found");
@@ -137,7 +137,7 @@ function setupButton(buttonId, endpoint) {
 
 
 // Function to fetch sensor data and update the circles
-function fetchAndUpdateBoardData() {
+async function fetchAndUpdateBoardData() {
     fetch('/BoardData').then(response => response.json()).then(data => {
         const sensorValuesString = data.sensors_values.slice(1, -1); // Remove the parentheses
         const sensorValues = sensorValuesString.split(', ').map(Number);
@@ -159,11 +159,13 @@ function fetchAndUpdateBoardData() {
         // starWheelCircle.style.backgroundColor = data.star_wheel_status === "normal" ? 'green' :
         //                                          data.star_wheel_status === "overload" ? 'red' : '';
         starWheelCircle.style.backgroundColor = data.star_wheel_status === "normal" ? 'green' :
-                                         data.star_wheel_status === "overload" ? 'red' :
-                                         data.star_wheel_status === "not_init" ? 'grey' : '';
+                                        data.star_wheel_status === "overload" ? 'red' :
+                                        data.star_wheel_status === "not_init" ? 'grey' : '';
 
 
-        unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' : '';
+        unloaderCircle.style.backgroundColor = data.unloader_status === "normal" ? 'green' :
+                                        data.unloader_status === "overload" ? 'red' :
+                                        data.unloader_status === "not_init" ? 'grey' : '';
 
         // Update PnP and Dummy button states based on mode
         if (data.mode === "pnp") {
@@ -193,7 +195,31 @@ function fetchAndUpdateBoardData() {
     });
 }
   
-  // Fetch and update sensor data every 1 seconds
+
+function setupButtonWithInput(buttonId, inputId, endpointTemplate) {
+    var button = document.getElementById(buttonId);
+    var input = document.getElementById(inputId);
+    
+    button.addEventListener('click', function() {
+        var num = input.value;
+        var endpoint = endpointTemplate.replace('{num}', num);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', endpoint, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.log(xhr.responseText);
+            } else {
+                console.error('Error with request to ' + endpoint);
+            }
+        };
+        xhr.send();
+    });
+}
+
+// Fetch and update sensor data every 1 seconds
 setInterval(fetchAndUpdateBoardData, 1000);
 
 
@@ -206,8 +232,8 @@ document.addEventListener('DOMContentLoaded', function() {
   deviceIdElement.textContent = 'ID: ' + hostname;
   document.title = `🥚 ${hostname}`;
 
-  updateSliderValue('pp-confidence', 'pp-confidence-value', '/SET_PNP_CONFIDENCE_LEVEL/{value}');
-  updateSliderValue('unload-probability', 'unload-probability-value', '/SET_DUMMY_UNLOAD_PROBABILITY/{value}');
+//   updateSliderValue('pp-confidence', 'pp-confidence-value', '/SET_PNP_CONFIDENCE_LEVEL/{value}');
+//   updateSliderValue('unload-probability', 'unload-probability-value', '/SET_DUMMY_UNLOAD_PROBABILITY/{value}');
   
   productionMode(document.getElementById('enable-pnp-button'), 'pnp-mode-circle', 'enable-dummy-button');
   productionMode(document.getElementById('enable-dummy-button'), 'dummy-mode-circle', 'enable-pnp-button');
@@ -218,8 +244,13 @@ document.addEventListener('DOMContentLoaded', function() {
   setupButton('unloader-init-button', '/UNLOADER_INIT');
   setupButton('unload-button', '/UNLOAD');
   setupButton('move-sw-cw-button', '/MOVE_CW');
+  setupButton('set-zero', '/SAVE_STAR_WHEEL_ZERO');
+  setupButtonWithInput('set-offset', 'sw-pos', '/SAVE_STAR_WHEEL_OFFSET/{num}');
+  setupButtonWithInput('move-sw-pos', 'sw-pos', '/MOVE_STAR_WHEEL/{num}');
+//   setupButtonWithInput('confirm-pos', 'sw-pos', '/SET_POS/{num}');
   CameraFeed(); 
 
+  
   fetch('/version')
     .then(r => r.json())
     .then(d => document.getElementById('software-version').textContent = d.version);

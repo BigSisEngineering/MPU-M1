@@ -73,11 +73,12 @@ def FindCircleThread(stop_event: threading.Event):
     # global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS
     global CIRCLE_FLAG
     time_stamp = time.time()
-    watchdog = 5  # seconds
+    watchdog = 60  # seconds
     while not stop_event.is_set():
         try:
             if (time.time() - time_stamp) > watchdog:
                 time_stamp = time.time()
+                # with self.frame_lock:
                 if camera.CAMERA.get_frame() is not None:
                     print("finding circle ...")
                     FindCircle(camera.CAMERA.get_raw_frame())

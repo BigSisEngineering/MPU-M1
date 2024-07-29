@@ -227,7 +227,7 @@ def post_SAVE_STAR_WHEEL_ZERO(server):
             server.wfile.write(f"Saved the 0 point ".encode())
             handler.save_star_wheel_zero()
             time.sleep(1)
-            BscbAPI.BOARD.reboot()
+            handler.init_star_wheel()
 
 def post_SAVE_STAR_WHEEL_OFFSET(server):
     send_200_response(server)
@@ -236,7 +236,7 @@ def post_SAVE_STAR_WHEEL_OFFSET(server):
             server.wfile.write(f"Saved Offset to {data.sw_pos} ".encode())
             handler.save_star_wheel_offset()
             time.sleep(1)
-            BscbAPI.BOARD.reboot()
+            handler.init_star_wheel()
 
 def post_MOVE_STAR_WHEEL(server):
     sw_pos = int(server.parsed_url[2])
