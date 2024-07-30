@@ -1,0 +1,323 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: rgba(30, 30, 30, 1);
+  color: white;
+}
+/* ===================================== header ===================================== */
+.header {
+  background: rgba(49, 48, 48, 1);
+  width: 100%;
+  height: 5%;
+  padding: 5px 15px;
+  box-sizing: border-box;
+}
+.header-container-module-name {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.57);
+  font-family: "Gill Sans MT";
+  font-size: 20px;
+  border-radius: 5px;
+  padding: 0px 15px;
+  height: 100%;
+  width: auto;
+  color: rgba(213, 195, 57, 1);
+  align-items: center;
+}
+.header-container-text {
+  display: inline-flex;
+  font-family: "Trebuchet MS";
+  font-size: 20px;
+  padding: 0px 40px;
+  height: 100%;
+  width: 20%;
+  align-items: center;
+}
+/* ====================================== main ====================================== */
+.mains-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.current-action-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 15px;
+  padding-bottom: 5px;
+  text-align: center;
+  font-style: italic;
+  font-weight: bold;
+}
+.row-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0px;
+}
+.columns-container {
+  display: flex;
+  padding: 15px 15px;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 0px;
+}
+.nested-columns-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+}
+/* ================================= Shared Elements ================================ */
+.gap {
+  width: 20px;
+  height: 10px;
+}
+.subinfo-horizontal-line {
+  border-bottom: 1px solid grey;
+  width: 100%;
+  margin: 3px 0px;
+}
+.vertical-line {
+  border-left: 5px solid rgba(0, 0, 0, 0.2);
+  height: 100%;
+  margin: 0px 3px;
+}
+.main-message {
+  display: inline-flex;
+  box-sizing: border-box;
+  font-family: "Segoe UI";
+  font-size: 20px;
+  border-radius: 12px;
+  padding: 20px 15px;
+  width: 100%;
+  flex-direction: column;
+  align-items: left;
+  margin-bottom: 30px;
+  transition: background 0.5s;
+  background: rgba(125, 125, 125, 0.32);
+}
+
+.main-message.toggled {
+  background: rgba(125, 125, 125, 0.32);
+}
+
+.subcontent-container {
+  display: inline-flex;
+  background: rgba(125, 125, 125, 0.32);
+  box-sizing: border-box;
+  font-family: "Segoe UI";
+  font-size: 20px;
+  border-radius: 12px;
+  padding: 20px 15px;
+  width: 100%;
+  flex-direction: column;
+  align-items: left;
+  margin-bottom: 30px;
+  transition: box-shadow 0.5s ease;
+}
+.subcontent-container.selected {
+  background: rgba(170, 253, 214, 0.3);
+  outline: 3px solid #ccc;
+  box-shadow: 0 0 25px #fdfd68cc;
+}
+
+.subcontent-title {
+  display: inline-flex;
+  font-family: "Segoe UI";
+  font-size: 20px;
+  font-weight: bold;
+  width: 100%;
+  flex-direction: column;
+  align-items: left;
+}
+.subcontent-row-container {
+  display: inline-flex;
+  width: 100%; /* Make sure it takes full width */
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0px;
+  overflow: auto;
+}
+.subcontent-subcontent-container {
+  font-family: "Segoe UI";
+  font-size: 15px;
+  border-radius: 8px;
+  padding: 10px 0px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: left;
+}
+.subcontent-subcontent-container div:first-child {
+  font-weight: bold;
+  font-style: italic;
+}
+.subcontent-info-container {
+  display: inline-flex;
+  background: rgba(125, 125, 125, 0.32);
+  font-family: "Segoe UI";
+  font-size: 16px;
+  border-radius: 8px;
+  padding: 2px 3px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.subcontent-info-same-row-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.subcontent-info-box {
+  display: inline-flex;
+  background: rgba(125, 125, 125, 0.32);
+  font-family: "Segoe UI";
+  font-size: 16px;
+  border-radius: 8px;
+  width: fit-content;
+  padding: 2px 20px;
+  flex-direction: row;
+  margin-left: auto;
+  justify-content: center;
+  align-items: center;
+}
+.subcontent-subinfo-container {
+  display: inline-flex;
+  font-family: "Segoe UI";
+  font-size: 16px;
+  border-radius: 8px;
+  padding: 2px 3px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: left;
+}
+.input-box {
+  width: 40px; /* You can adjust this value to the desired size */
+  height: auto; /* Ensure this is equal to the width */
+  padding: 5px;
+  box-sizing: border-box; /* Include padding in the element's total width and height */
+  border: 1px solid #ccc; /* Optional: Add a border */
+  border-radius: 5px; /* Optional: Add rounded corners */
+  font-size: 16px; /* Optional: Adjust the font size */
+}
+
+/* ====================================== CCTV ====================================== */
+.video-feed-container {
+  position: relative; /* Required for absolute positioning of children */
+  width: 100%; /* Make the container take full width */
+  padding-top: 80%; /* Set the height equal to half the width */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  overflow: hidden; /* Ensure the container does not overflow */
+}
+/* Additional styles for children, assuming video elements */
+.video-feed-container > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Take full width of parent */
+  height: 100%; /* Take full height of parent */
+}
+
+/* ================================ Operation Control =============================== */
+.buttons-container {
+  display: inline-flex;
+  font-family: "Segoe UI";
+  font-size: 20px;
+  border-radius: 8px;
+  padding: 3px 0px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+}
+.button {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 8px;
+  width: 100%;
+  background-color: rgba(0, 188, 190, 1);
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Lucida Console";
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+}
+.button:not([disabled]):hover {
+  background-color: rgba(255, 157, 0, 1);
+}
+.button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.emergency-button {
+  background-color: red; /* Fallback color */
+  color: white;
+  border: none;
+  height: 200px;
+  width: 200px;
+  font-size: 30px;
+  font-weight: bold;
+  border-radius: 200px;
+  cursor: pointer;
+  background-image: url("../Media/emergency-stop.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: 0.5s ease;
+}
+
+.emergency-button:hover {
+  background-color: darkred; /* Fallback color */
+  background-image: url("../Media/emergency-stop-hover.jpg");
+}
+
+.emergency-button:active {
+  background-color: #8b0000; /* Fallback color */
+  background-image: url("../Media/emergency-stop-active.jpg");
+}
+
+/* =================================== Debug Mode =================================== */
+.debug-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.debug-container.hidden {
+  display: none;
+}
+
+/* ====================================== Alert ===================================== */
+.custom-alert {
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Segoe UI";
+  font-size: 30px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.8);
+  color: #000000;
+  padding: 10px 20px;
+  border: 10px solid #004ab9;
+  border-radius: 10px;
+  display: none;
+  z-index: 5000;
+}
