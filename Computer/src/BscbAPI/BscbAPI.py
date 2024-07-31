@@ -4,6 +4,8 @@ import struct
 import time
 from enum import Enum
 from typing import List
+import datetime
+import logging
 
 
 class Status(Enum):
@@ -22,31 +24,109 @@ class SensorID(Enum):
     SPARE = 3
 
 
+# class StarWheelTimer:
+#     def __init__(self) -> None:
+#         self.inited: bool = False
+#         self.index: int = 0
+#         # Initialize all slots with the current time formatted as a string
+#         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         self.timer: List[str] = [current_time_str] * 80
+#         self.unloaded_count: List[int] = [0] * 80
+
+#     def is_inited(self) -> bool:
+#         return self.inited
+
+#     def reset(self) -> None:
+#         self.inited = True
+#         self.index = 0
+#         # Reset the timer to current time formatted as strings for all slots
+#         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         self.timer = [current_time_str] * 80
+
+#     def move_index(self) -> None:
+#         if self.is_it_overtime():  # Check if current slot is overtime before moving
+#             self.update_slot()
+#         self.index = (self.index + 1) % 80
+#         print(f'starwheel timer index {self.index}')
+
+#     def update_slot(self) -> None:
+#         # Update the slot time for the previous index to the current time, formatted as a string
+#         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         self.timer[self.index - 1] = current_time_str
+#         self.unloaded_count[self.index - 1] += 1
+#         print(f'slot updated for index {self.index - 1}')
+#         # print(f'Timer list: {self.timer}')
+#         print(f'Unloaded count list: {self.unloaded_count}')
+
+#     def is_it_overtime(self, timeout_s: int = 3600*3) -> bool:
+#         """Check if the current slot's time exceeds the timeout."""
+#         current_time = datetime.datetime.now()
+#         slot_time_str = self.timer[self.index]
+#         slot_time = datetime.datetime.strptime(slot_time_str, '%Y-%m-%d %H:%M:%S')
+#         time_difference = (current_time - slot_time).total_seconds()
+#         is_overtime = time_difference > timeout_s
+        
+#         print(f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}')
+        
+#         if is_overtime:
+#             print("The pot is overtime.")
+#         else:
+#             print("The pot is not overtime.")
+
+#         return is_overtime
+
+
 class StarWheelTimer:
     def __init__(self) -> None:
         self.inited: bool = False
         self.index: int = 0
-        self.timer: List[time.time] = [time.time()] * 80
+        # Initialize all slots with the current time formatted as a string
+        current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.timer: List[str] = [current_time_str] * 80
         self.unloaded_count: List[int] = [0] * 80
 
-    def is_inited(self):
+    def is_inited(self) -> bool:
         return self.inited
 
-    def reset(self):
-        self.inited: bool = True
-        self.index: int = 0
+    def reset(self) -> None:
+        self.inited = True
+        self.index = 0
+        # Reset the timer to current time formatted as strings for all slots
+        current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.timer = [current_time_str] * 80
 
-    def move_index(self):
+    def move_index(self) -> None:
         self.index = (self.index + 1) % 80
+        print(f'starwheel timer index {self.index}')
 
-    def update_slot(self):
-        self.timer[self.index - 1] = time.time()
-        self.unloaded_count[self.index - 1] += 1
+    def update_slot(self) -> None:
+        # Update the slot time for the previous index to the current time, formatted as a string
+        current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.timer[self.index] = current_time_str
+        self.unloaded_count[self.index] += 1
+        print(f'slot updated for index {self.index}')
+        print(f'Unloaded count list: {self.unloaded_count}')
 
-    def is_it_overtime(self, timeout_s: int = 3600*6):
-        return (time.time() - self.timer[self.index]) > timeout_s
+    def is_it_overtime(self, timeout_s: int = 3600*3) -> bool:
+        """Check if the current slot's time exceeds the timeout."""
+        current_time = datetime.datetime.now()
+        slot_time_str = self.timer[self.index]
+        slot_time = datetime.datetime.strptime(slot_time_str, '%Y-%m-%d %H:%M:%S')
+        time_difference = (current_time - slot_time).total_seconds()
+        is_overtime = time_difference > timeout_s
+        
+        print(f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}')
+        
+        if is_overtime:
+            print("The pot is overtime.")
+        else:
+            print("The pot is not overtime.")
+
+        return is_overtime
 
 
+
+# SWTimer = StarWheelTimer()
 class BScbAPI:
     BAUD_RATE = 115200
     DEVICE_NAME_LIST = ["Arduino Leonardo", "Arduino Leonardo (COM5)"]
@@ -234,6 +314,7 @@ class BScbAPI:
         self.star_wheel_status = self.got_Status_respond(timeout=65)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
+            logging.info('starwheel init')
             return True
         else:
             return False
@@ -290,7 +371,7 @@ class BScbAPI:
         #     self.star_wheel_move_ms(time_ms)
         # print(f"Star Wheel Move ms readback: { self.star_wheel_status}")
         if self.is_readback_status_normal(self.star_wheel_status):
-            self.timer.move_index()
+            # self.timer.move_index()
             return True
         else:
             return False
@@ -344,7 +425,7 @@ class BScbAPI:
         self.unloader_status = self.got_Status_respond()
         print("unloader time: ", t1 - time.time())
         if self.is_readback_status_normal(self.unloader_status):
-            self.timer.update_slot()
+            # self.timer.update_slot()
             return True
         else:
             return False

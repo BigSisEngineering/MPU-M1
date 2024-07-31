@@ -101,6 +101,7 @@ def pnp(
         wait_thread_to_finish("ai")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or BOARD.timer.is_it_overtime()) else 0
         if tmp_egg_pot_counter > 0:
+            BOARD.timer.update_slot()
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -122,7 +123,7 @@ def pnp(
             ),
         )
         threads["comm"].start()
-        # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+        cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
 
         if BOARD.timer.is_it_overtime():
             cloud.DataBase.data_update("other")
@@ -130,6 +131,7 @@ def pnp(
             cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
 
         cloud.DataBase.data_upload()
+        BOARD.timer.move_index()
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(PnP)-{e}")
