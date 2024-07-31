@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/static/css/main.fc96e4d0.css",
+    "main.js": "/static/js/main.fad34612.js",
+    "static/js/453.53d527f1.chunk.js": "/static/js/453.53d527f1.chunk.js",
+    "static/media/emergency-stop.jpg": "/static/media/emergency-stop.fc24091bff7ea1533568.jpg",
+    "static/media/emergency-stop-active.jpg": "/static/media/emergency-stop-active.7a21e75307f1401a9e40.jpg",
+    "static/media/emergency-stop-hover.jpg": "/static/media/emergency-stop-hover.0dc8da9d3a4968a11ec1.jpg",
+    "index.html": "/index.html",
+    "main.fc96e4d0.css.map": "/static/css/main.fc96e4d0.css.map",
+    "main.fad34612.js.map": "/static/js/main.fad34612.js.map",
+    "453.53d527f1.chunk.js.map": "/static/js/453.53d527f1.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fc96e4d0.css",
+    "static/js/main.fad34612.js"
+  ]
+}

@@ -1,52 +1,93 @@
-print("start http...")
-
+import logging
+import os
 from flask import (
     Flask,
-    render_template,
+    send_from_directory,
     Response,
-    redirect,
-    url_for,
-    make_response,
 )
-from flask_cors import CORS
-import numpy as np
+
 import logging
-from src import setup
+import cv2
+import numpy as np
 
-# ============================================== #
-from src.http_server import get_handler, post_handler
+# ------------------------------------------------------------------------------------ #
+# from src import camera
 
-# from src import CLI
-# from src.CLI import Level
+# ------------------------------------------------------------------------------------ #
+from src import CLI
+from src.CLI import Level
 
 print_name = "FLASK"
 
+# ------------------------------------------------------------------------------------ #
+from src.http_server import get_handler, post_handler
 
-#
+
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-#
-# app = Flask(__name__, static_url_path="/src/http_server/static")  # flask app
-app = Flask(__name__, static_folder="static", static_url_path="/static")
+script_dir = os.path.dirname(os.path.realpath(__file__))
+react_folder = f"{script_dir}/react_app"
 
-CORS(app)
-# app.register_blueprint(get_handler.blueprint)
+#
+app = Flask(
+    __name__,
+    static_folder=f"{react_folder}/build/static",
+    template_folder=f"{react_folder}/build",
+)
+
+app.register_blueprint(get_handler.blueprint)
 app.register_blueprint(post_handler.blueprint)
 
 
+# def gen_image():
+#     compression_params = [cv2.IMWRITE_WEBP_QUALITY, 20]
+#     resolution_scale = 0.8
+#     frame_width, frame_height = (
+#         int(camera.CAMERA.get_width() * resolution_scale),
+#         int(camera.CAMERA.get_height() * resolution_scale),
+#     )
+
+#     def _create_dummy_image():
+#         frame = np.zeros((frame_width, frame_height, 3), dtype=np.uint8)
+#         cv2.putText(
+#             frame,
+#             f"Camera offline",
+#             (50, 240),
+#             cv2.FONT_HERSHEY_SIMPLEX,
+#             1,
+#             (0, 255, 0),
+#             2,
+#         )
+#         return frame
+
+#     while True:
+#         frame = camera.CAMERA.frame
+
+#         if frame is None:
+#             frame = _create_dummy_image()
+
+#         frame = cv2.resize(frame, (frame_width, frame_height))
+#         _, img = cv2.imencode(".webp", frame, compression_params)
+
+#         if img is not None:
+#             yield (b"--frame\r\n" b"Content-Type: image/webp\r\n\r\n" + img.tobytes() + b"\r\n")
+
+
+# @app.route("/image")
+# def img():
+#     return Response(gen_image(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+
+# Serve React App
 @app.route("/")
-def index():
-    return render_template("index.html", row=setup.ROW)
+def serve():
+    return send_from_directory(app.template_folder, "index.html")
 
 
-# ============================================== #
-def start(host="0.0.0.0", port=8080):
-    print("({:^10}) Started Server.".format(print_name))
+# ------------------------------------------------------------------------------------ #
+def start():
+    host = "0.0.0.0"
+    port = 8080
+    CLI.printline(Level.INFO, "Started Flask Server at port {:^4}".format(port))
     app.run(host=host, port=port)
-
-
-print("end http...")
-
-if __name__ == "__main__":
-    start()
