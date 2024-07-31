@@ -1,20 +1,13 @@
 import React from "react";
+import { useState } from "react";
 import "./Assets/Styles/styles.css";
 import Header from "./Layouts/Header/index.js";
 import AlertBox from "./Layouts/AlertBox/index.js";
 import M1A from "./Layouts/M1A/index.js";
 import M1C from "./Layouts/M1C/index.js";
 import Cages from "./Layouts/Cages/index.js";
-
-// temp
-import SystemStatus from "./Layouts/SystemStatus/index.js";
-import ControlPanel from "./Layouts/ControlPanel/index.js";
-import Settings from "./Layouts/Settings/index.js";
-import ActuatorStatus from "./Layouts/ActuatorStatus/index.js";
+import CageControl from "./Layouts/CageControl/index.js";
 import OperationControl from "./Layouts/OperationControl/index.js";
-import CCTV from "./Layouts/CCTV/index.js";
-import MainMessage from "./Layouts/MainMessage/index.js";
-import EmergencyStop from "./Layouts/EmergencyStop/index.js";
 
 /* ---------------------------------------------------------------------------------- */
 let moduleNumber;
@@ -32,7 +25,7 @@ function getLocalHostname() {
   } else {
     console.log("Debug");
     moduleNumber = 1;
-    rowNumber = 1;
+    rowNumber = 4;
   }
 
   return hostname;
@@ -52,38 +45,52 @@ document.addEventListener("DOMContentLoaded", function () {
 /*                                     Main Blocks                                    */
 /* ================================================================================== */
 function MainContent() {
+  const [isSelected, setIsSelected] = useState(Array(14).fill(false));
+
+  const toggleSelected = (index) => () => {
+    setIsSelected((prevSelected) => {
+      const newIsSelected = [...prevSelected];
+      newIsSelected[index] = !newIsSelected[index];
+      return newIsSelected;
+    });
+  };
+
+  const selectAll = () => {
+    setIsSelected(Array(14).fill(true));
+  };
+
+  const clearAll = () => {
+    setIsSelected(Array(14).fill(false));
+  };
+
+  /* ---------------------------------------------------------------------------------- */
+
   return (
     <div className="mains-container">
-      <LeftColumn />
-      <RightColumn />
+      <LeftColumn isSelected={isSelected} selectAll={selectAll} clearAll={clearAll} />
+      <RightColumn isSelected={isSelected} setIsSelected={setIsSelected} toggleSelected={toggleSelected} />
     </div>
   );
 }
 
-function LeftColumn() {
+function LeftColumn({ isSelected, selectAll, clearAll }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A />
       <M1C />
       <OperationControl />
-      {/* <SystemStatus />
-      <ControlPanel />
-      <Settings />
-      <EmergencyStop /> */}
+      <CageControl selectAll={selectAll} clearAll={clearAll} isSelectedArray={isSelected} />
     </div>
   );
 }
 
-function RightColumn() {
+function RightColumn({ isSelected, setIsSelected, toggleSelected }) {
   return (
     <div
       className="columns-container"
       style={{ width: "76%", padding: "0px 0px", marginBottom: "0px", alignItems: "center" }}
     >
-      <Cages row={1} />
-      {/* <MainMessage /> */}
-      {/* <CCTV /> */}
-      {/* <ActuatorStatus /> */}
+      <Cages row={rowNumber} isSelected={isSelected} setIsSelected={setIsSelected} toggleSelected={toggleSelected} />
     </div>
   );
 }

@@ -24,16 +24,16 @@ function OperationControl() {
         1A
         <HorizontalLine />
         <div className="buttons-container">
-          <Button name="Start" onclick={() => exec("START", httpPOST, "/cmd_start")} />
-          <Button name="Stop" onclick={() => exec("STOP", httpPOST, "/cmd_stop")} />
-          <Button name="Add 10 Pots" onclick={() => exec("STOP", httpPOST, "/cmd_stop")} />
+          <Button name="Start" onclick={() => exec("START", httpPOST, "/start_1a")} />
+          <Button name="Stop" onclick={() => exec("STOP", httpPOST, "/stop_1a")} />
+          <Button name="Add 10 Pots" onclick={() => exec("STOP", httpPOST, "/add_pots")} />
         </div>
         <Gap />
         1C
         <HorizontalLine />
         <div className="buttons-container">
-          <Button name="Start" onclick={() => exec("START", httpPOST, "/cmd_start")} />
-          <Button name="Stop" onclick={() => exec("STOP", httpPOST, "/cmd_stop")} />
+          <Button name="Start" onclick={() => exec("START", httpPOST, "/start_1c")} />
+          <Button name="Stop" onclick={() => exec("STOP", httpPOST, "/stop_1c")} />
         </div>
         <Gap />
       </div>

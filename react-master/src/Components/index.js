@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../Assets/Styles/styles.css";
+import { openLink } from "../Utils/Utils.js";
 import sw_red from "../Assets/Media/SW_RED.png";
 import sw_green from "../Assets/Media/SW_GREEN.png";
 import ul_red from "../Assets/Media/UL_RED.png";
@@ -25,10 +26,10 @@ class CustomEmoji {
   static buf_sensor_red = buf_sensor_red;
 }
 
-function DisplayImage({ link }) {
+function DisplayImage({ link, width = 100 }) {
   const [imgSrc, setImgSrc] = useState(link);
   return (
-    <div className="video-feed-container">
+    <div className="video-feed-container" style={{ width: `${width}%`, margin: "auto" }}>
       <img src={imgSrc} alt="not found" onError={() => setImgSrc(fallback)} />
     </div>
   );
@@ -90,8 +91,16 @@ function HorizontalLine() {
   return <div className="subinfo-horizontal-line"></div>;
 }
 
-function SubcontentTitle({ text }) {
-  return <div className="subcontent-title">{text}</div>;
+function SubcontentTitle({ text, link = null }) {
+  if (link === null) {
+    return <div className="subcontent-title">{text}</div>;
+  } else {
+    return (
+      <div className="subcontent-title" onClick={() => openLink(link)} style={{ cursor: "pointer" }}>
+        {text}
+      </div>
+    );
+  }
 }
 
 function DebugContent({ elements }) {

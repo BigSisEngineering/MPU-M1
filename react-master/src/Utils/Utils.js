@@ -51,10 +51,18 @@ async function fetchJSON(url) {
   }
 }
 
-async function httpPOST(url) {
-  return fetch(url, {
+async function httpPOST(url, data = null) {
+  const options = {
     method: "POST",
-  })
+    headers: {},
+  };
+
+  if (data !== null) {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(data);
+  }
+
+  return fetch(url, options)
     .then((response) => {
       if (response.ok) {
         return response.text();

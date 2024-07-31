@@ -3,12 +3,9 @@ import { useState, useEffect } from "react";
 import { fetchJSON } from "../Utils/Utils.js";
 
 class Dicts {
-  static system = 1;
-  static actuators = 2;
-  static outputs = 3;
-  static inputs = 4;
-  static actuation_handler = 5;
-  static settings = 6;
+  static m1a = 1;
+  static m1c = 2;
+  static cages = 3;
 }
 
 async function fetchAndSetState(url, setState) {
@@ -21,21 +18,15 @@ async function fetchAndSetState(url, setState) {
 }
 
 function useDict(dictName) {
-  const [dictSettings, setDictSettings] = useState(null);
-  const [dictActuators, setDictActuators] = useState(null);
-  const [dictInputs, setDictInputs] = useState(null);
-  const [dictOutputs, setDictOutputs] = useState(null);
-  const [dictActuationHandler, setDictActuationHandler] = useState(null);
-  const [dictSystem, setDictSystem] = useState(null);
+  const [dict1A, setDict1A] = useState(null);
+  const [dict1C, setDict1C] = useState(null);
+  const [dictCages, setDictCages] = useState(null);
 
   useEffect(() => {
     const urls = {
-      [Dicts.system]: "/get_status/system",
-      [Dicts.actuators]: "/get_status/actuators",
-      [Dicts.outputs]: "/get_status/outputs",
-      [Dicts.inputs]: "/get_status/inputs",
-      [Dicts.actuation_handler]: "/get_status/actuation_handler",
-      [Dicts.settings]: "/get_status/settings",
+      [Dicts.m1a]: "/get_status/m1a",
+      [Dicts.m1c]: "/get_status/m1c",
+      [Dicts.cages]: "/get_status/cages",
     };
 
     const url = urls[dictName];
@@ -45,12 +36,9 @@ function useDict(dictName) {
         fetchAndSetState(
           url,
           {
-            [Dicts.system]: setDictSystem,
-            [Dicts.actuators]: setDictActuators,
-            [Dicts.outputs]: setDictOutputs,
-            [Dicts.inputs]: setDictInputs,
-            [Dicts.actuation_handler]: setDictActuationHandler,
-            [Dicts.settings]: setDictSettings,
+            [Dicts.m1a]: setDict1A,
+            [Dicts.m1c]: setDict1C,
+            [Dicts.cages]: setDictCages,
           }[dictName]
         );
       }, 2000);
@@ -60,18 +48,12 @@ function useDict(dictName) {
   }, [dictName]);
 
   switch (dictName) {
-    case Dicts.system:
-      return dictSystem;
-    case Dicts.actuators:
-      return dictActuators;
-    case Dicts.outputs:
-      return dictOutputs;
-    case Dicts.inputs:
-      return dictInputs;
-    case Dicts.actuation_handler:
-      return dictActuationHandler;
-    case Dicts.settings:
-      return dictSettings;
+    case Dicts.m1a:
+      return dict1A;
+    case Dicts.m1c:
+      return dict1C;
+    case Dicts.cages:
+      return dictCages;
     default:
       return null;
   }
