@@ -21,6 +21,8 @@ def _get_status(component: str) -> Any:
         return components.generate_m1c_dict()
     elif component == "cages":
         return components.generate_cage_dict()
+    elif component == "system":
+        return SV.system_status
     else:
         return "null"
 
@@ -31,6 +33,9 @@ get_endpoints: Dict[str, Callable] = {
 
 
 #
+import time
+
+
 @blueprint.route("/<string:endpoint>/<v1>", methods=["GET"])
 def run_func(endpoint: str, v1: str):
     if endpoint in get_endpoints:

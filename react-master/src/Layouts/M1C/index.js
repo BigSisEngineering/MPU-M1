@@ -5,7 +5,7 @@ import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG } from "../../Utils/Utils.js";
 import { Gap, HorizontalLine, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function M1C() {
+function M1C({ m1cRunning }) {
   const [c1StatusDict, setC1StatusDict] = useState(null);
   const [c2StatusDict, setC2StatusDict] = useState(null);
 
@@ -28,11 +28,11 @@ function M1C() {
     if (c1StatusDict && c1StatusDict["connected"] === "True") {
       if (c1StatusDict["running"] === "True") {
         if (c1StatusDict["buff_out"] === "True") {
-          return "RUNNING";
+          return m1cRunning ? "RUNNING" : "STOPPING";
         }
-        return "BELT FULL";
+        return m1cRunning ? "BELT FULL" : "STOPPING";
       }
-      return "IDLE";
+      return m1cRunning ? "STARTING" : "IDLE";
     }
     return DEFAULT_MSG;
   }
@@ -41,11 +41,11 @@ function M1C() {
     if (c1StatusDict && c1StatusDict["connected"] === "True") {
       if (c1StatusDict["running"] === "True") {
         if (c1StatusDict["buff_out"] === "True") {
-          return getColor("GREEN");
+          return m1cRunning ? getColor("GREEN") : getColor("YELLOW");
         }
-        return getColor("YELLOW");
+        return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
       }
-      return getColor("BLUE");
+      return m1cRunning ? getColor("YELLOW") : getColor("BLUE");
     }
     return getColor("DEFAULT");
   }
@@ -55,13 +55,13 @@ function M1C() {
       if (c2StatusDict["running"] === "True") {
         if (c2StatusDict["chimney_sensor"] === "True") {
           if (c2StatusDict["pot_sensor"] === "True") {
-            return "RUNNING";
+            return m1cRunning ? "RUNNING" : "STOPPING";
           }
-          return "WAITING FOR POTS";
+          return m1cRunning ? "WAITING FOR POTS" : "STOPPING";
         }
-        return "WAITING FOR CHIMNEYS";
+        return m1cRunning ? "WAITING FOR CHIMNEYS" : "STOPPING";
       }
-      return "IDLE";
+      return m1cRunning ? "STARTING" : "IDLE";
     }
     return DEFAULT_MSG;
   }
@@ -71,13 +71,13 @@ function M1C() {
       if (c2StatusDict["running"] === "True") {
         if (c2StatusDict["chimney_sensor"] === "True") {
           if (c2StatusDict["pot_sensor"] === "True") {
-            return getColor("GREEN");
+            return m1cRunning ? getColor("GREEN") : getColor("YELLOW");
           }
-          return getColor("YELLOW");
+          return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
         }
-        return getColor("YELLOW");
+        return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
       }
-      return getColor("BLUE");
+      return m1cRunning ? getColor("YELLOW") : getColor("BLUE");
     }
     return getColor("DEFAULT");
   }

@@ -67,10 +67,11 @@ function Subinfo({ title, content }) {
   );
 }
 
-function Button({ name, onclick }) {
+function Button({ name, onclick, disable = false }) {
   return (
     <button
       className="button"
+      disabled={disable}
       onClick={() => {
         onclick();
       }}

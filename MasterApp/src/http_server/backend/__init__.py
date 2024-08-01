@@ -7,7 +7,6 @@ from src import components
 # ------------------------------------------------------------------------------------ #
 from src._shared_variables import Cages
 
-
 class Operation:
     executing_cage_command = False
     results = {}
@@ -29,9 +28,6 @@ class Operation:
         try:
             bool_list: List[bool] = data["bool_list"]
             action: str = data["action"]
-
-            for index, value in enumerate(bool_list):
-                bool_list[index] = True if value.lower() == "true" else False
 
             if not Operation.executing_cage_command:
                 Operation.executing_cage_command = True
@@ -61,9 +57,9 @@ class Operation:
                     thread.join()
 
                 # Collect and format the results
-                results: str = f"Execute {action}:"
+                results: str = f"Execute {action}\n"
                 for key in worker_dict.keys():
-                    results += f"\n{key}: {Operation.results.get(key, 'No result')}\n"
+                    results += f"{key}: {Operation.results.get(key, 'No result')}\n"
 
                 # Reset the operation state
                 Operation.executing_cage_command = False
@@ -73,4 +69,4 @@ class Operation:
             return "Another cage command is already executing. Please wait."
 
         except Exception as e:
-            return e
+            return f"{e}"

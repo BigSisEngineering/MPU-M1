@@ -5,7 +5,7 @@ import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG, httpPOST, exec } from "../../Utils/Utils.js";
 import { Gap, HorizontalLine, Button, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function M1A() {
+function M1A({ m1aRunning }) {
   const [a1StatusDict, setA1StatusDict] = useState(null);
   const [a2StatusDict, setA2StatusDict] = useState(null);
   const [a3StatusDict, setA3StatusDict] = useState(null);
@@ -32,11 +32,11 @@ function M1A() {
     if (a1StatusDict && a1StatusDict["connected"] === "True") {
       if (a1StatusDict["running"] === "True") {
         if (a1StatusDict["buff_out"] === "True") {
-          return "RUNNING";
+          return m1aRunning ? "RUNNING" : "STOPPING";
         }
-        return "WAITING FOR POTS";
+        return m1aRunning ? "WAITING FOR POTS" : "STOPPING";
       }
-      return "IDLE";
+      return m1aRunning ? "STARTING" : "IDLE";
     }
     return DEFAULT_MSG;
   }
@@ -45,11 +45,11 @@ function M1A() {
     if (a1StatusDict && a1StatusDict["connected"] === "True") {
       if (a1StatusDict["running"] === "True") {
         if (a1StatusDict["buff_out"] === "True") {
-          return getColor("GREEN");
+          return m1aRunning ? getColor("GREEN") : getColor("YELLOW");
         }
-        return getColor("YELLOW");
+        return m1aRunning ? getColor("YELLOW") : getColor("YELLOW");
       }
-      return getColor("BLUE");
+      return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
     }
     return getColor("DEFAULT");
   }
@@ -62,11 +62,11 @@ function M1A() {
             if (a2StatusDict["sw_homed"] === "True") {
               if (a2StatusDict["buff_in"] === "False") {
                 if (a2StatusDict["buff_out"] === "True") {
-                  return "RUNNING";
+                  return m1aRunning ? "RUNNING" : "STOPPING";
                 }
-                return "POT DISPENSER BELT FULL";
+                return m1aRunning ? "POT DISPENSER BELT FULL" : "STOPPING";
               }
-              return "WAITING FOR POTS";
+              return m1aRunning ? "WAITING FOR POTS" : "STOPPING";
             }
             return "SW NOT HOMED";
           }
@@ -74,7 +74,7 @@ function M1A() {
         }
         return "NOZZLE NOT HOMED";
       }
-      return "IDLE";
+      return m1aRunning ? "STARTING" : "IDLE";
     }
     return DEFAULT_MSG;
   }
@@ -87,11 +87,11 @@ function M1A() {
             if (a2StatusDict["sw_homed"] === "True") {
               if (a2StatusDict["buff_in"] === "False") {
                 if (a2StatusDict["buff_out"] === "True") {
-                  return getColor("GREEN");
+                  return m1aRunning ? getColor("GREEN") : getColor("YELLOW");
                 }
-                return getColor("YELLOW");
+                return m1aRunning ? getColor("YELLOW") : getColor("YELLOW");
               }
-              return getColor("YELLOW");
+              return m1aRunning ? getColor("YELLOW") : getColor("YELLOW");
             }
             return getColor("RED");
           }
@@ -99,7 +99,7 @@ function M1A() {
         }
         return getColor("RED");
       }
-      return getColor("BLUE");
+      return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
     }
     return getColor("DEFAULT");
   }
@@ -110,15 +110,15 @@ function M1A() {
         if (a3StatusDict["sw_error"] === "False") {
           if (a3StatusDict["sw_homed"] === "True") {
             if (a3StatusDict["buff_in"] === "False") {
-              return "RUNNING";
+              return m1aRunning ? "RUNNING" : "STOPPING";
             }
-            return "WAITING FOR POTS";
+            return m1aRunning ? "WAITING FOR POTS" : "STOPPING";
           }
           return "SW NOT HOMED";
         }
         return "SW ERROR";
       }
-      return "IDLE";
+      return m1aRunning ? "STARTING" : "IDLE";
     }
     return DEFAULT_MSG;
   }
@@ -129,15 +129,15 @@ function M1A() {
         if (a3StatusDict["sw_error"] === "False") {
           if (a3StatusDict["sw_homed"] === "True") {
             if (a3StatusDict["buff_in"] === "False") {
-              return getColor("GREEN");
+              return m1aRunning ? getColor("GREEN") : getColor("YELLOW");
             }
-            return getColor("YELLOW");
+            return m1aRunning ? getColor("YELLOW") : getColor("YELLOW");
           }
           return getColor("RED");
         }
         return getColor("RED");
       }
-      return getColor("BLUE");
+      return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
     }
     return getColor("DEFAULT");
   }

@@ -77,7 +77,7 @@ async function httpPOST(url, data = null) {
     });
 }
 
-function _showAlert(message, timeout = 3000) {
+function _showAlert(message, timeout = 5000) {
   const alertDiv = document.getElementById("alert-box");
   try {
     alertDiv.innerText = message;

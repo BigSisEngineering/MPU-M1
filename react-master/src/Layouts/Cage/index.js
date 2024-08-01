@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
-import { getColor, DEFAULT_MSG } from "../../Utils/Utils.js";
+import { getColor, DEFAULT_MSG, DEFAULT_BOOL } from "../../Utils/Utils.js";
 import { Info, Gap, HorizontalLine, Subinfo, SubcontentTitle, DisplayImage } from "../../Components/index.js";
 
 function Cage({ row = null, number = null, isSelected, toggleSelected }) {
@@ -14,6 +14,9 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   const [bufferSensor, setBufferSensor] = useState(-1);
   //
   const [mode, setMode] = useState(DEFAULT_MSG);
+  //
+  const [isLoaded, setIsLoaded] = useState(DEFAULT_BOOL);
+
   const cageHostname = `cage${row - 1}x00${number.toString().padStart(2, "0")}`;
 
   /* ---------------------------------------------------------------------------------- */
@@ -25,10 +28,19 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       setUnloaderStatus(dictData[cageHostname]["unloader_status"]);
       setStarwheelStatus(dictData[cageHostname]["star_wheel_status"]);
       //
-      const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
-      setLoadSensor(sensors[0]);
-      setUnloadSensor(sensors[1]);
-      setBufferSensor(sensors[2]);
+      try {
+        const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
+        setLoadSensor(sensors[0]);
+        setUnloadSensor(sensors[1]);
+        setBufferSensor(sensors[2]);
+        setIsLoaded(true);
+      } catch {
+        setLoadSensor(-1);
+        setUnloadSensor(-1);
+        setBufferSensor(-1);
+        setIsLoaded(false);
+      }
+
       //
       setMode(dictData[cageHostname]["mode"]);
     } else {
@@ -38,6 +50,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       setUnloadSensor(-1);
       setBufferSensor(-1);
       setMode(DEFAULT_MSG);
+      setIsLoaded(false);
     }
   }, [dictData, cageHostname]);
 
@@ -108,13 +121,13 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function getbackgroundColor() {
-    if (mode !== "None" && (unloaderStatus !== "normal" || starwheelStatus !== "normal")) {
+    if (isLoaded && (unloaderStatus !== "normal" || starwheelStatus !== "normal")) {
       if (!isSelected) {
         return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
       } else {
         return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
       }
-    } else if (mode !== "None" && loadSensor < 100) {
+    } else if (isLoaded && loadSensor < 100) {
       if (!isSelected) {
         return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
       } else {
@@ -130,7 +143,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function getOpacity() {
-    if (mode === "None") {
+    if (!isLoaded) {
       if (!isSelected) {
         return 25;
       }
@@ -150,7 +163,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
           cursor: "cell",
         }}
       >
-        <SubcontentTitle text={`Cage ${number}`} link={`${cageHostname}.local:8080`} />
+        <SubcontentTitle text={`Cage ${number}`} link={`http://${cageHostname}.local:8080`} />
         <HorizontalLine />
         <DisplayImage link={`http://${cageHostname}.local:8080/video_feed`} />
         <Gap />

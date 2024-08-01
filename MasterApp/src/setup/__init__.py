@@ -31,8 +31,8 @@ def get_row(arg=None):
     #         return int(id[-2:])
 
     # CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
-    CLI.printline(Level.WARNING, f"(setup)-Mock row set to 7")
-    return 7
+    CLI.printline(Level.WARNING, f"(setup)-Mock row set to 4")
+    return 4
 
 
 def get_master_server_port(arg=None):

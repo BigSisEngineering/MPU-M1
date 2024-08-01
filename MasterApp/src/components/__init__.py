@@ -45,6 +45,9 @@ def generate_m1c_dict():
     return json.dumps(status_dict).encode()
 
 
+import time
+
+
 def generate_cage_dict():
     dict_1B = {}
 
