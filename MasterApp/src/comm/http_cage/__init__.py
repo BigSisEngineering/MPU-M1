@@ -124,6 +124,11 @@ class HTTPCage:
                         "({:^10})-({:^8}) [{:^10}] {:^3} pots.".format(print_name, "POTDATA", self._hostname, pot_num),
                     )
                     return pot_num
+                else:
+                    CLI.printline(
+                        Level.WARNING,
+                        "({:^10})-({:^8}) [{:^10}] {:^3}".format(print_name, "POTDATA", self._hostname, pot_num),
+                    )
 
             except ConnectionError as ce:
                 if "NewConnectionError" in str(ce.args[0]):

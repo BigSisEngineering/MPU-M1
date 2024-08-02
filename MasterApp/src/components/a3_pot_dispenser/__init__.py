@@ -128,13 +128,11 @@ class PotDispenser(HTTPDuet):
 
     # ------------------------------------------------------------------------------------ #
     def sw_ack_fault(self) -> str:
-        if self.is_ready:
-            if self.run_macro("sw_clear_fault.g"):
-                return "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name)
+        if self.run_macro("sw_clear_fault.g"):
+            return "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name)
         return "{:^10}-{:^15} SW clear fault failed.".format(print_name, self._duet_name)
 
     def sw_home(self) -> str:
-        if self.is_ready:
-            if self.run_macro("sw_home.g"):
-                return "{:^10}-{:^15} SW home.".format(print_name, self._duet_name)
+        if self.run_macro("sw_clear_fault.g") and self.run_macro("sw_home.g"):
+            return "{:^10}-{:^15} SW home.".format(print_name, self._duet_name)
         return "{:^10}-{:^15} SW home failed.".format(print_name, self._duet_name)

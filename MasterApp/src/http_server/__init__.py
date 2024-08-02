@@ -11,7 +11,10 @@ import cv2
 import numpy as np
 
 # ------------------------------------------------------------------------------------ #
-# from src import camera
+from src import setup
+
+# ------------------------------------------------------------------------------------ #
+from src import camera
 
 # ------------------------------------------------------------------------------------ #
 from src import CLI
@@ -40,43 +43,43 @@ app.register_blueprint(get_handler.blueprint)
 app.register_blueprint(post_handler.blueprint)
 
 
-# def gen_image():
-#     compression_params = [cv2.IMWRITE_WEBP_QUALITY, 20]
-#     resolution_scale = 0.8
-#     frame_width, frame_height = (
-#         int(camera.CAMERA.get_width() * resolution_scale),
-#         int(camera.CAMERA.get_height() * resolution_scale),
-#     )
+def gen_image():
+    compression_params = [cv2.IMWRITE_WEBP_QUALITY, 20]
+    resolution_scale = 0.8
+    frame_width, frame_height = (
+        int(camera.CAMERA.get_width() * resolution_scale),
+        int(camera.CAMERA.get_height() * resolution_scale),
+    )
 
-#     def _create_dummy_image():
-#         frame = np.zeros((frame_width, frame_height, 3), dtype=np.uint8)
-#         cv2.putText(
-#             frame,
-#             f"Camera offline",
-#             (50, 240),
-#             cv2.FONT_HERSHEY_SIMPLEX,
-#             1,
-#             (0, 255, 0),
-#             2,
-#         )
-#         return frame
+    def _create_dummy_image():
+        frame = np.zeros((frame_width, frame_height, 3), dtype=np.uint8)
+        cv2.putText(
+            frame,
+            f"Camera offline",
+            (50, 240),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2,
+        )
+        return frame
 
-#     while True:
-#         frame = camera.CAMERA.frame
+    while True:
+        frame = camera.CAMERA.frame
 
-#         if frame is None:
-#             frame = _create_dummy_image()
+        if frame is None:
+            frame = _create_dummy_image()
 
-#         frame = cv2.resize(frame, (frame_width, frame_height))
-#         _, img = cv2.imencode(".webp", frame, compression_params)
+        frame = cv2.resize(frame, (frame_width, frame_height))
+        _, img = cv2.imencode(".webp", frame, compression_params)
 
-#         if img is not None:
-#             yield (b"--frame\r\n" b"Content-Type: image/webp\r\n\r\n" + img.tobytes() + b"\r\n")
+        if img is not None:
+            yield (b"--frame\r\n" b"Content-Type: image/webp\r\n\r\n" + img.tobytes() + b"\r\n")
 
 
-# @app.route("/image")
-# def img():
-#     return Response(gen_image(), mimetype="multipart/x-mixed-replace; boundary=frame")
+@app.route("/cctv")
+def img():
+    return Response(gen_image(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
 # Serve React App
@@ -88,6 +91,6 @@ def serve():
 # ------------------------------------------------------------------------------------ #
 def start():
     host = "0.0.0.0"
-    port = 8080
-    CLI.printline(Level.INFO, "Started Flask Server at port {:^4}".format(port))
+    port = setup.MASTER_SERVER_PORT
+    CLI.printline(Level.INFO, "({:^10}) Started Flask Server at port {:^4}".format(print_name, port))
     app.run(host=host, port=port)

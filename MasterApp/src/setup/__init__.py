@@ -21,17 +21,22 @@ config_parser.read(
 
 
 def get_row(arg=None):
-    # Apply default if no argument given
+    """
+    hostname format M1-{row}-M
+    """
     # id = socket.gethostname() if arg is None else arg
+
     # if id:
-    #     match = re.search(r"x(\d+)", id)
-    #     if match:
-    #         number = int(match.group(1))
+    #     parts = id.split("-")
+    #     if len(parts) > 1:
+    #         number = int(parts[1])
     #         CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
-    #         return int(id[-2:])
+    #         return number
 
     # CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
-    CLI.printline(Level.WARNING, f"(setup)-Mock row set to 4")
+    # return None
+    # ------------------------------------------------------------------------------------ #
+    CLI.printline(Level.ERROR, f"(setup)-Mock Row 4")
     return 4
 
 
@@ -50,10 +55,3 @@ def get_software_version(arg=None):
 ROW = get_row()
 MASTER_SERVER_PORT = get_master_server_port()
 SOFTWARE_VERSION = get_software_version()
-
-
-# ------------------------------------------------------------------------------------ #
-def debug():
-    print(ROW)
-
-    print(type(ROW))

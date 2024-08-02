@@ -5,7 +5,7 @@ import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG } from "../../Utils/Utils.js";
 import { Gap, HorizontalLine, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function M1C({ m1cRunning }) {
+function M1C({ row, m1cRunning }) {
   const [c1StatusDict, setC1StatusDict] = useState(null);
   const [c2StatusDict, setC2StatusDict] = useState(null);
 
@@ -91,11 +91,11 @@ function M1C({ m1cRunning }) {
           letterSpacing: "0.05em",
         }}
       >
-        <SubcontentTitle text={"Chimney Sorter"} />
+        <SubcontentTitle text={"Chimney Sorter"} link={`http://10.207.1${row}.14`} />
         <HorizontalLine />
         <InfoSameRow title="ⓘ Status" text={getC1StatusText()} color={getC1StatusColor()} />
         <Gap height="20" />
-        <SubcontentTitle text={"Chimney Capper"} />
+        <SubcontentTitle text={"Chimney Capper"} link={`http://10.207.1${row}.15`} />
         <HorizontalLine />
         <InfoSameRow title="ⓘ Status" text={getC2StatusText()} color={getC2StatusColor()} />
       </div>

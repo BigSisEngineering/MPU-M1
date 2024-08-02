@@ -42,7 +42,7 @@ function getLocalHostname() {
     moduleNumber = parseInt(match[1], 10);
     rowNumber = parseInt(match[2], 10);
   } else {
-    console.log("Debug");
+    console.log("Mock");
     moduleNumber = 1;
     rowNumber = 4;
   }
@@ -111,8 +111,8 @@ function MainContent() {
 function LeftColumn({ isSelected, selectAll, clearAll, m1aRunning, m1cRunning }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
-      <M1A m1aRunning={m1aRunning} />
-      <M1C m1cRunning={m1cRunning} />
+      <M1A row={rowNumber} m1aRunning={m1aRunning} />
+      <M1C row={rowNumber} m1cRunning={m1cRunning} />
       <OperationControl m1aRunning={m1aRunning} m1cRunning={m1cRunning} />
       <CageControl selectAll={selectAll} clearAll={clearAll} isSelectedArray={isSelected} />
     </div>

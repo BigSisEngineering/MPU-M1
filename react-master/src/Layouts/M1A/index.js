@@ -5,7 +5,7 @@ import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG, httpPOST, exec } from "../../Utils/Utils.js";
 import { Gap, HorizontalLine, Button, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function M1A({ m1aRunning }) {
+function M1A({ row, m1aRunning }) {
   const [a1StatusDict, setA1StatusDict] = useState(null);
   const [a2StatusDict, setA2StatusDict] = useState(null);
   const [a3StatusDict, setA3StatusDict] = useState(null);
@@ -56,10 +56,10 @@ function M1A({ m1aRunning }) {
 
   function getA2StatusText() {
     if (a2StatusDict && a2StatusDict["connected"] === "True") {
-      if (a2StatusDict["running"] === "True") {
-        if (a2StatusDict["dispenser_homed"] === "True") {
-          if (a2StatusDict["sw_error"] === "False") {
-            if (a2StatusDict["sw_homed"] === "True") {
+      if (a2StatusDict["dispenser_homed"] === "True") {
+        if (a2StatusDict["sw_error"] === "False") {
+          if (a2StatusDict["sw_homed"] === "True") {
+            if (a2StatusDict["running"] === "True") {
               if (a2StatusDict["buff_in"] === "False") {
                 if (a2StatusDict["buff_out"] === "True") {
                   return m1aRunning ? "RUNNING" : "STOPPING";
@@ -68,23 +68,23 @@ function M1A({ m1aRunning }) {
               }
               return m1aRunning ? "WAITING FOR POTS" : "STOPPING";
             }
-            return "SW NOT HOMED";
+            return m1aRunning ? "STARTING" : "IDLE";
           }
-          return "SW ERROR";
+          return "SW NOT HOMED";
         }
-        return "NOZZLE NOT HOMED";
+        return "SW ERROR";
       }
-      return m1aRunning ? "STARTING" : "IDLE";
+      return "NOZZLE NOT HOMED";
     }
     return DEFAULT_MSG;
   }
 
   function getA2StatusColor() {
     if (a2StatusDict && a2StatusDict["connected"] === "True") {
-      if (a2StatusDict["running"] === "True") {
-        if (a2StatusDict["dispenser_homed"] === "True") {
-          if (a2StatusDict["sw_error"] === "False") {
-            if (a2StatusDict["sw_homed"] === "True") {
+      if (a2StatusDict["dispenser_homed"] === "True") {
+        if (a2StatusDict["sw_error"] === "False") {
+          if (a2StatusDict["sw_homed"] === "True") {
+            if (a2StatusDict["running"] === "True") {
               if (a2StatusDict["buff_in"] === "False") {
                 if (a2StatusDict["buff_out"] === "True") {
                   return m1aRunning ? getColor("GREEN") : getColor("YELLOW");
@@ -93,51 +93,51 @@ function M1A({ m1aRunning }) {
               }
               return m1aRunning ? getColor("YELLOW") : getColor("YELLOW");
             }
-            return getColor("RED");
+            return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
           }
           return getColor("RED");
         }
         return getColor("RED");
       }
-      return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
+      return getColor("RED");
     }
     return getColor("DEFAULT");
   }
 
   function getA3StatusText() {
     if (a3StatusDict && a3StatusDict["connected"] === "True") {
-      if (a3StatusDict["running"] === "True") {
-        if (a3StatusDict["sw_error"] === "False") {
-          if (a3StatusDict["sw_homed"] === "True") {
+      if (a3StatusDict["sw_error"] === "False") {
+        if (a3StatusDict["sw_homed"] === "True") {
+          if (a3StatusDict["running"] === "True") {
             if (a3StatusDict["buff_in"] === "False") {
               return m1aRunning ? "RUNNING" : "STOPPING";
             }
             return m1aRunning ? "WAITING FOR POTS" : "STOPPING";
           }
-          return "SW NOT HOMED";
+          return m1aRunning ? "STARTING" : "IDLE";
         }
-        return "SW ERROR";
+        return "SW NOT HOMED";
       }
-      return m1aRunning ? "STARTING" : "IDLE";
+      return "SW ERROR";
     }
     return DEFAULT_MSG;
   }
 
   function getA3StatusColor() {
     if (a3StatusDict && a3StatusDict["connected"] === "True") {
-      if (a3StatusDict["running"] === "True") {
-        if (a3StatusDict["sw_error"] === "False") {
-          if (a3StatusDict["sw_homed"] === "True") {
+      if (a3StatusDict["sw_error"] === "False") {
+        if (a3StatusDict["sw_homed"] === "True") {
+          if (a3StatusDict["running"] === "True") {
             if (a3StatusDict["buff_in"] === "False") {
               return m1aRunning ? getColor("GREEN") : getColor("YELLOW");
             }
             return m1aRunning ? getColor("YELLOW") : getColor("YELLOW");
           }
-          return getColor("RED");
+          return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
         }
         return getColor("RED");
       }
-      return m1aRunning ? getColor("YELLOW") : getColor("BLUE");
+      return getColor("RED");
     }
     return getColor("DEFAULT");
   }
@@ -151,11 +151,15 @@ function M1A({ m1aRunning }) {
           letterSpacing: "0.05em",
         }}
       >
-        <SubcontentTitle text={"Pot Sorter"} />
+        <SubcontentTitle text={"Diet Tank"} link={`http://10.207.1${row}.10`} />
+        <HorizontalLine />
+        <InfoSameRow title="ⓘ Status" text={"UNDER DEVELOPMENT"} color={getColor("DEFAULT")} />
+        <Gap height="20" />
+        <SubcontentTitle text={"Pot Sorter"} link={`http://10.207.1${row}.11`} />
         <HorizontalLine />
         <InfoSameRow title="ⓘ Status" text={getA1StatusText()} color={getA1StatusColor()} />
         <Gap height="20" />
-        <SubcontentTitle text={"Diet Dispenser"} />
+        <SubcontentTitle text={"Diet Dispenser"} link={`http://10.207.1${row}.12`} />
         <HorizontalLine />
         {/* <Gap />
         <DisplayImage link={"https://cdn.theorg.com/4fcdc583-1643-4367-9dce-e92104596f1d_thumb.jpg"} width={100} />
@@ -168,7 +172,7 @@ function M1A({ m1aRunning }) {
           <Button name="Home SW" onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
         </div>
         <Gap height="20" />
-        <SubcontentTitle text={"Pot Dispenser"} />
+        <SubcontentTitle text={"Pot Dispenser"} link={`http://10.207.1${row}.13`} />
         <HorizontalLine />
         <InfoSameRow title="ⓘ Status" text={getA3StatusText()} color={getA3StatusColor()} />
         <Gap />
