@@ -4,13 +4,13 @@ from scp import SCPClient
 import time
 import os
 
-row = 2
+row = 3
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
 for n in range(1, 14 + 1):
     hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage1x0001")
+# hostnames.append("cage2x0013")
 # hostnames.append("cage1x0005")
 # hostnames.append("cagetest")n
 
@@ -104,6 +104,30 @@ def scp_folder(local_path, remote_path, hostname, username, password, port=22):
         print(f"Error -> {hostname}-> {local_path}: {e}")
 
 
+# def ssh_reboot(hostname, username, password, port=22):
+#     try:
+#         # Create an SSH client instance
+#         ssh = paramiko.SSHClient()
+#         ssh.load_system_host_keys()
+#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+#         # Connect to the server
+#         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
+
+#         # Execute the reboot command
+#         stdin, stdout, stderr = ssh.exec_command("sudo reboot")
+
+#         # You can capture the output or error if needed
+#         # output = stdout.read()
+#         # error = stderr.read()
+
+#         print(f"Rebooted -> {hostname}")
+#     except Exception as e:
+#         print(f"An error occurred {hostname}: {e}")
+#     finally:
+#         # Close the connection
+#         ssh.close()
+
 def ssh_reboot(hostname, username, password, port=22):
     try:
         # Create an SSH client instance
@@ -114,12 +138,14 @@ def ssh_reboot(hostname, username, password, port=22):
         # Connect to the server
         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
 
-        # Execute the reboot command
-        stdin, stdout, stderr = ssh.exec_command("sudo reboot")
+        # Execute the reboot command using sudo -S
+        stdin, stdout, stderr = ssh.exec_command(f"echo {password} | sudo -S reboot now")
 
-        # You can capture the output or error if needed
-        # output = stdout.read()
-        # error = stderr.read()
+        # Capture the output or error if needed
+        output = stdout.read()
+        error = stderr.read()
+        print(output.decode())
+        print(error.decode())
 
         print(f"Rebooted -> {hostname}")
     except Exception as e:
@@ -127,7 +153,6 @@ def ssh_reboot(hostname, username, password, port=22):
     finally:
         # Close the connection
         ssh.close()
-
 
 def ssh_remove_log(hostname, username, password, port=22):
     try:
@@ -266,6 +291,7 @@ def get_log_file(hostname):
             log_remote_path,
             hostname,
             username,
+
             password,
         ),
     ).start()
@@ -275,11 +301,11 @@ for hostname in hostnames:
     try:
         
         # upload_files(hostname)
-        # reboot(hostname)
+        reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
-        restart_service(hostname)
+        # restart_service(hostname)
         # get_log_file(hostname)
 
     except Exception as e:

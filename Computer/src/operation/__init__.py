@@ -31,6 +31,7 @@ def pnp(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
 ):
     global threads
+    is_it_overtime = BOARD.timer.is_it_overtime()
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -45,7 +46,7 @@ def pnp(
 
     def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter, timestamp_of_image):
         global ai_result
-        if ai_result <= 0 and BOARD.timer.is_it_overtime():
+        if ai_result <= 0 and is_it_overtime:
             camera.CAMERA.save_raw_frame(image, 0, 0, timestamp_of_image)  # NOTE FOR TESTING ONLY
         else:
             camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result, timestamp_of_image)  # NOTE FOR TESTING ONLY
@@ -99,7 +100,7 @@ def pnp(
         # ======================================= ul thread ====================================== #
         wait_thread_to_finish("sw")
         wait_thread_to_finish("ai")
-        tmp_egg_pot_counter = 1 if (ai_result > 0 or BOARD.timer.is_it_overtime()) else 0
+        tmp_egg_pot_counter = 1 if (ai_result > 0 or is_it_overtime) else 0
         if tmp_egg_pot_counter > 0:
             BOARD.timer.update_slot()
             threads["ul"] = threading.Thread(
@@ -123,9 +124,8 @@ def pnp(
             ),
         )
         threads["comm"].start()
-        cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
-
-        if BOARD.timer.is_it_overtime():
+       
+        if is_it_overtime:
             cloud.DataBase.data_update("other")
         else:
             cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")

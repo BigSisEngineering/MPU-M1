@@ -92,3 +92,6 @@ MASTER_IP = get_master_ip(MASTER_HOSTNAME)
 MASTER_SERVER_PORT = get_master_server_port()
 SOFTWARE_VERSION = get_software_version()
 CENTER_X, CENTER_Y, RADIUS = read_mask_coordinates()
+BOXES = None
+SCORES = None
+CASSES = None

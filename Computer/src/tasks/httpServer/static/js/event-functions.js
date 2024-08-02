@@ -112,7 +112,7 @@ async function CameraFeed() {
       console.error("Failed to load camera feed.");
       setTimeout(CameraFeed, 5000);
   };
-  cameraImage.src = '/video10?' + new Date().getTime();
+  cameraImage.src = '/video_feed?' + new Date().getTime();
   // console.log("Camera feed request sent.");
 }
 
