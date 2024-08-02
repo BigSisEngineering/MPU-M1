@@ -25,6 +25,7 @@ post_endpoints = {
     "lower_nozzle": {"func": A2.reposition_nozzle, "arg_num": 0},
     "home_a2_sw": {"func": A2.sw_home, "arg_num": 0},
     "home_a3_sw": {"func": A3.sw_home, "arg_num": 0},
+    "set_zero": {"func": tasks.a3_task.set_zero, "arg_num": 0},
     #
     "start_1c": {"func": lambda: SV.w_run_1c(True), "arg_num": 0},
     "stop_1c": {"func": lambda: SV.w_run_1c(False), "arg_num": 0},

@@ -99,7 +99,7 @@ function _showAlert(message, timeout = 5000) {
 async function exec(operationName, func, ...args) {
   const message = "Executing " + operationName + "...";
 
-  _showAlert(message);
+  _showAlert(message, 15000);
 
   try {
     const result = await func(...args);

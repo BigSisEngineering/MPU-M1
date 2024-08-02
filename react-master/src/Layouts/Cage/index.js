@@ -3,7 +3,16 @@ import { useState, useEffect } from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG, DEFAULT_BOOL } from "../../Utils/Utils.js";
-import { Info, Gap, HorizontalLine, Subinfo, SubcontentTitle, DisplayImage } from "../../Components/index.js";
+import {
+  Info,
+  Gap,
+  HorizontalLine,
+  Subinfo,
+  SubcontentTitle,
+  DisplayImage,
+  DisplayCustomEmoji,
+  CustomEmoji,
+} from "../../Components/index.js";
 
 function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   const [unloaderStatus, setUnloaderStatus] = useState(DEFAULT_MSG);
@@ -90,33 +99,56 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
     // "idle"
     // "not_init"
 
+    // switch (servoStatus) {
+    //   case "overload":
+    //     return "🟥";
+    //   case "error":
+    //     return "🟧";
+    //   case "timeout":
+    //     return "🟨";
+    //   case "normal":
+    //     return "🟩";
+    //   case "idle":
+    //     return "🌫️";
+    //   case "not_init":
+    //     return "⬛";
+    //   default:
+    //     return DEFAULT_MSG;
+    // }
     switch (servoStatus) {
       case "overload":
-        return "🟥";
+        return CustomEmoji.red_rectangle;
       case "error":
-        return "🟧";
+        return CustomEmoji.red_rectangle;
       case "timeout":
-        return "🟨";
+        return CustomEmoji.red_rectangle;
       case "normal":
-        return "🟩";
+        return CustomEmoji.green_rectangle;
       case "idle":
-        return "🌫️";
+        return CustomEmoji.green_rectangle;
       case "not_init":
-        return "⬛";
+        return CustomEmoji.grey_rectangle;
       default:
-        return DEFAULT_MSG;
+        return CustomEmoji.black_rectangle;
     }
   }
 
   function sensorEmoji(sensorValue) {
     const highThresh = 100;
 
+    // if (sensorValue > highThresh) {
+    //   return "🟢";
+    // } else if (sensorValue > 0) {
+    //   return "⭕";
+    // } else {
+    //   return DEFAULT_MSG;
+    // }
     if (sensorValue > highThresh) {
-      return "🟢";
+      return CustomEmoji.green_circle;
     } else if (sensorValue > 0) {
-      return "⭕";
+      return CustomEmoji.red_hollow_circle;
     } else {
-      return DEFAULT_MSG;
+      return CustomEmoji.black_circle;
     }
   }
 
@@ -127,7 +159,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       } else {
         return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
       }
-    } else if (isLoaded && loadSensor < 100) {
+    } else if (isLoaded && (loadSensor < 100 || bufferSensor < 100)) {
       if (!isSelected) {
         return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
       } else {
@@ -171,14 +203,14 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
         <Info text={modeText(mode)} color={modeColor(mode)} />
         <HorizontalLine />
         <div className="row-container" style={{ justifyContent: "left" }}>
-          <Subinfo title={"SW"} content={servoEmoji(starwheelStatus)} />
-          <Subinfo title={"UL"} content={servoEmoji(unloaderStatus)} />
+          <Subinfo title={"SW"} content={<DisplayCustomEmoji emoji={servoEmoji(starwheelStatus)} />} />
+          <Subinfo title={"UL"} content={<DisplayCustomEmoji emoji={servoEmoji(unloaderStatus)} />} />
         </div>
         <HorizontalLine />
         <div className="row-container" style={{ justifyContent: "left" }}>
-          <Subinfo title={"Load"} content={sensorEmoji(loadSensor)} />
-          <Subinfo title={"Unload"} content={sensorEmoji(unloadSensor)} />
-          <Subinfo title={"Buffer"} content={sensorEmoji(bufferSensor)} />
+          <Subinfo title={"Load"} content={<DisplayCustomEmoji emoji={sensorEmoji(loadSensor)} />} />
+          <Subinfo title={"Unload"} content={<DisplayCustomEmoji emoji={sensorEmoji(unloadSensor)} />} />
+          <Subinfo title={"Buffer"} content={<DisplayCustomEmoji emoji={sensorEmoji(bufferSensor)} />} />
         </div>
         <HorizontalLine />
       </div>

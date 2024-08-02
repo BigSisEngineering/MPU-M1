@@ -1,19 +1,23 @@
 {
   "files": {
     "main.css": "/static/css/main.fc96e4d0.css",
-    "main.js": "/static/js/main.ef33863f.js",
+    "main.js": "/static/js/main.1cb5eb7f.js",
     "static/js/453.53d527f1.chunk.js": "/static/js/453.53d527f1.chunk.js",
     "static/media/404-or-page-f6738564cf.jpg": "/static/media/404-or-page-f6738564cf.fdbe7c2d63c53a947397.jpg",
     "static/media/emergency-stop.jpg": "/static/media/emergency-stop.fc24091bff7ea1533568.jpg",
+    "static/media/red-circle.png": "/static/media/red-circle.20df1ca4e90335ab8022.png",
+    "static/media/green-circle.png": "/static/media/green-circle.5a72a54817badd20db2e.png",
     "static/media/emergency-stop-active.jpg": "/static/media/emergency-stop-active.7a21e75307f1401a9e40.jpg",
     "static/media/emergency-stop-hover.jpg": "/static/media/emergency-stop-hover.0dc8da9d3a4968a11ec1.jpg",
+    "static/media/black-circle.png": "/static/media/black-circle.7cdadb0df4b556194db0.png",
+    "static/media/grey-circle.png": "/static/media/grey-circle.082abc35c901487fd90c.png",
     "index.html": "/index.html",
     "main.fc96e4d0.css.map": "/static/css/main.fc96e4d0.css.map",
-    "main.ef33863f.js.map": "/static/js/main.ef33863f.js.map",
+    "main.1cb5eb7f.js.map": "/static/js/main.1cb5eb7f.js.map",
     "453.53d527f1.chunk.js.map": "/static/js/453.53d527f1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.fc96e4d0.css",
-    "static/js/main.ef33863f.js"
+    "static/js/main.1cb5eb7f.js"
   ]
 }

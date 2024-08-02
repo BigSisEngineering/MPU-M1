@@ -157,7 +157,6 @@ function M1A({ m1aRunning }) {
         <Gap height="20" />
         <SubcontentTitle text={"Diet Dispenser"} />
         <HorizontalLine />
-        📷 Live Feed
         {/* <Gap />
         <DisplayImage link={"https://cdn.theorg.com/4fcdc583-1643-4367-9dce-e92104596f1d_thumb.jpg"} width={100} />
         <Gap /> */}

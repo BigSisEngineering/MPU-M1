@@ -1,29 +1,27 @@
 import React, { useState } from "react";
 import "../Assets/Styles/styles.css";
 import { openLink } from "../Utils/Utils.js";
-import sw_red from "../Assets/Media/SW_RED.png";
-import sw_green from "../Assets/Media/SW_GREEN.png";
-import ul_red from "../Assets/Media/UL_RED.png";
-import ul_green from "../Assets/Media/UL_GREEN.png";
-import ul_sensor_green from "../Assets/Media/ULSensor_GREEN.png";
-import ul_sensor_red from "../Assets/Media/ULSensor_RED.png";
-import l_sensor_green from "../Assets/Media/LSensor_GREEN.png";
-import l_sensor_red from "../Assets/Media/LSensor_RED.png";
-import buf_sensor_green from "../Assets/Media/BUFSensor_GREEN.png";
-import buf_sensor_red from "../Assets/Media/BUFSensor_RED.png";
+import green_circle from "../Assets/Media/green-circle.png";
+import red_circle from "../Assets/Media/red-circle.png";
+import grey_circle from "../Assets/Media/grey-circle.png";
+import black_circle from "../Assets/Media/black-circle.png";
+import red_hollow_circle from "../Assets/Media/red-hollow-circle.png";
+import green_rectangle from "../Assets/Media/green-rectangle.png";
+import red_rectangle from "../Assets/Media/red-rectangle.png";
+import grey_rectangle from "../Assets/Media/grey-rectangle.png";
+import black_rectangle from "../Assets/Media/black-rectangle.png";
 import fallback from "../Assets/Media/404-or-page-f6738564cf.jpg";
 
 class CustomEmoji {
-  static sw_red = sw_red;
-  static sw_green = sw_green;
-  static ul_red = ul_red;
-  static ul_green = ul_green;
-  static ul_sensor_green = ul_sensor_green;
-  static ul_sensor_red = ul_sensor_red;
-  static l_sensor_green = l_sensor_green;
-  static l_sensor_red = l_sensor_red;
-  static buf_sensor_green = buf_sensor_green;
-  static buf_sensor_red = buf_sensor_red;
+  static green_circle = green_circle;
+  static red_circle = red_circle;
+  static grey_circle = grey_circle;
+  static black_circle = black_circle;
+  static red_hollow_circle = red_hollow_circle;
+  static green_rectangle = green_rectangle;
+  static red_rectangle = red_rectangle;
+  static grey_rectangle = grey_rectangle;
+  static black_rectangle = black_rectangle;
 }
 
 function DisplayImage({ link, width = 100 }) {
@@ -36,7 +34,7 @@ function DisplayImage({ link, width = 100 }) {
 }
 
 function DisplayCustomEmoji({ emoji }) {
-  return <img src={emoji} alt={`emoji: ${emoji}`} style={{ width: "40px", height: "40px", padding: "0px 0px" }} />;
+  return <img src={emoji} alt={`emoji: ${emoji}`} style={{ width: "20px", height: "20px", padding: "0px 0px" }} />;
 }
 
 function Info({ text, color }) {
@@ -62,6 +60,7 @@ function Subinfo({ title, content }) {
   return (
     <div className="subcontent-subinfo-container">
       {title}
+      <div className="gap" style={{ width: `${5}px` }}></div>
       <div className="display-box">{content}</div>
     </div>
   );

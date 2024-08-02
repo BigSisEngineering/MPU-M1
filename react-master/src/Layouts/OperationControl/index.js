@@ -39,8 +39,13 @@ function OperationControl({ m1aRunning, m1cRunning }) {
             disable={m1aRunning ? false : true}
           />
           <Button
-            name="Add 10 Pots"
-            onclick={() => exec("Add 10 Pots", httpPOST, "/add_pots")}
+            name="+10 Pots"
+            onclick={() => exec("+10 Pots", httpPOST, "/add_pots")}
+            disable={m1aRunning ? false : true}
+          />
+          <Button
+            name="Set Zero"
+            onclick={() => exec("Set Zero", httpPOST, "/set_zero")}
             disable={m1aRunning ? false : true}
           />
         </div>
