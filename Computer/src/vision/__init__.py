@@ -12,7 +12,6 @@ from src import CLI, comm
 from src.CLI import Level
 
 from src.vision.prediction import ComputerVision
-from src import setup
 
 hostname = socket.gethostname()
 use_rknnlite = "cage" in hostname and int(hostname.split("cage")[1].split("x")[0]) > 1
@@ -46,7 +45,7 @@ class ProcessAndPrediction:
             self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
                 self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
             )
-            print(self.boxes, self.classes, self.scores)
+            print(self.scores, self.boxes, self.classes)
             if self.scores is not None:
                 egg_list = [score for score in self.scores if score > confident_level]
                 return len(egg_list)
@@ -55,5 +54,6 @@ class ProcessAndPrediction:
         # if classes is None == no egg
         # classes will be a list of zero, each zero will be an egg
         # scores is a list to each one
+
 
 PNP = ProcessAndPrediction()

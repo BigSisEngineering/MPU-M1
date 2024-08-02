@@ -228,10 +228,10 @@ class CameraThreading:
                         self._device_ready = True
                     # print(f'circle coordinates {findCircle.CENTER_X}, {findCircle.CENTER_Y}, {findCircle.RADIUS}')
                     frame = findCircle.CircularMask(frame)
-                    with self.bbox_lock:
-                        frame = ComputerVision().letterbox(frame)
-                        if vision.PNP.boxes is not None:
-                            ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
+                    # with self.bbox_lock:
+                    #     frame = ComputerVision().letterbox(frame)
+                    #     if vision.PNP.boxes is not None:
+                    #         ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
                 else:
                     with self._lock_device_ready:
                         self._device_ready = False
