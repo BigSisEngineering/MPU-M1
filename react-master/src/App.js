@@ -36,16 +36,17 @@ function getLocalHostname() {
   const hostname = window.location.hostname;
   console.log("Hostname:", hostname);
 
-  const match = hostname.match(/^m(\d+)-(\d+)-m$/);
+  // Modify the regex to account for .local at the end of the hostname
+  const match = hostname.match(/^m(\d+)-(\d+)-m(?:\.local)?$/);
 
   if (match) {
-    moduleNumber = 1;
+    moduleNumber = parseInt(match[1], 10);
     rowNumber = parseInt(match[2], 10);
   } else {
     moduleNumber = 1;
     rowNumber = 3;
   }
-  console.log(rowNumber);
+  console.log("Row Number:", rowNumber);
   return hostname;
 }
 
