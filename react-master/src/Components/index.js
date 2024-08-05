@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../Assets/Styles/styles.css";
 import { openLink } from "../Utils/Utils.js";
 import green_circle from "../Assets/Media/green-circle.png";
@@ -26,20 +26,17 @@ class CustomEmoji {
 
 function DisplayImage({ link, width = 100 }) {
   const [imgSrc, setImgSrc] = useState(link);
+  const handleError = () => {
+    setImgSrc(fallback);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Trigger a refresh by updating imgSrc
+    setTimeout(() => {
       setImgSrc(`${link}?t=${new Date().getTime()}`);
-      console.log("refresh");
     }, 10000);
-
-    return () => clearInterval(interval);
-  }, [link]);
+  };
 
   return (
     <div className="video-feed-container" style={{ width: `${width}%`, margin: "auto" }}>
-      <img src={imgSrc} alt="not found" onError={() => setImgSrc(fallback)} />
+      <img src={imgSrc} alt="not found" onError={handleError} />
     </div>
   );
 }
