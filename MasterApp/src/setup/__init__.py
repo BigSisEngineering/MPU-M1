@@ -24,20 +24,17 @@ def get_row(arg=None):
     """
     hostname format M1-{row}-M
     """
-    # id = socket.gethostname() if arg is None else arg
+    id = socket.gethostname() if arg is None else arg
 
-    # if id:
-    #     parts = id.split("-")
-    #     if len(parts) > 1:
-    #         number = int(parts[1])
-    #         CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
-    #         return number
+    if id:
+        parts = id.split("-")
+        if len(parts) > 1:
+            number = int(parts[1])
+            CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
+            return number
 
-    # CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
-    # return None
-    # ------------------------------------------------------------------------------------ #
-    CLI.printline(Level.ERROR, f"(setup)-Mock Row 4")
-    return 4
+    CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
+    return None
 
 
 def get_master_server_port(arg=None):
