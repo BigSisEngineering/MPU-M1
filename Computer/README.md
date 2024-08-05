@@ -68,6 +68,10 @@
   - other pot count in mongodb 
 - [v5.0.11] - 19 July 2024
   - timer increased to 6h 
+- [v5.1.0] - 05 August 2024
+  - changed server to flask
+  - bbox on preview
+  - sw alignment from UI
 ### How to use
 
 1. Copy folder

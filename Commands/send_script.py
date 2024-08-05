@@ -8,11 +8,11 @@ row = 3
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-for n in range(1, 14 + 1):
-    hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage2x0013")
+# for n in range(1, 14 + 1):
+#     hostnames.append(f"cage{row}x00{n:02}")
+hostnames.append("cage3x0004")
 # hostnames.append("cage1x0005")
-# hostnames.append("cagetest")n
+# hostnames.append("cagetest")
 
 
 # ========================== Common remote directory path for all hosts ========================== #
@@ -299,7 +299,6 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        
         # upload_files(hostname)
         reboot(hostname)
         # remove(hostname)
