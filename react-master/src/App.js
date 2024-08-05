@@ -39,14 +39,13 @@ function getLocalHostname() {
   const match = hostname.match(/^m(\d+)-(\d+)-m$/);
 
   if (match) {
-    moduleNumber = parseInt(match[1], 10);
+    moduleNumber = 1;
     rowNumber = parseInt(match[2], 10);
   } else {
-    console.log("Mock");
     moduleNumber = 1;
-    rowNumber = 4;
+    rowNumber = 3;
   }
-
+  console.log(rowNumber);
   return hostname;
 }
 
