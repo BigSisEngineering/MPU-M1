@@ -34,24 +34,26 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
 
   useEffect(() => {
     if (dictData) {
-      setUnloaderStatus(dictData[cageHostname]["unloader_status"]);
-      setStarwheelStatus(dictData[cageHostname]["star_wheel_status"]);
-      //
       try {
+        setUnloaderStatus(dictData[cageHostname]["unloader_status"]);
+        setStarwheelStatus(dictData[cageHostname]["star_wheel_status"]);
+        //
         const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
         setLoadSensor(sensors[0]);
         setUnloadSensor(sensors[1]);
         setBufferSensor(sensors[2]);
+        setMode(dictData[cageHostname]["mode"]);
         setIsLoaded(true);
       } catch {
+        setUnloaderStatus(DEFAULT_MSG);
+        setStarwheelStatus(DEFAULT_MSG);
         setLoadSensor(-1);
         setUnloadSensor(-1);
         setBufferSensor(-1);
+        setMode(DEFAULT_MSG);
         setIsLoaded(false);
       }
-
       //
-      setMode(dictData[cageHostname]["mode"]);
     } else {
       setUnloaderStatus(DEFAULT_MSG);
       setStarwheelStatus(DEFAULT_MSG);

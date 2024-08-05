@@ -104,7 +104,7 @@ sudo sed -i 's/^#intf:uart4=off/intf:uart4=on/' /boot/config.txt
 echo -e "${success}[SUCESS]>> Configured UART access${nc}"
 
 # ==================== Setup Autoboot ==================== #
-sudo cp /home/linaro/Loader/webapp.service  /etc/systemd/system/. && sudo systemctl daemon-reload && systemctl enable webapp.service
+sudo cp /home/linaro/MasterApp/webapp.service  /etc/systemd/system/. && sudo systemctl daemon-reload && systemctl enable webapp.service
 echo -e "${success}[SUCESS]>> Created Service${nc}"
 
 

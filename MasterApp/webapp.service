@@ -1,0 +1,13 @@
+[Unit]
+Description=M1 Master
+After=network.target
+Wants=time-sync.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/linaro/MasterApp/main.py
+WorkingDirectory=/home/linaro/MasterApp
+Restart=always
+User=linaro
+
+[Install]
+WantedBy=multi-user.target
