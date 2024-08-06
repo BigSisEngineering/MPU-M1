@@ -127,15 +127,20 @@ def post_save_star_wheel_zero():
         if not data.dummy_enabled or data.pnp_enabled:
             handler.save_star_wheel_zero()
             time.sleep(1)
-            # handler.init_star_wheel()
+            BscbAPI.BOARD.unloader_init()
+            time.sleep(1)
+            BscbAPI.BOARD.starWheel_init()
             return "Star wheel zero position saved"
 
-def post_save_star_wheel_offset():
+def post_save_star_wheel_offset(offset):
     with data.lock:
         if not data.dummy_enabled or data.pnp_enabled:
             offset = data.sw_pos
             handler.save_star_wheel_offset(offset)
             time.sleep(1)
+            BscbAPI.BOARD.unloader_init()
+            time.sleep(1)
+            BscbAPI.BOARD.starWheel_init()
             # handler.init_star_wheel()
             return f"Star wheel offset saved at {offset}"
 
@@ -168,7 +173,7 @@ post_endpoints = {
     "MOVE_CCW": {"func": post_move_ccw, "arg_num": 0},
     "UNLOAD": {"func": post_unload, "arg_num": 0},
     "SAVE_STAR_WHEEL_ZERO": {"func": post_save_star_wheel_zero, "arg_num": 0},
-    "SAVE_STAR_WHEEL_OFFSET": {"func": post_save_star_wheel_offset, "arg_num": 0},
+    "SAVE_STAR_WHEEL_OFFSET": {"func": post_save_star_wheel_offset, "arg_num": 1},
     # Endpoints that require arguments
     "SET_STAR_WHEEL_SPEED": {"func": post_set_star_wheel_speed, "arg_num": 1},
     "SET_DUMMY_UNLOAD_PROBABILITY": {"func": post_set_dummy_unload_probability, "arg_num": 1},

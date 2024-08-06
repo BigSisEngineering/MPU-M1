@@ -23,59 +23,6 @@ class SensorID(Enum):
     BUFFER = 2
     SPARE = 3
 
-
-# class StarWheelTimer:
-#     def __init__(self) -> None:
-#         self.inited: bool = False
-#         self.index: int = 0
-#         # Initialize all slots with the current time formatted as a string
-#         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#         self.timer: List[str] = [current_time_str] * 80
-#         self.unloaded_count: List[int] = [0] * 80
-
-#     def is_inited(self) -> bool:
-#         return self.inited
-
-#     def reset(self) -> None:
-#         self.inited = True
-#         self.index = 0
-#         # Reset the timer to current time formatted as strings for all slots
-#         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#         self.timer = [current_time_str] * 80
-
-#     def move_index(self) -> None:
-#         if self.is_it_overtime():  # Check if current slot is overtime before moving
-#             self.update_slot()
-#         self.index = (self.index + 1) % 80
-#         print(f'starwheel timer index {self.index}')
-
-#     def update_slot(self) -> None:
-#         # Update the slot time for the previous index to the current time, formatted as a string
-#         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#         self.timer[self.index - 1] = current_time_str
-#         self.unloaded_count[self.index - 1] += 1
-#         print(f'slot updated for index {self.index - 1}')
-#         # print(f'Timer list: {self.timer}')
-#         print(f'Unloaded count list: {self.unloaded_count}')
-
-#     def is_it_overtime(self, timeout_s: int = 3600*3) -> bool:
-#         """Check if the current slot's time exceeds the timeout."""
-#         current_time = datetime.datetime.now()
-#         slot_time_str = self.timer[self.index]
-#         slot_time = datetime.datetime.strptime(slot_time_str, '%Y-%m-%d %H:%M:%S')
-#         time_difference = (current_time - slot_time).total_seconds()
-#         is_overtime = time_difference > timeout_s
-        
-#         print(f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}')
-        
-#         if is_overtime:
-#             print("The pot is overtime.")
-#         else:
-#             print("The pot is not overtime.")
-
-#         return is_overtime
-
-
 class StarWheelTimer:
     def __init__(self) -> None:
         self.inited: bool = False

@@ -131,7 +131,7 @@ def execute():
                     MongoDB_INIT == False
                     auto_clear_error = 0
                 
-            if not CAMERA.device_ready:
+            if not CAMERA.device_ready or not servos_ready:
                 data.pnp_enabled = False
                 # print('PNP disabled please check camera connection ...')
                 
