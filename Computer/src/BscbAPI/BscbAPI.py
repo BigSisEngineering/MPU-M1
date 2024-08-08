@@ -261,7 +261,8 @@ class BScbAPI:
         self.star_wheel_status = self.got_Status_respond(timeout=65)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
-            logging.info('starwheel init')
+            sw_init_time_str = 'starwheel init'
+            logging.info(sw_init_time_str)
             return True
         else:
             return False

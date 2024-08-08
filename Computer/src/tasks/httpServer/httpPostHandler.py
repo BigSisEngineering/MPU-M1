@@ -5,6 +5,7 @@ from src import BscbAPI
 from src import data
 from src.BscbAPI.BscbAPI import BScbAPI
 from src.app import handler
+from src import setup
 
 
 post_api = Blueprint('post_api', __name__)
@@ -122,6 +123,15 @@ def post_set_cycle_time(cycle_time):
             return  f"Cycle time set to {cycle_time} seconds"
     return "Cycle time should be between 0-20 seconds"
 
+def post_save_mask_coordinates():
+    mask_coordinates = (
+        setup.CENTER_X,
+        setup.CENTER_Y,
+        setup.RADIUS
+    )
+    setup.save_mask_coordinates(mask_coordinates)
+    return f"Circle coordinates saved {mask_coordinates}"
+
 def post_save_star_wheel_zero():
      with data.lock:
         if not data.dummy_enabled or data.pnp_enabled:
@@ -136,7 +146,7 @@ def post_save_star_wheel_offset(offset):
     with data.lock:
         if not data.dummy_enabled or data.pnp_enabled:
             offset = data.sw_pos
-            handler.save_star_wheel_offset(offset)
+            handler.save_star_wheel_offset()
             time.sleep(1)
             BscbAPI.BOARD.unloader_init()
             time.sleep(1)
@@ -173,8 +183,9 @@ post_endpoints = {
     "MOVE_CCW": {"func": post_move_ccw, "arg_num": 0},
     "UNLOAD": {"func": post_unload, "arg_num": 0},
     "SAVE_STAR_WHEEL_ZERO": {"func": post_save_star_wheel_zero, "arg_num": 0},
-    "SAVE_STAR_WHEEL_OFFSET": {"func": post_save_star_wheel_offset, "arg_num": 1},
+    "SAVE_MASK": {"func": post_save_mask_coordinates, "arg_num": 0},
     # Endpoints that require arguments
+    "SAVE_STAR_WHEEL_OFFSET": {"func": post_save_star_wheel_offset, "arg_num": 1},
     "SET_STAR_WHEEL_SPEED": {"func": post_set_star_wheel_speed, "arg_num": 1},
     "SET_DUMMY_UNLOAD_PROBABILITY": {"func": post_set_dummy_unload_probability, "arg_num": 1},
     "SET_PNP_CONFIDENCE_LEVEL": {"func": post_set_pnp_confidence_level, "arg_num": 1},

@@ -36,7 +36,7 @@ pnp_data: PNPData = PNPData(
     detection=False,
     number_of_egg_pot_since_last_ask=0,
     pnp_confidence=80,
-    cycle_time=3.0,
+    cycle_time=2.0,
 )
 
 is_star_wheel_error: bool = False

@@ -21,13 +21,13 @@ if use_rknnlite:
     from rknnlite.api import RKNNLite  # Import RKNNLite
     RKNN_MODEL = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1_rock.rknn",
+        "yolov5_m1_rock_v2.rknn",
     )
 else:
     from rknn.api import RKNN  # Import RKNN
     RKNN_MODEL = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1.rknn",
+        "yolov5_m1_v2.rknn",
     )
 
 class ProcessAndPrediction:

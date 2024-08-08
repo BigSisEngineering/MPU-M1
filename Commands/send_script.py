@@ -4,14 +4,18 @@ from scp import SCPClient
 import time
 import os
 
-row = 1
+row = 4
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-for n in range(1, 14 + 1):
-    hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage3x0004")
-# hostnames.append("cage1x0005")
+# for n in range(1, 14 + 1):
+#     hostnames.append(f"cage{row}x00{n:02}")
+
+# for row in range(1,5):
+#     for n in range(1, 15):
+#         hostnames.append(f"cage{row}x00{n:02}")
+hostnames.append("cage4x0002")
+# hostnames.append("cage1x0002")
 # hostnames.append("cagetest")
 
 
@@ -20,7 +24,8 @@ remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    f"C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py'
 ]
 
 data_path = "~/Computer/Statistics.log"
@@ -104,30 +109,6 @@ def scp_folder(local_path, remote_path, hostname, username, password, port=22):
         print(f"Error -> {hostname}-> {local_path}: {e}")
 
 
-# def ssh_reboot(hostname, username, password, port=22):
-#     try:
-#         # Create an SSH client instance
-#         ssh = paramiko.SSHClient()
-#         ssh.load_system_host_keys()
-#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-#         # Connect to the server
-#         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
-
-#         # Execute the reboot command
-#         stdin, stdout, stderr = ssh.exec_command("sudo reboot")
-
-#         # You can capture the output or error if needed
-#         # output = stdout.read()
-#         # error = stderr.read()
-
-#         print(f"Rebooted -> {hostname}")
-#     except Exception as e:
-#         print(f"An error occurred {hostname}: {e}")
-#     finally:
-#         # Close the connection
-#         ssh.close()
-
 def ssh_reboot(hostname, username, password, port=22):
     try:
         # Create an SSH client instance
@@ -138,14 +119,12 @@ def ssh_reboot(hostname, username, password, port=22):
         # Connect to the server
         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
 
-        # Execute the reboot command using sudo -S
-        stdin, stdout, stderr = ssh.exec_command(f"echo {password} | sudo -S reboot now")
+        # Execute the reboot command
+        stdin, stdout, stderr = ssh.exec_command("sudo reboot")
 
-        # Capture the output or error if needed
-        output = stdout.read()
-        error = stderr.read()
-        print(output.decode())
-        print(error.decode())
+        # You can capture the output or error if needed
+        # output = stdout.read()
+        # error = stderr.read()
 
         print(f"Rebooted -> {hostname}")
     except Exception as e:
@@ -153,6 +132,32 @@ def ssh_reboot(hostname, username, password, port=22):
     finally:
         # Close the connection
         ssh.close()
+
+# def ssh_reboot(hostname, username, password, port=22):
+#     try:
+#         # Create an SSH client instance
+#         ssh = paramiko.SSHClient()
+#         ssh.load_system_host_keys()
+#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+#         # Connect to the server
+#         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
+
+#         # Execute the reboot command using sudo -S
+#         stdin, stdout, stderr = ssh.exec_command(f"echo {password} | sudo -S reboot now")
+
+#         # Capture the output or error if needed
+#         output = stdout.read()
+#         error = stderr.read()
+#         print(output.decode())
+#         print(error.decode())
+
+#         print(f"Rebooted -> {hostname}")
+#     except Exception as e:
+#         print(f"An error occurred {hostname}: {e}")
+#     finally:
+#         # Close the connection
+#         ssh.close()
 
 def ssh_remove_log(hostname, username, password, port=22):
     try:
@@ -299,8 +304,8 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        # upload_files(hostname)
-        reboot(hostname)
+        upload_files(hostname)
+        # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)

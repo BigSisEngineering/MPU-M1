@@ -30,6 +30,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(message)s'
 )
+w = 1440
+h= 1080
 
 def delete_old_files_from_log(log_file, days_old=4):
     # Read the log file
@@ -141,8 +143,8 @@ class CameraThreading:
         if not cap.isOpened():
             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
         # else:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)  # FIXME -
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # FIXME
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)  # FIXME -
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)  # FIXME
         cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
         while not killer.is_set():
             try:
@@ -154,8 +156,8 @@ class CameraThreading:
                         if not cap.isOpened():
                             CLI.printline(Level.ERROR, f"(CameraThreading)-Could not open video capture")
                         # else:
-                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)  # FIXME -
-                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # FIXME
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)  # FIXME -
+                        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)  # FIXME
                         cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
                         # time.sleep(0.1)
                         continue  # non-return thread

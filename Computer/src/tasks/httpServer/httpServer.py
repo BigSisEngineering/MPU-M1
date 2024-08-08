@@ -45,21 +45,21 @@ def index():
 
 bbox = ComputerVision()
 def gen():
-    original_width, original_height = 1280, 960
+    original_width, original_height = 640, 480
     new_shape = (640, 640)
-    original_center_x = setup.CENTER_X
-    original_center_y = setup.CENTER_Y
-    original_radius = setup.RADIUS
-    # Calculate the scale ratio and padding used by letterbox
-    scale = min(new_shape[0] / original_height, new_shape[1] / original_width)
-    new_unpad = (int(round(original_width * scale)), int(round(original_height * scale)))
-    dw = (new_shape[1] - new_unpad[0]) // 2
-    dh = (new_shape[0] - new_unpad[1]) // 2
+    # original_center_x = setup.CENTER_X
+    # original_center_y = setup.CENTER_Y
+    # original_radius = setup.RADIUS
+    # # Calculate the scale ratio and padding used by letterbox
+    # scale = min(new_shape[0] / original_height, new_shape[1] / original_width)
+    # new_unpad = (int(round(original_width * scale)), int(round(original_height * scale)))
+    # dw = (new_shape[1] - new_unpad[0]) // 2
+    # dh = (new_shape[0] - new_unpad[1]) // 2
 
-    # Adjust the center and radius based on the letterbox transformation
-    center_x = int(original_center_x * scale) + dw
-    center_y = int(original_center_y * scale) + dh
-    radius = int(original_radius * scale)
+    # # Adjust the center and radius based on the letterbox transformation
+    # center_x = int(original_center_x * scale) + dw
+    # center_y = int(original_center_y * scale) + dh
+    # radius = int(original_radius * scale)
 
     def _create_dummy_image():
         frame = np.zeros((new_shape[1], new_shape[0], 3), dtype=np.uint8)
@@ -81,43 +81,28 @@ def gen():
             frame = _create_dummy_image()
         else:
             frame = bbox.letterbox(frame)
-            # # Calculate the scale ratio and padding used by letterbox
-            # scale = min(new_shape[0] / original_height, new_shape[1] / original_width)
-            # new_unpad = (int(round(original_width * scale)), int(round(original_height * scale)))
-            # dw = (new_shape[1] - new_unpad[0]) // 2
-            # dh = (new_shape[0] - new_unpad[1]) // 2
-
-            # # Adjust the center and radius based on the letterbox transformation
-            # center_x = int(original_center_x * scale) + dw
-            # center_y = int(original_center_y * scale) + dh
-            # radius = int(original_radius * scale)
-
             if vision.PNP.boxes is not None:
-                print("Drawing bounding boxes")
+                # print("Drawing bounding boxes")
                 frame = bbox.draw(
                     frame,
                     vision.PNP.boxes,
                     vision.PNP.scores,
-                    vision.PNP.classes,
+                    vision.PNP.classes
                 )
 
-            # Ensure the values are within bounds
-            y1 = max(center_y - radius, 0)
-            y2 = min(center_y + radius, frame.shape[0])
-            x1 = max(center_x - radius, 0)
-            x2 = min(center_x + radius, frame.shape[1])
+        #     # Ensure the values are within bounds
+        #     y1 = max(center_y - radius, 0)
+        #     y2 = min(center_y + radius, frame.shape[0])
+        #     x1 = max(center_x - radius, 0)
+        #     x2 = min(center_x + radius, frame.shape[1])
 
-            # # Debugging prints
-            # print(f"Cropping coordinates: y1={y1}, y2={y2}, x1={x1}, x2={x2}")
-            # print(f"Frame shape before cropping: {frame.shape}")
-
-            try:
-                # Crop the frame
-                frame = frame[y1:y2, x1:x2]
-                # Debugging prints
-                # print(f"Frame shape after cropping: {frame.shape}")
-            except Exception as e:
-                print(f"Error during cropping: {e}")
+            # try:
+            #     # Crop the frame
+            #     frame = frame[y1:y2, x1:x2]
+            #     # Debugging prints
+            #     # print(f"Frame shape after cropping: {frame.shape}")
+            # except Exception as e:
+            #     print(f"Error during cropping: {e}")
 
         try:
             img = cv2.imencode(".jpg", frame)[1].tobytes()
