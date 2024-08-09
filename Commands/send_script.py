@@ -4,17 +4,17 @@ from scp import SCPClient
 import time
 import os
 
-row = 4
+# row = 
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
 # for n in range(1, 14 + 1):
 #     hostnames.append(f"cage{row}x00{n:02}")
 
-# for row in range(1,5):
-#     for n in range(1, 15):
-#         hostnames.append(f"cage{row}x00{n:02}")
-hostnames.append("cage4x0002")
+for row in range(0,5):
+    for n in range(1, 15):
+        hostnames.append(f"cage{row}x00{n:02}")
+# hostnames.append("cage4x0002")
 # hostnames.append("cage1x0002")
 # hostnames.append("cagetest")
 
@@ -24,8 +24,9 @@ remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
-    # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py'
+    # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py',
+    'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/tasks/httpServer/httpPostHandler.py'
 ]
 
 data_path = "~/Computer/Statistics.log"
@@ -304,13 +305,13 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
         # restart_service(hostname)
-        # get_log_file(hostname)
+        get_log_file(hostname)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")
