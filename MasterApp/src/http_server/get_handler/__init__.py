@@ -11,6 +11,9 @@ from src import components
 # ------------------------------------------------------------------------------------ #
 from src._shared_variables import SV
 
+# ------------------------------------------------------------------------------------ #
+from src import setup
+
 blueprint = Blueprint("get_handler", __name__)
 
 
@@ -23,6 +26,8 @@ def _get_status(component: str) -> Any:
         return components.generate_cage_dict()
     elif component == "system":
         return SV.system_status
+    elif component == "info":
+        return setup.get_setup_info()
     else:
         return "null"
 

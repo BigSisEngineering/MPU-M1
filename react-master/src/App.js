@@ -28,30 +28,38 @@ function generateDocumentTitle(module, row) {
     case 5:
       return `🩻 M5-${row} Master`;
     default:
-      return `❓ MODULE NOT FOUND`;
+      return `❓ REFRESH`;
   }
 }
 
-function getLocalHostname() {
-  const hostname = window.location.hostname;
-  console.log("Hostname:", hostname);
+function getSetupInfo() {
+  let infoDict = null;
 
-  // Modify the regex to account for .local at the end of the hostname
-  const match = hostname.match(/^m(\d+)-(\d+)-m(?:\.local)?$/);
+  try {
+    const response = fetch("/get_status/info", {
+      method: "GET",
+    });
 
-  if (match) {
-    moduleNumber = parseInt(match[1], 10);
-    rowNumber = parseInt(match[2], 10);
-  } else {
-    moduleNumber = 1;
-    rowNumber = 3;
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    infoDict = response.json();
+  } catch (error) {
+    console.log(error);
   }
-  console.log("Row Number:", rowNumber);
-  return hostname;
+
+  if (infoDict) {
+    moduleNumber = infoDict["module"];
+    rowNumber = infoDict["row"];
+  } else {
+    moduleNumber = null;
+    rowNumber = "ERROR 404";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  getLocalHostname();
+  getSetupInfo();
   document.title = generateDocumentTitle(moduleNumber, rowNumber);
 });
 

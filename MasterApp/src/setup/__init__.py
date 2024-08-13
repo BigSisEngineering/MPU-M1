@@ -1,7 +1,7 @@
 import os
 import configparser
 import socket
-import re
+import json
 
 # ------------------------------------------------------------------------------------------------ #
 from src.CLI import Level
@@ -52,3 +52,14 @@ def get_software_version(arg=None):
 ROW = get_row()
 MASTER_SERVER_PORT = get_master_server_port()
 SOFTWARE_VERSION = get_software_version()
+
+
+def get_setup_info() -> bytes:
+    global ROW, SOFTWARE_VERSION
+
+    dict = {}
+    dict["module"] = 1
+    dict["row"] = ROW
+    dict["software_version"] = SOFTWARE_VERSION
+
+    return json.dumps(dict).encode()
