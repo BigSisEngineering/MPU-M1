@@ -35,6 +35,15 @@ html {
   width: 20%;
   align-items: center;
 }
+/* ================================== Full display ================================== */
+.full-display {
+  display: flex;
+  align-items: center; /* Vertically center items */
+  justify-content: center; /* Horizontally center items */
+  height: 100vh; /* Make the container take up the full height of the viewport */
+  font-size: 72px;
+}
+
 /* ====================================== main ====================================== */
 .mains-container {
   display: flex;

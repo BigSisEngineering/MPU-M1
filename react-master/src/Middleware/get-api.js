@@ -1,80 +1,77 @@
-// useDict.js
 import { useState, useEffect } from "react";
 import { fetchJSON } from "../Utils/Utils.js";
 
 class Dicts {
-  static system = 1;
-  static actuators = 2;
-  static outputs = 3;
-  static inputs = 4;
-  static actuation_handler = 5;
-  static settings = 6;
+  static m1a = 1;
+  static m1c = 2;
+  static cages = 3;
+  static system = 4;
 }
 
-async function fetchAndSetState(url, setState) {
+// Global storage for state and intervals
+const dictStates = {
+  [Dicts.m1a]: null,
+  [Dicts.m1c]: null,
+  [Dicts.cages]: null,
+  [Dicts.system]: null,
+};
+
+const intervalIds = {
+  [Dicts.m1a]: null,
+  [Dicts.m1c]: null,
+  [Dicts.cages]: null,
+  [Dicts.system]: null,
+};
+
+async function fetchAndSetState(url, dictName) {
   try {
     const result = await fetchJSON(url);
-    setState(result);
+    dictStates[dictName] = result; // Update global state
   } catch (error) {
-    setState(null);
+    dictStates[dictName] = null;
   }
 }
 
 function useDict(dictName) {
-  const [dictSettings, setDictSettings] = useState(null);
-  const [dictActuators, setDictActuators] = useState(null);
-  const [dictInputs, setDictInputs] = useState(null);
-  const [dictOutputs, setDictOutputs] = useState(null);
-  const [dictActuationHandler, setDictActuationHandler] = useState(null);
-  const [dictSystem, setDictSystem] = useState(null);
+  const [state, setState] = useState(dictStates[dictName]);
 
   useEffect(() => {
     const urls = {
+      [Dicts.m1a]: "/get_status/m1a",
+      [Dicts.m1c]: "/get_status/m1c",
+      [Dicts.cages]: "/get_status/cages",
       [Dicts.system]: "/get_status/system",
-      [Dicts.actuators]: "/get_status/actuators",
-      [Dicts.outputs]: "/get_status/outputs",
-      [Dicts.inputs]: "/get_status/inputs",
-      [Dicts.actuation_handler]: "/get_status/actuation_handler",
-      [Dicts.settings]: "/get_status/settings",
+    };
+
+    const fetchInterval = {
+      [Dicts.m1a]: 2000,
+      [Dicts.m1c]: 2000,
+      [Dicts.cages]: 5000,
+      [Dicts.system]: 2000,
     };
 
     const url = urls[dictName];
 
     if (url) {
-      const intervalId = setInterval(() => {
-        fetchAndSetState(
-          url,
-          {
-            [Dicts.system]: setDictSystem,
-            [Dicts.actuators]: setDictActuators,
-            [Dicts.outputs]: setDictOutputs,
-            [Dicts.inputs]: setDictInputs,
-            [Dicts.actuation_handler]: setDictActuationHandler,
-            [Dicts.settings]: setDictSettings,
-          }[dictName]
-        );
-      }, 2000);
+      // If there's no interval running, start one
+      if (!intervalIds[dictName]) {
+        intervalIds[dictName] = setInterval(() => {
+          fetchAndSetState(url, dictName);
+        }, fetchInterval[dictName]);
+      }
 
-      return () => clearInterval(intervalId);
+      // Update local state whenever the global state changes
+      const updateState = () => setState(dictStates[dictName]);
+
+      // Set the state initially and set up the update listener
+      updateState();
+      const intervalStateUpdate = setInterval(updateState, fetchInterval[dictName]);
+
+      return () => clearInterval(intervalStateUpdate);
     }
   }, [dictName]);
 
-  switch (dictName) {
-    case Dicts.system:
-      return dictSystem;
-    case Dicts.actuators:
-      return dictActuators;
-    case Dicts.outputs:
-      return dictOutputs;
-    case Dicts.inputs:
-      return dictInputs;
-    case Dicts.actuation_handler:
-      return dictActuationHandler;
-    case Dicts.settings:
-      return dictSettings;
-    default:
-      return null;
-  }
+  return state;
 }
 
 export { useDict, Dicts };

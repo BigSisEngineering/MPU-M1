@@ -2,68 +2,84 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
-import { toggleDebugMode, getColor, DEFAULT_MSG, DEFAULT_BOOL, httpPOST, exec } from "../../Utils/Utils.js";
-import { Info, Gap, HorizontalLine, Button, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
+import { getColor, DEFAULT_MSG } from "../../Utils/Utils.js";
+import { Gap, HorizontalLine, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function M1C() {
-  const [mode, setMode] = useState(DEFAULT_MSG);
-  const [debug, setDebug] = useState(DEFAULT_BOOL);
+function M1C({ row, m1cRunning }) {
+  const [c1StatusDict, setC1StatusDict] = useState(null);
+  const [c2StatusDict, setC2StatusDict] = useState(null);
 
   /* ---------------------------------------------------------------------------------- */
   // data update
-  const dictData = useDict(Dicts.system);
+  const dictData = useDict(Dicts.m1c);
 
   useEffect(() => {
     if (dictData) {
-      setMode(dictData["system_state"]);
-      setDebug(dictData["debug_mode"]);
+      setC1StatusDict(dictData["c1"]);
+      setC2StatusDict(dictData["c2"]);
     } else {
-      setMode(DEFAULT_MSG);
-      setDebug(DEFAULT_BOOL);
+      setC1StatusDict(null);
+      setC2StatusDict(null);
     }
-    toggleDebugMode(debug);
-  }, [debug, dictData]);
+  }, [dictData]);
 
   /* ---------------------------------------------------------------------------------- */
-
-  function modeText(modeState, debugState) {
-    if (debugState) {
-      return "DEBUG MODE";
-    } else {
-      if (modeState.includes("NORMAL")) {
-        return "RUNNING";
-      } else if (modeState.includes("IDLE")) {
-        return "IDLE";
-      } else if (modeState.includes("ERROR")) {
-        return "IDLE";
-      } else {
-        return "⏳";
+  function getC1StatusText() {
+    if (c1StatusDict && c1StatusDict["connected"] === "True") {
+      if (c1StatusDict["running"] === "True") {
+        if (c1StatusDict["buff_out"] === "True") {
+          return m1cRunning ? "RUNNING" : "STOPPING";
+        }
+        return m1cRunning ? "BELT FULL" : "STOPPING";
       }
+      return m1cRunning ? "STARTING" : "IDLE";
     }
+    return DEFAULT_MSG;
   }
 
-  function modeColor(modeState, debugState) {
-    if (debugState) {
-      return getColor("YELLOW");
-    } else {
-      if (modeState.includes("NORMAL")) {
-        return getColor("GREEN");
-      } else {
-        return getColor("DEFAULT_COLOR");
+  function getC1StatusColor() {
+    if (c1StatusDict && c1StatusDict["connected"] === "True") {
+      if (c1StatusDict["running"] === "True") {
+        if (c1StatusDict["buff_out"] === "True") {
+          return m1cRunning ? getColor("GREEN") : getColor("YELLOW");
+        }
+        return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
       }
+      return m1cRunning ? getColor("YELLOW") : getColor("BLUE");
     }
+    return getColor("DEFAULT");
   }
 
-  function systemStatusColor(modeState) {
-    if (modeState.includes("NORMAL")) {
-      return getColor("GREEN");
-    } else if (modeState.includes("IDLE")) {
-      return getColor("YELLOW");
-    } else if (modeState.includes("ERROR")) {
-      return getColor("RED");
-    } else {
-      return getColor("DEFAULT_COLOR");
+  function getC2StatusText() {
+    if (c1StatusDict && c2StatusDict["connected"] === "True") {
+      if (c2StatusDict["running"] === "True") {
+        if (c2StatusDict["chimney_sensor"] === "True") {
+          if (c2StatusDict["pot_sensor"] === "True") {
+            return m1cRunning ? "RUNNING" : "STOPPING";
+          }
+          return m1cRunning ? "WAITING FOR POTS" : "STOPPING";
+        }
+        return m1cRunning ? "WAITING FOR CHIMNEYS" : "STOPPING";
+      }
+      return m1cRunning ? "STARTING" : "IDLE";
     }
+    return DEFAULT_MSG;
+  }
+
+  function getC2StatusColor() {
+    if (c1StatusDict && c2StatusDict["connected"] === "True") {
+      if (c2StatusDict["running"] === "True") {
+        if (c2StatusDict["chimney_sensor"] === "True") {
+          if (c2StatusDict["pot_sensor"] === "True") {
+            return m1cRunning ? getColor("GREEN") : getColor("YELLOW");
+          }
+          return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
+        }
+        return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
+      }
+      return m1cRunning ? getColor("YELLOW") : getColor("BLUE");
+    }
+    return getColor("DEFAULT");
   }
 
   return (
@@ -75,13 +91,13 @@ function M1C() {
           letterSpacing: "0.05em",
         }}
       >
-        <SubcontentTitle text={"Chimney Sorter"} />
+        <SubcontentTitle text={"Chimney Sorter"} link={`http://10.207.1${row}.14`} />
         <HorizontalLine />
-        <InfoSameRow title="ⓘ Status" text="NORMAL" color={getColor("GREEN")} />
+        <InfoSameRow title="ⓘ Status" text={getC1StatusText()} color={getC1StatusColor()} />
         <Gap height="20" />
-        <SubcontentTitle text={"Chimney Capper"} />
+        <SubcontentTitle text={"Chimney Capper"} link={`http://10.207.1${row}.15`} />
         <HorizontalLine />
-        <InfoSameRow title="ⓘ Status" text="NORMAL" color={getColor("GREEN")} />
+        <InfoSameRow title="ⓘ Status" text={getC2StatusText()} color={getC2StatusColor()} />
       </div>
     </>
   );

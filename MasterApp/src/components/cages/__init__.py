@@ -1,8 +1,7 @@
 import time
 import threading
 from src.comm import http_cage
-from dataclasses import dataclass, asdict
-from typing import Dict, Any
+from typing import Dict
 
 # -------------------------------------------------------- #
 from src._shared_variables import SV
@@ -17,18 +16,14 @@ print_name = "cage"
 from src._shared_variables import Cages
 
 
-@dataclass
-class Data:
-    sensors_values: Any
-    star_wheel_status: Any
-    unloader_status: Any
-    mode: Any
-
-    def dict(self):
-        return {k: str(v) for k, v in asdict(self).items()}
-
-
 class Cage(http_cage.HTTPCage):
+    DEFAULT_STATUS = {
+        "sensor_values": None,
+        "star_wheel_status": None,
+        "unloader_status": None,
+        "mode": None,
+    }
+
     def __init__(self, cage: Cages):
         super().__init__(cage.value)
 
@@ -36,7 +31,7 @@ class Cage(http_cage.HTTPCage):
 
         # -------------------------------------------------------- #
         self._lock_status_ui = threading.Lock()
-        self._status_ui: Dict = Data(None, None, None, None).dict()
+        self._status_ui: Dict = Cage.DEFAULT_STATUS
 
         threading.Thread(target=self._background_status_refresh).start()
 
@@ -56,13 +51,18 @@ class Cage(http_cage.HTTPCage):
                 if not SV.UI_REFRESH_EVENT.is_set():
                     _status = self.status
                     if _status is not None:
-                        with self._lock_status_ui:
-                            self._status_ui = _status
+                        self._w_status_ui(_status)
+                    else:
+                        self._w_status_ui(Cage.DEFAULT_STATUS)
 
         CLI.printline(
             Level.DEBUG,
             "({:^10})-({:^8}) BG ST REFRESH -> Stop".format(print_name, self._cage_name),
         )
+
+    def _w_status_ui(self, w) -> None:
+        with self._lock_status_ui:
+            self._status_ui = w
 
     # PUBLIC
     # -------------------------------------------------------- #

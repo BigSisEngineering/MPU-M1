@@ -1,16 +1,29 @@
 import React from "react";
+import { useState, useEffect } from "react";
 import "../../Assets/Styles/styles.css";
-import { DisplayImage, Gap } from "../../Components/index.js";
+import { useDict, Dicts } from "../../Middleware/get-api.js";
+import { getColor, DEFAULT_MSG, DEFAULT_BOOL } from "../../Utils/Utils.js";
+import {
+  Info,
+  Gap,
+  HorizontalLine,
+  Subinfo,
+  SubcontentTitle,
+  DisplayImage,
+  DisplayCustomEmoji,
+  CustomEmoji,
+} from "../../Components/index.js";
 
 function CCTV() {
-  const link = "/image";
-
   return (
-    <div className="subcontent-container" style={{ width: "60%", marginRight: "auto", marginLeft: "auto" }}>
-      📸 CCTV
-      <Gap />
-      <DisplayImage link={link} />
-    </div>
+    <>
+      <div className="subcontent-container" style={{ border: "5px solid #ccc" }}>
+        <SubcontentTitle text="CCTV" />
+        <HorizontalLine />
+        <DisplayImage link={`/cctv`} />
+        <Gap />
+      </div>
+    </>
   );
 }
 

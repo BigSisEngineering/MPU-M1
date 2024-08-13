@@ -51,10 +51,18 @@ async function fetchJSON(url) {
   }
 }
 
-async function httpPOST(url) {
-  return fetch(url, {
+async function httpPOST(url, data = null) {
+  const options = {
     method: "POST",
-  })
+    headers: {},
+  };
+
+  if (data !== null) {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(data);
+  }
+
+  return fetch(url, options)
     .then((response) => {
       if (response.ok) {
         return response.text();
@@ -69,7 +77,7 @@ async function httpPOST(url) {
     });
 }
 
-function _showAlert(message, timeout = 3000) {
+function _showAlert(message, timeout = 5000) {
   const alertDiv = document.getElementById("alert-box");
   try {
     alertDiv.innerText = message;
@@ -91,7 +99,7 @@ function _showAlert(message, timeout = 3000) {
 async function exec(operationName, func, ...args) {
   const message = "Executing " + operationName + "...";
 
-  _showAlert(message);
+  _showAlert(message, 15000);
 
   try {
     const result = await func(...args);

@@ -1,7 +1,7 @@
 import os
 import configparser
 import socket
-import re
+import json
 
 # ------------------------------------------------------------------------------------------------ #
 from src.CLI import Level
@@ -21,16 +21,20 @@ config_parser.read(
 
 
 def get_row(arg=None):
-    # Apply default if no argument given
+    """
+    hostname format M1-{row}-M
+    """
     id = socket.gethostname() if arg is None else arg
+
     if id:
-        match = re.search(r"x(\d+)", id)
-        if match:
-            number = int(match.group(1))
+        parts = id.split("-")
+        if len(parts) > 1:
+            number = int(parts[1])
             CLI.printline(Level.INFO, f"(setup)-Master for row: {number}")
-            return int(id[-2:])
+            return number
 
     CLI.printline(Level.ERROR, f"(setup)-Incorrect hostname format! Please reinstall the software")
+    return None
 
 
 def get_master_server_port(arg=None):
@@ -50,8 +54,12 @@ MASTER_SERVER_PORT = get_master_server_port()
 SOFTWARE_VERSION = get_software_version()
 
 
-# ------------------------------------------------------------------------------------ #
-def debug():
-    print(ROW)
+def get_setup_info() -> bytes:
+    global ROW, SOFTWARE_VERSION
 
-    print(type(ROW))
+    dict = {}
+    dict["module"] = 1
+    dict["row"] = ROW
+    dict["software_version"] = SOFTWARE_VERSION
+
+    return json.dumps(dict).encode()
