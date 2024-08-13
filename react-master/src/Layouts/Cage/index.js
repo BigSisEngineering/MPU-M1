@@ -83,7 +83,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   function modeColor(modeState) {
     switch (modeState) {
       case "idle":
-        return getColor("YELLOW");
+        return getColor("DEFAULT");
       case "pnp":
         return getColor("GREEN");
       case "dummy":

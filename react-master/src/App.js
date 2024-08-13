@@ -12,9 +12,6 @@ import OperationControl from "./Layouts/OperationControl/index.js";
 import { DEFAULT_BOOL } from "./Utils/Utils.js";
 
 /* ---------------------------------------------------------------------------------- */
-let moduleNumber;
-let rowNumber;
-
 function generateDocumentTitle(module, row) {
   switch (module) {
     case 1:
@@ -28,15 +25,17 @@ function generateDocumentTitle(module, row) {
     case 5:
       return `🩻 M5-${row} Master`;
     default:
-      return `❓ REFRESH`;
+      return `❓ NOT FOUND`;
   }
 }
 
-function getSetupInfo() {
+async function getSetupInfo() {
   let infoDict = null;
+  let moduleNumber;
+  let rowNumber;
 
   try {
-    const response = fetch("/get_status/info", {
+    const response = await fetch("/get_status/info", {
       method: "GET",
     });
 
@@ -44,29 +43,28 @@ function getSetupInfo() {
       throw new Error("Network response was not ok");
     }
 
-    infoDict = response.json();
+    infoDict = await response.json();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 
   if (infoDict) {
     moduleNumber = infoDict["module"];
     rowNumber = infoDict["row"];
   } else {
+    // moduleNumber = 1;
+    // rowNumber = 6;
     moduleNumber = null;
-    rowNumber = "ERROR 404";
+    rowNumber = null;
   }
-}
 
-document.addEventListener("DOMContentLoaded", function () {
-  getSetupInfo();
-  document.title = generateDocumentTitle(moduleNumber, rowNumber);
-});
+  return { moduleNumber, rowNumber };
+}
 
 /* ================================================================================== */
 /*                                     Main Blocks                                    */
 /* ================================================================================== */
-function MainContent() {
+function MainContent({ rowNumber }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
   const toggleSelected = (index) => () => {
@@ -105,18 +103,24 @@ function MainContent() {
   return (
     <div className="mains-container">
       <LeftColumn
+        rowNumber={rowNumber}
         isSelected={isSelected}
         selectAll={selectAll}
         clearAll={clearAll}
         m1aRunning={m1aRunning}
         m1cRunning={m1cRunning}
       />
-      <RightColumn isSelected={isSelected} setIsSelected={setIsSelected} toggleSelected={toggleSelected} />
+      <RightColumn
+        rowNumber={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+      />
     </div>
   );
 }
 
-function LeftColumn({ isSelected, selectAll, clearAll, m1aRunning, m1cRunning }) {
+function LeftColumn({ rowNumber, isSelected, selectAll, clearAll, m1aRunning, m1cRunning }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A row={rowNumber} m1aRunning={m1aRunning} />
@@ -127,7 +131,7 @@ function LeftColumn({ isSelected, selectAll, clearAll, m1aRunning, m1cRunning })
   );
 }
 
-function RightColumn({ isSelected, setIsSelected, toggleSelected }) {
+function RightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected }) {
   return (
     <div
       className="columns-container"
@@ -139,11 +143,41 @@ function RightColumn({ isSelected, setIsSelected, toggleSelected }) {
 }
 
 export default function Webapp() {
+  const [moduleNumber, setModuleNumber] = useState(null);
+  const [rowNumber, setRowNumber] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await getSetupInfo();
+      setModuleNumber(result.moduleNumber);
+      setRowNumber(result.rowNumber);
+      document.title = generateDocumentTitle(result.moduleNumber, result.rowNumber);
+      setIsLoading(false);
+      result.rowNumber ? setIsError(false) : setIsError(true);
+    }
+
+    fetchData();
+
+    const intervalId = setInterval(fetchData, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [setIsError]);
+
+  if (isLoading) {
+    return <div className="full-display">Page loading...</div>;
+  }
+
+  if (isError) {
+    return <div className="full-display">Connection lost. Reboot if refreshing does not work.</div>;
+  }
+
   return (
     <>
-      <AlertBox content="Hello" />
+      <AlertBox />
       <Header module={moduleNumber} unit={"Master"} row={rowNumber} />
-      <MainContent />
+      <MainContent rowNumber={rowNumber} />
     </>
   );
 }
