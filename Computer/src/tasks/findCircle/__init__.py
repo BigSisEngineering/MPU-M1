@@ -79,27 +79,27 @@ def CircularMask(image):
     cv2.circle(mask, (setup.CENTER_X, setup.CENTER_Y), setup.RADIUS, (255, 255, 255), -1)
     masked_image = cv2.bitwise_and(image, mask)
 
-    # Desired dimensions for the cropped image
-    desired_width = 640
-    desired_height = 480
+    # # Desired dimensions for the cropped image
+    # desired_width = 640
+    # desired_height = 480
 
-    # Calculate the top-left corner of the cropping rectangle
-    x1 = max(setup.CENTER_X - desired_width // 2, 0)
-    y1 = max(setup.CENTER_Y - desired_height // 2, 0)
+    # # Calculate the top-left corner of the cropping rectangle
+    # x1 = max(setup.CENTER_X - desired_width // 2, 0)
+    # y1 = max(setup.CENTER_Y - desired_height // 2, 0)
 
-    # Ensure the cropping rectangle does not exceed the image bounds
-    x2 = min(x1 + desired_width, masked_image.shape[1])
-    y2 = min(y1 + desired_height, masked_image.shape[0])
+    # # Ensure the cropping rectangle does not exceed the image bounds
+    # x2 = min(x1 + desired_width, masked_image.shape[1])
+    # y2 = min(y1 + desired_height, masked_image.shape[0])
 
-    # Adjust x1 and y1 in case x2 or y2 are out of bounds
-    if x2 - x1 < desired_width:
-        x1 = max(x2 - desired_width, 0)
-    if y2 - y1 < desired_height:
-        y1 = max(y2 - desired_height, 0)
+    # # Adjust x1 and y1 in case x2 or y2 are out of bounds
+    # if x2 - x1 < desired_width:
+    #     x1 = max(x2 - desired_width, 0)
+    # if y2 - y1 < desired_height:
+    #     y1 = max(y2 - desired_height, 0)
 
-    cropped_image = masked_image[y1:y2, x1:x2]
+    # masked_image = masked_image[y1:y2, x1:x2]
 
-    return cropped_image
+    return masked_image
 
 def FindCircleThread(stop_event: threading.Event):
     # global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS

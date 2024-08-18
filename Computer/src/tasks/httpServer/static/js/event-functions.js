@@ -241,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setupButton('sw-init-button', '/STAR_WHEEL_INIT');
   setupButton('move-sw-ccw-button', '/MOVE_CCW');
   setupButton('clear-sw-error-button', '/CLEAR_STAR_WHEEL_ERROR');
+  setupButton('clear-unloader-error-button', '/CLEAR_UNLOADER_ERROR');
   setupButton('unloader-init-button', '/UNLOADER_INIT');
   setupButton('unload-button', '/UNLOAD');
   setupButton('move-sw-cw-button', '/MOVE_CW');

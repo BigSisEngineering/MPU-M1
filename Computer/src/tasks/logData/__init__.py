@@ -6,6 +6,7 @@ import socket
 
 from src import CLI
 from src.CLI import Level
+from src import data
 
 def count_eggs_last_hour(log_file_path):
     # Get the current time
@@ -55,6 +56,7 @@ def get_log_data_thread(stop_event: threading.Event):
                 time_stamp = time.time()
                 print(log_file)
                 count = count_eggs_last_hour(log_file)
+                data.eggs_last_hour = count
                 print(f"Number of files with a score > 0 in the last hour: {count}")
                 
 

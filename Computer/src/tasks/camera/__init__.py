@@ -33,7 +33,7 @@ logging.basicConfig(
 w = 1440
 h= 1080
 
-def delete_old_files_from_log(log_file, days_old=4):
+def delete_old_files_from_log(log_file, days_old=3):
     # Read the log file
     def read_log_file(file_path):
         if os.path.exists(file_path):
@@ -77,6 +77,45 @@ def delete_old_files_from_log(log_file, days_old=4):
             file.write(f"{line}\n")
 
     print("Old files deleted and log file updated.")
+
+def delete_old_log_entries(log_file, days_old=3):
+    cutoff_date = datetime.now() - timedelta(days=days_old)
+    remaining_entries = []
+
+    # Keywords to identify error messages
+    error_keywords = ['Traceback', 'Error', 'Exception', 'File', 'TimeoutError', 'OSError', 'execute(self.server.app)', 'write(data)', 'self.wfile.write(data)', 'self._sock.sendall(b)']
+
+    # Read and filter log entries
+    if os.path.exists(log_file):
+        with open(log_file, 'r') as file:
+            for line in file:
+                # Skip lines containing error keywords
+                if any(keyword in line for keyword in error_keywords):
+                    continue
+                
+                if 'at' in line:
+                    timestamp_str = line.split('at')[-1].strip()
+                    try:
+                        log_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+                        if log_timestamp >= cutoff_date:
+                            remaining_entries.append(line)
+                    except ValueError as e:
+                        logging.error(f"Error parsing timestamp from log entry: {line}. Error: {e}")
+                        remaining_entries.append(line)
+                else:
+                    remaining_entries.append(line)
+
+        # Write the remaining entries back to the log file
+        with open(log_file, 'w') as file:
+            file.writelines(remaining_entries)
+
+    else:
+        logging.error(f"Log file {log_file} does not exist.")
+
+    print("Old log entries and errors deleted, log file updated.")
+
+# Call the function to delete old log entries
+delete_old_log_entries(log_file, days_old=4)
 
 # Call the function to delete old files and update the log file
 delete_old_files_from_log(log_file, days_old=4)
@@ -146,6 +185,7 @@ class CameraThreading:
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)  # FIXME -
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)  # FIXME
         cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
         while not killer.is_set():
             try:
                 ret, raw_frame = cap.read()
@@ -159,6 +199,7 @@ class CameraThreading:
                         cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)  # FIXME -
                         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)  # FIXME
                         cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
+                        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
                         # time.sleep(0.1)
                         continue  # non-return thread
                     except Exception as e:

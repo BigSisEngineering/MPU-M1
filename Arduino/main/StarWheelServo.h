@@ -11,7 +11,7 @@ class StarWheelServo
 {
 public:
   // [Encoder Res] * [Gear ratio] / [No. of slot]
-  // [4096]        * [160 / 16]   / [80];
+  // [4096]        * [150 / 15]   / [80];
   const uint16_t COUNT_FOR_ONE_SLOT = 512;
   const uint8_t  MAX_STEPS          = 80; // NOTE - Changed to one screw homing
   uint16_t       SENSOR_SLOT_OFFSET{ 0 }; // 250 for flat head screw, 128 for set screw

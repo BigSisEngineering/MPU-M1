@@ -47,9 +47,9 @@ def pnp(
     def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter, timestamp_of_image):
         global ai_result
         if ai_result <= 0 and is_it_overtime:
-            camera.CAMERA.save_raw_frame(image, 0, 0, timestamp_of_image)  # NOTE FOR TESTING ONLY
+            camera.CAMERA.save_raw_frame(image, 0, 0, timestamp_of_image)
         else:
-            camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result, timestamp_of_image)  # NOTE FOR TESTING ONLY
+            camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result, timestamp_of_image)
         with data.lock:
             data.pot_processed += 1
             data.pot_unloaded += tmp_egg_pot_counter
@@ -102,7 +102,7 @@ def pnp(
         wait_thread_to_finish("ai")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or is_it_overtime) else 0
         if tmp_egg_pot_counter > 0:
-            BOARD.timer.update_slot()
+            BOARD.timer.update_slot() #update timer slot when unloading
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -225,33 +225,57 @@ def dummy(
 
 
 
+# def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
+#     # 1. The 1A will purge its old pot out
+#     if BOARD is not None:
+#         with data.lock:
+#             purge_state = data.purge_stage
+#         # 2. (RESET) the cage will unload pot(s) until the buffer sensor trigger
+#         if purge_state == 0:
+#             pass
+#             purge_state = 1
+#         # 3. (FILL) the 1A will send pots into cage system until the last cage auxiliary buffer sensor trigger
+#         #    around 160 pots
+#         # 4. (UNLOAD) Start to unload for 80+14 cycle and do the request as usual
+#         if purge_state == 1 and is_filled:
+#             with lock:
+#                 BOARD.unload()
+#                 BOARD.star_wheel_move_ms(600)
+#             with data.lock:
+#                 data.pot_unloaded += 1
+#                 data.purge_counter += 1
+#                 if data.purge_counter >= 94:
+#                     purge_state = 2
+#                     data.pot_unloaded = 0
+#                     data.pot_unloaded_since_last_request = 0
+#         with data.lock:
+#             data.purge_stage = purge_state
+
 def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
     # 1. The 1A will purge its old pot out
     if BOARD is not None:
-        with data.lock:
-            purge_state = data.purge_stage
-        # 2. (RESET) the cage will unload pot(s) until the buffer sensor trigger
-        if purge_state == 0:
-            pass
-            purge_state = 1
+        # with data.lock:
+        #     purge_state = data.purge_stage
+        # # 2. (RESET) the cage will unload pot(s) until the buffer sensor trigger
+        # if purge_state == 0:
+        #     pass
+        #     purge_state = 1
         # 3. (FILL) the 1A will send pots into cage system until the last cage auxiliary buffer sensor trigger
         #    around 160 pots
         # 4. (UNLOAD) Start to unload for 80+14 cycle and do the request as usual
-        if purge_state == 1 and is_filled:
-            with lock:
-                BOARD.unload()
-                BOARD.star_wheel_move_ms(600)
-            with data.lock:
-                data.pot_unloaded += 1
-                data.purge_counter += 1
-                if data.purge_counter >= 94:
-                    purge_state = 2
-                    data.pot_unloaded = 0
-                    data.pot_unloaded_since_last_request = 0
+        # if purge_state == 1 and is_filled:
+        with lock:
+            BOARD.unload()
+            BOARD.star_wheel_move_ms(600)
         with data.lock:
-            data.purge_stage = purge_state
-
-
+            data.pot_unloaded += 1
+            data.purge_counter += 1
+            if data.purge_counter >= 94:
+                purge_state = 2
+                data.pot_unloaded = 0
+                data.pot_unloaded_since_last_request = 0
+        # with data.lock:
+        #     data.purge_stage = purge_state
 timestamp: time.time = 0
 
 

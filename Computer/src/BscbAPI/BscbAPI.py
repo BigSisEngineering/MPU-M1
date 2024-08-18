@@ -261,7 +261,8 @@ class BScbAPI:
         self.star_wheel_status = self.got_Status_respond(timeout=65)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
-            sw_init_time_str = 'starwheel init'
+            current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            sw_init_time_str = f'starwheel init at {current_time_str}'
             logging.info(sw_init_time_str)
             return True
         else:
@@ -455,7 +456,7 @@ class BScbAPI:
         return (status is Status.idle) or (status is Status.normal) or (status is Status.not_init)
 
     # ------------------------------------------------------------------------------------------- #
-    def resolve_sensor_status(self, sensor, id: int, low: int = 80, high: int = 100):
+    def resolve_sensor_status(self, sensor, id: int, low: int = 89, high: int = 90):
         if (id < 0) or (id > 4):  # Input error
             return -3
         if sensor is None:

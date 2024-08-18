@@ -10,7 +10,7 @@ import socket
 # ------------------------------------------------------------------------------------------------ #
 from src import CLI, comm
 from src.CLI import Level
-
+from src import setup
 from src.vision.prediction import ComputerVision
 
 hostname = socket.gethostname()
@@ -37,10 +37,28 @@ class ProcessAndPrediction:
         self.classes= None
         self.scores= None
         threading.Thread(target=self.computer_vision.load_rknn_model).start()
+        self.desired_width = 640
+        self.desired_height = 480
 
     @comm.timer()
     def is_egg_detected(self, image, confident_level=0.80):
         if self.computer_vision.is_rknn_ready():
+            # Calculate the top-left corner of the cropping rectangle
+            x1 = max(setup.CENTER_X - self.desired_width // 2, 0)
+            y1 = max(setup.CENTER_Y - self.desired_height // 2, 0)
+
+            # Ensure the cropping rectangle does not exceed the image bounds
+            x2 = min(x1 + self.desired_width, image.shape[1])
+            y2 = min(y1 + self.desired_height, image.shape[0])
+
+            # Adjust x1 and y1 in case x2 or y2 are out of bounds
+            if x2 - x1 < self.desired_width:
+                x1 = max(x2 - self.desired_width, 0)
+            if y2 - y1 < self.desired_height:
+                y1 = max(y2 - self.desired_height, 0)
+
+            image = image[y1:y2, x1:x2]
+
             image = self.computer_vision.letterbox(image)
             self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
                 self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])

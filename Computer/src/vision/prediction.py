@@ -17,7 +17,7 @@ if use_rknnlite:
     from rknnlite.api import RKNNLite  # Import RKNNLite
     RKNN_MODEL = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1_rock_v2.rknn",
+        "yolov5l_m1_rock_v2.rknn",
     )
 else:
     from rknn.api import RKNN  # Import RKNN
@@ -33,7 +33,7 @@ NMS_THRESH = 0.6
 IMG_SIZE = (640, 640)
 CLASSES = "egg"
 
-
+print(RKNN_MODEL)
 # ------------------------------------------------------------------------------------------------ #
 class ComputerVision:
     def __init__(self):

@@ -1,6 +1,8 @@
 import threading
 from dataclasses import dataclass, asdict
 import time
+import logging
+import datetime
 
 # ------------------------------------------------------------------------------------------------ #
 from src.BscbAPI.BscbAPI import BScbAPI
@@ -88,8 +90,8 @@ def execute():
         # Check loading slot
         is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
 
-        is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
-        # is_safe_to_move = True
+        # is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+        is_safe_to_move = True
 
         servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal'
 
@@ -112,9 +114,12 @@ def execute():
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
-            if is_star_wheel_error or is_star_wheel_error:
+            if is_star_wheel_error or is_unloader_error:
+                logging.info(f"{'Starwheel overload' if is_star_wheel_error else 'Unloader overload'} at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 if auto_clear_error < data.max_auto_clear_error:
                     CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
+                    BOARD.unloader_clear_error()
+                    time.sleep(0.1)
                     BOARD.unloader_init()
                     time.sleep(2)
                     BOARD.star_wheel_clear_error()
@@ -123,17 +128,20 @@ def execute():
                     is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
                     is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
                     is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
-                    auto_clear_error = 0 if is_safe_to_move else auto_clear_error + 1
+                    servos_ready = not is_star_wheel_error and not is_unloader_error
+                    auto_clear_error = 0 if servos_ready else auto_clear_error + 1
 
                 else:  
                     data.dummy_enabled = False
                     data.pnp_enabled = False
                     MongoDB_INIT == False
                     auto_clear_error = 0
+                    # logging.info(f"AI/Dummy disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
+            print(f'camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}')
                 
             if not CAMERA.device_ready or not servos_ready:
                 data.pnp_enabled = False
-                # print('PNP disabled please check camera connection ...')
+                # logging.info(f"AI disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
                 
         # ======================================= PNP? ======================================= #
         if run_pnp:
@@ -211,5 +219,7 @@ BOARD_DATA = BoardData(
     "idle",
 )
 
+print('Initializing Starwheel and unloader..')
 BOARD.unloader_init()
 BOARD.starWheel_init()
+print('Complete Initializing Starwheel and unloader..')
