@@ -6,7 +6,7 @@ import os
 import threading
 import requests
 
-row = 4
+row = 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
@@ -336,9 +336,9 @@ for hostname in hostnames:
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
         # restart_service(hostname)
-        # get_log_file(hostname)
-        save_mask_requests()
-        time.sleep(0.1)
+        get_log_file(hostname)
+        # save_mask_requests()
+        # time.sleep(0.1)
 
     except Exception as e:
         print(f"Error -> {hostname} -> {e}")

@@ -108,6 +108,7 @@ def execute():
             run_dummy = data.dummy_enabled
             run_pnp = data.pnp_enabled
             run_purge = data.purge_enabled
+            run_experiment = data.experiment_enabled
             data.servos_ready = servos_ready
             # print(f'servos state {data.servos_ready}')
             # MongoDB_INIT = data.MongoDB_INIT
@@ -134,6 +135,7 @@ def execute():
                 else:  
                     data.dummy_enabled = False
                     data.pnp_enabled = False
+                    data. experiment_enabled = False
                     MongoDB_INIT == False
                     auto_clear_error = 0
                     # logging.info(f"AI/Dummy disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
@@ -192,6 +194,17 @@ def execute():
                 purge_stage = data.purge_stage
             CLI.printline(Level.INFO, f"(Background)-Running PURGING - {purge_stage}")
             operation.purge(BOARD, lock, data.purge_start_unload)
+        
+        # ======================================== Purge? ======================================== #
+        elif run_experiment:
+            if time.time() - time_stamp > cycle_time:
+                time_stamp = time.time() if is_safe_to_move else time_stamp
+                with lock:
+                    BOARD_DATA.mode = "experiment"
+                MongoDB_INIT == False
+                CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
+                operation.experiment(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+        
         # ========================================= IDLE ========================================= #
         else:
             with lock:

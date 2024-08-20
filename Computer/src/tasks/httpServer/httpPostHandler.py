@@ -55,6 +55,13 @@ def post_enable_pnp():
             return "PNP enabled"
     return "Initialize servos first"
 
+def post_enable_experiment():
+    with data.lock:
+        if data.servos_ready:
+            data.experiment_enabled = True
+            return "Experiment mode enabled"
+    return "Initialize servos first"
+
 def post_enable_purge():
     with data.lock:
         if data.servos_ready:
@@ -71,6 +78,11 @@ def post_disable_pnp():
     with data.lock:
         data.pnp_enabled = False
     return "PNP disabled"
+
+def post_disable_experiment():
+    with data.lock:
+        data.experiment_enabled = False
+    return "Experiment mode disabled"
 
 def post_set_star_wheel_speed(speed):
     with data.lock:
@@ -123,6 +135,12 @@ def post_set_cycle_time(cycle_time):
             return  f"Cycle time set to {cycle_time} seconds"
     return "Cycle time should be between 0-20 seconds"
 
+def post_set_pause_interval(pause_interval):
+    with data.lock:
+        data.experiment_pause_interval = pause_interval
+        return  f"pause interval set to {pause_interval} seconds"
+ 
+
 def post_save_mask_coordinates():
     mask_coordinates = (
         setup.CENTER_X,
@@ -174,9 +192,11 @@ post_endpoints = {
     "ALL_SERVOS_INIT": {"func": post_all_servos_init, "arg_num": 0},
     "ENABLE_DUMMY": {"func": post_enable_dummy, "arg_num": 0},
     "ENABLE_PNP": {"func": post_enable_pnp, "arg_num": 0},
+    "ENABLE_EXPERIMENT": {"func": post_enable_experiment, "arg_num": 0},
     "ENABLE_PURGE": {"func": post_enable_purge, "arg_num": 0},
     "DISABLE_DUMMY": {"func": post_disable_dummy, "arg_num": 0},
     "DISABLE_PNP": {"func": post_disable_pnp, "arg_num": 0},
+    "DISABLE_EXPERIMENT": {"func": post_disable_experiment, "arg_num": 0},
     "CLEAR_STAR_WHEEL_ERROR": {"func": post_clear_star_wheel_error, "arg_num": 0},
     "CLEAR_UNLOADER_ERROR": {"func": post_clear_unloader_error, "arg_num": 0},
     "MOVE_CW": {"func": post_move_cw, "arg_num": 0},
@@ -190,6 +210,7 @@ post_endpoints = {
     "SET_DUMMY_UNLOAD_PROBABILITY": {"func": post_set_dummy_unload_probability, "arg_num": 1},
     "SET_PNP_CONFIDENCE_LEVEL": {"func": post_set_pnp_confidence_level, "arg_num": 1},
     "SET_CYCLE_TIME": {"func": post_set_cycle_time, "arg_num": 1},
+    "SET_PAUSE_INTERVAL": {"func": post_set_pause_interval, "arg_num": 1},
     "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1}
 }
 

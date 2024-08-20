@@ -29,6 +29,11 @@
           <button id="unloader-init-button">Unload Init</button>
           <button id="clear-unloader-error-button">Clear UL Error</button>
         </div>
+        <div class="control-set">
+          <button id="enable-experiment-button" data-state="disabled">Enable Experiment</button>
+          <input type="number" id="interval" placeholder="Enter interval">
+          <button id="confirm-interval">Confirm</button>
+        </div>
         <div class="control-set move-buttons">
           <button id="move-sw-ccw-button">↪️</button>
           <button id="unload-button">⤵️</button>
@@ -76,6 +81,9 @@
         </div>
         <div class="circle" id="dummy-mode-circle">
           <span class="circle-label">Mode Dummy</span>
+        </div>
+        <div class="circle" id="experiment-mode-circle">
+          <span class="circle-label">Mode Experiment</span>
         </div>
         <div class="circle" id="sensor-load-circle">
           <span class="circle-label">Sensor Load</span>

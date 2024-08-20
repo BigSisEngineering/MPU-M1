@@ -140,7 +140,7 @@ def pnp(
 
 
 def dummy(
-    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_duration_ms: int, unload_probability: float
+    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, unload_probability: float
 ):
     global threads
 
@@ -221,7 +221,7 @@ def dummy(
         threads["comm"].start()
 
     except Exception as e:
-        CLI.printline(Level.ERROR, f"(PnP)-{e}")
+        CLI.printline(Level.ERROR, f"(dummy)-{e}")
 
 
 
@@ -276,6 +276,108 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
                 data.pot_unloaded_since_last_request = 0
         # with data.lock:
         #     data.purge_stage = purge_state
+
+def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, unload_probability: float):
+    global threads
+
+    def wait_thread_to_finish(id: str):
+        if threads[f"{id}"] is not None:
+            if threads[f"{id}"].is_alive():
+                threads[f"{id}"].join()
+                CLI.printline(Level.WARNING, f"(experiment mode)-waited {id}")
+
+    def get_ai_result(unload_probability):
+        global ai_result
+        ai_result = random.random() < unload_probability
+        # ai_result = (ai_result + 1) % 2
+        time.sleep(0.9)
+        # CLI.printline(Level.INFO, f"(experiment mode) - done")
+
+    def comm_thread(BOARD: BScbAPI, tmp_egg_pot_counter):
+        with data.lock:
+            data.pot_processed += 1
+            data.pot_unloaded += tmp_egg_pot_counter
+
+    def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
+        with lock:
+            BOARD.star_wheel_move_ms(star_wheel_move_time)
+
+    def _unload(BOARD: BScbAPI, lock: threading.Lock):
+        with lock:
+            BOARD.unload()
+
+    try:
+        # ====================================== Sense Check ===================================== #
+        if BOARD is None:
+            return
+        if not is_safe_to_move:
+            return
+        
+        with data.lock:
+            if data.purge_counter >= 10:
+                watchdog = data.experiment_pause_interval
+                print(f'experiment status {data.experiment_pause_state}')
+                if data.experiment_pause_state == False:
+                    data.experiment_pause_start_time = time.time()
+                    print(f'experiment status {data.experiment_pause_state}')
+                    # start_time = datetime.fromtimestamp(data.experiment_pause_state).strftime('%H:%M:%S')
+                    data.experiment_pause_state = True
+                    # CLI.printline(Level.INFO, f"(experiment mode)- pause state started at : {start_time} ")
+                elapsed_time = time.time() - data.experiment_pause_start_time
+                CLI.printline(Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} ")
+                if elapsed_time > watchdog:
+                    data.purge_counter = 0
+                    data.experiment_pause_state = False
+            else:
+                # ======================================= sw thread ====================================== #
+                wait_thread_to_finish("sw")
+                wait_thread_to_finish("ul")
+                threads["sw"] = threading.Thread(
+                    target=_move_sw,
+                    args=(
+                        BOARD,
+                        lock,
+                        star_wheel_move_time,
+                    ),
+                )
+                threads["sw"].start()
+                CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
+                # ======================================= AI thread ====================================== #
+                wait_thread_to_finish("ai")
+                threads["ai"] = threading.Thread(
+                    target=get_ai_result,
+                    args=(unload_probability,),
+                )
+                threads["ai"].start()
+                CLI.printline(Level.INFO, f"(experiment mode)-started")
+                # ======================================= ul thread ====================================== #
+                wait_thread_to_finish("sw")
+                wait_thread_to_finish("ai")
+                timer_unload = need_unload_in_interval(ai_result > 0)
+
+                # CLI.printline(Level.INFO, f"(experiment mode)-{timer_unload}/{ai_result}")
+                tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
+                # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+                # cloud.DataBase.data_upload()
+                if tmp_egg_pot_counter > 0:
+                    threads["ul"] = threading.Thread(
+                        target=_unload,
+                        args=(
+                            BOARD,
+                            lock,
+                        ),
+                    )
+                    threads["ul"].start()
+                # ====================================== comm thread ===================================== #
+
+                threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
+                threads["comm"].start()
+                data.purge_counter += 1
+                CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {data.purge_counter} ")
+
+    except Exception as e:
+        CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
+
 timestamp: time.time = 0
 
 

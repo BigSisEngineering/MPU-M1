@@ -54,7 +54,7 @@ def get_log_data_thread(stop_event: threading.Event):
         try:
             if (time.time() - time_stamp) > watchdog:
                 time_stamp = time.time()
-                print(log_file)
+                # print(log_file)
                 count = count_eggs_last_hour(log_file)
                 data.eggs_last_hour = count
                 print(f"Number of files with a score > 0 in the last hour: {count}")
