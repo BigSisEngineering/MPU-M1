@@ -75,6 +75,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
         return "PNP";
       case "dummy":
         return "DUMMY";
+      case "experiment":
+        return "EXPERIMENT";
       default:
         return DEFAULT_MSG;
     }
@@ -88,6 +90,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
         return getColor("GREEN");
       case "dummy":
         return getColor("BLUE");
+      case "experiment":
+        return getColor("ORANGE");
       default:
         return getColor("DEFAULT");
     }

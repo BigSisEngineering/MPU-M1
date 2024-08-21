@@ -15,6 +15,8 @@ class CageActions {
   static pnp_stop = "DISABLE_PNP";
   static sw_move_fwd = "MOVE_CW";
   static sw_move_bwd = "MOVE_CCW";
+  static experiment_start = "ENABLE_EXPERIMENT";
+  static experiment_stop = "DISABLE_EXPERIMENT";
 }
 
 function CageControl({ selectAll, clearAll, isSelectedArray }) {
@@ -89,6 +91,20 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
             }
           />
           <Button
+            name="Servo Init"
+            onclick={() =>
+              exec(
+                `Servo Init on ${getSelectedCages()}`,
+                httpPOST,
+                "/operate_cage",
+                createPOSTBody(CageActions.servo_init)
+              )
+            }
+          />
+        </div>
+        <HorizontalLine />
+        <div className="buttons-container">
+          <Button
             name="Start Dummy"
             onclick={() =>
               exec(
@@ -111,13 +127,24 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
             }
           />
           <Button
-            name="Servo Init"
+            name="Start Experiment"
             onclick={() =>
               exec(
-                `Servo Init on ${getSelectedCages()}`,
+                `Start EXPERIMENT on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
-                createPOSTBody(CageActions.servo_init)
+                createPOSTBody(CageActions.experiment_start)
+              )
+            }
+          />
+          <Button
+            name="Stop Experiment"
+            onclick={() =>
+              exec(
+                `Stop EXPERIMENT on ${getSelectedCages()}`,
+                httpPOST,
+                "/operate_cage",
+                createPOSTBody(CageActions.experiment_stop)
               )
             }
           />

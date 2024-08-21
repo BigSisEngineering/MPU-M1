@@ -25,6 +25,8 @@ function getColor(colour) {
       return "rgba(249, 213, 49, 0.57)";
     case "BLUE":
       return "rgba(0, 114, 255, 0.57)";
+    case "ORANGE":
+      return "rgba(255, 130, 0, 0.57)";
     default:
       return "rgba(148, 148, 148, 1)";
   }
