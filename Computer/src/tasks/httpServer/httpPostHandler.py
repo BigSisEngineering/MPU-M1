@@ -1,5 +1,7 @@
 import time
 from flask import Blueprint, request, jsonify, make_response
+import logging
+import datetime
 # ------------------------------------------------------------------------------------------------ #
 from src import BscbAPI
 from src import data
@@ -45,6 +47,7 @@ def post_enable_dummy():
     with data.lock:
         if data.servos_ready:
             data.dummy_enabled = True
+            logging.info(f"Dummy mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             return "Dummy enabled"
     return "Initialize servos first"
 
@@ -52,6 +55,7 @@ def post_enable_pnp():
     with data.lock:
         if data.servos_ready:
             data.pnp_enabled = True
+            logging.info(f"PNP mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             return "PNP enabled"
     return "Initialize servos first"
 
@@ -59,6 +63,7 @@ def post_enable_experiment():
     with data.lock:
         if data.servos_ready:
             data.experiment_enabled = True
+            logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             return "Experiment mode enabled"
     return "Initialize servos first"
 
@@ -72,16 +77,19 @@ def post_enable_purge():
 def post_disable_dummy():
     with data.lock:
         data.dummy_enabled = False
+        logging.info(f"Dummy mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "Dummy disabled"
 
 def post_disable_pnp():
     with data.lock:
         data.pnp_enabled = False
+        logging.info(f"PNP mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "PNP disabled"
 
 def post_disable_experiment():
     with data.lock:
         data.experiment_enabled = False
+        logging.info(f"Experiment mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "Experiment mode disabled"
 
 def post_set_star_wheel_speed(speed):

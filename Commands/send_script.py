@@ -112,30 +112,6 @@ def scp_folder(local_path, remote_path, hostname, username, password, port=22):
         print(f"Error -> {hostname}-> {local_path}: {e}")
 
 
-# def ssh_reboot(hostname, username, password, port=22):
-#     try:
-#         # Create an SSH client instance
-#         ssh = paramiko.SSHClient()
-#         ssh.load_system_host_keys()
-#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-#         # Connect to the server
-#         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
-
-#         # Execute the reboot command
-#         stdin, stdout, stderr = ssh.exec_command("sudo reboot")
-
-#         # You can capture the output or error if needed
-#         # output = stdout.read()
-#         # error = stderr.read()
-
-#         print(f"Rebooted -> {hostname}")
-#     except Exception as e:
-#         print(f"An error occurred {hostname}: {e}")
-#     finally:
-#         # Close the connection
-#         ssh.close()
-
 def ssh_reboot(hostname, username, password, port=22):
     try:
         # Create an SSH client instance
@@ -146,14 +122,12 @@ def ssh_reboot(hostname, username, password, port=22):
         # Connect to the server
         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
 
-        # Execute the reboot command using sudo -S
-        stdin, stdout, stderr = ssh.exec_command(f"echo {password} | sudo -S reboot now")
+        # Execute the reboot command
+        stdin, stdout, stderr = ssh.exec_command("sudo reboot")
 
-        # Capture the output or error if needed
-        output = stdout.read()
-        error = stderr.read()
-        print(output.decode())
-        print(error.decode())
+        # You can capture the output or error if needed
+        # output = stdout.read()
+        # error = stderr.read()
 
         print(f"Rebooted -> {hostname}")
     except Exception as e:
@@ -161,6 +135,32 @@ def ssh_reboot(hostname, username, password, port=22):
     finally:
         # Close the connection
         ssh.close()
+
+# def ssh_reboot(hostname, username, password, port=22):
+#     try:
+#         # Create an SSH client instance
+#         ssh = paramiko.SSHClient()
+#         ssh.load_system_host_keys()
+#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+#         # Connect to the server
+#         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
+
+#         # Execute the reboot command using sudo -S
+#         stdin, stdout, stderr = ssh.exec_command(f"echo {password} | sudo -S reboot now")
+
+#         # Capture the output or error if needed
+#         output = stdout.read()
+#         error = stderr.read()
+#         print(output.decode())
+#         print(error.decode())
+
+#         print(f"Rebooted -> {hostname}")
+#     except Exception as e:
+#         print(f"An error occurred {hostname}: {e}")
+#     finally:
+#         # Close the connection
+#         ssh.close()
 
 def ssh_remove_log(hostname, username, password, port=22):
     try:
@@ -331,12 +331,12 @@ def get_log_file(hostname):
 for hostname in hostnames:
     try:
         # upload_files(hostname)
-        # reboot(hostname)
+        reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
         # restart_service(hostname)
-        get_log_file(hostname)
+        # get_log_file(hostname)
         # save_mask_requests()
         # time.sleep(0.1)
 

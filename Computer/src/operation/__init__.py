@@ -3,6 +3,7 @@ import time
 import threading
 from typing import Dict
 from datetime import datetime  # NOTE FOR TESTING ONLY
+import logging
 
 # ------------------------------------------------------------------------------------------------ #
 from src import data, cloud, comm
@@ -219,6 +220,7 @@ def dummy(
 
         threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
         threads["comm"].start()
+        logging.info(f"Dummy mode, pot unloaded at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(dummy)-{e}")
@@ -314,7 +316,7 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
             return
         
         with data.lock:
-            if data.purge_counter >= 10:
+            if data.purge_counter >= 80:
                 watchdog = data.experiment_pause_interval
                 print(f'experiment status {data.experiment_pause_state}')
                 if data.experiment_pause_state == False:
@@ -322,6 +324,7 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                     print(f'experiment status {data.experiment_pause_state}')
                     # start_time = datetime.fromtimestamp(data.experiment_pause_state).strftime('%H:%M:%S')
                     data.experiment_pause_state = True
+                    logging.info(f"Experiment mode in Pause State for {watchdog} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     # CLI.printline(Level.INFO, f"(experiment mode)- pause state started at : {start_time} ")
                 elapsed_time = time.time() - data.experiment_pause_start_time
                 CLI.printline(Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} ")
@@ -374,6 +377,7 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 threads["comm"].start()
                 data.purge_counter += 1
                 CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {data.purge_counter} ")
+                logging.info(f"Experiment mode in Purging State, pot unloaded :{data.purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
