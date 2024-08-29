@@ -1,8 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
+import { FetchBoardData } from "./Middleware/fetchBoardData";
+import useCageStatusStyles from "./Middleware/CageStatus";
 import "./App.css"; // Ensure this path is correct
 
+
 function App() {
+  const [boardData, setBoardData] = useState(null);
+  const [error, setError] = useState(null);
+
+  FetchBoardData(setBoardData, setError);
+
+  // Extract statuses from the fetched data
+  const starWheelStatus = boardData ? boardData.star_wheel_status : '';
+  const unloaderStatus = boardData ? boardData.unloader_status : '';
+  const { starWheelStyle, unloaderStyle } = useCageStatusStyles(starWheelStatus, unloaderStatus);
+
+
   return (
     <div>
       <Header />
@@ -46,11 +60,7 @@ function App() {
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
               <button className="button">Confirm</button>
-              <input
-                type="number"
-                placeholder="Interval"
-                className="input-box"
-              />
+              <input type="number" placeholder="Interval" className="input-box" />
             </div>
             <div className="gap"></div>
           </div>
@@ -61,13 +71,13 @@ function App() {
             <div className="subcontent-title">Servos & Sensors</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="icon-container">
-              <div className="gear">
-                <i className="fas fa-cog"></i>
-
+              <div className={`gear ${starWheelStyle}`}>
+                <i className="fas fa-cog" aria-hidden="true"></i>
                 <span>SW</span>
+                36
               </div>
-              <div className="gear">
-                <i className="fas fa-cog"></i>
+              <div className={`gear ${unloaderStyle}`}>
+                <i className="fas fa-cog" aria-hidden="true"></i>
                 <span>UL</span>
               </div>
               <div className="circle">
@@ -77,7 +87,6 @@ function App() {
                 <span>LOAD</span>
               </div>
             </div>
-
             <div className="gap"></div>
             <div className="subcontent-title">Operation Control</div>
             <div className="subinfo-horizontal-line"></div>

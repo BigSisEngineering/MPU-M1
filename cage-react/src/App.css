@@ -363,3 +363,16 @@ html {
 .gear {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional: adds depth */
 }
+
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.grey {
+  color: grey;
+}
