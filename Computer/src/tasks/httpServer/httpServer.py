@@ -10,6 +10,7 @@ from flask_cors import CORS
 import cv2
 import numpy as np
 import logging
+import os
 
 # ============================================== #
 from src import CLI
@@ -30,7 +31,18 @@ log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
 #
-app = Flask(__name__, static_url_path="/static")  # flask app
+# app = Flask(__name__, static_url_path="/static")  # flask app
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+react_folder = f"{script_dir}/react_app"
+
+#
+app = Flask(
+    __name__,
+    static_folder=f"{react_folder}/build/static",
+    template_folder=f"{react_folder}/build",
+)
+
 CORS(app)
 app.register_blueprint(httpGetHandler.get_api)
 app.register_blueprint(httpPostHandler.post_api)
