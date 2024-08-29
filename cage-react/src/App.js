@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Header from "./components/Header";
+import Header from "./Components/Header";
 import { FetchBoardData } from "./Middleware/fetchBoardData";
-import useCageStatusStyles from "./Middleware/CageStatus";
+import CageStatus from "./Components/CageStatus";
+import VideoFeed from "./Components/VideoFeed";
+import Button from './Components/Button';
+import { MoveCCW, MoveCW, Unload, ULInit, SWInit, ALLInit} from "./Actions/Post"; 
 import "./App.css"; // Ensure this path is correct
 
 
@@ -14,7 +17,8 @@ function App() {
   // Extract statuses from the fetched data
   const starWheelStatus = boardData ? boardData.star_wheel_status : '';
   const unloaderStatus = boardData ? boardData.unloader_status : '';
-  const { starWheelStyle, unloaderStyle } = useCageStatusStyles(starWheelStatus, unloaderStatus);
+  const modeStatus = boardData ? boardData.mode : '';
+  const { starWheel, unloader, mode} = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
 
   return (
@@ -27,23 +31,23 @@ function App() {
             <div className="subinfo-horizontal-line"></div>
             <div className="subcontent-info-same-row-container">
               ⓘ Status
-              <div className="subcontent-info-box">PNP</div>
+              <div className="subcontent-info-box" style={{ backgroundColor: mode.color }}>{mode.text}</div>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">Commands</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <button className="button">↪️</button>
-              <button className="button">⤵️</button>
-              <button className="button">↩️</button>
+              <Button onClick={MoveCCW} label="↪️"/>
+              <Button onClick={Unload} label="⤵️"/>
+              <Button onClick={MoveCW} label="↩️"/>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <button className="button">SW Init</button>
-              <button className="button">UL Init</button>
-              <button className="button">ALL Init</button>
+              <Button onClick={SWInit} label="SW Init"/>
+              <Button onClick={ULInit} label="UL Init"/>
+              <Button onClick={ALLInit} label="ALL Init"/>
               <button className="button">Clear Error</button>
             </div>
             <div className="gap"></div>
@@ -67,16 +71,15 @@ function App() {
         </div>
         <div className="columns-container" style={{ width: "60%" }}>
           <div className="subcontent-container">
-            <div className="video-feed-container"></div>
+            <VideoFeed />
             <div className="subcontent-title">Servos & Sensors</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="icon-container">
-              <div className={`gear ${starWheelStyle}`}>
+              <div className={`gear ${starWheel}`}>
                 <i className="fas fa-cog" aria-hidden="true"></i>
                 <span>SW</span>
-                36
               </div>
-              <div className={`gear ${unloaderStyle}`}>
+              <div className={`gear ${unloader}`}>
                 <i className="fas fa-cog" aria-hidden="true"></i>
                 <span>UL</span>
               </div>

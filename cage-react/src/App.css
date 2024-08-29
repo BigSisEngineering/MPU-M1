@@ -225,20 +225,18 @@ html {
 
 /* ====================================== CCTV ====================================== */
 .video-feed-container {
-  position: relative; /* Required for absolute positioning of children */
-  width: 100%; /* Make the container take full width */
-  padding-top: 70%; /* Set the height equal to half the width */
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
-  overflow: hidden; /* Ensure the container does not overflow */
+  width: 100%;  /* Full width of the container */
+  display: flex;
+  justify-content: center; /* Center the image horizontally */
+  align-items: center; /* Center the image vertically */
+  overflow: hidden; /* Hides anything outside the container bounds */
 }
-/* Additional styles for children, assuming video elements */
-.video-feed-container > * {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%; /* Take full width of parent */
-  height: 100%; /* Take full height of parent */
+
+.video-feed-container img {
+  max-width: 100%; /* Prevents the image from exceeding the width of the container */
+  height: auto; /* Keeps the image's original aspect ratio */
 }
+
 
 /* ================================ Operation Control =============================== */
 .buttons-container {
@@ -365,14 +363,24 @@ html {
 }
 
 
-.red {
+.gear.red .fas,
+.circle.red .fas {
   color: red;
 }
 
-.green {
-  color: green;
+.gear.green .fas,
+.circle.green .fas {
+  color: rgb(11, 219, 11);
 }
 
-.grey {
+.gear.grey .fas,
+.circle.grey .fas {
   color: grey;
 }
+
+.gear.black .fas,
+.circle.black .fas {
+  color: black;
+}
+
+
