@@ -4,7 +4,7 @@ import { FetchBoardData } from "./Middleware/fetchBoardData";
 import CageStatus from "./Components/CageStatus";
 import VideoFeed from "./Components/VideoFeed";
 import Button from './Components/Button';
-import { MoveCCW, MoveCW, Unload, ULInit, SWInit, ALLInit} from "./Actions/Post"; 
+import * as PostActions from "./Actions/Post";
 import "./App.css"; // Ensure this path is correct
 
 
@@ -37,18 +37,18 @@ function App() {
             <div className="subcontent-title">Commands</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={MoveCCW} label="↪️"/>
-              <Button onClick={Unload} label="⤵️"/>
-              <Button onClick={MoveCW} label="↩️"/>
+              <Button onClick={PostActions.MoveCCW} label="↪️"/>
+              <Button onClick={PostActions.Unload} label="⤵️"/>
+              <Button onClick={PostActions.MoveCW} label="↩️"/>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={SWInit} label="SW Init"/>
-              <Button onClick={ULInit} label="UL Init"/>
-              <Button onClick={ALLInit} label="ALL Init"/>
-              <button className="button">Clear Error</button>
+              <Button onClick={PostActions.SWInit} label="SW Init"/>
+              <Button onClick={PostActions.ULInit} label="UL Init"/>
+              <Button onClick={PostActions.ALLInit} label="ALL Init"/>
+              {/* <Button onClick={PostActions.ClearError} label="Clear Error"/> */}
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>
@@ -94,9 +94,9 @@ function App() {
             <div className="subcontent-title">Operation Control</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <button className="button">PNP</button>
-              <button className="button">DUMMY</button>
-              <button className="button">EXPERIMENT</button>
+              <Button onClick={PostActions.PNP} label="PNP"/>
+              <Button onClick={PostActions.Dummy} label="DUMMY"/>
+              <Button onClick={PostActions.Experiment} label="EXPERIMENT"/>
               <button className="button">STOP</button>
             </div>
           </div>
