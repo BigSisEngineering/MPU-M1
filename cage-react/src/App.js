@@ -48,7 +48,7 @@ function App() {
               <Button onClick={PostActions.SWInit} label="SW Init"/>
               <Button onClick={PostActions.ULInit} label="UL Init"/>
               <Button onClick={PostActions.ALLInit} label="ALL Init"/>
-              {/* <Button onClick={PostActions.ClearError} label="Clear Error"/> */}
+              <Button onClick={PostActions.ClearError} label="Clear Error"/>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>

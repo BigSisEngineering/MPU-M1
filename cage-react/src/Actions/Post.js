@@ -1,5 +1,5 @@
 const sendPostRequest = async (endpoint) => {
-  const url = `http://linaro-alip:8080${endpoint}`;
+  const url = `http://tantest:8080${endpoint}`;
   try {
     const response = await fetch(url, {
       method: 'POST',

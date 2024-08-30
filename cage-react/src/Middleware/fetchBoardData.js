@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 
 const BoardData = async () => {
-    const url = `http://linaro-alip:8080/BoardData`;
+    const url = `http://tantest:8080/BoardData`;
     try {
         const response = await fetch(url);
         if (!response.ok) {

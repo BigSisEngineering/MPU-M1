@@ -1,10 +1,12 @@
 //#include "UnloaderServo.h"
+//#include "StarWheelServo.h"
 //#include "DebounceInput.h"
 //#include "Servo.h"
 //
 //Servo myServo;
 //HardwareSerial *serial = &Serial1;
 //Unloader unloader;
+////StarWheelServo sw;
 //
 //void setup() {
 //  Serial.begin(9600);            // Start serial communication with the PC
@@ -12,20 +14,75 @@
 //  myServo.setSerial(&Serial1);   // Set the serial port for the servo commands
 //  unloader.setServo(&myServo);   // Associate the Unloader object with the Servo
 //  unloader.init(2);              // Initialize the Unloader with a sensor pin, e.g., 2
-//
-//  // Perform homing before starting the main loop
+////  sw.setServo(&myServo);
+////  sw.init(1);
+//  
+////  sw.homing();
+////   Perform homing before starting the main loop
 //  if (unloader.homing() != ReadBack_Status::NORMAL) {
 //    Serial.println("Homing failed!");
 //    while(1);  // Stop further execution if homing fails
 //  }
+////  if (sw.homing() != ReadBack_Status::NORMAL) {
+////    Serial.println("Homing failed!");
+////    while(5);  // Stop further execution if homing fails
+////  }
 //}
 //
 //void loop() {
-//  // Call the unload function repeatedly
 //  if (unloader.unload() != ReadBack_Status::NORMAL) {
 //    Serial.println("Unload failed!");
-////    delay(5000);  // Wait for some time before retrying
+////    unloader.resetError();
+////    unloader.init(2);
+////    unloader.homing();    
 //  }
+//  
+//  delay(2000);  
+//}
+
+
+//void loop() {
+//  // Call the unload function and store the result
+//  ReadBack_Status status = unloader.unload();
+//
+////  // Print the status of the unload operation
+////  Serial.print("Unload Status: ");
+////  switch (status) {
+////    case ReadBack_Status::NORMAL:
+////      Serial.println("NORMAL");
+////      break;
+////    case ReadBack_Status::ERROR:
+////      Serial.println("ERROR");
+////      break;
+////    case ReadBack_Status::NO_SERIAL:
+////      Serial.println("NO_SERIAL");
+////      break;
+////    case ReadBack_Status::NOT_INIT:
+////      Serial.println("NOT_INIT");
+////      break;
+////    case ReadBack_Status::OVERLOAD:
+////      Serial.println("OVERLOAD");
+////      break;
+////    case ReadBack_Status::TIMEOUT:
+////      Serial.println("TIMEOUT");
+////      break;
+////    case ReadBack_Status::IDLE:
+////      Serial.println("IDLE");
+////      break;
+////    default:
+////      Serial.println("UNKNOWN");
+////      break;
+////  }
+//
+////  // Get and print the current load
+////  int16_t currentLoad = 0;
+////  if (myServo.getLoad(ID_UNLOADER_MOTOR, currentLoad) == ReadBack_Status::NORMAL) {
+////    Serial.print("Current Load: ");
+////    Serial.println(currentLoad);
+////  } else {
+////    Serial.println("Failed to read the load.");
+////  }
+//
 //  delay(1500);  // Wait for the servo to reach the position, adjust as necessary
 //}
 
