@@ -65,7 +65,18 @@ export const Experiment = () => sendPostRequest('/ENABLE_EXPERIMENT');
 export const SaveZero = () => sendPostRequest('/SAVE_STAR_WHEEL_ZERO');
 export const SaveOffset = () => sendPostRequest('/SAVE_STAR_WHEEL_OFFSET');
 
-
 export const MoveSW = (param) => sendPostRequestWithParam('/MOVE_STAR_WHEEL', param);
 export const SetInterval = (param) => sendPostRequestWithParam('/SET_PAUSE_INTERVAL', param);
+
+// Exported action creators
+export const Stop = (mode) => {
+  const modeEndpointMap = {
+    PNP: '/DISABLE_PNP',
+    DUMMY: '/DISABLE_DUMMY',
+    EXPERIMENT: '/DISABLE_EXPERIMENT'
+  };
+
+  const endpoint = modeEndpointMap[mode]; 
+  return sendPostRequest(endpoint);
+};
 

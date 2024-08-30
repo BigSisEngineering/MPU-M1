@@ -34,6 +34,10 @@ function App() {
     PostActions.SetInterval(interval); // Use the current interval state as parameter
   };
 
+  const handleStop = () => {
+    PostActions.Stop(mode.text);
+  };
+
   return (
     <div>
       <Header />
@@ -109,7 +113,7 @@ function App() {
               <Button onClick={PostActions.PNP} label="PNP" disabled={!isIdle || !isNormal}/>
               <Button onClick={PostActions.Dummy} label="DUMMY" disabled={!isIdle || !isNormal}/>
               <Button onClick={PostActions.Experiment} label="EXPERIMENT" disabled={!isIdle || !isNormal}/>
-              <button className="button" disabled={isIdle}>STOP</button>
+              <Button onClick={handleStop} label="STOP" disabled={isIdle} />
             </div>
           </div>
         </div>
