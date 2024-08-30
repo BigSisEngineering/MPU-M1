@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
-import Header from "./Components/Header";
 import { FetchBoardData } from "./Middleware/fetchBoardData";
+import Header from "./Components/Header";
 import CageStatus from "./Components/CageStatus";
 import VideoFeed from "./Components/VideoFeed";
 import Button from './Components/Button';
-import * as PostActions from "./Actions/Post";
-import "./App.css"; // Ensure this path is correct
+import { getInput } from './Components/Placeholder';
 
+import * as PostActions from "./Actions/Post";
+import "./App.css";
 
 function App() {
   const [boardData, setBoardData] = useState(null);
   const [error, setError] = useState(null);
+  const [position, setPosition] = useState('');
+  const [interval, setInterval] = useState('');
 
   FetchBoardData(setBoardData, setError);
 
@@ -18,8 +21,18 @@ function App() {
   const starWheelStatus = boardData ? boardData.star_wheel_status : '';
   const unloaderStatus = boardData ? boardData.unloader_status : '';
   const modeStatus = boardData ? boardData.mode : '';
-  const { starWheel, unloader, mode} = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
+  const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
+  const isIdle = mode.text === 'IDLE';
+  const isNormal = starWheelStatus === 'normal' && unloaderStatus === 'normal';
+
+  const handleMoveSW = () => {
+    PostActions.MoveSW(position); // Use the current position state as parameter
+  };
+
+  const handleSetInterval = () => {
+    PostActions.SetInterval(interval); // Use the current interval state as parameter
+  };
 
   return (
     <div>
@@ -37,34 +50,33 @@ function App() {
             <div className="subcontent-title">Commands</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={PostActions.MoveCCW} label="↪️"/>
-              <Button onClick={PostActions.Unload} label="⤵️"/>
-              <Button onClick={PostActions.MoveCW} label="↩️"/>
+              <Button onClick={PostActions.MoveCCW} label="↪️" disabled={!isIdle}/>
+              <Button onClick={PostActions.Unload} label="⤵️" disabled={!isIdle}/>
+              <Button onClick={PostActions.MoveCW} label="↩️" disabled={!isIdle}/>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={PostActions.SWInit} label="SW Init"/>
-              <Button onClick={PostActions.ULInit} label="UL Init"/>
-              <Button onClick={PostActions.ALLInit} label="ALL Init"/>
-              <Button onClick={PostActions.ClearError} label="Clear Error"/>
+              <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle}/>
+              <Button onClick={PostActions.ULInit} label="UL Init" disabled={!isIdle}/>
+              <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle}/>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <button className="button">Save Zero</button>
-              <button className="button">Save Offset</button>
-              <button className="button">Move SW</button>
-              <input type="number" placeholder="Pos" className="input-box" />
+              <Button onClick={PostActions.SaveZero} label="Save Zero" disabled={!isIdle}/>
+              <Button onClick={PostActions.SaveOffset} label="Save Offset" disabled={!isIdle}/>
+              <Button onClick={handleMoveSW} label="Move SW" disabled={!isIdle}/>
+              {getInput('number', 'position', position, setPosition)}
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">Experiment Settings</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <button className="button">Confirm</button>
-              <input type="number" placeholder="Interval" className="input-box" />
+              <Button onClick={handleSetInterval} label="Set Interval" />
+              {getInput('number', 'interval', interval, setInterval)}
             </div>
             <div className="gap"></div>
           </div>
@@ -94,10 +106,10 @@ function App() {
             <div className="subcontent-title">Operation Control</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={PostActions.PNP} label="PNP"/>
-              <Button onClick={PostActions.Dummy} label="DUMMY"/>
-              <Button onClick={PostActions.Experiment} label="EXPERIMENT"/>
-              <button className="button">STOP</button>
+              <Button onClick={PostActions.PNP} label="PNP" disabled={!isIdle || !isNormal}/>
+              <Button onClick={PostActions.Dummy} label="DUMMY" disabled={!isIdle || !isNormal}/>
+              <Button onClick={PostActions.Experiment} label="EXPERIMENT" disabled={!isIdle || !isNormal}/>
+              <button className="button" disabled={isIdle}>STOP</button>
             </div>
           </div>
         </div>
