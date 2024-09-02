@@ -6,16 +6,16 @@ import os
 import threading
 import requests
 
-# row = 1
+row = 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-# for n in range(1, 14 + 1):
-#     hostnames.append(f"cage{row}x00{n:02}")
+for n in range(1, 14 + 1):
+    hostnames.append(f"cage{row}x00{n:02}")
 
-for row in range(2,5):
-    for n in range(1, 15):
-        hostnames.append(f"cage{row}x00{n:02}")
+# for row in range(2,5):
+#     for n in range(1, 15):
+#         hostnames.append(f"cage{row}x00{n:02}")
 # hostnames.append("cage2x0001")
 # hostnames.append("cage3x0004")
 # hostnames.append("cagetest")
