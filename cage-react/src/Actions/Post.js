@@ -59,6 +59,7 @@ export const Unload = () => sendPostRequest('/UNLOAD');
 export const SWInit = () => sendPostRequest('/STAR_WHEEL_INIT');
 export const ULInit = () => sendPostRequest('/UNLOADER_INIT');
 export const ALLInit = () => sendPostRequest('/ALL_SERVOS_INIT');
+export const ClearError = () => sendPostRequest('/CLEAR_ERROR')
 export const PNP = () => sendPostRequest('/ENABLE_PNP');
 export const Dummy = () => sendPostRequest('/ENABLE_DUMMY');
 export const Experiment = () => sendPostRequest('/ENABLE_EXPERIMENT');

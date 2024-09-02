@@ -88,6 +88,7 @@ def post_disable_pnp():
 
 def post_disable_experiment():
     with data.lock:
+        data.experiment_status = ''
         data.experiment_enabled = False
         logging.info(f"Experiment mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "Experiment mode disabled"
@@ -123,6 +124,11 @@ def post_clear_star_wheel_error():
 def post_clear_unloader_error():
     handler.clear_unloader_error()
     return "Unloader error cleared"
+
+def post_clear_error():
+    handler.clear_unloader_error()
+    handler.clear_star_wheel_error()
+    return "error cleared"
 
 def post_move_cw():
     handler.move_star_wheel_cw()
@@ -207,6 +213,7 @@ post_endpoints = {
     "DISABLE_EXPERIMENT": {"func": post_disable_experiment, "arg_num": 0},
     "CLEAR_STAR_WHEEL_ERROR": {"func": post_clear_star_wheel_error, "arg_num": 0},
     "CLEAR_UNLOADER_ERROR": {"func": post_clear_unloader_error, "arg_num": 0},
+    "CLEAR_ERROR": {"func": post_clear_error, "arg_num": 0},
     "MOVE_CW": {"func": post_move_cw, "arg_num": 0},
     "MOVE_CCW": {"func": post_move_ccw, "arg_num": 0},
     "UNLOAD": {"func": post_unload, "arg_num": 0},

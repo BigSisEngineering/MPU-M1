@@ -384,3 +384,23 @@ html {
 }
 
 
+.circle.red {
+  background-color: red;
+}
+
+
+.circle.green {
+  background-color: rgb(11, 219, 11);
+}
+
+
+.circle.grey {
+  background-color: grey;
+}
+
+
+.circle.black {
+  background-color: black;
+}
+
+

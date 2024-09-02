@@ -90,8 +90,8 @@ def execute():
         # Check loading slot
         is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
 
-        # is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
-        is_safe_to_move = True
+        is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+        # is_safe_to_move = True
 
         servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal'
 
@@ -203,7 +203,7 @@ def execute():
                     BOARD_DATA.mode = "experiment"
                 MongoDB_INIT == False
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
-                operation.experiment(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+                operation.experiment(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
         
         # ========================================= IDLE ========================================= #
         else:

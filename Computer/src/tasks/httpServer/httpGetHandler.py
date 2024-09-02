@@ -45,13 +45,19 @@ def get_ERROR():
     }
     return error_data
 
+def get_experimentData():
+    CLI.printline(Level.DEBUG, "(http_server)-get_experimentData")
+    with data.lock:
+        return data.experiment_status
+
 get_endpoints = {
     'ACK': get_ACK,
     'BoardData': get_BoardData,
     'DummyData': get_DummyData,
     'PNPData': get_PNPData,
     'potData': get_potData,
-    'ERROR': get_ERROR
+    'ERROR': get_ERROR,
+    'ExperimentData' : get_experimentData,
 }
 
 @get_api.route('/<endpoint>', methods=["GET"])

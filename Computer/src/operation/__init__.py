@@ -279,7 +279,7 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
         # with data.lock:
         #     data.purge_stage = purge_state
 
-def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, unload_probability: float):
+def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
     global threads
 
     def wait_thread_to_finish(id: str):
@@ -288,14 +288,14 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 threads[f"{id}"].join()
                 CLI.printline(Level.WARNING, f"(experiment mode)-waited {id}")
 
-    def get_ai_result(unload_probability):
+    def get_ai_result(image, pnp_confidence):
         global ai_result
-        ai_result = random.random() < unload_probability
-        # ai_result = (ai_result + 1) % 2
-        time.sleep(0.9)
-        # CLI.printline(Level.INFO, f"(experiment mode) - done")
+        ai_result = vision.PNP.is_egg_detected(image, pnp_confidence)
+        CLI.printline(Level.INFO, f"(Experiment)-ai done")
 
-    def comm_thread(BOARD: BScbAPI, tmp_egg_pot_counter):
+    def comm_thread(BOARD: BScbAPI, image, tmp_egg_pot_counter, timestamp_of_image):
+        global ai_result
+        camera.CAMERA.save_raw_frame(image, 1, ai_result, timestamp_of_image)
         with data.lock:
             data.pot_processed += 1
             data.pot_unloaded += tmp_egg_pot_counter
@@ -328,12 +328,15 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                     # CLI.printline(Level.INFO, f"(experiment mode)- pause state started at : {start_time} ")
                 elapsed_time = time.time() - data.experiment_pause_start_time
                 CLI.printline(Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} ")
+                data.experiment_status = f'pause state for {watchdog}s - remaining time : {watchdog - elapsed_time}s'
                 if elapsed_time > watchdog:
                     data.purge_counter = 0
                     data.experiment_pause_state = False
             else:
-                # ======================================= sw thread ====================================== #
                 wait_thread_to_finish("sw")
+                image = camera.CAMERA.get_frame()
+                timestamp_of_image = datetime.now()
+                CLI.printline(Level.INFO, f"(Experiment)-image captured")
                 wait_thread_to_finish("ul")
                 threads["sw"] = threading.Thread(
                     target=_move_sw,
@@ -345,21 +348,24 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 )
                 threads["sw"].start()
                 CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
-                # ======================================= AI thread ====================================== #
+               # ======================================= AI thread ====================================== #
                 wait_thread_to_finish("ai")
                 threads["ai"] = threading.Thread(
                     target=get_ai_result,
-                    args=(unload_probability,),
+                    args=(
+                        image,
+                        pnp_confidence,
+                    ),
                 )
                 threads["ai"].start()
-                CLI.printline(Level.INFO, f"(experiment mode)-started")
+                CLI.printline(Level.INFO, f"(PnP)-ai started")
                 # ======================================= ul thread ====================================== #
                 wait_thread_to_finish("sw")
                 wait_thread_to_finish("ai")
-                timer_unload = need_unload_in_interval(ai_result > 0)
+                # timer_unload = need_unload_in_interval(ai_result > 0)
 
                 # CLI.printline(Level.INFO, f"(experiment mode)-{timer_unload}/{ai_result}")
-                tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
+                tmp_egg_pot_counter = 1 #if (ai_result > 0 or timer_unload) else 0
                 # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
                 # cloud.DataBase.data_upload()
                 if tmp_egg_pot_counter > 0:
@@ -373,10 +379,22 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                     threads["ul"].start()
                 # ====================================== comm thread ===================================== #
 
-                threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
+                # threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
+                # threads["comm"].start()
+                threads["comm"] = threading.Thread(
+                    target=comm_thread,
+                    args=(
+                        BOARD,
+                        image,
+                        # pnp_confidence,
+                        tmp_egg_pot_counter,
+                        timestamp_of_image,
+                    ),
+                )
                 threads["comm"].start()
                 data.purge_counter += 1
                 CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {data.purge_counter} ")
+                data.experiment_status = f'purging state - pots unloaded : {data.purge_counter}' 
                 logging.info(f"Experiment mode in Purging State, pot unloaded :{data.purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     except Exception as e:

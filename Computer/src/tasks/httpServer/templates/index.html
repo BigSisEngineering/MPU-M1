@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🥚 Loading Controller...</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="header-title">
+          <h1>Cage Controller</h1>
+          <div id="device-id">ID: loading...</div>
+        </div>
+        <div class="version">version: <span id="software-version">loading...</span></div>
+      </header>
+
+      <div class="controls">
+        <div class="control-set">
+          <button id="clear-sw-error-button">Clear SW Error</button>
+          <button id="sw-init-button">Star Wheel Init</button>
+        </div>
+        <div class="control-set">
+          <button id="enable-pnp-button" data-state="disabled">Enable P&P</button>
+          <button id="enable-dummy-button" data-state="disabled">Enable Dummy</button>
+        </div>
+        <div class="control-set">
+          <button id="unloader-init-button">Unload Init</button>
+          <button id="clear-unloader-error-button">Clear UL Error</button>
+        </div>
+        <div class="control-set">
+          <button id="enable-experiment-button" data-state="disabled">Enable Experiment</button>
+          <input type="number" id="interval" placeholder="Enter interval">
+          <button id="confirm-interval">Confirm</button>
+        </div>
+        <div class="control-set move-buttons">
+          <button id="move-sw-ccw-button">↪️</button>
+          <button id="unload-button">⤵️</button>
+          <button id="move-sw-cw-button">↩️</button>
+        </div>
+        <div class="control-set set-offset">
+          <button id="set-zero">Save Zero</button>
+          <button id="set-offset">Save Offset</button>
+          <button id="move-sw-pos"> Move SW Pos</button>
+          <input type="number" id="sw-pos" placeholder="Enter number">
+          <!-- <button id="confirm-pos">Confirm</button> -->
+        </div>
+      </div>
+
+      <!-- <div class="status">
+        <div class="status-bar">
+          <label for="pp-confidence">P&P Confidence</label>
+          <input type="range" id="pp-confidence" name="pp-confidence" min="0" max="100" step="10" value="70" />
+          <span id="pp-confidence-value">70%</span>
+        </div>
+        <div class="status-bar">
+          <label for="unload-probability">Unload Probability</label>
+          <input
+            type="range"
+            id="unload-probability"
+            name="unload-probability"
+            min="0"
+            max="100"
+            step="10"
+            value="60"
+          />
+          <span id="unload-probability-value">70%</span>
+        </div>
+      </div> -->
+
+      <div class="circles">
+        <div class="circle" id="sw-init">
+          <span class="circle-label">Star Wheel</span>
+        </div>
+        <div class="circle" id="sensor-buffer-circle">
+          <span class="circle-label">Sensor Buffer</span>
+        </div>
+        <div class="circle" id="pnp-mode-circle">
+          <span class="circle-label">Mode P&P</span>
+        </div>
+        <div class="circle" id="dummy-mode-circle">
+          <span class="circle-label">Mode Dummy</span>
+        </div>
+        <div class="circle" id="experiment-mode-circle">
+          <span class="circle-label">Mode Experiment</span>
+        </div>
+        <div class="circle" id="sensor-load-circle">
+          <span class="circle-label">Sensor Load</span>
+        </div>
+        <div class="circle" id="sensor-unload-circle">
+          <span class="circle-label">Sensor Unload</span>
+        </div>
+        <div class="circle" id="unloader-init">
+          <span class="circle-label">Unloader</span>
+        </div>
+      </div>
+      <div class="camera-preview">
+        <img id="camera-feed" src="/video_feed" alt="Camera Feed" />
+      </div>
+    </div>
+
+    <script src="/static/js/event-functions.js"></script>
+  </body>
+</html>

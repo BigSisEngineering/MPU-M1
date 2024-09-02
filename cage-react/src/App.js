@@ -1,27 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { FetchBoardData } from "./Middleware/fetchBoardData";
+// import { FetchBoardData } from "./Middleware/FetchBoardData";
+// import { FetchExperimentData } from "./Middleware/ExperimentData"; // Import the custom hook
+import { useFetchData, parseBoardData, parseExperimentData } from "./Middleware/fetchData";
 import Header from "./Components/Header";
 import CageStatus from "./Components/CageStatus";
 import VideoFeed from "./Components/VideoFeed";
 import Button from './Components/Button';
 import { getInput } from './Components/Placeholder';
+import hostname from './Components/Hostname'; 
 
 import * as PostActions from "./Actions/Post";
 import "./App.css";
 
 function App() {
   const [boardData, setBoardData] = useState(null);
+  const [experimentData, setExperimentData] = useState(null);
   const [error, setError] = useState(null);
   const [position, setPosition] = useState('');
   const [interval, setInterval] = useState('');
 
-  FetchBoardData(setBoardData, setError);
+  // FetchBoardData(setBoardData, setError);
+  // FetchExperimentData(setExperimentData, setError);
+  // Use generalized fetch data hook
+  useFetchData(setBoardData, setError, "http://tantest:8080/BoardData", parseBoardData);
+  useFetchData(setExperimentData, setError, "http://tantest:8080/ExperimentData", parseExperimentData);
+
 
   // Extract statuses from the fetched data
   const starWheelStatus = boardData ? boardData.star_wheel_status : '';
   const unloaderStatus = boardData ? boardData.unloader_status : '';
   const modeStatus = boardData ? boardData.mode : '';
-  const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
+  const sensorsValues = boardData ? boardData.sensors_values : "(0, 0, 0, 0)";
+  console.log("Sensor Values:", sensorsValues);
+  const { starWheel, unloader, mode, load, buffer } = CageStatus(boardData?.star_wheel_status, boardData?.unloader_status, boardData?.mode, sensorsValues);
+  // const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
   const isIdle = mode.text === 'IDLE';
   const isNormal = starWheelStatus === 'normal' && unloaderStatus === 'normal';
@@ -65,6 +77,7 @@ function App() {
               <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle}/>
               <Button onClick={PostActions.ULInit} label="UL Init" disabled={!isIdle}/>
               <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle}/>
+              <Button onClick={PostActions.ClearError} label="Clear Error"/>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>
@@ -83,6 +96,12 @@ function App() {
               {getInput('number', 'interval', interval, setInterval)}
             </div>
             <div className="gap"></div>
+            {mode.text === 'EXPERIMENT' && experimentData && (
+              <div className="subcontent-info-same-row-container">
+                ⓘ Experiment State:
+                <div className="subcontent-info-box" style={{ backgroundColor: mode.color }}>{experimentData}</div>
+              </div>
+            )}
           </div>
         </div>
         <div className="columns-container" style={{ width: "60%" }}>
@@ -99,12 +118,14 @@ function App() {
                 <i className="fas fa-cog" aria-hidden="true"></i>
                 <span>UL</span>
               </div>
-              <div className="circle">
+              {/* <div className="circle">
                 <span>BUFFER</span>
               </div>
               <div className="circle">
                 <span>LOAD</span>
-              </div>
+              </div> */}
+              <div className={`circle ${load}`}>LOAD</div>
+              <div className={`circle ${buffer}`}>BUFFER</div>
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">Operation Control</div>

@@ -57,6 +57,7 @@ experiment_enabled: bool = False
 experiment_pause_interval = 60.0
 experiment_pause_start_time = None
 experiment_pause_state = False
+experiment_status = ''
 
 MongoDB_INIT: bool = False
 
