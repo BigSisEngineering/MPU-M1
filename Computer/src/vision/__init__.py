@@ -12,18 +12,29 @@ import socket
 from src import CLI, comm
 from src.CLI import Level
 from src import setup
-from src.vision.prediction import ComputerVision
+from src import data
+from src.vision.prediction import ComputerVision_y10, ComputerVision
 
 hostname = socket.gethostname()
 use_rknnlite = "cage" in hostname and int(hostname.split("cage")[1].split("x")[0]) > 1
+model = data.model
+
+
 
 # Determine if we need to use RKNN or RKNNLite based on the hostname
 if use_rknnlite:
     from rknnlite.api import RKNNLite  # Import RKNNLite
-    RKNN_MODEL = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        "yolov10_rock.rknn",
+    if model == 'v10':
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov10_rock.rknn",
     )
+    else:
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5l_m1_rock_v2.rknn",
+        )
+
 else:
     from rknn.api import RKNN  # Import RKNN
     RKNN_MODEL = os.path.join(
@@ -60,7 +71,7 @@ else:
 
 #             image = image[y1:y2, x1:x2]
 
-#             # image = self.computer_vision.letterbox(image)
+#             image = self.computer_vision.letterbox(image)
 #             self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
 #                 self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
 #             )
@@ -74,12 +85,13 @@ else:
 #         # classes will be a list of zero, each zero will be an egg
 #         # scores is a list to each one
 
-input_height = 640
-input_width = 640
+
 class ProcessAndPrediction:
     def __init__(self):
-        self.computer_vision = ComputerVision()
-        # self.computer_vision.GenerateMeshgrid()
+        if use_rknnlite and model == 'v10':
+            self.computer_vision = ComputerVision_y10()
+        else:
+            self.computer_vision = ComputerVision()
 
         self.boxes = None
         self.classes = None
@@ -107,47 +119,43 @@ class ProcessAndPrediction:
 
             # Crop the image
             image = image[y1:y2, x1:x2]
+
+            if use_rknnlite and model == 'v10':
+                # Get the detections (boxes, classes, scores)
+                self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
+                self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
+                )
+
+                egg_count = 0
+                crack_detected = False
+
+                # Check for eggs (class 0) and cracks (class 2)
+                for i, class_id in enumerate(self.classes):
+                    score = self.scores[i]
+                    if class_id == 0 and score > confident_level:  # Class 0: Egg
+                        egg_count += 1
+                    elif class_id == 2: #and score > 0.35:  # Class 2: Crack
+                        crack_detected = True
+
+                # Logic for returning based on detection
+                if egg_count > 0:
+                    print(f'egg detected {egg_count}')
+                    return egg_count  # Return number of eggs detected
+                elif crack_detected:
+                    print('crack detected')
+                    return 99  # Crack detected but no eggs with high confidence
+                
+            else:
+                image = self.computer_vision.letterbox(image)
+                self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
+                    self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
+                )
+                print(self.scores, self.boxes, self.classes)
+                if self.scores is not None:
+                    egg_list = [score for score in self.scores if score > confident_level]
+                    return len(egg_list)
+
             
-            # print(f'Image size after cropping: {image.shape}')
-
-            # # Get the detections (boxes, classes, scores)
-            # self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
-            #     self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
-            # )
-            try:
-                input_img, img_h, img_w = self.computer_vision.pre_process(image, input_height, input_width)
-                # Perform inference
-                outputs = self.computer_vision.get_rknn().inference(inputs=[input_img])
-                self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(outputs, img_h, img_w)
-                print(f"scores: {self.scores}, boxes: {self.boxes}, classes: {self.classes}")
-            except Exception as e:
-                print(f'Vision -- {e}')
-            
-
-            # Perform inference
-            # outputs = self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(input_img)])
-
-            # Postprocess outputs to get classes, scores, and boxes
-
-            # Variables to track the number of eggs and crack detection status
-            egg_count = 0
-            crack_detected = False
-
-            # Check for eggs (class 0) and cracks (class 2)
-            for i, class_id in enumerate(self.classes):
-                score = self.scores[i]
-                if class_id == 0 and score > confident_level:  # Class 0: Egg
-                    egg_count += 1
-                elif class_id == 2: #and score > 0.35:  # Class 2: Crack
-                    crack_detected = True
-
-            # Logic for returning based on detection
-            if egg_count > 0:
-                print(f'egg detected {egg_count}')
-                return egg_count  # Return number of eggs detected
-            elif crack_detected:
-                print('crack detected')
-                return 99  # Crack detected but no eggs with high confidence
         return 0  # No eggs or cracks detected with sufficient confidence
 
 

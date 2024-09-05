@@ -73,6 +73,8 @@ purge_counter: int = 0
 
 sw_pos : int = 0
 
+model = 'v10'
+
 # logging
 # logging.basicConfig(
 #     filename="/home/linaro/SmartCage_4/Statistics.log",

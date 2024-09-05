@@ -24,7 +24,7 @@ from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src.tasks import camera
 from src import setup
 from src import vision
-from src.vision.prediction import ComputerVision
+from src.vision.prediction import ComputerVision, ComputerVision_y10
 
 
 log = logging.getLogger("werkzeug")
@@ -56,7 +56,9 @@ def index():
         title=title,
     )
 
-bbox = ComputerVision()
+
+bbox = ComputerVision_y10() if data.model == 'v10' else ComputerVision()
+
 
 def gen():
     new_shape = (480, 320)
@@ -104,7 +106,8 @@ def gen():
                 y1 = max(y2 - desired_height, 0)
 
             frame = frame[y1:y2, x1:x2]
-            # # frame = bbox.letterbox(frame)
+            if data.model != 'v10':
+                frame = bbox.letterbox(frame)
             if vision.PNP.boxes is not None:
                 # print("Drawing bounding boxes")
                 frame = bbox.draw(
@@ -114,7 +117,7 @@ def gen():
                     vision.PNP.classes
                 )
 
-        _add_top_right_text(frame, f"eggs last hour : {data.eggs_last_hour}")
+        _add_top_right_text(frame, f"pots last hour : {data.eggs_last_hour}")
 
         try:
             img = cv2.imencode(".jpg", frame)[1].tobytes()
