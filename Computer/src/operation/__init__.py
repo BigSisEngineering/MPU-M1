@@ -42,6 +42,7 @@ def pnp(
 
     def get_ai_result(image, pnp_confidence):
         global ai_result
+        print(f'ai results: {ai_result}')
         ai_result = vision.PNP.is_egg_detected(image, pnp_confidence)
         CLI.printline(Level.INFO, f"(PnP)-ai done")
 
@@ -103,7 +104,7 @@ def pnp(
         wait_thread_to_finish("ai")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or is_it_overtime) else 0
         if tmp_egg_pot_counter > 0:
-            BOARD.timer.update_slot() #update timer slot when unloading
+            # BOARD.timer.update_slot() #update timer slot when unloading
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -132,7 +133,7 @@ def pnp(
             cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
 
         cloud.DataBase.data_upload()
-        BOARD.timer.move_index()
+        # BOARD.timer.move_index()
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(PnP)-{e}")

@@ -10,6 +10,7 @@ from flask_cors import CORS
 import cv2
 import numpy as np
 import logging
+import os
 
 # ============================================== #
 from src import CLI
@@ -30,7 +31,18 @@ log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
 #
-app = Flask(__name__, static_url_path="/static")  # flask app
+# app = Flask(__name__, static_url_path="/static")  # flask app
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+react_folder = f"{script_dir}/react_app"
+
+#
+app = Flask(
+    __name__,
+    static_folder=f"{react_folder}/build/static",
+    template_folder=f"{react_folder}/build",
+)
+
 CORS(app)
 app.register_blueprint(httpGetHandler.get_api)
 app.register_blueprint(httpPostHandler.post_api)
@@ -45,83 +57,6 @@ def index():
     )
 
 bbox = ComputerVision()
-# def gen():
-#     original_width, original_height = 640, 480
-#     new_shape = (640, 640)
-#     # original_center_x = setup.CENTER_X
-#     # original_center_y = setup.CENTER_Y
-#     # original_radius = setup.RADIUS
-#     # # Calculate the scale ratio and padding used by letterbox
-#     # scale = min(new_shape[0] / original_height, new_shape[1] / original_width)
-#     # new_unpad = (int(round(original_width * scale)), int(round(original_height * scale)))
-#     # dw = (new_shape[1] - new_unpad[0]) // 2
-#     # dh = (new_shape[0] - new_unpad[1]) // 2
-
-#     # # Adjust the center and radius based on the letterbox transformation
-#     # center_x = int(original_center_x * scale) + dw
-#     # center_y = int(original_center_y * scale) + dh
-#     # radius = int(original_radius * scale)
-
-#     def _create_dummy_image():
-#         frame = np.zeros((new_shape[1], new_shape[0], 3), dtype=np.uint8)
-#         cv2.putText(
-#             frame,
-#             "Camera Offline",
-#             (50, 240),
-#             cv2.FONT_HERSHEY_SIMPLEX,
-#             1,
-#             (0, 255, 0),
-#             2,
-#         )
-#         return frame
-
-#     def _add_top_right_text(frame, text, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1, color=(0, 255, 0), thickness=2):
-#         text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
-#         text_x = frame.shape[1] - text_size[0] - 10
-#         text_y = text_size[1] + 10
-#         cv2.putText(frame, text, (text_x, text_y), font, font_scale, color, thickness)
-        
-#     while True:
-#         frame = camera.CAMERA.get_frame()
-#         if frame is None:
-#             print("Frame is None, creating dummy image")
-#             frame = _create_dummy_image()
-#         else:
-#             frame = bbox.letterbox(frame)
-#             if vision.PNP.boxes is not None:
-#                 # print("Drawing bounding boxes")
-#                 frame = bbox.draw(
-#                     frame,
-#                     vision.PNP.boxes,
-#                     vision.PNP.scores,
-#                     vision.PNP.classes
-#                 )
-#         _add_top_right_text(frame, f"eggs last hour : {data.eggs_last_hour}")
-
-#         #     # Ensure the values are within bounds
-#         #     y1 = max(center_y - radius, 0)
-#         #     y2 = min(center_y + radius, frame.shape[0])
-#         #     x1 = max(center_x - radius, 0)
-#         #     x2 = min(center_x + radius, frame.shape[1])
-
-#             # try:
-#             #     # Crop the frame
-#             #     frame = frame[y1:y2, x1:x2]
-#             #     # Debugging prints
-#             #     # print(f"Frame shape after cropping: {frame.shape}")
-#             # except Exception as e:
-#             #     print(f"Error during cropping: {e}")
-
-#         try:
-#             img = cv2.imencode(".jpg", frame)[1].tobytes()
-#             if img is not None:
-#                 yield (b"--frame\r\n" b"Content-Type: image/jpg\r\n\r\n" + img + b"\r\n")
-#             else:
-#                 print("Image encoding failed")
-#         except Exception as e:
-#             print(f"Error during image encoding: {e}")
-
-
 
 def gen():
     new_shape = (480, 320)
@@ -169,7 +104,7 @@ def gen():
                 y1 = max(y2 - desired_height, 0)
 
             frame = frame[y1:y2, x1:x2]
-            frame = bbox.letterbox(frame)
+            # # frame = bbox.letterbox(frame)
             if vision.PNP.boxes is not None:
                 # print("Drawing bounding boxes")
                 frame = bbox.draw(

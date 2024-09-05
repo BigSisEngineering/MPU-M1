@@ -22,8 +22,13 @@ function App() {
   // FetchBoardData(setBoardData, setError);
   // FetchExperimentData(setExperimentData, setError);
   // Use generalized fetch data hook
-  useFetchData(setBoardData, setError, "http://tantest:8080/BoardData", parseBoardData);
-  useFetchData(setExperimentData, setError, "http://tantest:8080/ExperimentData", parseExperimentData);
+  // useFetchData(setBoardData, setError, "http://cage6x01:8080/BoardData", parseBoardData);
+  // useFetchData(setExperimentData, setError, "http://cage6x01:8080/ExperimentData", parseExperimentData);
+
+  useFetchData(setBoardData, setError, `http://${hostname}:8080/BoardData`, parseBoardData);
+  useFetchData(setExperimentData, setError, `http://${hostname}:8080/ExperimentData`, parseExperimentData);
+
+
 
 
   // Extract statuses from the fetched data
