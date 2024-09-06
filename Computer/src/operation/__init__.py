@@ -282,7 +282,7 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
 
 def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
     global threads
-
+    # t0 = time.time()
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
             if threads[f"{id}"].is_alive():
@@ -397,7 +397,6 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {data.purge_counter} ")
                 data.experiment_status = f'purging state - pots unloaded : {data.purge_counter}' 
                 logging.info(f"Experiment mode in Purging State, pot unloaded :{data.purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
     except Exception as e:
         CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
 

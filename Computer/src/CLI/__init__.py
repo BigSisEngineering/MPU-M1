@@ -8,11 +8,13 @@ RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
 BLUE = "\033[94m"
+ORANGE = "\033[38;5;214m"
 RESET = "\033[0m"
 
 
 class Level(Enum):
     DEBUG = " DEBUG "
+    SPECIFIC = "SPECIFIC"
     INFO = " INFO  "
     WARNING = "WARNING"
     ERROR = " ERROR "
@@ -23,6 +25,7 @@ display = {
     Level.DEBUG: True,
     Level.INFO: True,
     Level.WARNING: True,
+    Level.SPECIFIC: True,
     Level.ERROR: True,
 }
 
@@ -45,6 +48,8 @@ def printline(level: Level, msg: str):
             print(YELLOW + msg + RESET)
         elif level == Level.ERROR:
             print(RED + msg + RESET)
+        elif level == Level.SPECIFIC:
+            print(ORANGE + msg + RESET)
         else:
             print(msg)
     # debug_msgs_queue.put(msg) if level == Level.DEBUG else None

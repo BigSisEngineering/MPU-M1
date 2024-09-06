@@ -7,6 +7,9 @@ from typing import List
 import datetime
 import logging
 
+from src import CLI
+from src.CLI import Level
+
 
 class Status(Enum):
     overload = 0
@@ -375,7 +378,7 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
         self.unloader_status = self.got_Status_respond()
-        print("unloader time: ", time.time()-t1)
+        CLI.printline(Level.SPECIFIC,f"unloader time: , {time.time()-t1}")
         if self.is_readback_status_normal(self.unloader_status):
             # self.timer.update_slot()
             return True

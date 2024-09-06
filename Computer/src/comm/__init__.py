@@ -33,7 +33,7 @@ def timer():
             except Exception as e:
                 result = None  # Handle exceptions as needed
             time_diff = time.time() - timestamp
-            CLI.printline(Level.DEBUG, f"[{func.__name__}] - took: {time_diff}")
+            CLI.printline(Level.SPECIFIC, f"[{func.__name__}] - took: {time_diff}")
             return result
 
         return wrapper

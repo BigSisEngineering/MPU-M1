@@ -73,7 +73,7 @@ purge_counter: int = 0
 
 sw_pos : int = 0
 
-model = 'v10'
+model = 'v5'
 
 # logging
 # logging.basicConfig(
