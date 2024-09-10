@@ -69,7 +69,51 @@ ReadBack_Status Unloader::homing() {
 
 
 
+// ReadBack_Status Unloader::unload() {
+//   if (m_is_error) return ReadBack_Status::ERROR;
+//   if (m_servo == nullptr) return ReadBack_Status::NO_SERIAL;
+//   if (!m_is_init) return ReadBack_Status::NOT_INIT;
+
+//   const int positionTolerance = 50;  // Tolerance for position checking
+//   int16_t currentPosition = 0;       // Variable to hold the current position
+//   int16_t targetPosition = 0;        // Variable to hold the target position
+
+//   // Get the current position
+//   if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
+//     Serial.println("Error reading current position.");
+//     return ReadBack_Status::ERROR;  // Return on failure to read position
+//   }
+
+//   // Determine target position based on current position
+//   if (currentPosition >= 0 && currentPosition <= 370) {
+//     targetPosition = 3755;
+//   } else if (currentPosition >= 3725 && currentPosition <= 3785) {
+//     targetPosition = 341;
+//   } else {
+//     Serial.println("Invalid current position.");
+//     return ReadBack_Status::ERROR;
+//   }
+
+//   // Move the servo to the target position
+//   m_servo->goPosByCount(ID_UNLOADER_MOTOR, targetPosition, ST3215_MaxSpeed, ST3215_MaxAcc);
+
+//   // Wait until the servo reaches the target position within tolerance
+//   // do {
+//   //     delay(100); // Brief delay to prevent flooding the servo with requests
+//   //     if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
+//   //         Serial.println("Error reading position after moving to target position.");
+//   //         return ReadBack_Status::ERROR; // Return on failure to read position
+//   //     }
+//   // } while (!(abs(currentPosition - targetPosition) <= positionTolerance));
+//   delay(1500);
+//   return ReadBack_Status::NORMAL;
+// }
+
+
+
+
 ReadBack_Status Unloader::unload() {
+  ReadBack_Status res;
   if (m_is_error) return ReadBack_Status::ERROR;
   if (m_servo == nullptr) return ReadBack_Status::NO_SERIAL;
   if (!m_is_init) return ReadBack_Status::NOT_INIT;
@@ -80,7 +124,6 @@ ReadBack_Status Unloader::unload() {
 
   // Get the current position
   if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
-    Serial.println("Error reading current position.");
     return ReadBack_Status::ERROR;  // Return on failure to read position
   }
 
@@ -90,77 +133,26 @@ ReadBack_Status Unloader::unload() {
   } else if (currentPosition >= 3725 && currentPosition <= 3785) {
     targetPosition = 341;
   } else {
-    Serial.println("Invalid current position.");
     return ReadBack_Status::ERROR;
   }
-
   // Move the servo to the target position
   m_servo->goPosByCount(ID_UNLOADER_MOTOR, targetPosition, ST3215_MaxSpeed, ST3215_MaxAcc);
+  // Calculate dynamic load and store it
+  //    uint16_t dynamicLoad = m_servo->calcDynamicLoad(abs(targetPosition-currentPosition));
+  //    Serial.print("Calculated Dynamic Load: ");
+  //    Serial.println(dynamicLoad);
 
-  // Wait until the servo reaches the target position within tolerance
-  // do {
-  //     delay(100); // Brief delay to prevent flooding the servo with requests
-  //     if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
-  //         Serial.println("Error reading position after moving to target position.");
-  //         return ReadBack_Status::ERROR; // Return on failure to read position
-  //     }
-  // } while (!(abs(currentPosition - targetPosition) <= positionTolerance));
-  delay(1500);
+      // Call delayWithLoadDetection and print the delay value
+  uint16_t delayTime = m_servo->calcDelayTime(abs(targetPosition - currentPosition), ST3215_MaxSpeed, ST3215_MaxAcc);
+  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, delayTime,1000);
+  if (res == ReadBack_Status::OVERLOAD) {
+    Serial.println("Unload Status: OVERLOAD (Overload detected)");
+    m_is_error = true;
+    return res;
+  }
+  Serial.println("something");
   return ReadBack_Status::NORMAL;
 }
-
-
-
-
-//ReadBack_Status Unloader::unload() {
-//  ReadBack_Status res;
-//  if (m_is_error) return ReadBack_Status::ERROR;
-//  if (m_servo == nullptr) return ReadBack_Status::NO_SERIAL;
-//  if (!m_is_init) return ReadBack_Status::NOT_INIT;
-//
-//  const int positionTolerance = 50;  // Tolerance for position checking
-//  int16_t currentPosition = 0;       // Variable to hold the current position
-//  int16_t targetPosition = 0;        // Variable to hold the target position
-//
-//  // Get the current position
-//  if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
-//    Serial.println("Error reading current position.");
-//    return ReadBack_Status::ERROR;  // Return on failure to read position
-//  }
-//
-//  // Determine target position based on current position
-//  if (currentPosition >= 0 && currentPosition <= 370) {
-//    targetPosition = 3755;
-//  } else if (currentPosition >= 3725 && currentPosition <= 3785) {
-//    targetPosition = 341;
-//  } else {
-//    Serial.println("Invalid current position.");
-//    return ReadBack_Status::ERROR;
-//  }
-//
-//  // Move the servo to the target position
-//  m_servo->goPosByCount(ID_UNLOADER_MOTOR, targetPosition, ST3215_MaxSpeed, ST3215_MaxAcc);
-//  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, 2000, 1000);
-//
-////  // Wait until the servo reaches the target position within tolerance
-////  do {
-////      delay(100); // Brief delay to prevent flooding the servo with requests
-////      if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
-////          Serial.println("Error reading position after moving to target position.");
-////          return ReadBack_Status::ERROR; // Return on failure to read position
-////      }
-////  } while (!(abs(currentPosition - targetPosition) <= positionTolerance));
-////   delay(1500);
-////   return ReadBack_Status::NORMAL;
-//
-//  if (res != ReadBack_Status::NORMAL)
-//  {
-//    m_is_error = true;
-//    return res;
-//  }
-//  return res;
-//
-//}
 
 
 
