@@ -75,6 +75,10 @@
 - [v5.2.0] - 20 August 2024
   - added experiment mode
   - cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG')) for camera feed
+- [v5.3.0] - 10 September 2024
+  - react front end
+  - yolov10 mode
+  - SW init only if load and buff sensors triggered
 
 ### How to use
 

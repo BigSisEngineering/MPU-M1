@@ -23,7 +23,7 @@ if use_rknnlite:
     if model == 'v10':
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            "yolov10_rock.rknn",
+            "yolov10s_rock_v2.rknn",
     )
     else:
         RKNN_MODEL = os.path.join(

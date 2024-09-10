@@ -28,9 +28,6 @@ function App() {
   useFetchData(setBoardData, setError, `http://${hostname}:8080/BoardData`, parseBoardData);
   useFetchData(setExperimentData, setError, `http://${hostname}:8080/ExperimentData`, parseExperimentData);
 
-
-
-
   // Extract statuses from the fetched data
   const starWheelStatus = boardData ? boardData.star_wheel_status : '';
   const unloaderStatus = boardData ? boardData.unloader_status : '';
@@ -76,7 +73,7 @@ function App() {
               <Button onClick={PostActions.MoveCW} label="↩️" disabled={!isIdle}/>
             </div>
             <div className="gap"></div>
-            <div className="subcontent-title">Servos Init</div>
+            {/* <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
               <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle}/>
@@ -84,7 +81,7 @@ function App() {
               <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle}/>
               <Button onClick={PostActions.ClearError} label="Clear Error"/>
             </div>
-            <div className="gap"></div>
+            <div className="gap"></div> */}
             <div className="subcontent-title">SW Alignment</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">

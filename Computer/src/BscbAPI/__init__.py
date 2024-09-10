@@ -61,6 +61,30 @@ def update(stop_event: threading.Event):
             CLI.printline(Level.ERROR, f"(BscbAPI)-Loop error-{e}")
 
 
+
+def wait_until_buffer_and_loader_ready():
+    """
+    Wait until both is_buffer_full and is_loader_get_pot are True.
+    This function will block execution until both conditions are satisfied.
+    """
+    global BOARD
+    while True:
+        sensors_values = BOARD.ask_sensors()  # Get updated sensor values
+
+        # Check buffer and loader status
+        is_buffer_full = BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
+        is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
+
+        # If both conditions are met, break the loop
+        if is_buffer_full and is_loader_get_pot:
+            CLI.printline(Level.INFO, "Buffer is full and loader has received a part. Proceeding with star wheel initialization.")
+            break
+        else:
+            CLI.printline(Level.DEBUG, f"Waiting for buffer and loader. Buffer Full: {is_buffer_full}, Loader Get Pot: {is_loader_get_pot}")
+        
+        time.sleep(1)  # Wait for a second before checking again
+
+
 @comm.timer()
 def execute():
     global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout
@@ -125,6 +149,7 @@ def execute():
                     time.sleep(2)
                     BOARD.star_wheel_clear_error()
                     time.sleep(0.1)
+                    wait_until_buffer_and_loader_ready()
                     BOARD.starWheel_init()
                     is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
                     is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
@@ -171,7 +196,6 @@ def execute():
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
                 # print(f"mongo DB variable after : {MongoDB_INIT}")
-                # operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
                 operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
 
             CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
@@ -234,5 +258,6 @@ BOARD_DATA = BoardData(
 
 print('Initializing Starwheel and unloader..')
 BOARD.unloader_init()
+wait_until_buffer_and_loader_ready()
 BOARD.starWheel_init()
 print('Complete Initializing Starwheel and unloader..')
