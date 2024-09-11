@@ -185,9 +185,9 @@ class BScbAPI:
             except serial.SerialException as e:
                 self.update_com_port()
                 print(f"Serial error: {e}")
-            except struct.error as e:
-                print(f"Struct unpacking error: {e}, received data: {ack}")
-                return Status.error
+            # except struct.error as e:
+            #     print(f"Struct unpacking error: {e}, received data: {ack}")
+            #     return Status.error
 
     def phase_sensor_msg(self, timeout=3):
         time_out = time.time() + timeout
