@@ -364,6 +364,10 @@ class ComputerVision:
         # Process the input data using yolov5_post_process
         boxes, classes, scores = self.yolov5_post_process(input_data)
         return boxes, classes, scores
+    
+    def inference(rknn, image):
+        outputs = rknn.inference(inputs=[image])
+        return outputs
 
 
 # ---------------------------------------y10------------------------------------------------------ #
