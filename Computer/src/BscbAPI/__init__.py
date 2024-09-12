@@ -103,7 +103,7 @@ def execute():
             if sensors_values[0] < 100 or sensors_values[2] < 100:
                 if sensor_timer_flag == False:
                     sensor_time = time.time()
-                    sensor_timer_flag = True
+                    sensor_timer_flag = True    
 
         # ======================================= Check status ======================================= #
         CLI.printline(Level.INFO, f"SW status-{BOARD_DATA.star_wheel_status}, UL-{BOARD_DATA.unloader_status}")

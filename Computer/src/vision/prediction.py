@@ -38,14 +38,6 @@ else:
         "yolov5_m1_v2.rknn",
     )
 
-
-
-# BOX_THRESH = 0.5
-# NMS_THRESH = 0.6
-# IMG_SIZE = (640, 640)
-# CLASSES = "egg"
-
-# print(RKNN_MODEL)
 # # ------------------------------------------------------------------------------------------------ #
 class ComputerVision:
     def __init__(self):
