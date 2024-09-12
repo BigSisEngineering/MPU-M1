@@ -40,11 +40,15 @@ def pnp(
                 threads[f"{id}"].join()
                 CLI.printline(Level.WARNING, f"(PnP)-waited {id}")
 
-    def get_ai_result(image, pnp_confidence):
+    def get_ai_result( pnp_confidence):
         global ai_result
-        print(f'ai results: {ai_result}')
-        ai_result = vision.PNP.is_egg_detected(image, pnp_confidence)
-        CLI.printline(Level.INFO, f"(PnP)-ai done")
+        try:
+            print(f'ai results: {ai_result}')
+            ai_result = vision.PNP.is_egg_detected(pnp_confidence)
+            CLI.printline(Level.INFO, f"(PnP)-ai done")
+        except Exception as e:
+            CLI.printline(Level.ERROR, str(e))
+    
 
     def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter, timestamp_of_image):
         global ai_result
@@ -93,7 +97,6 @@ def pnp(
         threads["ai"] = threading.Thread(
             target=get_ai_result,
             args=(
-                image,
                 pnp_confidence,
             ),
         )

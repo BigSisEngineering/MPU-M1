@@ -164,7 +164,7 @@ def execute():
                     MongoDB_INIT == False
                     auto_clear_error = 0
                     # logging.info(f"AI/Dummy disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
-            print(f'camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}')
+            # print(f'camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}')
                 
             if not CAMERA.device_ready or not servos_ready:
                 data.pnp_enabled = False
@@ -187,10 +187,10 @@ def execute():
                     MongoDB_INIT = True
 
                 if sensor_timer_flag == True:
-                    print(f"variable sensor_time :{sensor_time}")
+                    # print(f"variable sensor_time :{sensor_time}")
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
-                        print(f"sensors not triggered for {sensor_timer}")
+                        # print(f"sensors not triggered for {sensor_timer}")
                         if sensor_timer > sensor_timeout and sensors_values[0] > 100 and sensors_values[2] > 100:
                             CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
                             cloud.DataBase = cloud.EggCounter()

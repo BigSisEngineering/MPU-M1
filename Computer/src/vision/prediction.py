@@ -39,12 +39,6 @@ else:
     )
 
 
-
-# BOX_THRESH = 0.5
-# NMS_THRESH = 0.6
-# IMG_SIZE = (640, 640)
-# CLASSES = "egg"
-
 # print(RKNN_MODEL)
 # # ------------------------------------------------------------------------------------------------ #
 class ComputerVision:
@@ -79,6 +73,7 @@ class ComputerVision:
             return
         CLI.printline(Level.INFO, "(RKNN) Model Loaded")
         self.rknn_ready = True
+        return ret
 
     def is_rknn_ready(self):
         return self.rknn_ready
@@ -364,6 +359,10 @@ class ComputerVision:
         # Process the input data using yolov5_post_process
         boxes, classes, scores = self.yolov5_post_process(input_data)
         return boxes, classes, scores
+    
+    def inference(rknn, image):
+        outputs = rknn.inference(inputs=[image])
+        return outputs
 
 
 # ---------------------------------------y10------------------------------------------------------ #
@@ -592,6 +591,10 @@ class ComputerVision_y10:
             cv2.putText(img, title, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA)
 
         return img
+    
+    def inference(rknn, image):
+        outputs = rknn.inference(inputs=[image])
+        return outputs
     
 
 #[0.7108973] [[254.26714 339.85162 282.50098 371.06683]] [0]

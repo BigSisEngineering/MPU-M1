@@ -47,15 +47,15 @@ class StarWheelTimer:
 
     def move_index(self) -> None:
         self.index = (self.index + 1) % 80
-        print(f'starwheel timer index {self.index}')
+        # print(f'starwheel timer index {self.index}')
 
     def update_slot(self) -> None:
         # Update the slot time for the previous index to the current time, formatted as a string
         current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.timer[self.index] = current_time_str
         self.unloaded_count[self.index] += 1
-        print(f'slot updated for index {self.index}')
-        print(f'Unloaded count list: {self.unloaded_count}')
+        # print(f'slot updated for index {self.index}')
+        # print(f'Unloaded count list: {self.unloaded_count}')
 
     def is_it_overtime(self, timeout_s: int = 3600*3) -> bool:
         """Check if the current slot's time exceeds the timeout."""
@@ -65,12 +65,12 @@ class StarWheelTimer:
         time_difference = (current_time - slot_time).total_seconds()
         is_overtime = time_difference > timeout_s
         
-        print(f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}')
+        # print(f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}')
         
-        if is_overtime:
-            print("The pot is overtime.")
-        else:
-            print("The pot is not overtime.")
+        # if is_overtime:
+        #     print("The pot is overtime.")
+        # else:
+        #     print("The pot is not overtime.")
 
         return is_overtime
 
