@@ -1,7 +1,8 @@
 import React from "react";
+import { useState } from "react";
 import "../../Assets/Styles/styles.css";
 import { httpPOST, exec } from "../../Utils/Utils.js";
-import { Button, HorizontalLine, Gap, SubcontentTitle } from "../../Components/index.js";
+import { Button, HorizontalLine, Gap, SubcontentTitle, TextInput } from "../../Components/index.js";
 
 class CageActions {
   static sw_init = "STAR_WHEEL_INIT";
@@ -17,6 +18,7 @@ class CageActions {
   static sw_move_bwd = "MOVE_CCW";
   static experiment_start = "ENABLE_EXPERIMENT";
   static experiment_stop = "DISABLE_EXPERIMENT";
+  static experiment_set_pause_interval = "SET_PAUSE_INTERVAL";
 }
 
 function CageControl({ selectAll, clearAll, isSelectedArray }) {
@@ -40,11 +42,18 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
     }
   }
 
-  function createPOSTBody(action) {
+  function createPOSTBody(action, data = {}) {
     const dict = { action: action, bool_list: isSelectedArray };
-    console.log(dict);
-    return dict;
+    const result = { ...dict, ...data };
+    console.log(result);
+    return result;
   }
+
+  const [pauseInterval, setPauseInterval] = useState(null);
+
+  const handlePauseInterval = (event) => {
+    setPauseInterval(event.target.value);
+  };
 
   return (
     <>
@@ -91,20 +100,6 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
             }
           />
           <Button
-            name="Servo Init"
-            onclick={() =>
-              exec(
-                `Servo Init on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.servo_init)
-              )
-            }
-          />
-        </div>
-        <HorizontalLine />
-        <div className="buttons-container">
-          <Button
             name="Start Dummy"
             onclick={() =>
               exec(
@@ -127,6 +122,22 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
             }
           />
           <Button
+            name="Servo Init"
+            onclick={() =>
+              exec(
+                `Servo Init on ${getSelectedCages()}`,
+                httpPOST,
+                "/operate_cage",
+                createPOSTBody(CageActions.servo_init)
+              )
+            }
+          />
+        </div>
+        <Gap />
+        Experiment Mode
+        <HorizontalLine />
+        <div className="buttons-container">
+          <Button
             name="Start Experiment"
             onclick={() =>
               exec(
@@ -148,6 +159,18 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
               )
             }
           />
+          <Button
+            name="Set Pause Interval"
+            onclick={() =>
+              exec(
+                `Set PAUSE INTERVAL on ${getSelectedCages()}`,
+                httpPOST,
+                "/operate_cage",
+                createPOSTBody(CageActions.experiment_set_pause_interval, { interval: pauseInterval })
+              )
+            }
+          />
+          <TextInput value={pauseInterval} onChange={handlePauseInterval} placeholder={"seconds"} />
         </div>
         (*Note: Affects selected cages only)
       </div>

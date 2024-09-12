@@ -214,9 +214,9 @@ html {
   align-items: left;
 }
 .input-box {
-  width: 40px; /* You can adjust this value to the desired size */
+  width: 100px; /* You can adjust this value to the desired size */
   height: auto; /* Ensure this is equal to the width */
-  padding: 5px;
+  padding: 13px;
   box-sizing: border-box; /* Include padding in the element's total width and height */
   border: 1px solid #ccc; /* Optional: Add a border */
   border-radius: 5px; /* Optional: Add rounded corners */

@@ -7,6 +7,7 @@ from src import components
 # ------------------------------------------------------------------------------------ #
 from src._shared_variables import Cages
 
+
 class Operation:
     executing_cage_command = False
     results = {}
@@ -29,6 +30,11 @@ class Operation:
             bool_list: List[bool] = data["bool_list"]
             action: str = data["action"]
 
+            params = ()
+            for key in data:
+                if key != "bool_list" and key != "action":
+                    params = params + (data[key],)
+
             if not Operation.executing_cage_command:
                 Operation.executing_cage_command = True
 
@@ -40,7 +46,11 @@ class Operation:
                         cage_number = f"00{index + 1:02d}"
                         for cage in Cages:
                             if cage_number in cage.value:
-                                function = lambda c=cage: components.cage_dict[c].exec_action(action)
+                                function = lambda c=cage: (
+                                    components.cage_dict[c].exec_action(action, params)
+                                    if params != ()
+                                    else components.cage_dict[c].exec_action(action)
+                                )
                                 worker_dict[f"cage{index + 1:02d}"] = function
                                 break
 
