@@ -70,6 +70,7 @@ purge_enabled: bool = False
 purge_stage: int = 0
 purge_start_unload: bool = False
 purge_counter: int = 0
+purge_all_timer = None
 
 sw_pos : int = 0
 

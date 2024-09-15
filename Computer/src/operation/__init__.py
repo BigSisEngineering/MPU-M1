@@ -367,7 +367,10 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
 
                 # CLI.printline(Level.INFO, f"(experiment mode)-{timer_unload}/{ai_result}")
                 # tmp_egg_pot_counter = 1 #if (ai_result > 0 or timer_unload) else 0
-                tmp_egg_pot_counter = 1 if ai_result > 0 else 0
+                tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - data.purge_all_timer)>3600) else 0
+                if (time.time() - data.purge_all_timer) > 3600 and data.purge_counter == 80:
+                    data.purge_all_timer = time.time()
+                    # print()
                 # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
                 # cloud.DataBase.data_upload()
                 if tmp_egg_pot_counter > 0:

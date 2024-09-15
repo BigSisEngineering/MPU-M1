@@ -63,6 +63,7 @@ def post_enable_experiment():
     with data.lock:
         if data.servos_ready:
             data.experiment_enabled = True
+            data.purge_all_timer = time.time()
             logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             return "Experiment mode enabled"
     return "Initialize servos first"
