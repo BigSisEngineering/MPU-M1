@@ -151,8 +151,8 @@ export const PNP = () => sendPostRequest('/ENABLE_PNP');
 export const Dummy = () => sendPostRequest('/ENABLE_DUMMY');
 export const Experiment = () => sendPostRequest('/ENABLE_EXPERIMENT');
 export const SaveZero = () => sendPostRequest('/SAVE_STAR_WHEEL_ZERO');
-export const SaveOffset = () => sendPostRequest('/SAVE_STAR_WHEEL_OFFSET');
 
+export const SaveOffset = (param) => sendPostRequestWithParam('/SAVE_STAR_WHEEL_OFFSET', param);
 export const MoveSW = (param) => sendPostRequestWithParam('/MOVE_STAR_WHEEL', param);
 export const SetInterval = (param) => sendPostRequestWithParam('/SET_PAUSE_INTERVAL', param);
 

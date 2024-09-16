@@ -44,6 +44,10 @@ function App() {
     PostActions.MoveSW(position); // Use the current position state as parameter
   };
 
+  const handleSaveOffset = () => {
+    PostActions.SaveOffset(position); // Use the current position state as parameter
+  };
+
   const handleSetInterval = () => {
     PostActions.SetInterval(interval); // Use the current interval state as parameter
   };
@@ -86,7 +90,7 @@ function App() {
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
               <Button onClick={PostActions.SaveZero} label="Save Zero" disabled={!isIdle}/>
-              <Button onClick={PostActions.SaveOffset} label="Save Offset" disabled={!isIdle}/>
+              <Button onClick={handleSaveOffset} label="Save Offset" disabled={!isIdle}/>
               <Button onClick={handleMoveSW} label="Move SW" disabled={!isIdle}/>
               {getInput('number', 'position', position, setPosition)}
             </div>

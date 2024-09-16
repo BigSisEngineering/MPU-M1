@@ -8,8 +8,9 @@ from src.tasks import httpServer
 
 def main():
     CLI.printline(Level.INFO, "Start")
-    httpServer.start_server()
+    # httpServer.start_server()
     tasks.start_all_threads()
+    httpServer.start_server()
 
 # ------------------------------------------------------------------------------------ #
 if __name__ == "__main__":
