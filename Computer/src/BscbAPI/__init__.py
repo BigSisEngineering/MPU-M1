@@ -77,7 +77,7 @@ def wait_until_buffer_and_loader_ready():
 
         # If both conditions are met, break the loop
         if is_buffer_full and is_loader_get_pot:
-            CLI.printline(Level.INFO, "Buffer is full and loader has received a part. Proceeding with star wheel initialization.")
+            CLI.printline(Level.INFO, "Buffer is full and loader has received a pot. Proceeding with star wheel initialization.")
             break
         else:
             CLI.printline(Level.DEBUG, f"Waiting for buffer and loader. Buffer Full: {is_buffer_full}, Loader Get Pot: {is_loader_get_pot}")

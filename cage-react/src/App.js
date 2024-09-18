@@ -124,12 +124,6 @@ function App() {
                 <i className="fas fa-cog" aria-hidden="true"></i>
                 <span>UL</span>
               </div>
-              {/* <div className="circle">
-                <span>BUFFER</span>
-              </div>
-              <div className="circle">
-                <span>LOAD</span>
-              </div> */}
               <div className={`circle ${load}`}>LOAD</div>
               <div className={`circle ${buffer}`}>BUFFER</div>
             </div>

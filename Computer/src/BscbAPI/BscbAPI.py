@@ -167,13 +167,16 @@ class BScbAPI:
                 self.update_com_port()
                 print(f"Serial error: {e}")
 
-    def got_Status_respond(self, timeout=3):
+    def got_Status_respond(self, timeout=3, from_starwheel_init=False):
         time_out = time.time() + timeout
         while True:
             try:
                 ack = self.ser.readline()
+                #print('servo executing')
                 # if len(ack) > 1:
                 #     print(f"Readback: {ack}")
+                if from_starwheel_init:
+                    print("StarWheel is executing...")
                 if len(ack) > 7:
                     header, target, action, status, _, _, crc = struct.unpack("=BBBBBBh", ack)
                     # print(f"(got_Status_respond) - {Status(status)}, {status} ")
@@ -264,7 +267,7 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
             print(f"Serial error: {e}")
-        self.star_wheel_status = self.got_Status_respond(timeout=65)
+        self.star_wheel_status = self.got_Status_respond(timeout=65, from_starwheel_init=True)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
             current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
