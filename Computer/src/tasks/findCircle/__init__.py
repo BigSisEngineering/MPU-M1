@@ -103,7 +103,6 @@ def CircularMask(image):
 
 def FindCircleThread(stop_event: threading.Event):
     # global CIRCLE_FLAG, CENTER_X, CENTER_Y, RADIUS
-    global CIRCLE_FLAG
     time_stamp = time.time()
     watchdog = 60  # seconds
     while not stop_event.is_set():
@@ -114,7 +113,7 @@ def FindCircleThread(stop_event: threading.Event):
                 if camera.CAMERA.get_frame() is not None:
                     print("finding circle ...")
                     FindCircle(camera.CAMERA.get_raw_frame())
-                    CIRCLE_FLAG = True
+                    # CIRCLE_FLAG = True
                     # print(f"Circle found with coordinates {setup.CENTER_X}, {setup.CENTER_Y}, {setup.RADIUS}")
         except Exception as e:
             CLI.printline(Level.ERROR, f"(finding Circle)-{e}")

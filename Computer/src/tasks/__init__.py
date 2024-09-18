@@ -21,7 +21,6 @@ TASK_THREADS: Dict[str, threading.Thread] = {
     "find_circle": findCircle.create_thread(),
 }
 
-
 def start_all_threads():
     for thread in TASK_THREADS.values():
         if not thread.is_alive():
