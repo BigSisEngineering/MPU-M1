@@ -12,6 +12,7 @@ async function fetchDataFromUrl(url, parser) {
         return data;
     } catch (error) {
         console.error("Error fetching data:", error);
+        
         throw error;
     }
 }

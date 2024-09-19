@@ -9,6 +9,7 @@ import logging
 
 from src import CLI
 from src.CLI import Level
+from src import data
 
 
 class Status(Enum):
@@ -169,6 +170,7 @@ class BScbAPI:
 
     def got_Status_respond(self, timeout=3, from_starwheel_init=False):
         time_out = time.time() + timeout
+        data.sw_homing = False
         while True:
             try:
                 ack = self.ser.readline()
@@ -176,7 +178,10 @@ class BScbAPI:
                 # if len(ack) > 1:
                 #     print(f"Readback: {ack}")
                 if from_starwheel_init:
-                    print("StarWheel is executing...")
+                    data.sw_homing = True
+                    print("StarWheel is homing...")
+                else:
+                    data.sw_homing = False
                 if len(ack) > 7:
                     header, target, action, status, _, _, crc = struct.unpack("=BBBBBBh", ack)
                     # print(f"(got_Status_respond) - {Status(status)}, {status} ")

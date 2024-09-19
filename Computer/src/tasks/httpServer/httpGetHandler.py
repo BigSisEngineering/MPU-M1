@@ -49,6 +49,11 @@ def get_experimentData():
     CLI.printline(Level.DEBUG, "(http_server)-get_experimentData")
     with data.lock:
         return data.experiment_status
+    
+def get_HOMING():
+    CLI.printline(Level.DEBUG, "(http_server)-get_HOMING")
+    with data.lock:
+        return data.sw_homing
 
 get_endpoints = {
     'ACK': get_ACK,
@@ -57,6 +62,7 @@ get_endpoints = {
     'PNPData': get_PNPData,
     'potData': get_potData,
     'ERROR': get_ERROR,
+    'HOMING': get_HOMING,
     'ExperimentData' : get_experimentData,
 }
 

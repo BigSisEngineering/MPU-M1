@@ -14,7 +14,7 @@ def aws_image_upload(predict, img_name):
     files = [("image", (img_name, open(img_name, "rb"), "image/jpg"))]
     headers = {}
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
-    # print(f'aws-image-upload {response}')
+    print(f'aws-image-upload {response}')
     return response
 
 

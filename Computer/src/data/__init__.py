@@ -44,6 +44,7 @@ is_unloader_error: bool = False
 max_auto_clear_error = 2
 
 servos_ready: bool = False
+sw_homing : bool =False
 
 star_wheel_duration_ms: int = 600
 
