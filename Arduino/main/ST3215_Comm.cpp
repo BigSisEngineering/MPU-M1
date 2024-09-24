@@ -37,6 +37,9 @@ ReadBack_Status ST3215_Comm::readWord(HardwareSerial *serial, int16_t &recv)
   // Normal Case
   static uint8_t buffer[16];
   static uint8_t ctn = 0;
+  // int availableBytes = serial->available();
+//  Serial.print("Available bytes: ");
+//  Serial.println(availableBytes);
   while (serial->available())
   {
     buffer[ctn++] = serial->read();

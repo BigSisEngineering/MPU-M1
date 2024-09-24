@@ -41,50 +41,57 @@
 //}
 
 
-//void loop() {
-//  // Call the unload function and store the result
-//  ReadBack_Status status = unloader.unload();
-//
-////  // Print the status of the unload operation
-////  Serial.print("Unload Status: ");
-////  switch (status) {
-////    case ReadBack_Status::NORMAL:
-////      Serial.println("NORMAL");
-////      break;
-////    case ReadBack_Status::ERROR:
-////      Serial.println("ERROR");
-////      break;
-////    case ReadBack_Status::NO_SERIAL:
-////      Serial.println("NO_SERIAL");
-////      break;
-////    case ReadBack_Status::NOT_INIT:
-////      Serial.println("NOT_INIT");
-////      break;
-////    case ReadBack_Status::OVERLOAD:
-////      Serial.println("OVERLOAD");
-////      break;
-////    case ReadBack_Status::TIMEOUT:
-////      Serial.println("TIMEOUT");
-////      break;
-////    case ReadBack_Status::IDLE:
-////      Serial.println("IDLE");
-////      break;
-////    default:
-////      Serial.println("UNKNOWN");
-////      break;
-////  }
-//
-////  // Get and print the current load
-////  int16_t currentLoad = 0;
-////  if (myServo.getLoad(ID_UNLOADER_MOTOR, currentLoad) == ReadBack_Status::NORMAL) {
-////    Serial.print("Current Load: ");
-////    Serial.println(currentLoad);
-////  } else {
-////    Serial.println("Failed to read the load.");
-////  }
-//
-//  delay(1500);  // Wait for the servo to reach the position, adjust as necessary
-//}
+
+
+
+// #include "ST3215_Comm.h"
+// #include "Servo.h"
+
+// HardwareSerial *serial = &Serial1;  // Use Serial1 or the correct serial port for your hardware setup
+// Servo myServo;
+
+// int16_t currentPosition = 0;  // Initialize with a starting position
+// uint8_t id = 2;  // Example device ID
+// uint16_t speed = 3400;  // Example speed
+// uint8_t acc = 150;  // Example acceleration
+
+// void setup() {
+//     Serial.begin(9600);  // Start the debugging serial port
+//     while (!Serial) { continue; }  // Wait for the serial port to connect
+
+//     serial->begin(1000000);  // Start the hardware serial port at 1 Mbps
+//     myServo.setSerial(serial);  // Assign the serial port to the Servo object
+    
+//     // Move to initial position
+// //    myServo.goPosByCount(id, currentPosition, speed, acc);  
+// //    delay(1000);  // Delay to allow motor to move
+// }
+// //
+// void loop() {
+//     // Increment position by 50
+//     currentPosition += 100;
+
+//     // Send new position command
+//     Serial.print("Sending to position: ");
+//     Serial.println(currentPosition);
+//     ReadBack_Status status = myServo.goPosByCount(id, currentPosition, speed, acc);  
+
+//     if (status != ReadBack_Status::NORMAL) {
+//         Serial.println("Failed to send move command.");
+//     }
+//     delay(2000);  // Increased delay to ensure the servo has time to move
+//     // Read current position
+//     if (myServo.getPos(id, currentPosition) == ReadBack_Status::NORMAL) {
+//         Serial.print("Current Position: ");
+//         Serial.println(currentPosition);
+//         Serial.print("---------------------------------");
+//     } else {
+//         Serial.println("Failed to read position.");
+//     }
+// }
+
+
+
 
 
 
@@ -122,38 +129,38 @@ static const uint8_t SENSOR_ARRAY[4]{ 18, 19, 20, 21 };
 
 void setup()
 {
-  // Serial setup
-  Serial.begin(115200);
-  Serial1.begin(1000000, SERIAL_8N1);
+ // Serial setup
+ Serial.begin(115200);
+ Serial1.begin(1000000, SERIAL_8N1);
 
-  // Pass servo Serial bus
-  servo.setSerial(&Serial1);
+ // Pass servo Serial bus
+ servo.setSerial(&Serial1);
 
-  // Valve
-  valve.init(GPIO_OPT1); //new board
+ // Valve
+ valve.init(GPIO_OPT1); //new board
 //   valve.init(GPIO_SIG5);// old Board
 
-  // Set Communication
-  comm.init(&Serial);
-  comm.setStarWheelServo(&star_wheel);
-  comm.setUnloader(&unloader);
-  comm.setSensors(&sensors);
+ // Set Communication
+ comm.init(&Serial);
+ comm.setStarWheelServo(&star_wheel);
+ comm.setUnloader(&unloader);
+ comm.setSensors(&sensors);
 
-  // Create unloader
-  unloader.init(POSITIONER_PIN_UNLOADER);
-  unloader.setServo(&servo);
+ // Create unloader
+ unloader.init(POSITIONER_PIN_UNLOADER);
+ unloader.setServo(&servo);
 
-  // Create Starwheel
-  star_wheel.init(POSITIONER_PIN_STAR_WHEEL);
-  star_wheel.setServo(&servo);
-  star_wheel.setValve(&valve);
-  star_wheel.setCW();
+ // Create Starwheel
+ star_wheel.init(POSITIONER_PIN_STAR_WHEEL);
+ star_wheel.setServo(&servo);
+ star_wheel.setValve(&valve);
+ star_wheel.setCW();
 
-  // sensors
-  sensors.init(4, SENSOR_ARRAY);
+ // sensors
+ sensors.init(4, SENSOR_ARRAY);
 }
 
 void loop()
 {
-  comm.update();
+ comm.update();
 }

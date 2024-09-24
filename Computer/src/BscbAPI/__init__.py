@@ -168,6 +168,7 @@ def execute():
                 
             if not CAMERA.device_ready or not servos_ready:
                 data.pnp_enabled = False
+                data.experiment_enabled = False
                 # logging.info(f"AI disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
                 
         # ======================================= PNP? ======================================= #
@@ -225,7 +226,20 @@ def execute():
                 time_stamp = time.time() if is_safe_to_move else time_stamp
                 with lock:
                     BOARD_DATA.mode = "experiment"
-                MongoDB_INIT == False
+                # MongoDB_INIT == False
+                if MongoDB_INIT == False:
+                    cloud.DataBase = cloud.EggCounter()
+                    MongoDB_INIT = True
+
+                if sensor_timer_flag == True:
+                    print(f"variable sensor_time :{sensor_time}")
+                    if sensor_time is not None:
+                        sensor_timer = time.time() - sensor_time
+                        print(f"sensors not triggered for {sensor_timer}")
+                        if sensor_timer > sensor_timeout and sensors_values[0] > 100 and sensors_values[2] > 100:
+                            CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
+                            cloud.DataBase = cloud.EggCounter()
+                            sensor_timer_flag = False
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
                 operation.experiment(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
         

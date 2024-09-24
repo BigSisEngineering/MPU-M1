@@ -79,10 +79,10 @@ def gen():
         )
         return frame
 
-    def _add_top_right_text(frame, text, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1, color=(0, 255, 0), thickness=2):
+    def _add_top_right_text(frame, text, line_offset=0, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1, color=(0, 255, 0), thickness=2):
         text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
         text_x = frame.shape[1] - text_size[0] - 10
-        text_y = text_size[1] + 10
+        text_y = text_size[1] + 10 + line_offset
         cv2.putText(frame, text, (text_x, text_y), font, font_scale, color, thickness)
         
     while True:
@@ -116,8 +116,9 @@ def gen():
                     vision.PNP.scores,
                     vision.PNP.classes
                 )
-
-        _add_top_right_text(frame, f"pots last hour : {data.eggs_last_hour}")
+        with data.lock:
+            _add_top_right_text(frame, f"pots last hour : {data.eggs_last_hour}")
+            _add_top_right_text(frame, f"steps last hour : {data.steps_last_hour}", line_offset=40)
 
         try:
             img = cv2.imencode(".jpg", frame)[1].tobytes()
