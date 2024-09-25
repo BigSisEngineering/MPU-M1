@@ -126,57 +126,18 @@ ReadBack_Status Servo::delayWithLoadDetection(const uint8_t &id, uint16_t ms, ui
   return ReadBack_Status::NORMAL;
 }
 
-//ReadBack_Status Servo::getPos(const uint8_t &id, int16_t &position)
-//{
-//  if (m_serial == nullptr) return ReadBack_Status::NO_SERIAL; // Sanity Check
-//  // Message send
-//  // [0xFF] [0xFF] [ID] [LEN] [INSTRUCTION] [REGISTER] [LEN] [CRC]
-//  uint8_t msg[ST3215_Comm::MSG_SIZE] = { 0 };
-//  ST3215_Comm::createMsg(id, ST3215_Comm::INSTRUCT_READ, ST3215_Comm::REG_POSITION, 2, msg, sizeof(msg));
-//  ST3215_Comm::write(m_serial, msg, sizeof(msg));
-//  ReadBack_Status res = ST3215_Comm::readWord(m_serial, position);
-//  if (position & (1 << 15)) position = -(position & ~(1 << 15));
-//  return (res);
-//}
-
-
-ReadBack_Status Servo::getPos(const uint8_t &id, int16_t &position) {
-    if (m_serial == nullptr) {
-        Serial.println("Serial port not initialized.");
-        return ReadBack_Status::NO_SERIAL; // Sanity Check
-    }
-
-    // Message send
-    // [0xFF] [0xFF] [ID] [LEN] [INSTRUCTION] [REGISTER] [LEN] [CRC]
-    uint8_t msg[ST3215_Comm::MSG_SIZE] = {0};
-    ST3215_Comm::createMsg(id, ST3215_Comm::INSTRUCT_READ, ST3215_Comm::REG_POSITION, 2, msg, sizeof(msg));
-
-    Serial.print("Sending position request: ");
-    for (int i = 0; i < sizeof(msg); i++) {
-        Serial.print(msg[i], HEX);
-        Serial.print(" ");
-    }
-    Serial.println();
-
-    ST3215_Comm::write(m_serial, msg, sizeof(msg));
-
-    // Read position from the serial
-    ReadBack_Status res = ST3215_Comm::readWord(m_serial, position);
-    if (res == ReadBack_Status::NORMAL) {
-        if (position & (1 << 15)) { // Check if the highest bit is set (negative number in two's complement)
-            position = -(position & ~(1 << 15)); // Convert to a negative integer
-        }
-        Serial.print("Position read successfully: ");
-        Serial.println(position);
-    } else {
-        Serial.println("Failed to read position.");
-    }
-
-    return res;
+ReadBack_Status Servo::getPos(const uint8_t &id, int16_t &position)
+{
+  if (m_serial == nullptr) return ReadBack_Status::NO_SERIAL; // Sanity Check
+  // Message send
+  // [0xFF] [0xFF] [ID] [LEN] [INSTRUCTION] [REGISTER] [LEN] [CRC]
+  uint8_t msg[ST3215_Comm::MSG_SIZE] = { 0 };
+  ST3215_Comm::createMsg(id, ST3215_Comm::INSTRUCT_READ, ST3215_Comm::REG_POSITION, 2, msg, sizeof(msg));
+  ST3215_Comm::write(m_serial, msg, sizeof(msg));
+  ReadBack_Status res = ST3215_Comm::readWord(m_serial, position);
+  if (position & (1 << 15)) position = -(position & ~(1 << 15));
+  return (res);
 }
-
-
-
 
 ReadBack_Status Servo::getLoad(const uint8_t &id, int16_t &load)
 {
