@@ -12,6 +12,6 @@ void Valve::turnOff() { digitalWrite(m_pin, LOW); }
 void Valve::blast()
 {
   this->turnOn();
-  delay(200);
+  delay(100);
   this->turnOff();
 }

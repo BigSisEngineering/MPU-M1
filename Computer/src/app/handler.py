@@ -41,6 +41,23 @@ def _init_star_wheel():
         # sv.star_wheel_inited = True
 
 # ------------------------------------------------------------------------------------------------ #
+def fake_init_star_wheel():
+    with BscbAPI.lock:
+        data: BscbAPI.Status = BscbAPI.BOARD.star_wheel_status
+    if not BscbAPI.BOARD.is_readback_status_normal(data):
+        return
+    thread = threading.Thread(target=_fake_init_star_wheel)
+    thread.start()
+
+
+def _fake_init_star_wheel():
+    CLI.printline(Level.DEBUG, "(handler)-_fake_init_star_wheel")
+    if BscbAPI.BOARD is not None:
+        with BscbAPI.lock:
+            BscbAPI.BOARD.starWheel_fake_init()
+        # sv.star_wheel_inited = True
+
+# ------------------------------------------------------------------------------------------------ #
 def save_star_wheel_offset():
     thread = threading.Thread(target=_save_star_wheel_offset)
     thread.start()
@@ -75,6 +92,18 @@ def _move_star_wheel_to_pos():
     if BscbAPI.BOARD is not None:
         with BscbAPI.lock:
             BscbAPI.BOARD.star_wheel_move_count(data.sw_pos)
+
+# ------------------------------------------------------------------------------------------------ #
+def move_star_wheel_to_pos_relative():
+    thread = threading.Thread(target=_move_star_wheel_to_pos_relative)
+    thread.start()
+
+
+def _move_star_wheel_to_pos_relative():
+    CLI.printline(Level.DEBUG, f"(handler)-_move_star_wheel_to_pos_relative")
+    if BscbAPI.BOARD is not None:
+        with BscbAPI.lock:
+            BscbAPI.BOARD.star_wheel_move_count_relative(data.sw_pos)
 
 # ------------------------------------------------------------------------------------------------ #
 def enable_pnp():

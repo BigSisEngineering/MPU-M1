@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useFetchData, parseBoardData, parseExperimentData } from "./Middleware/fetchData";
 import Header from "./Components/Header";
 import CageStatus from "./Components/CageStatus";
-import VideoFeed from "./Components/VideoFeed";
+import {VideoFeed, VideoFeedAlignment} from "./Components/VideoFeed";
 import Button from './Components/Button';
 import { getInput } from './Components/Placeholder';
 import hostname from './Components/Hostname'; 
@@ -18,12 +18,15 @@ function App() {
   const [error, setError] = useState(null);
   const [position, setPosition] = useState('');
   const [interval, setInterval] = useState('');
+  useEffect(() => {
+    document.title = ` 🥚 ${hostname}`;
+  }, [hostname]);
 
   // FetchBoardData(setBoardData, setError);
   // FetchExperimentData(setExperimentData, setError);
   // Use generalized fetch data hook
-  // useFetchData(setBoardData, setError, "http://cage6x01:8080/BoardData", parseBoardData);
-  // useFetchData(setExperimentData, setError, "http://cage6x01:8080/ExperimentData", parseExperimentData);
+  // useFetchData(setBoardData, setError, "http://tantest:8080/BoardData", parseBoardData);
+  // useFetchData(setExperimentData, setError, "http://tantest:8080/ExperimentData", parseExperimentData);
 
   useFetchData(setBoardData, setError, `http://${hostname}:8080/BoardData`, parseBoardData);
   useFetchData(setExperimentData, setError, `http://${hostname}:8080/ExperimentData`, parseExperimentData);
@@ -109,6 +112,10 @@ function App() {
               </div>
             )}
           </div>
+          <div className="subcontent-container">
+            <VideoFeedAlignment />
+          </div>
+
         </div>
         <div className="columns-container" style={{ width: "60%" }}>
           <div className="subcontent-container">

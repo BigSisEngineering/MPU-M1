@@ -21,6 +21,7 @@
 #define ACTION_RESET_ERROR       0x06
 #define ACTION_MOVE_COUNT        0x07
 #define ACTION_SAVE_OFFSET_COUNT 0x08
+#define ACTION_INIT              0x09
 // Sense
 #define SENSE_ERROR_STATUS       0x01
 

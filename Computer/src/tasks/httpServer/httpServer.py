@@ -22,6 +22,7 @@ print_name = "FLASK"
 # ============================================== #
 from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src.tasks import camera
+from src.tasks import checkAlignment
 from src import setup
 from src import vision
 from src.vision.prediction import ComputerVision, ComputerVision_y10
@@ -130,11 +131,47 @@ def gen():
             print(f"Error during image encoding: {e}")
 
 
+def gen_alignment():
+    new_shape = (480, 320)
+    def _create_dummy_image():
+        frame = np.zeros((new_shape[1], new_shape[0], 3), dtype=np.uint8)
+        cv2.putText(
+            frame,
+            "Camera Offline",
+            (50, 240),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2,
+        )
+        return frame
+    
+    while True:
+        frame = camera.CAMERA.get_frame()
+        if frame is None:
+            # print("Frame is None, creating dummy image")
+            frame = _create_dummy_image()
+        else:
+            # Calculate the top-left corner of the cropping rectangle
+            frame = checkAlignment.process_image(frame, (setup.CENTER_X, setup.CENTER_Y), setup.RADIUS)
+
+        try:
+            img = cv2.imencode(".jpg", frame)[1].tobytes()
+            if img is not None:
+                yield (b"--frame\r\n" b"Content-Type: image/jpg\r\n\r\n" + img + b"\r\n")
+            else:
+                print("Image encoding failed")
+        except Exception as e:
+            print(f"Error during image encoding: {e}")
 
 
 @app.route("/video_feed")
 def video_feed():
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+@app.route("/video_feed_alignment")
+def video_feed_alignment():
+    return Response(gen_alignment(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
 # ============================================== #

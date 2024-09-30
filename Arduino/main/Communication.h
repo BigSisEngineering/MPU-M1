@@ -60,6 +60,7 @@ private:
   void pri_starWheelActionHandler();
   void pri_starWheelStepHandler();
   void pri_starWheelHomingHandler();
+  void pri_starWheelInitHandler();
   void pri_starWheelTimingStepHandler();
   void pri_starWheelResetErrorHandler();
   void pri_starWheelMoveCount();

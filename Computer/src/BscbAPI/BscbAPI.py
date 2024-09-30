@@ -170,7 +170,7 @@ class BScbAPI:
 
     def got_Status_respond(self, timeout=3, from_starwheel_init=False):
         time_out = time.time() + timeout
-        data.sw_homing = False
+        # data.sw_homing = False
         while True:
             try:
                 ack = self.ser.readline()
@@ -178,10 +178,10 @@ class BScbAPI:
                 # if len(ack) > 1:
                 #     print(f"Readback: {ack}")
                 if from_starwheel_init:
-                    data.sw_homing = True
+                    # data.sw_homing = True
                     print("StarWheel is homing...")
-                else:
-                    data.sw_homing = False
+                # else:
+                    # data.sw_homing = False
                 if len(ack) > 7:
                     header, target, action, status, _, _, crc = struct.unpack("=BBBBBBh", ack)
                     # print(f"(got_Status_respond) - {Status(status)}, {status} ")
@@ -278,6 +278,34 @@ class BScbAPI:
             current_time_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             sw_init_time_str = f'starwheel init at {current_time_str}'
             logging.info(sw_init_time_str)
+            return True
+        else:
+            return False
+    
+    def starWheel_fake_init(self):
+        if not self.is_com_ready():
+            return False
+        if not self.is_readback_status_normal(self.star_wheel_status):
+            return False
+        # Hex message to send
+        hex_message = []
+        hex_message += bytearray.fromhex("AA")
+        hex_message += bytearray.fromhex("01")
+        hex_message += bytearray.fromhex("09")
+        hex_message += bytearray.fromhex("00")  # PARAM1
+        hex_message += bytearray.fromhex("00")
+        hex_message += bytearray.fromhex("00")
+        crc = self.generate_crc16(hex_message)
+        hex_message += struct.pack("<H", crc)
+
+        try:
+            self.ser.write(hex_message)
+        except serial.SerialException as e:
+            self.update_com_port()
+            print(f"Serial error: {e}")
+        self.star_wheel_status = self.got_Status_respond(timeout=10)
+        if self.is_readback_status_normal(self.star_wheel_status):
+            self.timer.reset()
             return True
         else:
             return False
@@ -494,6 +522,31 @@ class BScbAPI:
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
         hex_message += bytearray.fromhex("07")
+        max(min(0, count), 255)
+        hex_message += struct.pack("<H", count)
+        hex_message += bytearray.fromhex("00")
+        crc = self.generate_crc16(hex_message)
+        hex_message += struct.pack("<H", crc)
+
+        try:
+            self.ser.write(hex_message)
+        except serial.SerialException as e:
+            self.update_com_port()
+            print(f"Serial error: {e}")
+        # self.star_wheel_status = self.got_Status_respond()
+        # print(f"Star Wheel Move ms readback: { self.star_wheel_status}")
+        # return True if self.is_readback_status_normal(self.star_wheel_status) else False
+        # print("-".join("{:02x}".format(x) for x in hex_message))
+        return hex_message
+    
+    def star_wheel_move_count_relative(self, count):
+        if not self.is_readback_status_normal(self.star_wheel_status):
+            return False
+        # Hex message to send
+        hex_message = []
+        hex_message += bytearray.fromhex("AA")
+        hex_message += bytearray.fromhex("01")
+        hex_message += bytearray.fromhex("04")
         max(min(0, count), 255)
         hex_message += struct.pack("<H", count)
         hex_message += bytearray.fromhex("00")

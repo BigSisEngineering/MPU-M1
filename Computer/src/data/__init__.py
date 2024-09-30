@@ -78,6 +78,8 @@ sw_pos : int = 0
 
 model = 'v5'
 
+white_shade : int = 225
+
 # logging
 # logging.basicConfig(
 #     filename="/home/linaro/SmartCage_4/Statistics.log",

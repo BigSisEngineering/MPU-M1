@@ -128,6 +128,7 @@ void Communication::pri_starWheelActionHandler()
   case ACTION_MOVE: pri_starWheelStepHandler(); break;
   case ACTION_TURN: break; // TODO
   case ACTION_HOME: pri_starWheelHomingHandler(); break;
+  case ACTION_INIT: pri_starWheelInitHandler(); break;
   case ACTION_TIME: pri_starWheelTimingStepHandler(); break;
   case ACTION_RESET_ERROR: pri_starWheelResetErrorHandler(); break;
   case ACTION_MOVE_COUNT: pri_starWheelMoveCount(); break;
@@ -147,6 +148,12 @@ void Communication::pri_starWheelStepHandler()
 void Communication::pri_starWheelHomingHandler()
 {
   ReadBack_Status status = m_starwheel->homing();
+  replyReadbackStatus(status);
+}
+
+void Communication::pri_starWheelInitHandler()
+{
+  ReadBack_Status status = m_starwheel->m_init();
   replyReadbackStatus(status);
 }
 

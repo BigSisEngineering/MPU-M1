@@ -18,6 +18,7 @@ sensor_timer_flag = False
 sensor_time = None
 auto_clear_error = 0
 sensor_timeout = 3600
+fake_sw_init_counter = 0
 
 
 
@@ -87,7 +88,7 @@ def wait_until_buffer_and_loader_ready():
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout, fake_sw_init_counter
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -150,7 +151,12 @@ def execute():
                     BOARD.star_wheel_clear_error()
                     time.sleep(0.1)
                     wait_until_buffer_and_loader_ready()
-                    BOARD.starWheel_init()
+                    if fake_sw_init_counter <3 :
+                        BOARD.starWheel_fake_init()
+                        fake_sw_init_counter +=1
+                    else:
+                        BOARD.starWheel_init()
+                        fake_sw_init_counter = 0
                     is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
                     is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
                     is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot

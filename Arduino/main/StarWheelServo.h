@@ -28,6 +28,7 @@ public:
   ReadBack_Status moveSteps(int8_t step = 1);
   ReadBack_Status moveStep(uint16_t time_ms);
   ReadBack_Status moveCount(uint16_t count);
+  ReadBack_Status m_init();
   void            spin(int8_t speed);
 
   int8_t getStepCount() const { return (m_step_counter); }

@@ -27,6 +27,13 @@ def post_star_wheel_init():
             return "Star wheel init will proceed"
     return "Error, disable dummy or pnp before proceeding"
 
+def post_fake_star_wheel_init():
+    with data.lock:
+        if not data.dummy_enabled or not data.pnp_enabled:
+            handler.fake_init_star_wheel()
+            return "Star wheel fake init will proceed"
+    return "Error, disable dummy or pnp before proceeding"
+
 def post_unloader_init():
     with data.lock:
         if not data.dummy_enabled or not data.pnp_enabled:
@@ -154,6 +161,12 @@ def post_set_pause_interval(pause_interval):
     with data.lock:
         data.experiment_pause_interval = pause_interval
         return  f"pause interval set to {pause_interval} seconds"
+
+
+def post_set_white_shade(value):
+    with data.lock:
+        data.white_shade = value
+        return  f"white shade set to {value}"
  
 
 def post_save_mask_coordinates():
@@ -195,7 +208,17 @@ def post_move_star_wheel(pos):
             handler.move_star_wheel_to_pos()
             return f"Star wheel moved to position {pos}"
         else:
-            return "Dummy or PNP is enabled, preventing operation."
+            return "Dummy or PNP is enabled, operation denied."
+        
+
+def post_move_star_wheel_relative(pos):
+    with data.lock:
+        if not data.dummy_enabled or data.pnp_enabled:
+            data.sw_pos = pos
+            handler.move_star_wheel_to_pos_relative()
+            return f"Star wheel moved to position {pos}"
+        else:
+            return "Dummy or PNP is enabled, operation denied."
 
 
 
@@ -203,6 +226,7 @@ def post_move_star_wheel(pos):
 post_endpoints = {
     "STAR_WHEEL": {"func": post_star_wheel, "arg_num": 0},
     "STAR_WHEEL_INIT": {"func": post_star_wheel_init, "arg_num": 0},
+    "STAR_WHEEL_FAKE_INIT": {"func": post_fake_star_wheel_init, "arg_num": 0},
     "UNLOADER_INIT": {"func": post_unloader_init, "arg_num": 0},
     "ALL_SERVOS_INIT": {"func": post_all_servos_init, "arg_num": 0},
     "ENABLE_DUMMY": {"func": post_enable_dummy, "arg_num": 0},
@@ -227,7 +251,9 @@ post_endpoints = {
     "SET_PNP_CONFIDENCE_LEVEL": {"func": post_set_pnp_confidence_level, "arg_num": 1},
     "SET_CYCLE_TIME": {"func": post_set_cycle_time, "arg_num": 1},
     "SET_PAUSE_INTERVAL": {"func": post_set_pause_interval, "arg_num": 1},
-    "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1}
+    "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1},
+    "MOVE_STAR_WHEEL_REL": {"func": post_move_star_wheel_relative, "arg_num": 1},
+    "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1}
 }
 
 
