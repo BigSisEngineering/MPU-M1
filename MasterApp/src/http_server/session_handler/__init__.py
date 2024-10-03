@@ -74,10 +74,6 @@ class Session:
 
     def __transmission_thread(self, sid: str):
         # init
-        i = 0
-        i_cage = int(5 / Session.TRANSMIT_DELAY)
-        cage_emit_thread: Optional[threading.Thread] = None
-
         while not Session.end_session_event[sid].is_set():
             self.__emit(Readback.INFO, sid)
             self.__emit(Readback.SESSION_ACTIVE, sid)
