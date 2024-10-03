@@ -84,17 +84,7 @@ class Session:
             self.__emit(Readback.M1A, sid)
             self.__emit(Readback.M1C, sid)
             self.__emit(Readback.SYSTEM, sid)
-
-            # cage transmission every 5 seconds
-            if i == i_cage:
-                cage_emit_thread = threading.Thread(target=self.__emit, args=(Readback.CAGES, sid))
-                cage_emit_thread.start()
-                i = 0
-            else:
-                if cage_emit_thread is not None and cage_emit_thread.is_alive():
-                    cage_emit_thread.join()
-                i += 1
-
+            self.__emit(Readback.CAGES, sid)
             self.socketio.sleep(Session.TRANSMIT_DELAY)
 
         self.__emit(Readback.SESSION_END, sid)
