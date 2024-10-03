@@ -2,4 +2,5 @@ paramiko==3.2.0
 requests==2.21.0
 flask==2.2.5
 Flask-CORS==4.0.1
+Flask-SocketIO==5.4.1
 opencv-python==4.7.0.72

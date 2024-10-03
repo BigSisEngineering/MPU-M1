@@ -104,23 +104,6 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
     // "normal"
     // "idle"
     // "not_init"
-
-    // switch (servoStatus) {
-    //   case "overload":
-    //     return "🟥";
-    //   case "error":
-    //     return "🟧";
-    //   case "timeout":
-    //     return "🟨";
-    //   case "normal":
-    //     return "🟩";
-    //   case "idle":
-    //     return "🌫️";
-    //   case "not_init":
-    //     return "⬛";
-    //   default:
-    //     return DEFAULT_MSG;
-    // }
     switch (servoStatus) {
       case "overload":
         return CustomEmoji.red_rectangle;
@@ -141,14 +124,6 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
 
   function sensorEmoji(sensorValue) {
     const highThresh = 100;
-
-    // if (sensorValue > highThresh) {
-    //   return "🟢";
-    // } else if (sensorValue > 0) {
-    //   return "⭕";
-    // } else {
-    //   return DEFAULT_MSG;
-    // }
     if (sensorValue > highThresh) {
       return CustomEmoji.green_circle;
     } else if (sensorValue > 0) {

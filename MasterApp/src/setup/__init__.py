@@ -2,6 +2,7 @@ import os
 import configparser
 import socket
 import json
+from typing import Union, Dict
 
 # ------------------------------------------------------------------------------------------------ #
 from src.CLI import Level
@@ -54,7 +55,7 @@ MASTER_SERVER_PORT = get_master_server_port()
 SOFTWARE_VERSION = get_software_version()
 
 
-def get_setup_info() -> bytes:
+def get_setup_info(raw_dict: bool = False) -> Union[bytes, Dict]:
     global ROW, SOFTWARE_VERSION
 
     dict = {}
@@ -62,4 +63,6 @@ def get_setup_info() -> bytes:
     dict["row"] = ROW
     dict["software_version"] = SOFTWARE_VERSION
 
+    if raw_dict:
+        return dict
     return json.dumps(dict).encode()

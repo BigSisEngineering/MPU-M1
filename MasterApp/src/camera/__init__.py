@@ -66,7 +66,7 @@ class CameraStream:
         self._device_ready = False
 
         # update frame
-        threading.Thread(target=self._update).start()
+        # threading.Thread(target=self._update).start() #!temp
 
     # -------------------------------------------------------- #
     def _init_camera(self) -> None:
