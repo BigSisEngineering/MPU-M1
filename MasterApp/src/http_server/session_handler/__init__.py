@@ -1,7 +1,7 @@
 import threading
 from flask_socketio import SocketIO
-from typing import List, Dict
-import enum
+from typing import List, Dict, Optional
+import time
 
 # ------------------------------------------------------------------------------------ #
 from src import components
@@ -61,7 +61,6 @@ def get_readback_event(readback: Readback) -> str:
 
 class Session:
     MAX_SESSIONS: int = 2
-    TRANSMIT_LOCK = threading.Lock()
     TRANSMIT_DELAY = 0.2
 
     active_sessions: List[str] = []
@@ -75,19 +74,30 @@ class Session:
 
     def __transmission_thread(self, sid: str):
         # init
+        i = 0
+        i_cage = int(5 / Session.TRANSMIT_DELAY)
+        cage_emit_thread: Optional[threading.Thread] = None
+
         while not Session.end_session_event[sid].is_set():
-            with Session.TRANSMIT_LOCK:
-                self.__emit(Readback.INFO, sid)
-                self.__emit(Readback.SESSION_ACTIVE, sid)
-                self.__emit(Readback.M1A, sid)
-                self.__emit(Readback.M1C, sid)
-                self.__emit(Readback.CAGES, sid)
-                self.__emit(Readback.SYSTEM, sid)
+            self.__emit(Readback.INFO, sid)
+            self.__emit(Readback.SESSION_ACTIVE, sid)
+            self.__emit(Readback.M1A, sid)
+            self.__emit(Readback.M1C, sid)
+            self.__emit(Readback.SYSTEM, sid)
+
+            # cage transmission every 5 seconds
+            if i == i_cage:
+                cage_emit_thread = threading.Thread(target=self.__emit, args=(Readback.CAGES, sid))
+                cage_emit_thread.start()
+                i = 0
+            else:
+                if cage_emit_thread is not None and cage_emit_thread.is_alive():
+                    cage_emit_thread.join()
+                i += 1
 
             self.socketio.sleep(Session.TRANSMIT_DELAY)
 
-        with Session.TRANSMIT_LOCK:
-            self.__emit(Readback.SESSION_END, sid)
+        self.__emit(Readback.SESSION_END, sid)
 
         # remove session event
         if sid in Session.active_sessions:
