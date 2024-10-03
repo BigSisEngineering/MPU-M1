@@ -75,8 +75,8 @@ class Session:
     def __transmission_thread(self, sid: str):
         # init
         while not Session.end_session_event[sid].is_set():
-            self.__emit(Readback.INFO, sid)
             self.__emit(Readback.SESSION_ACTIVE, sid)
+            self.__emit(Readback.INFO, sid)
             self.__emit(Readback.M1A, sid)
             self.__emit(Readback.M1C, sid)
             self.__emit(Readback.SYSTEM, sid)
