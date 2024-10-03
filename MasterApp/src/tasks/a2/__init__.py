@@ -28,8 +28,9 @@ class A2:
                 components.A2.start() if SV.run_1a else components.A2.stop()
 
                 time_stamp = time.time()
+        CLI.printline(Level.INFO, "({:^10}) End".format(print_name))
 
     # ------------------------------------------------------------------------------------ #
     def start(self):
-        print("{:^10} Start.".format(print_name))
+        CLI.printline(Level.INFO, "({:^10}) Start".format(print_name))
         self.loop_thread.start()

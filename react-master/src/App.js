@@ -168,7 +168,7 @@ function Main() {
     async function isError() {
       if (dictLastPing) {
         const timeStamp = Math.floor(Date.now() / 1000);
-        timeStamp - dictLastPing.time > 5 ? setIsError(true) : setIsError(false);
+        timeStamp - dictLastPing.time > 10 ? setIsError(true) : setIsError(false);
       } else {
         setIsError(true);
       }
