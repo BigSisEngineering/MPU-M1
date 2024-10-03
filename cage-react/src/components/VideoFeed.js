@@ -14,15 +14,15 @@ export const VideoFeed = () => {
   );
 };
 
-export const VideoFeedAlignment = () => {
-  return (
-    <div className="video-feed-container" style={{ width: `82%`, margin: "auto" }}>
-      <img
-        src={`http://${hostname}:8080/video_feed_alignment`}
-        // src={`http://tantest:8080/video_feed_alignment`}
-        alt="Video Feed Alignment"
-        // style={{ transform: 'scale(0.7)' }}
-      />
-    </div>
-  );
-};
+// export const VideoFeedAlignment = () => {
+//   return (
+//     <div className="video-feed-container" style={{ width: `82%`, margin: "auto" }}>
+//       <img
+//         src={`http://${hostname}:8080/video_feed_alignment`}
+//         // src={`http://tantest:8080/video_feed_alignment`}
+//         alt="Video Feed Alignment"
+//         // style={{ transform: 'scale(0.7)' }}
+//       />
+//     </div>
+//   );
+// };

@@ -98,31 +98,42 @@ ReadBack_Status StarWheelServo::homing(bool use_constant_blast = true)
     if ((m_servo == nullptr) || (m_valve == nullptr) || (m_is_error)) {
         return ReadBack_Status::ERROR; // No servo object or other error conditions
     }
+
     // Read the initial state of the sensor
     bool initialSensorState = debounceDigitalRead(m_sensor_pin, true);
+
     setCW(); 
+    
+
     // Start valve operation if constant blast is used
     if (use_constant_blast && m_valve != nullptr) {
         m_valve->turnOn();
     }
+
     // Begin moving the servo in the set direction
     m_servo->setWheelMode(ID_STAR_WHEEL_MOTOR); // Set servo to wheel mode for continuous rotation
     uint32_t timer = millis();
     ReadBack_Status status = ReadBack_Status::IDLE;
+
     while (status == ReadBack_Status::IDLE) {
         bool currentSensorState = debounceDigitalRead(m_sensor_pin, true);
+
         // Continue moving while checking the sensor
-        m_servo->moveSpeed(ID_STAR_WHEEL_MOTOR, m_direction * 800, 15);
+//        m_servo->moveSpeed(ID_STAR_WHEEL_MOTOR, m_direction * 800, 15);
+        m_servo->moveSpeed(ID_STAR_WHEEL_MOTOR, (-1) * 800, 15);
+
         // Check if the sensor state has changed from its initial state
         if (currentSensorState != initialSensorState) {
             status = ReadBack_Status::NORMAL; // State change detected, homing successful
             break;
         }
+
         // Check for timeout (60 seconds)
         if ((millis() - timer) > 60000) {
             status = ReadBack_Status::TIMEOUT;
             break;
         }
+
         // Check for overload condition
         if (m_servo->delayWithLoadDetection(ID_STAR_WHEEL_MOTOR, 1, m_servo->calcDynamicLoad(600)) == ReadBack_Status::OVERLOAD) {
             m_is_error = true;
@@ -132,16 +143,19 @@ ReadBack_Status StarWheelServo::homing(bool use_constant_blast = true)
             return ReadBack_Status::OVERLOAD;
         }
     }
+
     // Stop and reset servo position after movement
     m_servo->moveSpeed(ID_STAR_WHEEL_MOTOR, 0, 15);
     m_servo->setServoMode(ID_STAR_WHEEL_MOTOR, true);
     resetCounter();
     delay(30); // Short delay to allow mechanical settling
+
     // Adjust for any mechanical offsets
     m_move_counter -= this->SENSOR_SLOT_OFFSET;
     m_servo->goPosByCount(ID_STAR_WHEEL_MOTOR, m_move_counter, m_speed, m_acc);
     uint16_t delay_time = m_servo->calcDelayTime(this->SENSOR_SLOT_OFFSET, m_speed, m_acc);
     m_servo->delayWithLoadDetection(ID_STAR_WHEEL_MOTOR, delay_time);
+
     // Cleanup valve operation if used
     if (m_valve != nullptr) {
         m_valve->turnOff();
@@ -149,9 +163,25 @@ ReadBack_Status StarWheelServo::homing(bool use_constant_blast = true)
     resetCounter();
     m_is_init = true;
     m_step_counter = 0;
+
     return status;
 }
 
+
+ReadBack_Status StarWheelServo::m_init()
+{
+  if ((m_servo == nullptr) || (m_valve == nullptr) || (m_is_error)) {
+        return ReadBack_Status::ERROR; // No servo object or other error conditions
+    }
+  setCW(); 
+  // Stop and reset servo position after movement
+  m_servo->moveSpeed(ID_STAR_WHEEL_MOTOR, 0, 15);
+  m_servo->setServoMode(ID_STAR_WHEEL_MOTOR, true);
+  resetCounter();
+  m_is_init = true;
+  m_step_counter = 0;
+  return ReadBack_Status::NORMAL;
+}
 
 ReadBack_Status StarWheelServo::moveSteps(int8_t step = 1)
 {
@@ -198,7 +228,7 @@ ReadBack_Status StarWheelServo::moveStep(uint16_t time_ms)
   m_servo->goPosByCount(ID_STAR_WHEEL_MOTOR, m_move_counter, speed, m_acc);
   uint16_t        delay_time = m_servo->calcDelayTime((m_direction) * (COUNT_FOR_ONE_SLOT), speed, m_acc);
   ReadBack_Status status     = m_servo->delayWithLoadDetection(ID_STAR_WHEEL_MOTOR, delay_time, 600); // FIXME - 600 is a magic number
-  // m_servo->release(ID_STAR_WHEEL_MOTOR);
+   m_servo->release(ID_STAR_WHEEL_MOTOR);
   m_step_counter += 1;
   return (status);
 }
@@ -214,13 +244,21 @@ ReadBack_Status StarWheelServo::moveCount(uint16_t count)
   m_servo->delayWithLoadDetection(ID_STAR_WHEEL_MOTOR, delay_time, 600); // FIXME - 600 is a magic number
 }
 
-ReadBack_Status StarWheelServo::m_init()
+ReadBack_Status StarWheelServo::moveCountRelative(uint16_t count)
 {
-  if ((m_servo == nullptr) || (m_valve == nullptr) || (m_is_error)) {
-        return ReadBack_Status::ERROR; // No servo object or other error conditions
-    }
-  m_is_init = true;
-  return ReadBack_Status::NORMAL;
+  int16_t currentPosition = 0; 
+  setCW(); 
+  if (!m_is_init) return ReadBack_Status::NOT_INIT;      // Not init
+  if (m_is_error) return ReadBack_Status::ERROR;         // Having error
+  if (m_servo == nullptr) return ReadBack_Status::ERROR; // No object
+  resetCounter();
+  if (m_servo->getPos(ID_STAR_WHEEL_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
+    return ReadBack_Status::ERROR;  // Return on failure to read position
+  }
+  int16_t pos = (m_direction * count);
+  m_servo->goPosByCount(ID_STAR_WHEEL_MOTOR, pos+currentPosition , m_speed, m_acc);
+  uint16_t delay_time = m_servo->calcDelayTime((m_direction * count), m_speed, m_acc);
+  m_servo->delayWithLoadDetection(ID_STAR_WHEEL_MOTOR, delay_time, 600); // FIXME - 600 is a magic number
 }
 
 void StarWheelServo::spin(int8_t speed)

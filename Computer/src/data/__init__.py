@@ -36,7 +36,7 @@ pnp_data: PNPData = PNPData(
     detection=False,
     number_of_egg_pot_since_last_ask=0,
     pnp_confidence=80,
-    cycle_time=3.0,
+    cycle_time=10.0,
 )
 
 is_star_wheel_error: bool = False
@@ -55,7 +55,7 @@ pnp_enabled: bool = False
 pnp_confidence: float = 0.80
 
 experiment_enabled: bool = False
-experiment_pause_interval = 60.0
+experiment_pause_interval = 600.0
 experiment_pause_start_time = None
 experiment_pause_state = False
 experiment_status = ''

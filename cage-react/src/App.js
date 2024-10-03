@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useFetchData, parseBoardData, parseExperimentData } from "./Middleware/fetchData";
 import Header from "./Components/Header";
 import CageStatus from "./Components/CageStatus";
-import {VideoFeed, VideoFeedAlignment} from "./Components/VideoFeed";
+import {VideoFeed} from "./Components/VideoFeed";
+// import VideoFeed from "./Components/VideoFeed";
 import Button from './Components/Button';
 import { getInput } from './Components/Placeholder';
 import hostname from './Components/Hostname'; 
@@ -112,9 +113,9 @@ function App() {
               </div>
             )}
           </div>
-          <div className="subcontent-container">
+          {/* <div className="subcontent-container">
             <VideoFeedAlignment />
-          </div>
+          </div> */}
 
         </div>
         <div className="columns-container" style={{ width: "60%" }}>

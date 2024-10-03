@@ -64,6 +64,7 @@ private:
   void pri_starWheelTimingStepHandler();
   void pri_starWheelResetErrorHandler();
   void pri_starWheelMoveCount();
+  void pri_starWheelMoveCountRelative();
   void pri_starWheelSaveOffsetCount();
 
   void pri_unloaderActionHandler();

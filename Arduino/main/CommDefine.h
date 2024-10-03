@@ -16,7 +16,7 @@
 #define ACTION_MOVE              0x01
 #define ACTION_TURN              0x02
 #define ACTION_HOME              0x03
-#define ACTION_COUNT             0x04
+#define ACTION_MOVE_COUNT_REL    0x04
 #define ACTION_TIME              0x05
 #define ACTION_RESET_ERROR       0x06
 #define ACTION_MOVE_COUNT        0x07

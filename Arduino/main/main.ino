@@ -46,36 +46,31 @@
 
 // #include "ST3215_Comm.h"
 // #include "Servo.h"
-
+//
 // HardwareSerial *serial = &Serial1;  // Use Serial1 or the correct serial port for your hardware setup
 // Servo myServo;
-
+//
 // int16_t currentPosition = 0;  // Initialize with a starting position
-// uint8_t id = 2;  // Example device ID
+// uint8_t id = 1;  // Example device ID
 // uint16_t speed = 3400;  // Example speed
 // uint8_t acc = 150;  // Example acceleration
-
+//
 // void setup() {
 //     Serial.begin(9600);  // Start the debugging serial port
 //     while (!Serial) { continue; }  // Wait for the serial port to connect
-
 //     serial->begin(1000000);  // Start the hardware serial port at 1 Mbps
 //     myServo.setSerial(serial);  // Assign the serial port to the Servo object
-    
 //     // Move to initial position
 // //    myServo.goPosByCount(id, currentPosition, speed, acc);  
 // //    delay(1000);  // Delay to allow motor to move
 // }
-// //
 // void loop() {
 //     // Increment position by 50
-//     currentPosition += 100;
-
+//     currentPosition += 512;
 //     // Send new position command
 //     Serial.print("Sending to position: ");
 //     Serial.println(currentPosition);
 //     ReadBack_Status status = myServo.goPosByCount(id, currentPosition, speed, acc);  
-
 //     if (status != ReadBack_Status::NORMAL) {
 //         Serial.println("Failed to send move command.");
 //     }
@@ -89,10 +84,6 @@
 //         Serial.println("Failed to read position.");
 //     }
 // }
-
-
-
-
 
 
 

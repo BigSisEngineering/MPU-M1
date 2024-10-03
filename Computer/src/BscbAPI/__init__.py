@@ -19,6 +19,7 @@ sensor_time = None
 auto_clear_error = 0
 sensor_timeout = 3600
 fake_sw_init_counter = 0
+timer_error =None
 
 
 
@@ -88,7 +89,7 @@ def wait_until_buffer_and_loader_ready():
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout, fake_sw_init_counter
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout, fake_sw_init_counter, timer_error
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -142,7 +143,11 @@ def execute():
             cycle_time = data.pnp_data.cycle_time
             if is_star_wheel_error or is_unloader_error:
                 logging.info(f"{'Starwheel overload' if is_star_wheel_error else 'Unloader overload'} at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                if auto_clear_error < data.max_auto_clear_error:
+                if auto_clear_error <= data.max_auto_clear_error:
+                    if auto_clear_error ==0: 
+                        timer_error = time.time()
+                        print('timer for error set')
+
                     CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
                     BOARD.unloader_clear_error()
                     time.sleep(0.1)
@@ -151,7 +156,9 @@ def execute():
                     BOARD.star_wheel_clear_error()
                     time.sleep(0.1)
                     wait_until_buffer_and_loader_ready()
-                    if fake_sw_init_counter <3 :
+                    # BOARD.starWheel_fake_init()
+                    # BOARD.starWheel_init()
+                    if fake_sw_init_counter <2 :
                         BOARD.starWheel_fake_init()
                         fake_sw_init_counter +=1
                     else:
@@ -161,7 +168,13 @@ def execute():
                     is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
                     is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
                     servos_ready = not is_star_wheel_error and not is_unloader_error
-                    auto_clear_error = 0 if servos_ready else auto_clear_error + 1
+                    # auto_clear_error = 0 if servos_ready else auto_clear_error + 1
+                    if auto_clear_error >=data.max_auto_clear_error and (time.time()-timer_error)<60:
+                        data.dummy_enabled = False
+                        data.pnp_enabled = False
+                        data.experiment_enabled = False
+                    auto_clear_error +=1
+                    print(f'auto clear error increased to  {auto_clear_error}')
 
                 else:  
                     data.dummy_enabled = False
@@ -169,10 +182,14 @@ def execute():
                     data. experiment_enabled = False
                     MongoDB_INIT == False
                     auto_clear_error = 0
+                    print('auto_clear_error set to zero')
                     # logging.info(f"AI/Dummy disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
             print(f'camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}')
                 
             if not CAMERA.device_ready or not servos_ready:
+                BOARD.unloader_clear_error()
+                time.sleep(0.5)
+                BOARD.unloader_init()
                 data.pnp_enabled = False
                 data.experiment_enabled = False
                 # logging.info(f"AI disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")

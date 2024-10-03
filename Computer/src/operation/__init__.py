@@ -206,6 +206,7 @@ def dummy(
 
         CLI.printline(Level.INFO, f"(dummy)-{timer_unload}/{ai_result}")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
+        # tmp_egg_pot_counter = 0
         # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
         # cloud.DataBase.data_upload()
         if tmp_egg_pot_counter > 0:

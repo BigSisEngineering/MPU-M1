@@ -128,10 +128,11 @@ void Communication::pri_starWheelActionHandler()
   case ACTION_MOVE: pri_starWheelStepHandler(); break;
   case ACTION_TURN: break; // TODO
   case ACTION_HOME: pri_starWheelHomingHandler(); break;
-  case ACTION_INIT: pri_starWheelInitHandler(); break;
   case ACTION_TIME: pri_starWheelTimingStepHandler(); break;
+  case ACTION_INIT: pri_starWheelInitHandler(); break;
   case ACTION_RESET_ERROR: pri_starWheelResetErrorHandler(); break;
   case ACTION_MOVE_COUNT: pri_starWheelMoveCount(); break;
+  case ACTION_MOVE_COUNT_REL: pri_starWheelMoveCountRelative(); break;
   case ACTION_SAVE_OFFSET_COUNT: pri_starWheelSaveOffsetCount(); break;
   default: break;
   }
@@ -174,6 +175,13 @@ void Communication::pri_starWheelMoveCount()
 {
   uint16_t count = m_stMsg.params[1] << 8 | m_stMsg.params[0];
   m_starwheel->moveCount(count);
+  replyACK();
+}
+
+void Communication::pri_starWheelMoveCountRelative()
+{
+  uint16_t count = m_stMsg.params[1] << 8 | m_stMsg.params[0];
+  m_starwheel->moveCountRelative(count);
   replyACK();
 }
 
