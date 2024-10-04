@@ -1,20 +1,15 @@
 import logging
 import os
-from flask import (
-    Flask,
-    send_from_directory,
-    Response,
-)
-
 import logging
 import cv2
 import numpy as np
+from flask import Flask, send_from_directory, Response
+from flask_socketio import SocketIO
 
 # ------------------------------------------------------------------------------------ #
 from src import setup
-
-# ------------------------------------------------------------------------------------ #
 from src import camera
+from src.http_server import get_handler, post_handler, session_handler, get_handler_socket
 
 # ------------------------------------------------------------------------------------ #
 from src import CLI
@@ -22,25 +17,20 @@ from src.CLI import Level
 
 print_name = "FLASK"
 
-# ------------------------------------------------------------------------------------ #
-from src.http_server import get_handler, post_handler
-
-
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
+# ------------------------------------------------------------------------------------ #
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 react_folder = f"{script_dir}/react_app"
 
-#
-app = Flask(
-    __name__,
-    static_folder=f"{react_folder}/build/static",
-    template_folder=f"{react_folder}/build",
-)
-
+app = Flask(__name__, static_folder=f"{react_folder}/build/static", template_folder=f"{react_folder}/build")
 app.register_blueprint(get_handler.blueprint)
 app.register_blueprint(post_handler.blueprint)
+
+socketio = SocketIO(app)
+session = session_handler.Session(socketio)
+get_handler_socket.register_socket_events(socketio, session)
 
 
 def gen_image():
@@ -53,15 +43,7 @@ def gen_image():
 
     def _create_dummy_image():
         frame = np.zeros((frame_width, frame_height, 3), dtype=np.uint8)
-        cv2.putText(
-            frame,
-            f"Camera offline",
-            (50, 240),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 255, 0),
-            2,
-        )
+        cv2.putText(frame, f"Camera offline", (50, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         return frame
 
     while True:
@@ -82,7 +64,6 @@ def img():
     return Response(gen_image(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
-# Serve React App
 @app.route("/")
 def serve():
     return send_from_directory(app.template_folder, "index.html")

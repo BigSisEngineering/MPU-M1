@@ -1,77 +1,106 @@
-import { useState, useEffect } from "react";
-import { fetchJSON } from "../Utils/Utils.js";
+import { createContext, useContext, useState, useEffect } from "react";
+// import { fetchJSON } from "../Utils/Utils.js";
+import io from "socket.io-client";
 
+const socket = io();
+socket.on("connect", function () {});
+socket.on("disconnect", function () {});
+
+/* ---------------------------------------------------------------------------------- */
 class Dicts {
   static m1a = 1;
   static m1c = 2;
   static cages = 3;
   static system = 4;
+  static info = 5;
+  static session = 6;
+  static lastping = 7;
 }
 
-// Global storage for state and intervals
-const dictStates = {
+const dictsContext = createContext({
   [Dicts.m1a]: null,
   [Dicts.m1c]: null,
   [Dicts.cages]: null,
   [Dicts.system]: null,
-};
+  [Dicts.info]: null,
+  [Dicts.session]: null,
+  [Dicts.lastping]: null,
+});
 
-const intervalIds = {
-  [Dicts.m1a]: null,
-  [Dicts.m1c]: null,
-  [Dicts.cages]: null,
-  [Dicts.system]: null,
-};
-
-async function fetchAndSetState(url, dictName) {
-  try {
-    const result = await fetchJSON(url);
-    dictStates[dictName] = result; // Update global state
-  } catch (error) {
-    dictStates[dictName] = null;
-  }
-}
-
-function useDict(dictName) {
-  const [state, setState] = useState(dictStates[dictName]);
+const ContentProvider = ({ children }) => {
+  const [dictValues, setDictValues] = useState({
+    [Dicts.m1a]: null,
+    [Dicts.m1c]: null,
+    [Dicts.cages]: null,
+    [Dicts.system]: null,
+    [Dicts.info]: null,
+    [Dicts.session]: null,
+    [Dicts.lastping]: null,
+  });
 
   useEffect(() => {
-    const urls = {
-      [Dicts.m1a]: "/get_status/m1a",
-      [Dicts.m1c]: "/get_status/m1c",
-      [Dicts.cages]: "/get_status/cages",
-      [Dicts.system]: "/get_status/system",
+    // Socket event listeners
+    const handleM1A = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.m1a]: data }));
     };
 
-    const fetchInterval = {
-      [Dicts.m1a]: 2000,
-      [Dicts.m1c]: 2000,
-      [Dicts.cages]: 5000,
-      [Dicts.system]: 2000,
+    const handleM1C = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.m1c]: data }));
     };
 
-    const url = urls[dictName];
+    const handleCages = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.cages]: data }));
+    };
 
-    if (url) {
-      // If there's no interval running, start one
-      if (!intervalIds[dictName]) {
-        intervalIds[dictName] = setInterval(() => {
-          fetchAndSetState(url, dictName);
-        }, fetchInterval[dictName]);
-      }
+    const handleSystem = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.system]: data }));
+    };
 
-      // Update local state whenever the global state changes
-      const updateState = () => setState(dictStates[dictName]);
+    const handleInfo = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.info]: data }));
+    };
 
-      // Set the state initially and set up the update listener
-      updateState();
-      const intervalStateUpdate = setInterval(updateState, fetchInterval[dictName]);
+    const handleSession = (data) => {
+      updateLastPing();
+      setDictValues((prev) => ({ ...prev, [Dicts.session]: data }));
+    };
 
-      return () => clearInterval(intervalStateUpdate);
+    function updateLastPing() {
+      const lastPing = Math.floor(Date.now() / 1000);
+      setDictValues((prev) => ({ ...prev, [Dicts.lastping]: { time: lastPing } }));
     }
-  }, [dictName]);
 
-  return state;
-}
+    // Register socket event listeners
+    socket.on("m1a", handleM1A);
+    socket.on("m1c", handleM1C);
+    socket.on("cages", handleCages);
+    socket.on("system", handleSystem);
+    socket.on("info", handleInfo);
+    socket.on("session", handleSession);
 
-export { useDict, Dicts };
+    // Cleanup function to remove the event listeners
+    return () => {
+      socket.off("m1a", handleM1A);
+      socket.off("m1c", handleM1C);
+      socket.off("cages", handleCages);
+      socket.off("system", handleSystem);
+      socket.off("info", handleInfo);
+      socket.off("session", handleSession);
+    };
+  }, []); // Empty dependency array to run only once on mount
+
+  return <dictsContext.Provider value={{ dictValues, setDictValues }}>{children}</dictsContext.Provider>;
+};
+
+// Custom hook for easy access to context
+const useDict = (dict) => {
+  const context = useContext(dictsContext); // Get the entire context
+
+  if (!context) {
+    throw new Error("useDict must be used within a ContentProvider");
+  }
+
+  return context.dictValues[dict]; // Return the specific value for the provided key
+};
+
+export { ContentProvider, useDict, Dicts };

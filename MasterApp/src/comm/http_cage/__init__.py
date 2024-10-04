@@ -27,8 +27,11 @@ ACTION_LIST = [
     "DISABLE_DUMMY",
     "ENABLE_PNP",
     "DISABLE_PNP",
+    "ENABLE_EXPERIMENT",
+    "DISABLE_EXPERIMENT",
     "MOVE_CW",
     "MOVE_CCW",
+    "SET_PAUSE_INTERVAL",
 ]
 
 
@@ -89,27 +92,6 @@ class HTTPCage:
             return self._status
         return None
 
-    def execute_action(self, action_name: str) -> None:
-        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
-            try:
-                requests.post(
-                    url=f"http://{self._hostname}.local:8080/{action_name}",
-                    timeout=HTTPCage.request_timeout,
-                )
-                CLI.printline(
-                    Level.INFO,
-                    "({:^10})-({:^8}) [{:^10}] Execute -> {}".format(print_name, "EXEC", self._hostname, action_name),
-                )
-            except Exception:
-                CLI.printline(
-                    Level.ERROR,
-                    "({:^10})-({:^8}) [{:^10}] Execute -> {} Failed!".format(
-                        print_name, "EXEC", self._hostname, action_name
-                    ),
-                )
-            finally:
-                self._lock_request.release()
-
     def fetch_pot_data(self) -> int:
         if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
             try:
@@ -157,11 +139,17 @@ class HTTPCage:
                 )
         return 0
 
-    def exec_action(self, action) -> str:
+    def exec_action(self, action, params=None) -> str:
         if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
             try:
                 if action in ACTION_LIST:
                     url = f"http://{self._hostname}.local:8080/{action}"
+
+                    if params is not None:
+                        params = (params,) if not isinstance(params, tuple) else params
+                        for param in params:
+                            url = url + f"/{param}"
+
                     headers = {"Content-Type": "application/json"}
                     response = requests.post(
                         url,

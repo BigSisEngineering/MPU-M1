@@ -27,31 +27,34 @@ for cage in Cages:
 
 
 # ------------------------------------------------------------------------------------ #
-def generate_m1a_dict():
+def generate_m1a_dict(raw_dict: bool = False):
     status_dict = {}
 
     status_dict["a1"] = A1.status_ui
     status_dict["a2"] = A2.status_ui
     status_dict["a3"] = A3.status_ui
 
+    if raw_dict:
+        return status_dict
     return json.dumps(status_dict).encode()
 
 
-def generate_m1c_dict():
+def generate_m1c_dict(raw_dict: bool = False):
     status_dict = {}
     status_dict["c1"] = C1.status_ui
     status_dict["c2"] = C2.status_ui
 
+    if raw_dict:
+        return status_dict
     return json.dumps(status_dict).encode()
 
 
-import time
-
-
-def generate_cage_dict():
+def generate_cage_dict(raw_dict: bool = False):
     dict_1B = {}
 
     for cage in Cages:
         dict_1B[cage.value] = cage_dict[cage].status_ui
 
+    if raw_dict:
+        return dict_1B
     return json.dumps(dict_1B).encode()

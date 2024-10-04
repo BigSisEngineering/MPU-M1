@@ -85,5 +85,10 @@ class SharedVariables:
         dict = {"1a": self.run_1a, "1c": self.run_1c}
         return json.dumps(dict).encode()
 
+    @property
+    def system_status_raw(self) -> Dict:
+        dict = {"1a": self.run_1a, "1c": self.run_1c}
+        return dict
+
 
 SV = SharedVariables()

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useDict, Dicts } from "./Middleware/get-api.js";
+import { ContentProvider, useDict, Dicts } from "./Middleware/get-api.js";
 import "./Assets/Styles/styles.css";
 import Header from "./Layouts/Header/index.js";
 import AlertBox from "./Layouts/AlertBox/index.js";
@@ -29,37 +29,37 @@ function generateDocumentTitle(module, row) {
   }
 }
 
-async function getSetupInfo() {
-  let infoDict = null;
-  let moduleNumber;
-  let rowNumber;
+// async function getSetupInfo() {
+//   let infoDict = null;
+//   let moduleNumber;
+//   let rowNumber;
 
-  try {
-    const response = await fetch("/get_status/info", {
-      method: "GET",
-    });
+//   try {
+//     const response = await fetch("/get_status/info", {
+//       method: "GET",
+//     });
 
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
+//     if (!response.ok) {
+//       throw new Error("Network response was not ok");
+//     }
 
-    infoDict = await response.json();
-  } catch (error) {
-    console.error(error);
-  }
+//     infoDict = await response.json();
+//   } catch (error) {
+//     console.error(error);
+//   }
 
-  if (infoDict) {
-    moduleNumber = infoDict["module"];
-    rowNumber = infoDict["row"];
-  } else {
-    // moduleNumber = 1;
-    // rowNumber = 6;
-    moduleNumber = null;
-    rowNumber = null;
-  }
+//   if (infoDict) {
+//     moduleNumber = infoDict["module"];
+//     rowNumber = infoDict["row"];
+//   } else {
+//     // moduleNumber = 1;
+//     // rowNumber = 6;
+//     moduleNumber = null;
+//     rowNumber = null;
+//   }
 
-  return { moduleNumber, rowNumber };
-}
+//   return { moduleNumber, rowNumber };
+// }
 
 /* ================================================================================== */
 /*                                     Main Blocks                                    */
@@ -142,35 +142,57 @@ function RightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected }) {
   );
 }
 
-export default function Webapp() {
+function Main() {
   const [moduleNumber, setModuleNumber] = useState(null);
   const [rowNumber, setRowNumber] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [isTimeout, setIsTimeout] = useState(false);
+
+  const dictInfo = useDict(Dicts.info);
+  const dictSession = useDict(Dicts.session);
+  const dictLastPing = useDict(Dicts.lastping);
 
   useEffect(() => {
-    async function fetchData() {
-      const result = await getSetupInfo();
-      setModuleNumber(result.moduleNumber);
-      setRowNumber(result.rowNumber);
-      document.title = generateDocumentTitle(result.moduleNumber, result.rowNumber);
-      setIsLoading(false);
-      result.rowNumber ? setIsError(false) : setIsError(true);
+    async function isLoaded() {
+      if (dictInfo != null) {
+        setModuleNumber(dictInfo.module);
+        setRowNumber(dictInfo.row);
+        document.title = generateDocumentTitle(dictInfo.module, dictInfo.row);
+        setIsLoading(false);
+      } else {
+        setIsLoading(true);
+      }
     }
 
-    fetchData();
+    async function isError() {
+      if (dictLastPing) {
+        const timeStamp = Math.floor(Date.now() / 1000);
+        timeStamp - dictLastPing.time > 10 ? setIsError(true) : setIsError(false);
+      } else {
+        setIsError(true);
+      }
+    }
 
-    const intervalId = setInterval(fetchData, 10000);
+    async function isTimeout() {
+      if (dictSession) dictSession.session_timeout ? setIsTimeout(true) : setIsTimeout(false);
+    }
+
+    isLoaded();
+    isTimeout();
+    const intervalId = setInterval(isError, 1000);
 
     return () => clearInterval(intervalId);
-  }, [setIsError]);
+  }, [setIsLoading, setIsError, setIsTimeout, dictInfo, dictSession, dictLastPing]);
 
-  if (isLoading) {
-    return <div className="full-display">Page loading...</div>;
-  }
+  console.log(isTimeout);
 
-  if (isError) {
+  if (isTimeout) {
+    return <div className="full-display">Too many sessions! You have been timedout.</div>;
+  } else if (isError) {
     return <div className="full-display">Connection lost. Reboot if refreshing does not work.</div>;
+  } else if (isLoading) {
+    return <div className="full-display">Page loading...</div>;
   }
 
   return (
@@ -178,6 +200,16 @@ export default function Webapp() {
       <AlertBox />
       <Header module={moduleNumber} unit={"Master"} row={rowNumber} />
       <MainContent rowNumber={rowNumber} />
+    </>
+  );
+}
+
+export default function Webapp() {
+  return (
+    <>
+      <ContentProvider>
+        <Main />
+      </ContentProvider>
     </>
   );
 }
