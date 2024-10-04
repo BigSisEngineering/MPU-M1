@@ -585,6 +585,46 @@ class BScbAPI:
         # self.star_wheel_status = self.got_Status_respond()
         # return True if self.is_readback_status_normal(self.star_wheel_status) else False
         return hex_message
+    
+    def set_valve_delay(self, delay_ms):
+        """
+        Sends a command to set the valve's blast delay.
+
+        :param delay_ms: The delay in milliseconds to set for the valve.
+        :return: True if the command was successfully acknowledged, False otherwise.
+        """
+        if not self.is_com_ready():
+            return False
+
+        # Prepare the command to send
+        hex_message = []
+        hex_message += bytearray.fromhex("AA")  # HEADER_ACTION
+        hex_message += bytearray.fromhex("04")  # TARGET_VALVE (0x04)
+        hex_message += bytearray.fromhex("01")  # ACTION_SET_DELAY (0x01)
+
+        # Delay in two bytes (lower byte first, then upper byte)
+        hex_message += struct.pack("<H", delay_ms)  # Pack the delay in little-endian format
+
+        # Add placeholders for padding, if needed (e.g., 00s to maintain message structure)
+        hex_message += bytearray.fromhex("00")
+
+        # Calculate the CRC and append it
+        crc = self.generate_crc16(hex_message)
+        hex_message += struct.pack("<H", crc)
+
+        # Send the command to the Arduino
+        try:
+            self.ser.write(hex_message)
+            print(f"Sent command to set valve delay to {delay_ms} ms.")
+        except serial.SerialException as e:
+            self.update_com_port()
+            print(f"Serial error: {e}")
+            return False
+
+        # Wait for and process the acknowledgment response
+        ack_status = self.got_ACK_respond()
+        return True if self.is_readback_status_normal(ack_status) else False
+
 
 
 if __name__ == "__main__":

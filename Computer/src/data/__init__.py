@@ -36,7 +36,7 @@ pnp_data: PNPData = PNPData(
     detection=False,
     number_of_egg_pot_since_last_ask=0,
     pnp_confidence=80,
-    cycle_time=10.0,
+    cycle_time=3.0,
 )
 
 is_star_wheel_error: bool = False
@@ -47,6 +47,7 @@ servos_ready: bool = False
 sw_homing : bool =False
 
 star_wheel_duration_ms: int = 600
+sw_pos : int = 0
 
 dummy_enabled: bool = False
 unload_probability: float = 1.0
@@ -74,7 +75,7 @@ purge_start_unload: bool = False
 purge_counter: int = 0
 purge_all_timer = None
 
-sw_pos : int = 0
+valve_delay : int =200
 
 model = 'v5'
 

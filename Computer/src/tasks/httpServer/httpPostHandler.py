@@ -220,6 +220,11 @@ def post_move_star_wheel_relative(pos):
         else:
             return "Dummy or PNP is enabled, operation denied."
 
+def post_set_valve_delay(delay):
+    with data.lock:
+        data.valve_delay = delay
+        handler.set_valve_delay()
+        return f"Valve delay set to {delay}"
 
 
 # Mapping endpoints to functions and their required argument count
@@ -253,7 +258,8 @@ post_endpoints = {
     "SET_PAUSE_INTERVAL": {"func": post_set_pause_interval, "arg_num": 1},
     "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1},
     "MOVE_STAR_WHEEL_REL": {"func": post_move_star_wheel_relative, "arg_num": 1},
-    "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1}
+    "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1},
+    "VALVE_DELAY": {"func": post_set_valve_delay, "arg_num": 1}
 }
 
 

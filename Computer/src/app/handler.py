@@ -209,3 +209,15 @@ def _enable_dummy():
 
 
 # ------------------------------------------------------------------------------------------------ #
+def set_valve_delay():
+    thread = threading.Thread(target=_set_valve_delay)
+    thread.start()
+
+
+def _set_valve_delay():
+    CLI.printline(Level.WARNING, "(handler)-_set_valve_delay")
+    with data.lock:
+        valve_delay = data.valve_delay
+    with BscbAPI.lock:
+        BscbAPI.BOARD.set_valve_delay(valve_delay)
+
