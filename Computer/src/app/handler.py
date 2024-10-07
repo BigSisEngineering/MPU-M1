@@ -221,3 +221,14 @@ def _set_valve_delay():
     with BscbAPI.lock:
         BscbAPI.BOARD.set_valve_delay(valve_delay)
 
+# ------------------------------------------------------------------------------------------------ #
+# def get_servo_pos():
+#     thread = threading.Thread(target=_get_servo_pos)
+#     thread.start()
+
+
+# def _get_servo_pos():
+#     CLI.printline(Level.WARNING, "(handler)-_get_servo_pos")
+#     with BscbAPI.lock:
+#         BscbAPI.BOARD.get_servo_position(2)
+

@@ -2,12 +2,10 @@
 //#include "StarWheelServo.h"
 //#include "DebounceInput.h"
 //#include "Servo.h"
-//
 //Servo myServo;
 //HardwareSerial *serial = &Serial1;
 //Unloader unloader;
 ////StarWheelServo sw;
-//
 //void setup() {
 //  Serial.begin(9600);            // Start serial communication with the PC
 //  Serial1.begin(1000000);        // Initialize serial communication with the servo
@@ -28,16 +26,16 @@
 ////    while(5);  // Stop further execution if homing fails
 ////  }
 //}
-//
 //void loop() {
-//  if (unloader.unload() != ReadBack_Status::NORMAL) {
-//    Serial.println("Unload failed!");
+////  if (unloader.unload() != ReadBack_Status::NORMAL) {
+////    Serial.println("Unload failed!");
 ////    unloader.resetError();
 ////    unloader.init(2);
 ////    unloader.homing();    
-//  }
-//  
-//  delay(2000);  
+////  }
+//  delay(2000); 
+//  unloader.getUnloaderPos();
+//  delay(2000);
 //}
 
 
@@ -133,9 +131,11 @@ void setup()
 
  // Set Communication
  comm.init(&Serial);
+// comm.setServo(&servo);
  comm.setStarWheelServo(&star_wheel);
  comm.setUnloader(&unloader);
  comm.setSensors(&sensors);
+ 
 
  // Create unloader
  unloader.init(POSITIONER_PIN_UNLOADER);

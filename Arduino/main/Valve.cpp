@@ -12,6 +12,11 @@ void Valve::turnOff() { digitalWrite(m_pin, LOW); }
 void Valve::blast()
 {
   this->turnOn();
-  delay(100);
+  delay(m_blastDelay);
   this->turnOff();
+}
+
+void Valve::setBlastDelay(unsigned long delay_ms)
+{
+  m_blastDelay = delay_ms;
 }

@@ -12,6 +12,8 @@
 #define TARGET_STARWHEEL         0x01
 #define TARGET_UNLOADER          0x02
 #define TARGET_GPIO              0x03
+#define TARGET_VALVE             0x04   
+
 // Action
 #define ACTION_MOVE              0x01
 #define ACTION_TURN              0x02
@@ -22,8 +24,11 @@
 #define ACTION_MOVE_COUNT        0x07
 #define ACTION_SAVE_OFFSET_COUNT 0x08
 #define ACTION_INIT              0x09
+
+#define ACTION_SET_DELAY         0x01
 // Sense
 #define SENSE_ERROR_STATUS       0x01
+#define ACTION_READ_POS          0x0A
 
 typedef struct MsgRecv
 {

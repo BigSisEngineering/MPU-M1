@@ -2,15 +2,16 @@
 #include "DebounceInput.h"
 #include "Servo.h"
 
-void Unloader::init(uint8_t sensor_pin) {
+void Unloader::init(uint8_t sensor_pin)
+{
   m_sensor_pin = sensor_pin;
   pinMode(m_sensor_pin, INPUT_PULLUP);
 }
 
-void Unloader::setServo(Servo *ar_servo) {
+void Unloader::setServo(Servo *ar_servo)
+{
   m_servo = ar_servo;
 }
-
 
 // void Unloader::homingBySensor()
 // {
@@ -37,37 +38,40 @@ void Unloader::setServo(Servo *ar_servo) {
 //   m_is_init         = true;
 // }
 
-ReadBack_Status Unloader::homing() {
+ReadBack_Status Unloader::homing()
+{
   ReadBack_Status res;
-  if (m_is_error) return ReadBack_Status::ERROR;
-  if (m_servo == nullptr) return ReadBack_Status::NO_SERIAL;
-  if (!m_is_init) {
+  if (m_is_error)
+    return ReadBack_Status::ERROR;
+  if (m_servo == nullptr)
+    return ReadBack_Status::NO_SERIAL;
+  if (!m_is_init)
+  {
     m_retracted_count = 0;
   }
   // Simply move the servo to the retracted position at a specified speed and acceleration
   m_servo->goPosByCount(ID_UNLOADER_MOTOR, m_retracted_count, ST3215_MaxSpeed, ST3215_MaxAcc);
   uint16_t delayTime = m_servo->calcDelayTime(abs(m_retracted_count - COUNT_ZERO), ST3215_MaxSpeed, ST3215_MaxAcc);
-  delay(delayTime + 20);  // Adding an extra 20 milliseconds as a buffer
+  delay(delayTime + 20); // Adding an extra 20 milliseconds as a buffer
 
   // TODO perform checks to ensure it reached the desired position
   // m_is_init = true;  // Mark as initialized after successful homing
   // return ReadBack_Status::NORMAL;
-  res                 = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR,
-                                                        delayTime,
-                                                        1000);
-  if (res == ReadBack_Status::OVERLOAD) {
+  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR,
+                                        delayTime,
+                                        1000);
+  if (res == ReadBack_Status::OVERLOAD)
+  {
     m_is_error = true;
-//    m_is_init = false;
-  } else {
-//    m_is_error = false;
+    //    m_is_init = false;
+  }
+  else
+  {
+    //    m_is_error = false;
     m_is_init = true;
   }
   return res;
 }
-
-
-
-
 
 // ReadBack_Status Unloader::unload() {
 //   if (m_is_error) return ReadBack_Status::ERROR;
@@ -109,30 +113,37 @@ ReadBack_Status Unloader::homing() {
 //   return ReadBack_Status::NORMAL;
 // }
 
-
-
-
-ReadBack_Status Unloader::unload() {
+ReadBack_Status Unloader::unload()
+{
   ReadBack_Status res;
-  if (m_is_error) return ReadBack_Status::ERROR;
-  if (m_servo == nullptr) return ReadBack_Status::NO_SERIAL;
-  if (!m_is_init) return ReadBack_Status::NOT_INIT;
+  if (m_is_error)
+    return ReadBack_Status::ERROR;
+  if (m_servo == nullptr)
+    return ReadBack_Status::NO_SERIAL;
+  if (!m_is_init)
+    return ReadBack_Status::NOT_INIT;
 
-  const int positionTolerance = 50;  // Tolerance for position checking
-  int16_t currentPosition = 0;       // Variable to hold the current position
-  int16_t targetPosition = 0;        // Variable to hold the target position
+  const int positionTolerance = 50; // Tolerance for position checking
+  int16_t currentPosition = 0;      // Variable to hold the current position
+  int16_t targetPosition = 0;       // Variable to hold the target position
 
   // Get the current position
-  if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL) {
-    return ReadBack_Status::ERROR;  // Return on failure to read position
+  if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL)
+  {
+    return ReadBack_Status::ERROR; // Return on failure to read position
   }
 
   // Determine target position based on current position
-  if (currentPosition >= 0 && currentPosition <= 370) {
+  if (currentPosition >= 0 && currentPosition <= 370)
+  {
     targetPosition = 3755;
-  } else if (currentPosition >= 3725 && currentPosition <= 3785) {
+  }
+  else if (currentPosition >= 3725 && currentPosition <= 3785)
+  {
     targetPosition = 341;
-  } else {
+  }
+  else
+  {
     return ReadBack_Status::ERROR;
   }
   // Move the servo to the target position
@@ -142,26 +153,34 @@ ReadBack_Status Unloader::unload() {
   //    Serial.print("Calculated Dynamic Load: ");
   //    Serial.println(dynamicLoad);
 
-      // Call delayWithLoadDetection and print the delay value
+  // Call delayWithLoadDetection and print the delay value
   uint16_t delayTime = m_servo->calcDelayTime(abs(targetPosition - currentPosition), ST3215_MaxSpeed, ST3215_MaxAcc);
-  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, delayTime,1000);
-  if (res == ReadBack_Status::OVERLOAD) {
-    Serial.println("Unload Status: OVERLOAD (Overload detected)");
+  res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, delayTime, 1000);
+  if (res == ReadBack_Status::OVERLOAD)
+  {
+    //    Serial.println("Unload Status: OVERLOAD (Overload detected)");
     m_is_error = true;
     return res;
   }
-  Serial.println("something");
   return ReadBack_Status::NORMAL;
 }
 
+int16_t Unloader::getUnloaderPos()
+{
+  int16_t currentPosition = 0; // Variable to hold the current position
+  ReadBack_Status rbs;
+  // Ensure the servo is valid before attempting to get the position
+  rbs = m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition);
+//  Serial.println(currentPosition);
+  return currentPosition;
+}
 
-
-
-
-void Unloader::resetError() {
+void Unloader::resetError()
+{
   m_is_error = false;
 }
 
-bool Unloader::isError() const {
+bool Unloader::isError() const
+{
   return m_is_error;
 }

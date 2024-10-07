@@ -19,8 +19,7 @@ sensor_time = None
 auto_clear_error = 0
 sensor_timeout = 3600
 fake_sw_init_counter = 0
-timer_error =None
-
+timer_error = None
 
 
 @dataclass
@@ -63,7 +62,6 @@ def update(stop_event: threading.Event):
             CLI.printline(Level.ERROR, f"(BscbAPI)-Loop error-{e}")
 
 
-
 def wait_until_buffer_and_loader_ready():
     """
     Wait until both is_buffer_full and is_loader_get_pot are True.
@@ -74,16 +72,26 @@ def wait_until_buffer_and_loader_ready():
         sensors_values = BOARD.ask_sensors()  # Get updated sensor values
 
         # Check buffer and loader status
-        is_buffer_full = BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
-        is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
+        is_buffer_full = (
+            BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
+        )
+        is_loader_get_pot = (
+            BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
+        )
 
         # If both conditions are met, break the loop
         if is_buffer_full and is_loader_get_pot:
-            CLI.printline(Level.INFO, "Buffer is full and loader has received a pot. Proceeding with star wheel initialization.")
+            CLI.printline(
+                Level.INFO,
+                "Buffer is full and loader has received a pot. Proceeding with star wheel initialization.",
+            )
             break
         else:
-            CLI.printline(Level.DEBUG, f"Waiting for buffer and loader. Buffer Full: {is_buffer_full}, Loader Get Pot: {is_loader_get_pot}")
-        
+            CLI.printline(
+                Level.DEBUG,
+                f"Waiting for buffer and loader. Buffer Full: {is_buffer_full}, Loader Get Pot: {is_loader_get_pot}",
+            )
+
         time.sleep(1)  # Wait for a second before checking again
 
 
@@ -96,33 +104,61 @@ def execute():
             BOARD_DATA.sensors_values = BOARD.ask_sensors()
             BOARD_DATA.star_wheel_status = get_str_from_Status(BOARD.star_wheel_status)
             BOARD_DATA.unloader_status = get_str_from_Status(BOARD.unloader_status)
-            is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
-            is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
+            is_star_wheel_error = not BOARD.is_readback_status_normal(
+                BOARD.star_wheel_status
+            )
+            is_unloader_error = not BOARD.is_readback_status_normal(
+                BOARD.unloader_status
+            )
             sensors_values = BOARD_DATA.sensors_values
-            
+
             if sensor_timer_flag == False:
                 sensor_time = None
             if sensors_values[0] < 100 or sensors_values[2] < 100:
                 if sensor_timer_flag == False:
                     sensor_time = time.time()
-                    sensor_timer_flag = True    
+                    sensor_timer_flag = True
 
         # ======================================= Check status ======================================= #
-        CLI.printline(Level.INFO, f"SW status-{BOARD_DATA.star_wheel_status}, UL-{BOARD_DATA.unloader_status}")
+        CLI.printline(
+            Level.INFO,
+            f"SW status-{BOARD_DATA.star_wheel_status}, UL-{BOARD_DATA.unloader_status}",
+        )
+
+        # CLI.printline(
+        #     Level.SPECIFIC,
+        #     f"UL_POS-{BOARD.get_unloader_position()}",
+        # )
+        # time.sleep(0.05)
 
         # Check buffer
-        is_buffer_full = BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
+        is_buffer_full = (
+            BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
+        )
 
         # Check loading slot
-        is_loader_get_pot = BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
+        is_loader_get_pot = (
+            BOARD.resolve_sensor_status(sensors_values, SensorID.LOAD.value) == 1
+        )
 
-        is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
+        is_safe_to_move = (
+            not is_star_wheel_error
+            and not is_unloader_error
+            and is_buffer_full
+            and is_loader_get_pot
+        )
         # is_safe_to_move = True
 
-        servos_ready = BOARD_DATA.star_wheel_status =='normal' and BOARD_DATA.unloader_status=='normal'
+        servos_ready = (
+            BOARD_DATA.star_wheel_status == "normal"
+            and BOARD_DATA.unloader_status == "normal"
+        )
 
         if not is_safe_to_move:
-            CLI.printline(Level.DEBUG, f"(background-loop) buffer>{is_buffer_full}-loader>{is_loader_get_pot}")
+            CLI.printline(
+                Level.DEBUG,
+                f"(background-loop) buffer>{is_buffer_full}-loader>{is_loader_get_pot}",
+            )
             CLI.printline(
                 Level.DEBUG,
                 f"(background-loop) swErr>{is_star_wheel_error}-ulErr>{is_unloader_error}",
@@ -142,50 +178,77 @@ def execute():
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
             if is_star_wheel_error or is_unloader_error:
-                logging.info(f"{'Starwheel overload' if is_star_wheel_error else 'Unloader overload'} at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                logging.info(
+                    f"{'Starwheel overload' if is_star_wheel_error else 'Unloader overload'} at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
                 if auto_clear_error <= data.max_auto_clear_error:
-                    if auto_clear_error ==0: 
+                    if auto_clear_error == 0:
                         timer_error = time.time()
-                        print('timer for error set')
+                        print("timer for error set")
 
-                    CLI.printline(Level.WARNING, f'SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ')
+                    CLI.printline(
+                        Level.WARNING,
+                        f"SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ",
+                    )
                     BOARD.unloader_clear_error()
                     time.sleep(0.1)
                     BOARD.unloader_init()
                     time.sleep(2)
-                    BOARD.star_wheel_clear_error()
-                    time.sleep(0.1)
-                    wait_until_buffer_and_loader_ready()
-                    # BOARD.starWheel_fake_init()
-                    # BOARD.starWheel_init()
-                    if fake_sw_init_counter <2 :
-                        BOARD.starWheel_fake_init()
-                        fake_sw_init_counter +=1
-                    else:
+                    if get_str_from_Status(BOARD.unloader_status) == 'normal':
+                        wait_until_buffer_and_loader_ready()
+                        BOARD.star_wheel_clear_error()
+                        time.sleep(0.1)
+                        # BOARD.starWheel_fake_init()
                         BOARD.starWheel_init()
-                        fake_sw_init_counter = 0
-                    is_star_wheel_error = not BOARD.is_readback_status_normal(BOARD.star_wheel_status)
-                    is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
-                    is_safe_to_move = not is_star_wheel_error and not is_unloader_error and is_buffer_full and is_loader_get_pot
-                    servos_ready = not is_star_wheel_error and not is_unloader_error
-                    # auto_clear_error = 0 if servos_ready else auto_clear_error + 1
-                    if auto_clear_error >=data.max_auto_clear_error and (time.time()-timer_error)<60:
+                        # if fake_sw_init_counter < 2:
+                        #     BOARD.starWheel_fake_init()
+                        #     fake_sw_init_counter += 1
+                        # else:
+                        #     BOARD.starWheel_init()
+                        #     fake_sw_init_counter = 0
+                        is_star_wheel_error = not BOARD.is_readback_status_normal(
+                            BOARD.star_wheel_status
+                        )
+                        is_unloader_error = not BOARD.is_readback_status_normal(
+                            BOARD.unloader_status
+                        )
+                        is_safe_to_move = (
+                            not is_star_wheel_error
+                            and not is_unloader_error
+                            and is_buffer_full
+                            and is_loader_get_pot
+                        )
+                        servos_ready = not is_star_wheel_error and not is_unloader_error
+                        # auto_clear_error = 0 if servos_ready else auto_clear_error + 1
+                        if (
+                            auto_clear_error >= data.max_auto_clear_error
+                            and (time.time() - timer_error) < 60
+                        ):
+                            data.dummy_enabled = False
+                            data.pnp_enabled = False
+                            data.experiment_enabled = False
+                        auto_clear_error += 1
+                        print(f"auto clear error increased to  {auto_clear_error}")
+                    else:
                         data.dummy_enabled = False
                         data.pnp_enabled = False
                         data.experiment_enabled = False
-                    auto_clear_error +=1
-                    print(f'auto clear error increased to  {auto_clear_error}')
+                        MongoDB_INIT == False
+                        auto_clear_error = 0
+                        print("auto_clear_error set to zero")
 
-                else:  
+                else:
                     data.dummy_enabled = False
                     data.pnp_enabled = False
-                    data. experiment_enabled = False
+                    data.experiment_enabled = False
                     MongoDB_INIT == False
                     auto_clear_error = 0
-                    print('auto_clear_error set to zero')
+                    print("auto_clear_error set to zero")
                     # logging.info(f"AI/Dummy disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
-            print(f'camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}')
-                
+            print(
+                f"camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}"
+            )
+
             if not CAMERA.device_ready or not servos_ready:
                 BOARD.unloader_clear_error()
                 time.sleep(0.5)
@@ -193,11 +256,11 @@ def execute():
                 data.pnp_enabled = False
                 data.experiment_enabled = False
                 # logging.info(f"AI disabled at {datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S')}")
-                
+
         # ======================================= PNP? ======================================= #
         if run_pnp:
             if time.time() - time_stamp > cycle_time:
-                    
+
                 # is_safe_to_move = is_safe_to_move and CAMERA.device_ready  # move when both BOARD and CAMERA are ready
                 time_stamp = time.time() if is_safe_to_move else time_stamp
 
@@ -215,12 +278,20 @@ def execute():
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
                         print(f"sensors not triggered for {sensor_timer}")
-                        if sensor_timer > sensor_timeout and sensors_values[0] > 100 and sensors_values[2] > 100:
-                            CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
+                        if (
+                            sensor_timer > sensor_timeout
+                            and sensors_values[0] > 100
+                            and sensors_values[2] > 100
+                        ):
+                            CLI.printline(
+                                Level.INFO, f"sensors triggered again {sensors_values}"
+                            )
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
                 # print(f"mongo DB variable after : {MongoDB_INIT}")
-                operation.pnp(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+                operation.pnp(
+                    BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence
+                )
 
             CLI.printline(Level.INFO, f"(Background)-PNP Waiting")
         # ====================================== Dummy? ====================================== #
@@ -233,7 +304,13 @@ def execute():
                 MongoDB_INIT == False
                 # FIXME
                 # operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
-                operation.dummy(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, unload_probability)
+                operation.dummy(
+                    BOARD,
+                    lock,
+                    is_safe_to_move,
+                    star_wheel_duration_ms,
+                    unload_probability,
+                )
         # ======================================== Purge? ======================================== #
         elif run_purge:
             with lock:
@@ -242,7 +319,7 @@ def execute():
                 purge_stage = data.purge_stage
             CLI.printline(Level.INFO, f"(Background)-Running PURGING - {purge_stage}")
             operation.purge(BOARD, lock, data.purge_start_unload)
-        
+
         # ======================================== Purge? ======================================== #
         elif run_experiment:
             if time.time() - time_stamp > cycle_time:
@@ -259,13 +336,21 @@ def execute():
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
                         print(f"sensors not triggered for {sensor_timer}")
-                        if sensor_timer > sensor_timeout and sensors_values[0] > 100 and sensors_values[2] > 100:
-                            CLI.printline(Level.INFO, f"sensors triggered again {sensors_values}")
+                        if (
+                            sensor_timer > sensor_timeout
+                            and sensors_values[0] > 100
+                            and sensors_values[2] > 100
+                        ):
+                            CLI.printline(
+                                Level.INFO, f"sensors triggered again {sensors_values}"
+                            )
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
-                operation.experiment(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
-        
+                operation.experiment(
+                    BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence
+                )
+
         # ========================================= IDLE ========================================= #
         else:
             with lock:
@@ -293,8 +378,8 @@ BOARD_DATA = BoardData(
     "idle",
 )
 
-print('Initializing Starwheel and unloader..')
+print("Initializing Starwheel and unloader..")
 BOARD.unloader_init()
 wait_until_buffer_and_loader_ready()
 BOARD.starWheel_init()
-print('Complete Initializing Starwheel and unloader..')
+print("Complete Initializing Starwheel and unloader..")

@@ -15,6 +15,12 @@ def get_BoardData():
         board_data = BscbAPI.BOARD_DATA.dict()
     return board_data
 
+# def get_UnloaderPos():
+#     CLI.printline(Level.SPECIFIC, "(http_server)-get_UnloaderPos")
+#     with BscbAPI.lock:
+#         unloader_pos = BscbAPI.BOARD.get_servo_position(2)
+#     return unloader_pos
+
 def get_DummyData():
     CLI.printline(Level.DEBUG, "(http_server)-DummyData")
     with data.lock:
@@ -64,6 +70,7 @@ get_endpoints = {
     'ERROR': get_ERROR,
     'HOMING': get_HOMING,
     'ExperimentData' : get_experimentData,
+    # 'UnloaderPos' : get_UnloaderPos,
 }
 
 @get_api.route('/<endpoint>', methods=["GET"])

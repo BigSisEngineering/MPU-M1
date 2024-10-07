@@ -4,10 +4,12 @@
 #include "CommDefine.h"
 #include "Define.h"
 #include <Arduino.h>
+//#include "Servo.h"
 
 class StarWheelServo;
 class Unloader;
 class AnalogSensors;
+class Valve;
 
 enum class ActionType
 {
@@ -29,7 +31,9 @@ public:
   void setStarWheelServo(StarWheelServo *ar_starwheel);
   void setUnloader(Unloader *ar_unloader);
   void setSensors(AnalogSensors *ar_sensor);
+  void setValve(Valve *ar_valve);
   void writeByteArray(uint8_t *pMsg, uint8_t msg_size);
+//  void setServo(Servo *servo);
 
   // Always call
   void update();
@@ -43,6 +47,9 @@ private:
   StarWheelServo *m_starwheel{ nullptr };
   Unloader       *m_unloader{ nullptr };
   AnalogSensors  *m_sensor{ nullptr };
+  Valve          *m_valve{ nullptr };  // Add Valve reference
+//  Servo          *m_servo{ nullptr };
+
   // Comm
   uint8_t         m_msg[MSG_SIZE]{ 0 };
   uint8_t         m_counter{ 0 };
@@ -56,6 +63,8 @@ private:
   bool pri_isHeaderCorrect() const;
   bool pri_isMsgValid();
   void pri_actionMsgHandler();
+
+  void pri_valveActionHandler();  // Handles valve-specific actions
 
   void pri_starWheelActionHandler();
   void pri_starWheelStepHandler();
@@ -71,8 +80,13 @@ private:
   void pri_unloaderUnloadHandler();
   void pri_unloaderHomeHandler();
   void pri_unloaderResetErrorHandler();
+  void pri_getUnloaderPosHandler();
+
+ 
 
   void pri_senseMsgHandler();
+  
+  
 
   void pri_starWheelSensorHandler();
   void pri_starWheelErrorHandler();

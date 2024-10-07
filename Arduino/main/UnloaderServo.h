@@ -22,6 +22,7 @@ public:
   // ReadBack_Status homingByLoad(uint8_t load_threadhold = 150);
   ReadBack_Status unload();
   void            resetError();
+  int16_t            getUnloaderPos();
 
   // Sense
   bool isError() const;

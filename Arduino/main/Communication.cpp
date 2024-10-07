@@ -5,11 +5,15 @@
 #include "Communication.h"
 #include "StarWheelServo.h"
 #include "UnloaderServo.h"
+#include "Valve.h"
 
 void Communication::init(Stream *serial) { m_serial = serial; }
 void Communication::setStarWheelServo(StarWheelServo *starwheel) { m_starwheel = starwheel; }
 void Communication::setUnloader(Unloader *unloader) { m_unloader = unloader; }
 void Communication::setSensors(AnalogSensors *ar_sensor) { m_sensor = ar_sensor; }
+
+void Communication::setValve(Valve *ar_valve) { m_valve = ar_valve; }  // Assign the Valve instance
+
 
 void Communication::update()
 {
@@ -115,6 +119,7 @@ void Communication::pri_actionMsgHandler()
   {
   case TARGET_STARWHEEL: pri_starWheelActionHandler(); break;
   case TARGET_UNLOADER: pri_unloaderActionHandler(); break;
+  case TARGET_VALVE: pri_valveActionHandler(); break;  // Handle valve actions
   default: break;
   }
 }
@@ -134,6 +139,7 @@ void Communication::pri_starWheelActionHandler()
   case ACTION_MOVE_COUNT: pri_starWheelMoveCount(); break;
   case ACTION_MOVE_COUNT_REL: pri_starWheelMoveCountRelative(); break;
   case ACTION_SAVE_OFFSET_COUNT: pri_starWheelSaveOffsetCount(); break;
+//  case ACTION_READ_POS: pri_getPosHandler(); break;
   default: break;
   }
 }
@@ -204,6 +210,7 @@ void Communication::pri_unloaderActionHandler()
   case ACTION_MOVE: pri_unloaderUnloadHandler(); break;
   case ACTION_HOME: pri_unloaderHomeHandler(); break;
   case ACTION_RESET_ERROR: pri_unloaderResetErrorHandler(); break;
+  case ACTION_READ_POS: pri_getUnloaderPosHandler(); break;
   default: break;
   }
 }
@@ -227,6 +234,24 @@ void Communication::pri_unloaderResetErrorHandler()
   replyACK();
 }
 
+void Communication::pri_getUnloaderPosHandler()
+{
+    if (m_unloader == nullptr) return;
+    int16_t position = m_unloader->getUnloaderPos();
+    // Prepare the response message (no ACTION_READ_POS)
+    uint8_t msg[MSG_SIZE] = {HEADER_RESPONS, TARGET_UNLOADER, 
+                             (uint8_t)(position & 0xFF), (uint8_t)(position >> 8)};
+    // Calculate CRC for message integrity
+    uint16_t crc = calculateCRC16(msg, 5);
+    msg[5] = crc & 0xFF;
+    msg[6] = (crc >> 8) & 0xFF;
+    // Send position back via serial
+    writeByteArray(msg, sizeof(msg));
+}
+
+
+
+
 void Communication::pri_senseMsgHandler()
 {
   switch (m_stMsg.target)
@@ -234,6 +259,7 @@ void Communication::pri_senseMsgHandler()
   case TARGET_STARWHEEL: pri_starWheelSensorHandler(); break;
   case TARGET_UNLOADER: pri_unloaderSensorHandler(); break;
   case TARGET_GPIO: pri_GPIOSensorHandler(); break;
+  case TARGET_VALVE: pri_valveActionHandler();  break;
   default: break;
   }
 }
@@ -311,3 +337,61 @@ void Communication::pri_GPIOSensorHandler()
   msg[7]       = crc >> 8;
   writeByteArray(msg, sizeof(msg));
 }
+
+
+void Communication::pri_valveActionHandler()
+{
+  if (m_valve == nullptr) return;
+
+  uint16_t delayTime = 0;  // Declare delayTime outside the switch block
+
+  // Check for valve-specific actions, e.g., setting the delay
+  switch (m_stMsg.action)
+  {
+    case ACTION_SET_DELAY:
+      delayTime = m_stMsg.params[1] << 8 | m_stMsg.params[0];  // Combine two bytes into delay value
+      m_valve->setBlastDelay(delayTime);  // Set the valve delay
+      replyACK();
+      break;
+
+    default:
+      break;
+  }
+}
+
+//void Communication::setServo(Servo *servo) {
+//    m_servo = servo;  // Assign the Servo instance to the m_servo pointer
+//}
+//
+//void Communication::pri_getPosHandler() {
+//  if (m_serial == nullptr) return;  // Ensure the servo object is valid
+//  if (m_servo == nullptr) return;
+//  switch (m_stMsg.action) {
+//    case ACTION_READ_POS: {
+//      int16_t position = 0;
+//      // Check the target field to determine which servo to handle
+//      switch (m_stMsg.target) {
+//        case TARGET_STARWHEEL:  // Assuming TARGET_STARWHEEL corresponds to the servo ID for the starwheel
+//          m_servo->getPos(ID_STAR_WHEEL_MOTOR, position);  // ID_STARWHEEL_SERVO should be defined
+//          break;    
+//        case TARGET_UNLOADER:  // Assuming TARGET_UNLOADER corresponds to the servo ID for the unloader
+//          m_servo->getPos(ID_UNLOADER_MOTOR, position);  // ID_UNLOADER_SERVO should be defined
+//          break;
+//        default:
+//          return;  // If the target isn't recognized, do nothing
+//      }
+//      // Prepare the response message with the position
+//      uint8_t msg[8] = {HEADER_SENSE, m_stMsg.target, ACTION_READ_POS, 
+//                        (uint8_t)(position & 0xFF), (uint8_t)(position >> 8), 0, 0, 0};
+//      // Calculate CRC for message integrity
+//      uint16_t crc = calculateCRC16(msg, 6);
+//      msg[6] = crc & 0xFF;
+//      msg[7] = (crc >> 8) & 0xFF;
+//      // Send position back via serial
+//      writeByteArray(msg, sizeof(msg));
+//      break;
+//    }
+//    default:
+//      break;
+//  }
+//}

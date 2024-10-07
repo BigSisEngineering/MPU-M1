@@ -33,6 +33,7 @@ public:
   void            spin(int8_t speed);
 
   int8_t getStepCount() const { return (m_step_counter); }
+  int16_t getPos();
 
   bool isNextMoveCauseOverflow(int8_t step);
   bool isInited() const;
