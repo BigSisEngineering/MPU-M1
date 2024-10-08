@@ -39,6 +39,7 @@ class HTTPCage:
     lock_acquire_timeout_status = 1
     lock_acquire_timeout_action = 5
     request_timeout = (10, 5)
+    MAX_TIMEOUT = 3  # instances
 
     def __init__(self, hostname: str):
         self._cage_ip: Optional[str] = None
@@ -51,6 +52,7 @@ class HTTPCage:
 
         # -------------------------------------------------------- #
         self._status = None
+        self._timeout_counter: int = 0
 
     # PUBLIC
     # -------------------------------------------------------- #
@@ -63,12 +65,18 @@ class HTTPCage:
                     timeout=HTTPCage.request_timeout,
                 )
                 self._status = json.loads(response.text)
+                self._timeout_counter = 0
                 return self._status
 
             # ?Why
             except ConnectionError as ce:
                 if "NewConnectionError" in str(ce.args[0]):
                     # return old status if timeout
+                    self._timeout_counter += 1
+
+                    if self._timeout_counter >= HTTPCage.MAX_TIMEOUT:
+                        return None
+
                     return self._status
 
             except Exception as e:
