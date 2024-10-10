@@ -61,7 +61,7 @@ def get_readback_event(readback: Readback) -> str:
 
 class Session:
     MAX_SESSIONS: int = 2
-    TRANSMIT_DELAY = 0.2
+    TRANSMIT_DELAY = 1
 
     active_sessions: List[str] = []
     end_session_event: Dict[str, threading.Event] = {}
