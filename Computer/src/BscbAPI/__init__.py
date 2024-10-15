@@ -97,7 +97,7 @@ def wait_until_buffer_and_loader_ready():
         time.sleep(1)
 
 def IsUnloaderHomed():
-    if 0 <= BOARD.get_unloader_position()<= 370 or 3725 <= BOARD.get_unloader_position()<= 3785:
+    if 0 <= BOARD.get_unloader_position()<= 370 or 3725 <= BOARD.get_unloader_position()<= 4095:
         return True
     else:
         return False
@@ -190,15 +190,9 @@ def execute():
                 logging.info(
                     f"{'Starwheel overload' if is_star_wheel_error else 'Unloader overload'} at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                 )
-                # if auto_clear_error <= data.max_auto_clear_error:
                 if auto_clear_error == 0:
                     timer_error = time.time()
                     print("timer for error set")
-
-                # CLI.printline(
-                #     Level.WARNING,
-                #     f"SW/UNLOADER Error detected -- Trying to Auto Initialize -- Attempt {auto_clear_error} ",
-                # )
                 BOARD.unloader_clear_error()
                 time.sleep(0.1)
                 BOARD.unloader_init()
@@ -209,12 +203,6 @@ def execute():
                     time.sleep(0.1)
                     # BOARD.starWheel_fake_init()
                     BOARD.starWheel_init()
-                    # if fake_sw_init_counter < 2:
-                    #     BOARD.starWheel_fake_init()
-                    #     fake_sw_init_counter += 1
-                    # else:
-                    #     BOARD.starWheel_init()
-                    #     fake_sw_init_counter = 0
                     is_star_wheel_error = not BOARD.is_readback_status_normal(
                         BOARD.star_wheel_status
                     )
@@ -228,7 +216,6 @@ def execute():
                         and is_loader_get_pot
                     )
                     servos_ready = not is_star_wheel_error and not is_unloader_error
-                    # auto_clear_error = 0 if servos_ready else auto_clear_error + 1
                     if (
                         auto_clear_error >= data.max_auto_clear_error
                         and (time.time() - timer_error) < 60
@@ -245,14 +232,6 @@ def execute():
                     MongoDB_INIT == False
                     auto_clear_error = 0
                     print("auto_clear_error set to zero")
-
-                # else:
-                #     data.dummy_enabled = False
-                #     data.pnp_enabled = False
-                #     data.experiment_enabled = False
-                #     MongoDB_INIT == False
-                #     auto_clear_error = 0
-                #     print("auto_clear_error set to zero")
             print(
                 f"camera ready : {CAMERA.device_ready}   and  servos ready :  {servos_ready}"
             )
@@ -271,14 +250,11 @@ def execute():
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
                 with lock:
                     BOARD_DATA.mode = "pnp"
-                # FIXME
-                # print(f"mongo DB variable before : {MongoDB_INIT}")
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
 
                 if sensor_timer_flag == True:
-                    print(f"variable sensor_time :{sensor_time}")
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
                         print(f"sensors not triggered for {sensor_timer}")

@@ -6,7 +6,7 @@ import os
 import threading
 import requests
 
-row = 4
+row = 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
@@ -112,29 +112,29 @@ def scp_folder(local_path, remote_path, hostname, username, password, port=22):
         print(f"Error -> {hostname}-> {local_path}: {e}")
 
 
-# def ssh_reboot(hostname, username, password, port=22):
-#     try:
-#         # Create an SSH client instance
-#         ssh = paramiko.SSHClient()
-#         ssh.load_system_host_keys()
-#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+def ssh_reboot_tinker(hostname, username, password, port=22):
+    try:
+        # Create an SSH client instance
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-#         # Connect to the server
-#         ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
+        # Connect to the server
+        ssh.connect(hostname, port=port, username=username, password=password, timeout=1)
 
-#         # Execute the reboot command
-#         stdin, stdout, stderr = ssh.exec_command("sudo reboot")
+        # Execute the reboot command
+        stdin, stdout, stderr = ssh.exec_command("sudo reboot")
 
-#         # You can capture the output or error if needed
-#         # output = stdout.read()
-#         # error = stderr.read()
+        # You can capture the output or error if needed
+        # output = stdout.read()
+        # error = stderr.read()
 
-#         print(f"Rebooted -> {hostname}")
-#     except Exception as e:
-#         print(f"An error occurred {hostname}: {e}")
-#     finally:
-#         # Close the connection
-#         ssh.close()
+        print(f"Rebooted -> {hostname}")
+    except Exception as e:
+        print(f"An error occurred {hostname}: {e}")
+    finally:
+        # Close the connection
+        ssh.close()
 
 def ssh_reboot(hostname, username, password, port=22):
     try:
@@ -269,6 +269,18 @@ def reboot(hostname):
     ).start()
 
 
+def reboot_tinker(hostname):
+    global username, password
+    threading.Thread(
+        target=ssh_reboot_tinker,
+        args=(
+            hostname,
+            username,
+            password,
+        ),
+    ).start()
+
+
 def remove(hostname):
     global username, password
     threading.Thread(
@@ -330,8 +342,9 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        # upload_files(hostname)
-        reboot(hostname)
+        upload_files(hostname)
+        # reboot_tinker(hostname)
+        # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)

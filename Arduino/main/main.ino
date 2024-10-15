@@ -138,7 +138,7 @@
 #include "Define.h"
 #include "Servo.h"
 #include "StarWheelServo.h"
-#include "UnloaderServo.h "
+#include "UnloaderServo.h"
 #include "Valve.h"
 /* ---------------------------------------------------------------------------------------------- */
 #include <Arduino.h>
@@ -173,7 +173,7 @@ void setup()
  servo.setSerial(&Serial1);
 
  // Valve
- valve.init(GPIO_SPARE6); //new board
+ valve.init(GPIO_OPT1); //new board
 //   valve.init(GPIO_SIG5);// old Board
 
  // Set Communication

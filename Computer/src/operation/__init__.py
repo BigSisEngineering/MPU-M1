@@ -258,31 +258,6 @@ def dummy(
 #         with data.lock:
 #             data.purge_stage = purge_state
 
-def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
-    # 1. The 1A will purge its old pot out
-    if BOARD is not None:
-        # with data.lock:
-        #     purge_state = data.purge_stage
-        # # 2. (RESET) the cage will unload pot(s) until the buffer sensor trigger
-        # if purge_state == 0:
-        #     pass
-        #     purge_state = 1
-        # 3. (FILL) the 1A will send pots into cage system until the last cage auxiliary buffer sensor trigger
-        #    around 160 pots
-        # 4. (UNLOAD) Start to unload for 80+14 cycle and do the request as usual
-        # if purge_state == 1 and is_filled:
-        with lock:
-            BOARD.unload()
-            BOARD.star_wheel_move_ms(600)
-        with data.lock:
-            data.pot_unloaded += 1
-            data.purge_counter += 1
-            if data.purge_counter >= 94:
-                purge_state = 2
-                data.pot_unloaded = 0
-                data.pot_unloaded_since_last_request = 0
-        # with data.lock:
-        #     data.purge_stage = purge_state
 
 def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
     global threads
@@ -326,10 +301,8 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 if data.experiment_pause_state == False:
                     data.experiment_pause_start_time = time.time()
                     print(f'experiment status {data.experiment_pause_state}')
-                    # start_time = datetime.fromtimestamp(data.experiment_pause_state).strftime('%H:%M:%S')
                     data.experiment_pause_state = True
                     logging.info(f"Experiment mode in Pause State for {watchdog} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                    # CLI.printline(Level.INFO, f"(experiment mode)- pause state started at : {start_time} ")
                 elapsed_time = time.time() - data.experiment_pause_start_time
                 CLI.printline(Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} ")
                 data.experiment_status = f'pause state for {watchdog}s - remaining time : {watchdog - elapsed_time}s'

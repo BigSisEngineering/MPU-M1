@@ -121,13 +121,12 @@ ReadBack_Status Unloader::unload()
     return ReadBack_Status::NO_SERIAL;
   if (!m_is_init)
     return ReadBack_Status::NOT_INIT;
-
-  const int positionTolerance = 50; // Tolerance for position checking
-  int16_t currentPosition = 0;      // Variable to hold the current position
-  int16_t targetPosition = 0;       // Variable to hold the target position
+    
+  int16_t currentPosition = 0;
+  int16_t targetPosition = 0;
   if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL)
   {
-    return ReadBack_Status::ERROR; // Return on failure to read position
+    return ReadBack_Status::ERROR;
   }
   if (currentPosition >= 0 && currentPosition <= 370)
   {
