@@ -1,5 +1,5 @@
 #include <EEPROM.h>
-#include <avr/wdt.h> // Include the watchdog timer library
+#include <avr/wdt.h> // watchdog timer library
 /* ---------------------------------------------------------------------------------------------- */
 #include "AnalogSensors.h"
 #include "Communication.h"

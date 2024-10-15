@@ -2,7 +2,9 @@
 export function getInput(type, inputType, value, setValue) {
     const placeholders = {
         position: 'Enter position',
-        interval: 'Enter interval in seconds',
+        pauseinterval: 'Enter interval in seconds',
+        cycletime: 'Enter interval in seconds',
+        valvedelay: 'Enter delay in ms',
         default: 'Enter value'
     };
     const placeholder = placeholders[inputType] || placeholders.default;

@@ -33,10 +33,16 @@ if use_rknnlite:
 
 else:
     from rknn.api import RKNN  # Import RKNN
-    RKNN_MODEL = os.path.join(
+    if model == 'v5c3':
+        RKNN_MODEL = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1_v2.rknn",
+        "yolov5_m1_3c.rknn",
     )
+    else:
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5_m1_v2.rknn",
+        )
 
 # # ------------------------------------------------------------------------------------------------ #
 class ComputerVision:
@@ -45,7 +51,7 @@ class ComputerVision:
         self.BOX_THRESH = 0.5
         self.NMS_THRESH = 0.6
         self.IMG_SIZE = (640, 640)
-        self.CLASSES = ("egg")
+        self.CLASSES = ("egg","pot","crack")
 
         # self.rknn = RKNN() #for tinker
         # self.rknn = RKNNLite() #for rock

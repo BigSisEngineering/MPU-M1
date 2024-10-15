@@ -7,8 +7,8 @@ const CageStatus = (starWheelStatus, unloaderStatus, modeStatus, sensorsValues) 
   // Access the specific sensor values for LOAD and BUFFER
   const loadSensorValue = values[0]; // first value for LOAD
   const bufferSensorValue = values[2]; // third value for BUFFER
-  console.log("loadSensorValue:", loadSensorValue);
-  console.log("bufferSensorValue:", bufferSensorValue);
+  // console.log("loadSensorValue:", loadSensorValue);
+  // console.log("bufferSensorValue:", bufferSensorValue);
 
   // Determine the color for the LOAD circle
   const load = useMemo(() => {

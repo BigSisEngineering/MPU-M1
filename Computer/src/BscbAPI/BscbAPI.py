@@ -59,7 +59,7 @@ class StarWheelTimer:
         print(f"slot updated for index {self.index}")
         print(f"Unloaded count list: {self.unloaded_count}")
 
-    def is_it_overtime(self, timeout_s: int = 3600 * 3) -> bool:
+    def is_it_overtime(self, timeout_s: int = 3600) -> bool:
         """Check if the current slot's time exceeds the timeout."""
         current_time = datetime.datetime.now()
         slot_time_str = self.timer[self.index]
@@ -602,34 +602,21 @@ class BScbAPI:
         return hex_message
 
     def set_valve_delay(self, delay_ms):
-        """
-        Sends a command to set the valve's blast delay.
-
-        :param delay_ms: The delay in milliseconds to set for the valve.
-        :return: True if the command was successfully acknowledged, False otherwise.
-        """
         if not self.is_com_ready():
             return False
 
-        # Prepare the command to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")  # HEADER_ACTION
         hex_message += bytearray.fromhex("04")  # TARGET_VALVE (0x04)
         hex_message += bytearray.fromhex("01")  # ACTION_SET_DELAY (0x01)
 
-        # Delay in two bytes (lower byte first, then upper byte)
         hex_message += struct.pack(
             "<H", delay_ms
         )  # Pack the delay in little-endian format
 
-        # Add placeholders for padding, if needed (e.g., 00s to maintain message structure)
         hex_message += bytearray.fromhex("00")
-
-        # Calculate the CRC and append it
         crc = self.generate_crc16(hex_message)
         hex_message += struct.pack("<H", crc)
-
-        # Send the command to the Arduino
         try:
             self.ser.write(hex_message)
             print(f"Sent command to set valve delay to {delay_ms} ms.")
@@ -637,55 +624,31 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
             return False
-
-        # Wait for and process the acknowledgment response
         ack_status = self.got_ACK_respond()
         return True if self.is_readback_status_normal(ack_status) else False
     
     def get_unloader_position(self):
-        """
-        Sends a command to the Arduino to get the position of the unloader servo.
-        
-        :return: The position of the unloader, or None if an error occurred.
-        """
         if not self.is_com_ready():
             return None
 
         # Prepare the command to send
         hex_message = []
-        hex_message += bytearray.fromhex("AA")  # HEADER_ACTION (requesting action)
+        hex_message += bytearray.fromhex("AA")  # HEADER_ACTION
         hex_message += bytearray.fromhex("02")  # TARGET_UNLOADER
-        hex_message += bytearray.fromhex("0A")  # ACTION_READ_POS (custom action you can choose)
-        
-        # Add placeholders for params (optional if not used)
-        hex_message += bytearray([0x00, 0x00, 0x00])  # Params placeholder
-
-        # Calculate the CRC for data integrity and append it
+        hex_message += bytearray.fromhex("0A")  # ACTION_READ_POS
+        hex_message += bytearray([0x00, 0x00, 0x00])
         crc = self.generate_crc16(hex_message)
         hex_message += struct.pack("<H", crc)
 
         try:
             # Send the command to the Arduino
             self.ser.write(hex_message)
-            print(f"Sent command to get unloader position.")
-
-            # Wait for the response
             response = self.ser.readline()
-            
-            # Debug: Print the raw response
-            print(f"Raw response: {response}")
-
             if len(response) >= 8:  # Ensure the response has the expected length
-                # Unpack the response to extract the position (2 bytes)
-                # header, target, pos_low, pos_high, crc = struct.unpack("=BBBBH", response)
                 header, target, pos_low, pos_high, crc_low, crc_high = struct.unpack("=BBBBHH", response)
-            
-                # Debug: Print the extracted values
-                print(f"Header: {header}, Target: {target}, Position: {pos_low} {pos_high}, CRC: {crc_low} {crc_high}")
-                
-                # Combine the two bytes into a single integer for the position
+                # print(f"Header: {header}, Target: {target}, Position: {pos_low} {pos_high}, CRC: {crc_low} {crc_high}")
                 position = pos_low | (pos_high << 8)
-                print(f"Unloader position received: {position}")
+                # print(f"Unloader position received: {position}")
                 return position
             else:
                 print("Failed to receive a valid response.")

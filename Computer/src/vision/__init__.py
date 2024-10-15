@@ -37,10 +37,31 @@ if use_rknnlite:
 
 else:
     from rknn.api import RKNN  # Import RKNN
-    RKNN_MODEL = os.path.join(
+    if model == 'v5c3':
+        RKNN_MODEL = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1_v2.rknn",
+        "yolov5_m1_3c.rknn",
     )
+    else:
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5_m1_v2.rknn",
+        )
+
+
+def get_misalignment(circle_center, radius, bbox):
+    x_min, y_min, x_max, y_max = bbox
+    top_circle = (circle_center[0], circle_center[1] - radius)
+    bottom_circle = (circle_center[0], circle_center[1] + radius)
+    top_edge_point = (top_circle[0], y_min)  
+    bottom_edge_point = (bottom_circle[0], y_max)  
+    top_line_length = np.linalg.norm(np.array(top_circle) - np.array(top_edge_point))
+    bottom_line_length = np.linalg.norm(np.array(bottom_circle) - np.array(bottom_edge_point))
+    if top_line_length > bottom_line_length:
+        return top_line_length, 'top'
+    else:
+        return bottom_line_length, 'bottom'
+
 
 
 class ProcessAndPrediction:
@@ -76,41 +97,52 @@ class ProcessAndPrediction:
 
             # Crop the image
             image = image[y1:y2, x1:x2]
-
-            if use_rknnlite and model == 'v10':
-                # Get the detections (boxes, classes, scores)
-                self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
-                self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
-                )
-
-                egg_count = 0
-                crack_detected = False
-
-                # Check for eggs (class 0) and cracks (class 2)
-                for i, class_id in enumerate(self.classes):
-                    score = self.scores[i]
-                    if class_id == 0 and score > confident_level:  # Class 0: Egg
-                        egg_count += 1
-                    elif class_id == 2: #and score > 0.35:  # Class 2: Crack
-                        crack_detected = True
-
-                # Logic for returning based on detection
-                if egg_count > 0:
-                    print(f'egg detected {egg_count}')
-                    return egg_count  # Return number of eggs detected
-                elif crack_detected:
-                    print('crack detected')
-                    return 99  # Crack detected but no eggs with high confidence
-                
-            else:
-                image = self.computer_vision.letterbox(image)
-                self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
+            with data.pnp_vision_lock:
+                if (use_rknnlite and model == 'v10') or model == 'v5c3':
+                    # Get the detections (boxes, classes, scores)
+                    self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
                     self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
-                )
-                print(self.scores, self.boxes, self.classes)
-                if self.scores is not None:
-                    egg_list = [score for score in self.scores if score > confident_level]
-                    return len(egg_list)
+                    )
+
+                    egg_count = 0
+                    crack_detected = False
+
+                    # Check for eggs (class 0) and cracks (class 2)
+                    for i, class_id in enumerate(self.classes):
+                        score = self.scores[i]
+                        if class_id == 0 and score > confident_level:  # Class 0: Egg
+                            egg_count += 1
+                        elif class_id == 2: #and score > 0.35:  # Class 2: Crack
+                            crack_detected = True
+                    
+                    # if self.boxes is not None:
+                    #     adjusted_center_x = setup.CENTER_X - x1
+                    #     adjusted_center_y = setup.CENTER_Y - y1
+                    #     circle_center = (adjusted_center_x, adjusted_center_y)
+                    #     for i,cls in enumerate(self.classes):
+                    #         if cls == 1:  # Check if the class is 1
+                    #             line_length, line_position = get_misalignment(circle_center, setup.RADIUS, self.boxes[i])
+                    #             print(f'line length : {line_length}, line position : {line_position}')
+                            
+                    # Logic for returning based on detection
+                    if egg_count > 0:
+                        print(f'egg detected {egg_count}')
+                        return egg_count  # Return number of eggs detected
+                    elif crack_detected:
+                        print('crack detected')
+                        return 99  # Crack detected but no eggs with high confidence
+                    else:
+                        return 0
+
+                else:
+                    image = self.computer_vision.letterbox(image)
+                    self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
+                        self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
+                    )
+                    print(self.scores, self.boxes, self.classes)
+                    if self.scores is not None:
+                        egg_list = [score for score in self.scores if score > confident_level]
+                        return len(egg_list)
 
             
         return 0  # No eggs or cracks detected with sufficient confidence

@@ -18,7 +18,9 @@ function App() {
   const [experimentData, setExperimentData] = useState(null);
   const [error, setError] = useState(null);
   const [position, setPosition] = useState('');
-  const [interval, setInterval] = useState('');
+  const [pauseinterval, setInterval] = useState('');
+  const [cycletime, setCycleTime] = useState('');
+  const [valvedelay, setDelay] = useState('');
   useEffect(() => {
     document.title = ` 🥚 ${hostname}`;
   }, [hostname]);
@@ -26,8 +28,8 @@ function App() {
   // FetchBoardData(setBoardData, setError);
   // FetchExperimentData(setExperimentData, setError);
   // Use generalized fetch data hook
-  // useFetchData(setBoardData, setError, "http://tantest:8080/BoardData", parseBoardData);
-  // useFetchData(setExperimentData, setError, "http://tantest:8080/ExperimentData", parseExperimentData);
+  // useFetchData(setBoardData, setError, "http://cege0x0000:8080/BoardData", parseBoardData);
+  // useFetchData(setExperimentData, setError, "http://cege0x0000:8080/ExperimentData", parseExperimentData);
 
   useFetchData(setBoardData, setError, `http://${hostname}:8080/BoardData`, parseBoardData);
   useFetchData(setExperimentData, setError, `http://${hostname}:8080/ExperimentData`, parseExperimentData);
@@ -37,7 +39,7 @@ function App() {
   const unloaderStatus = boardData ? boardData.unloader_status : '';
   const modeStatus = boardData ? boardData.mode : '';
   const sensorsValues = boardData ? boardData.sensors_values : "(0, 0, 0, 0)";
-  console.log("Sensor Values:", sensorsValues);
+  // console.log("Sensor Values:", sensorsValues);
   const { starWheel, unloader, mode, load, buffer } = CageStatus(boardData?.star_wheel_status, boardData?.unloader_status, boardData?.mode, sensorsValues);
   // const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
@@ -45,15 +47,23 @@ function App() {
   const isNormal = starWheelStatus === 'normal' && unloaderStatus === 'normal';
 
   const handleMoveSW = () => {
-    PostActions.MoveSW(position); // Use the current position state as parameter
+    PostActions.MoveSW(position);
   };
 
   const handleSaveOffset = () => {
-    PostActions.SaveOffset(position); // Use the current position state as parameter
+    PostActions.SaveOffset(position);
   };
 
   const handleSetInterval = () => {
-    PostActions.SetInterval(interval); // Use the current interval state as parameter
+    PostActions.SetInterval(pauseinterval); 
+  };
+
+  const handleSetCycleTime = () => {
+    PostActions.SetCycleTime(cycletime); 
+  };
+
+  const handleSetValveDelay = () => {
+    PostActions.SetValveDelay(valvedelay); 
   };
 
   const handleStop = () => {
@@ -102,8 +112,16 @@ function App() {
             <div className="subcontent-title">Experiment Settings</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={handleSetInterval} label="Set Interval" />
-              {getInput('number', 'interval', interval, setInterval)}
+              <Button onClick={handleSetInterval} label="Set Pause Interval" />
+              {getInput('number', 'interval', pauseinterval, setInterval)}
+            </div>
+            <div className="buttons-container">
+              <Button onClick={handleSetCycleTime} label="Set Cycle Time" />
+              {getInput('number', 'cycletime', cycletime, setCycleTime)}
+            </div>
+            <div className="buttons-container">
+              <Button onClick={handleSetValveDelay} label="Set Valve delay" />
+              {getInput('number', 'valvedelay', valvedelay, setDelay)}
             </div>
             <div className="gap"></div>
             {mode.text === 'EXPERIMENT' && experimentData && (

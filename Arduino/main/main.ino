@@ -2,19 +2,20 @@
 //#include "StarWheelServo.h"
 //#include "DebounceInput.h"
 //#include "Servo.h"
+//#include "AnalogSensors.h"
 //Servo myServo;
 //HardwareSerial *serial = &Serial1;
 //Unloader unloader;
 ////StarWheelServo sw;
+////static StarWheelServo sw;
 //void setup() {
-//  Serial.begin(9600);            // Start serial communication with the PC
+//  Serial.begin(115200);            // Start serial communication with the PC
 //  Serial1.begin(1000000);        // Initialize serial communication with the servo
 //  myServo.setSerial(&Serial1);   // Set the serial port for the servo commands
 //  unloader.setServo(&myServo);   // Associate the Unloader object with the Servo
 //  unloader.init(2);              // Initialize the Unloader with a sensor pin, e.g., 2
 ////  sw.setServo(&myServo);
-////  sw.init(1);
-//  
+////  sw.init(GPIO_SIG6);
 ////  sw.homing();
 ////   Perform homing before starting the main loop
 //  if (unloader.homing() != ReadBack_Status::NORMAL) {
@@ -27,17 +28,63 @@
 ////  }
 //}
 //void loop() {
-////  if (unloader.unload() != ReadBack_Status::NORMAL) {
-////    Serial.println("Unload failed!");
-////    unloader.resetError();
-////    unloader.init(2);
-////    unloader.homing();    
-////  }
+////  sw.moveSteps();
+//  if (unloader.unload() != ReadBack_Status::NORMAL) {
+//    Serial.println("Unload failed!");
+//    unloader.resetError();
+//    unloader.init(2);
+//    unloader.homing();    
+//  }
 //  delay(2000); 
 //  unloader.getUnloaderPos();
 //  delay(2000);
 //}
 
+
+//#include "StarWheelServo.h"
+//#include "Servo.h"
+//// Static object declarations
+//static Servo          myServo;
+//static StarWheelServo starwheel;
+//static AnalogSensors  sensors;
+//HardwareSerial *serial = &Serial1; 
+//static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_SIG6; 
+//static const uint8_t SENSOR_ARRAY[4]{ 18, 19, 20, 21 };    
+////int position =0;
+//void setup() {
+//  Serial.begin(115200);
+//  while (!Serial) {
+//    ;
+//  }
+////  Serial.println("Initializing...");
+//  serial->begin(1000000, SERIAL_8N1);  
+//  myServo.setSerial(serial);
+//  starwheel.init(POSITIONER_PIN_STAR_WHEEL);
+//  Serial.println("Starwheel initialized.");
+//  starwheel.setServo(&myServo);
+//  starwheel.setCW();
+//  ReadBack_Status init_status = starwheel.m_init();
+//  if (init_status == ReadBack_Status::NORMAL) {
+//    Serial.println("Starwheel m_init() successful.");
+//  } else {
+//    Serial.println("Starwheel m_init() failed.");
+//  }
+//}
+//void loop() {
+//  ReadBack_Status move_status = starwheel.moveStep(600);
+//  if (move_status == ReadBack_Status::NORMAL) {
+////    Serial.println("Move successful.");
+//  } else if (move_status == ReadBack_Status::NOT_INIT) {
+////    Serial.println("Move failed: Starwheel not initialized.");
+//  } else if (move_status == ReadBack_Status::ERROR) {
+////    Serial.println("Move failed: Error occurred.");
+//  }
+////  position +=1;
+////  Serial.println("position");
+////  Serial.println(position);
+//  delay(1500);
+//  starwheel.getStarWheelPos();
+//}
 
 
 
@@ -126,7 +173,7 @@ void setup()
  servo.setSerial(&Serial1);
 
  // Valve
- valve.init(GPIO_OPT1); //new board
+ valve.init(GPIO_SPARE6); //new board
 //   valve.init(GPIO_SIG5);// old Board
 
  // Set Communication

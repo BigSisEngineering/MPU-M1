@@ -26,7 +26,7 @@ threads: Dict[str, threading.Thread] = {
     "ai": None,
     "comm": None,
 }
-
+counter = 0
 
 def pnp(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
@@ -103,6 +103,7 @@ def pnp(
         wait_thread_to_finish("sw")
         wait_thread_to_finish("ai")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or is_it_overtime) else 0
+        # tmp_egg_pot_counter = 0
         if tmp_egg_pot_counter > 0:
             if data.model != 'v10': BOARD.timer.update_slot()
             threads["ul"] = threading.Thread(
@@ -144,7 +145,7 @@ def pnp(
 def dummy(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, unload_probability: float
 ):
-    global threads
+    global threads, counter
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -223,6 +224,8 @@ def dummy(
         threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
         threads["comm"].start()
         logging.info(f"Dummy mode, pot unloaded at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        counter+=1
+        print(f'counteeeeeeeeeeeeeeeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr..................................: {counter}')
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(dummy)-{e}")
@@ -283,7 +286,6 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
 
 def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
     global threads
-    # t0 = time.time()
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
             if threads[f"{id}"].is_alive():

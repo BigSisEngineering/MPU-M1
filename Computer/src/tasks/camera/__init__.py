@@ -226,12 +226,7 @@ class CameraThreading:
                 if frame is not None:
                     with self._lock_device_ready:
                         self._device_ready = True
-                    # frame = ComputerVision().letterbox(frame)
                     frame = findCircle.CircularMask(frame)
-                    # with self.bbox_lock:
-                    
-                    #     if vision.PNP.boxes is not None:
-                    #         ComputerVision().draw(frame,vision.PNP.boxes,vision.PNP.scores, vision.PNP.classes)
                 else:
                     with self._lock_device_ready:
                         self._device_ready = False

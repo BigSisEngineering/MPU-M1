@@ -27,6 +27,7 @@ class PNPData:
 
 
 pnp_data_lock = threading.Lock()
+pnp_vision_lock = threading.Lock()
 pnp_data: PNPData = PNPData(
     0,
     True,

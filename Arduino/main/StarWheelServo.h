@@ -13,7 +13,7 @@ public:
   // [Encoder Res] * [Gear ratio] / [No. of slot]
   // [4096]        * [150 / 15]   / [80];
   const uint16_t COUNT_FOR_ONE_SLOT = 512;
-  const uint8_t  MAX_STEPS          = 80; // NOTE - Changed to one screw homing
+  const uint8_t  MAX_STEPS          = 79; // NOTE - Changed to one screw homing
   uint16_t       SENSOR_SLOT_OFFSET{ 0 }; // 250 for flat head screw, 128 for set screw
   /* ---------------------------------------------------------------------------------------------- */
   void           init(uint8_t sensor_pin);
@@ -34,6 +34,7 @@ public:
 
   int8_t getStepCount() const { return (m_step_counter); }
   int16_t getPos();
+  int16_t            getStarWheelPos();
 
   bool isNextMoveCauseOverflow(int8_t step);
   bool isInited() const;

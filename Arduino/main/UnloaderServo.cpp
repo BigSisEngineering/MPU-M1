@@ -49,7 +49,6 @@ ReadBack_Status Unloader::homing()
   {
     m_retracted_count = 0;
   }
-  // Simply move the servo to the retracted position at a specified speed and acceleration
   m_servo->goPosByCount(ID_UNLOADER_MOTOR, m_retracted_count, ST3215_MaxSpeed, ST3215_MaxAcc);
   uint16_t delayTime = m_servo->calcDelayTime(abs(m_retracted_count - COUNT_ZERO), ST3215_MaxSpeed, ST3215_MaxAcc);
   delay(delayTime + 20); // Adding an extra 20 milliseconds as a buffer
@@ -126,19 +125,15 @@ ReadBack_Status Unloader::unload()
   const int positionTolerance = 50; // Tolerance for position checking
   int16_t currentPosition = 0;      // Variable to hold the current position
   int16_t targetPosition = 0;       // Variable to hold the target position
-
-  // Get the current position
   if (m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition) != ReadBack_Status::NORMAL)
   {
     return ReadBack_Status::ERROR; // Return on failure to read position
   }
-
-  // Determine target position based on current position
   if (currentPosition >= 0 && currentPosition <= 370)
   {
     targetPosition = 3755;
   }
-  else if (currentPosition >= 3725 && currentPosition <= 3785)
+  else if (currentPosition >= 3725 && currentPosition <= 4095)
   {
     targetPosition = 341;
   }
@@ -146,39 +141,32 @@ ReadBack_Status Unloader::unload()
   {
     return ReadBack_Status::ERROR;
   }
-  // Move the servo to the target position
   m_servo->goPosByCount(ID_UNLOADER_MOTOR, targetPosition, ST3215_MaxSpeed, ST3215_MaxAcc);
-  // Calculate dynamic load and store it
-  //    uint16_t dynamicLoad = m_servo->calcDynamicLoad(abs(targetPosition-currentPosition));
-  //    Serial.print("Calculated Dynamic Load: ");
-  //    Serial.println(dynamicLoad);
-
-  // Call delayWithLoadDetection and print the delay value
   uint16_t delayTime = m_servo->calcDelayTime(abs(targetPosition - currentPosition), ST3215_MaxSpeed, ST3215_MaxAcc);
   res = m_servo->delayWithLoadDetection(ID_UNLOADER_MOTOR, delayTime, 1000);
   if (res == ReadBack_Status::OVERLOAD)
   {
-    //    Serial.println("Unload Status: OVERLOAD (Overload detected)");
     m_is_error = true;
     return res;
   }
   return ReadBack_Status::NORMAL;
 }
 
+
 int16_t Unloader::getUnloaderPos()
 {
-  int16_t currentPosition = 0; // Variable to hold the current position
+  int16_t currentPosition = 0;
   ReadBack_Status rbs;
-  // Ensure the servo is valid before attempting to get the position
   rbs = m_servo->getPos(ID_UNLOADER_MOTOR, currentPosition);
-//  Serial.println(currentPosition);
   return currentPosition;
 }
+
 
 void Unloader::resetError()
 {
   m_is_error = false;
 }
+
 
 bool Unloader::isError() const
 {
