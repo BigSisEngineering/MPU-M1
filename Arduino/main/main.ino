@@ -174,6 +174,7 @@ void setup()
 
  // Valve
  valve.init(GPIO_OPT1); //new board
+//  valve.init(GPIO_SPARE6); //rpw5
 //   valve.init(GPIO_SIG5);// old Board
 
  // Set Communication

@@ -6,14 +6,14 @@ import os
 import threading
 import requests
 
-row = 1
+row = 0
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
 for n in range(1, 14 + 1):
     hostnames.append(f"cage{row}x00{n:02}")
 
-# for row in range(2,5):
+# for row in range(1,5):
 #     for n in range(1, 15):
 #         hostnames.append(f"cage{row}x00{n:02}")
 # hostnames.append("cage1x0007")
@@ -27,6 +27,7 @@ remote_dir = "~/."
 # ==================================== Files need to transfer =================================== #
 local_files = [
     "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
+    # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Arduino",
     # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py',
     # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/tasks/httpServer/httpPostHandler.py'
 ]

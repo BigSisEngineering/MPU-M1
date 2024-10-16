@@ -134,11 +134,11 @@ def execute():
             f"SW status-{BOARD_DATA.star_wheel_status}, UL-{BOARD_DATA.unloader_status}",
         )
 
-        CLI.printline(
-            Level.SPECIFIC,
-            f"UL_POS-{BOARD.get_unloader_position()}",
-        )
-        time.sleep(0.05)
+        # CLI.printline(
+        #     Level.SPECIFIC,
+        #     f"UL_POS-{BOARD.get_unloader_position()}",
+        # )
+        # time.sleep(0.05)
 
         # Check buffer
         is_buffer_full = (

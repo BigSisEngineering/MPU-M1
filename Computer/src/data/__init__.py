@@ -42,7 +42,7 @@ pnp_data: PNPData = PNPData(
 
 is_star_wheel_error: bool = False
 is_unloader_error: bool = False
-max_auto_clear_error = 2
+max_auto_clear_error = 3
 
 servos_ready: bool = False
 sw_homing : bool =False
