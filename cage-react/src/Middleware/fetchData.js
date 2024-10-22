@@ -74,7 +74,7 @@ const useFetchData = (setResult, setError, url, parser) => {
         };
 
         fetchData();
-        const interval = setInterval(fetchData, 5000);
+        const interval = setInterval(fetchData, 500);
 
         return () => clearInterval(interval);
     }, [setResult, setError, url, parser]);
