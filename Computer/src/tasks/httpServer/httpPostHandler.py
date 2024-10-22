@@ -154,12 +154,14 @@ def post_set_cycle_time(cycle_time):
     with data.lock:
         if 0 <= cycle_time <= 20:
             data.pnp_data.cycle_time = cycle_time
+            logging.info(f"Cycle Time set to {cycle_time} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             return  f"Cycle time set to {cycle_time} seconds"
     return "Cycle time should be between 0-20 seconds"
 
 def post_set_pause_interval(pause_interval):
     with data.lock:
         data.experiment_pause_interval = pause_interval
+        # logging.info(f"Pause Interval set to {pause_interval} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         return  f"pause interval set to {pause_interval} seconds"
 
 
@@ -224,6 +226,7 @@ def post_set_valve_delay(delay):
     with data.lock:
         data.valve_delay = delay
         handler.set_valve_delay()
+        logging.info(f"valve Delay set to {delay} ms at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         return f"Valve delay set to {delay}"
 
 
