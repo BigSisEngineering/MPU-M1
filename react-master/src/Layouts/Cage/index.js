@@ -55,6 +55,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
         setIsLoaded(false);
       }
       //
+      setMaintainenceFlag(dictData[cageHostname]["maintainence_flag"]);
     } else {
       setUnloaderStatus(DEFAULT_MSG);
       setStarwheelStatus(DEFAULT_MSG);
@@ -64,7 +65,6 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       setMode(DEFAULT_MSG);
       setIsLoaded(false);
     }
-    setMaintainenceFlag(dictData[cageHostname]["maintainence_flag"]);
   }, [dictData, cageHostname]);
 
   /* ---------------------------------------------------------------------------------- */
@@ -164,7 +164,12 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function getOpacity() {
-    if (maintainenceFlag) return 100;
+    if (maintainenceFlag) {
+      if (!isSelected) {
+        return 50;
+      }
+      return 75;
+    }
     if (!isLoaded) {
       if (!isSelected) {
         return 25;
