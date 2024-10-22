@@ -11,6 +11,9 @@ import CageControl from "./Layouts/CageControl/index.js";
 import OperationControl from "./Layouts/OperationControl/index.js";
 import { DEFAULT_BOOL } from "./Utils/Utils.js";
 
+// DEBUG FLAG
+let DEBUG = false;
+
 /* ---------------------------------------------------------------------------------- */
 function generateDocumentTitle(module, row) {
   switch (module) {
@@ -29,44 +32,13 @@ function generateDocumentTitle(module, row) {
   }
 }
 
-// async function getSetupInfo() {
-//   let infoDict = null;
-//   let moduleNumber;
-//   let rowNumber;
-
-//   try {
-//     const response = await fetch("/get_status/info", {
-//       method: "GET",
-//     });
-
-//     if (!response.ok) {
-//       throw new Error("Network response was not ok");
-//     }
-
-//     infoDict = await response.json();
-//   } catch (error) {
-//     console.error(error);
-//   }
-
-//   if (infoDict) {
-//     moduleNumber = infoDict["module"];
-//     rowNumber = infoDict["row"];
-//   } else {
-//     // moduleNumber = 1;
-//     // rowNumber = 6;
-//     moduleNumber = null;
-//     rowNumber = null;
-//   }
-
-//   return { moduleNumber, rowNumber };
-// }
-
 /* ================================================================================== */
 /*                                     Main Blocks                                    */
 /* ================================================================================== */
 function MainContent({ rowNumber }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
+
   const toggleSelected = (index) => () => {
     setIsSelected((prevSelected) => {
       const newIsSelected = [...prevSelected];
@@ -82,6 +54,18 @@ function MainContent({ rowNumber }) {
   const clearAll = () => {
     setIsSelected(Array(14).fill(false));
   };
+
+  // maintainence
+  const [maintainenceFlag, setMaintainenceFlag] = useState(Array(14).fill(false));
+  function toggleMaintainence(indexList, bool) {
+    indexList.forEach(function (index) {
+      setMaintainenceFlag((prevSelected) => {
+        const newIsSelected = [...prevSelected];
+        newIsSelected[index] = bool;
+        return newIsSelected;
+      });
+    });
+  }
 
   // data update
   const [m1aRunning, setM1aRunning] = useState(DEFAULT_BOOL);
@@ -109,35 +93,48 @@ function MainContent({ rowNumber }) {
         clearAll={clearAll}
         m1aRunning={m1aRunning}
         m1cRunning={m1cRunning}
+        toggleMaintainence={toggleMaintainence}
       />
       <RightColumn
         rowNumber={rowNumber}
         isSelected={isSelected}
         setIsSelected={setIsSelected}
         toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
       />
     </div>
   );
 }
 
-function LeftColumn({ rowNumber, isSelected, selectAll, clearAll, m1aRunning, m1cRunning }) {
+function LeftColumn({ rowNumber, isSelected, selectAll, clearAll, m1aRunning, m1cRunning, toggleMaintainence }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A row={rowNumber} m1aRunning={m1aRunning} />
       <M1C row={rowNumber} m1cRunning={m1cRunning} />
       <OperationControl m1aRunning={m1aRunning} m1cRunning={m1cRunning} />
-      <CageControl selectAll={selectAll} clearAll={clearAll} isSelectedArray={isSelected} />
+      <CageControl
+        selectAll={selectAll}
+        clearAll={clearAll}
+        isSelectedArray={isSelected}
+        toggleMaintainence={toggleMaintainence}
+      />
     </div>
   );
 }
 
-function RightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected }) {
+function RightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected, maintainenceFlag }) {
   return (
     <div
       className="columns-container"
       style={{ width: "76%", padding: "0px 0px", marginBottom: "0px", alignItems: "center" }}
     >
-      <Cages row={rowNumber} isSelected={isSelected} setIsSelected={setIsSelected} toggleSelected={toggleSelected} />
+      <Cages
+        row={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+      />
     </div>
   );
 }
@@ -185,14 +182,14 @@ function Main() {
     return () => clearInterval(intervalId);
   }, [setIsLoading, setIsError, setIsTimeout, dictInfo, dictSession, dictLastPing]);
 
-  console.log(isTimeout);
-
-  if (isTimeout) {
-    return <div className="full-display">Too many sessions! You have been timedout.</div>;
-  } else if (isError) {
-    return <div className="full-display">Connection lost. Reboot if refreshing does not work.</div>;
-  } else if (isLoading) {
-    return <div className="full-display">Page loading...</div>;
+  if (!DEBUG) {
+    if (isTimeout) {
+      return <div className="full-display">Too many sessions! You have been timedout.</div>;
+    } else if (isError) {
+      return <div className="full-display">Connection lost. Reboot if refreshing does not work.</div>;
+    } else if (isLoading) {
+      return <div className="full-display">Page loading...</div>;
+    }
   }
 
   return (

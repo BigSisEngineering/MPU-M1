@@ -17,6 +17,7 @@ import {
 function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   const [unloaderStatus, setUnloaderStatus] = useState(DEFAULT_MSG);
   const [starwheelStatus, setStarwheelStatus] = useState(DEFAULT_MSG);
+  const [maintainenceFlag, setMaintainenceFlag] = useState(DEFAULT_BOOL);
   //
   const [loadSensor, setLoadSensor] = useState(-1);
   const [unloadSensor, setUnloadSensor] = useState(-1);
@@ -63,11 +64,14 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       setMode(DEFAULT_MSG);
       setIsLoaded(false);
     }
+    setMaintainenceFlag(dictData[cageHostname]["maintainence_flag"]);
   }, [dictData, cageHostname]);
 
   /* ---------------------------------------------------------------------------------- */
 
   function modeText(modeState) {
+    if (maintainenceFlag) return "FIX ME";
+
     switch (modeState) {
       case "idle":
         return "IDLE";
@@ -83,6 +87,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function modeColor(modeState) {
+    if (maintainenceFlag) return getColor("RED");
+
     switch (modeState) {
       case "idle":
         return getColor("DEFAULT");
@@ -134,6 +140,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function getbackgroundColor() {
+    if (maintainenceFlag) return ["rgba(255, 61, 0, 0.8)", "rgba(255, 61, 0, 0.4)"];
+
     if (isLoaded && (unloaderStatus !== "normal" || starwheelStatus !== "normal")) {
       if (!isSelected) {
         return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
@@ -156,6 +164,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function getOpacity() {
+    if (maintainenceFlag) return 100;
     if (!isLoaded) {
       if (!isSelected) {
         return 25;
