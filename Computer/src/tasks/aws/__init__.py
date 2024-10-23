@@ -14,7 +14,7 @@ def aws_image_upload(predict, img_name):
     files = [("image", (img_name, open(img_name, "rb"), "image/jpg"))]
     headers = {}
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
-    print(f'aws-image-upload {response}')
+    print(f"aws-image-upload {response}")
     return response
 
 
@@ -27,7 +27,6 @@ def create_thread():
         try:
             files = os.listdir(folder_path)
             jpg_files = [file for file in files if file.lower().endswith(".jpg")]
-            print(f'photos stored in temporary memory : {len(jpg_files)}')
             # CLI.printline(Level.DEBUG, f"(aws)-number of photos - {len(jpg_files)}.")
             if jpg_files:
                 for jpg_file in jpg_files:
@@ -39,7 +38,7 @@ def create_thread():
                     else:
                         CLI.printline(Level.WARNING, f"(aws) internet access fail -- with response {response}")
         except Exception as e:
-            print(f'Error in AWS IMAGE UPLOAD : {e}')
+            print(f"Error in AWS IMAGE UPLOAD : {e}")
 
     def loop(killer: threading.Event):
         while not killer.is_set():

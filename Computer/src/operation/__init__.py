@@ -28,9 +28,8 @@ threads: Dict[str, threading.Thread] = {
 }
 counter = 0
 
-def pnp(
-    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
-):
+
+def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
     global threads
     is_it_overtime = BOARD.timer.is_it_overtime()
 
@@ -42,9 +41,8 @@ def pnp(
 
     def get_ai_result(image, pnp_confidence):
         global ai_result
-        print(f'ai results: {ai_result}')
         ai_result = vision.PNP.is_egg_detected(image, pnp_confidence)
-        CLI.printline(Level.INFO, f"(PnP)-ai done")
+        CLI.printline(Level.INFO, f"(PnP)-ai done. Results: {ai_result}")
 
     def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter, timestamp_of_image):
         global ai_result
@@ -58,11 +56,21 @@ def pnp(
 
     def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
         with lock:
-            BOARD.star_wheel_move_ms(star_wheel_move_time)
+            # blocks execution if either servo isn't ready
+            is_star_wheel_ready = BOARD.is_servo_ready(BOARD.star_wheel_status)
+            is_unloader_ready = BOARD.is_servo_ready(BOARD.unloader_status)
+
+            if is_star_wheel_ready and is_unloader_ready:
+                BOARD.star_wheel_move_ms(star_wheel_move_time)
 
     def _unload(BOARD: BScbAPI, lock: threading.Lock):
         with lock:
-            BOARD.unload()
+            # blocks execution if either servo isn't ready
+            is_star_wheel_ready = BOARD.is_servo_ready(BOARD.star_wheel_status)
+            is_unloader_ready = BOARD.is_servo_ready(BOARD.unloader_status)
+
+            if is_star_wheel_ready and is_unloader_ready:
+                BOARD.unload()
 
     try:
         # ====================================== Sense Check ===================================== #
@@ -105,7 +113,8 @@ def pnp(
         tmp_egg_pot_counter = 1 if (ai_result > 0 or is_it_overtime) else 0
         # tmp_egg_pot_counter = 0
         if tmp_egg_pot_counter > 0:
-            if data.model != 'v10': BOARD.timer.update_slot()
+            if data.model != "v10":
+                BOARD.timer.update_slot()
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -127,19 +136,18 @@ def pnp(
             ),
         )
         threads["comm"].start()
-       
+
         if is_it_overtime:
             cloud.DataBase.data_update("other")
         else:
             cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
 
         cloud.DataBase.data_upload()
-        if data.model != 'v10': BOARD.timer.move_index()
+        if data.model != "v10":
+            BOARD.timer.move_index()
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(PnP)-{e}")
-
-
 
 
 def dummy(
@@ -224,14 +232,13 @@ def dummy(
         threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
         threads["comm"].start()
         logging.info(f"Dummy mode, pot unloaded at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        counter+=1
-        print(f'counteeeeeeeeeeeeeeeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr..................................: {counter}')
+        counter += 1
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(dummy)-{e}")
 
 
-
+# !OBSOLETE
 # def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
 #     # 1. The 1A will purge its old pot out
 #     if BOARD is not None:
@@ -259,8 +266,11 @@ def dummy(
 #             data.purge_stage = purge_state
 
 
-def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
+def experiment(
+    BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
+):
     global threads
+
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
             if threads[f"{id}"].is_alive():
@@ -293,19 +303,23 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
             return
         if not is_safe_to_move:
             return
-        
+
         with data.lock:
             if data.purge_counter >= 80:
                 watchdog = data.experiment_pause_interval
-                print(f'experiment status {data.experiment_pause_state}')
+                print(f"experiment status {data.experiment_pause_state}")
                 if data.experiment_pause_state == False:
                     data.experiment_pause_start_time = time.time()
-                    print(f'experiment status {data.experiment_pause_state}')
+                    print(f"experiment status {data.experiment_pause_state}")
                     data.experiment_pause_state = True
-                    logging.info(f"Experiment mode in Pause State for {watchdog} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                    logging.info(
+                        f"Experiment mode in Pause State for {watchdog} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                    )
                 elapsed_time = time.time() - data.experiment_pause_start_time
-                CLI.printline(Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} ")
-                data.experiment_status = f'pause state for {watchdog}s - remaining time : {watchdog - elapsed_time}s'
+                CLI.printline(
+                    Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} "
+                )
+                data.experiment_status = f"pause state for {watchdog}s - remaining time : {watchdog - elapsed_time}s"
                 if elapsed_time > watchdog:
                     data.purge_counter = 0
                     data.experiment_pause_state = False
@@ -325,7 +339,7 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 )
                 threads["sw"].start()
                 CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
-               # ======================================= AI thread ====================================== #
+                # ======================================= AI thread ====================================== #
                 wait_thread_to_finish("ai")
                 threads["ai"] = threading.Thread(
                     target=get_ai_result,
@@ -343,10 +357,10 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
 
                 # CLI.printline(Level.INFO, f"(experiment mode)-{timer_unload}/{ai_result}")
                 # tmp_egg_pot_counter = 1 #if (ai_result > 0 or timer_unload) else 0
-                tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - data.purge_all_timer)>3600) else 0
+                tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - data.purge_all_timer) > 3600) else 0
                 if (time.time() - data.purge_all_timer) > 3600 and data.purge_counter == 80:
                     data.purge_all_timer = time.time()
-                    
+
                 cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
                 cloud.DataBase.data_upload()
                 if tmp_egg_pot_counter > 0:
@@ -375,10 +389,13 @@ def experiment(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star
                 threads["comm"].start()
                 data.purge_counter += 1
                 CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {data.purge_counter} ")
-                data.experiment_status = f'purging state - pots unloaded : {data.purge_counter}' 
-                logging.info(f"Experiment mode in Purging State, pot unloaded :{data.purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                data.experiment_status = f"purging state - pots unloaded : {data.purge_counter}"
+                logging.info(
+                    f"Experiment mode in Purging State, pot unloaded :{data.purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
     except Exception as e:
         CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
+
 
 timestamp: time.time = 0
 

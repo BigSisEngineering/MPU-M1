@@ -3,17 +3,20 @@ from flask import Blueprint, jsonify, make_response
 from src import data, BscbAPI, CLI
 from src.CLI import Level
 
-get_api = Blueprint('get_api', __name__)
+get_api = Blueprint("get_api", __name__)
+
 
 def get_ACK():
-    CLI.printline(Level.DEBUG, "(http_server)-get_ACK")
+    # CLI.printline(Level.DEBUG, "(http_server)-get_ACK")
     return {}
 
+
 def get_BoardData():
-    CLI.printline(Level.DEBUG, "(http_server)-get_BoardData")
+    # CLI.printline(Level.DEBUG, "(http_server)-get_BoardData")
     with BscbAPI.lock:
         board_data = BscbAPI.BOARD_DATA.dict()
     return board_data
+
 
 # def get_UnloaderPos():
 #     CLI.printline(Level.SPECIFIC, "(http_server)-get_UnloaderPos")
@@ -21,8 +24,9 @@ def get_BoardData():
 #         unloader_pos = BscbAPI.BOARD.get_servo_position(2)
 #     return unloader_pos
 
+
 def get_DummyData():
-    CLI.printline(Level.DEBUG, "(http_server)-DummyData")
+    # CLI.printline(Level.DEBUG, "(http_server)-DummyData")
     with data.lock:
         res = {
             "unload_probability": data.unload_probability,
@@ -30,50 +34,54 @@ def get_DummyData():
         }
     return res
 
+
 def get_PNPData():
-    CLI.printline(Level.DEBUG, "(http_server)-PNPData")
+    # CLI.printline(Level.DEBUG, "(http_server)-PNPData")
     with data.lock:
         pnp_data = data.pnp_data
     return pnp_data
 
+
 def get_potData():
-    CLI.printline(Level.DEBUG, "(http_server)-get_potData")
+    # CLI.printline(Level.DEBUG, "(http_server)-get_potData")
     with data.lock:
         num_pot = data.pot_unloaded - data.pot_unloaded_since_last_request
         data.pot_unloaded_since_last_request = data.pot_unloaded
     return num_pot
 
+
 def get_ERROR():
-    CLI.printline(Level.DEBUG, "(http_server)-get_ERROR")
-    error_data = {
-        "star_wheel_error": data.is_star_wheel_error,
-        "unloader_error": data.is_unloader_error
-    }
+    # CLI.printline(Level.DEBUG, "(http_server)-get_ERROR")
+    error_data = {"star_wheel_error": data.is_star_wheel_error, "unloader_error": data.is_unloader_error}
     return error_data
 
+
 def get_experimentData():
-    CLI.printline(Level.DEBUG, "(http_server)-get_experimentData")
+    # CLI.printline(Level.DEBUG, "(http_server)-get_experimentData")
     with data.lock:
         return data.experiment_status
-    
+
+
 def get_HOMING():
-    CLI.printline(Level.DEBUG, "(http_server)-get_HOMING")
+    # CLI.printline(Level.DEBUG, "(http_server)-get_HOMING")
     with data.lock:
         return data.sw_homing
 
+
 get_endpoints = {
-    'ACK': get_ACK,
-    'BoardData': get_BoardData,
-    'DummyData': get_DummyData,
-    'PNPData': get_PNPData,
-    'potData': get_potData,
-    'ERROR': get_ERROR,
-    'HOMING': get_HOMING,
-    'ExperimentData' : get_experimentData,
+    "ACK": get_ACK,
+    "BoardData": get_BoardData,
+    "DummyData": get_DummyData,
+    "PNPData": get_PNPData,
+    "potData": get_potData,
+    "ERROR": get_ERROR,
+    "HOMING": get_HOMING,
+    "ExperimentData": get_experimentData,
     # 'UnloaderPos' : get_UnloaderPos,
 }
 
-@get_api.route('/<endpoint>', methods=["GET"])
+
+@get_api.route("/<endpoint>", methods=["GET"])
 def handle_get(endpoint):
     if endpoint in get_endpoints:
         response_data = get_endpoints[endpoint]()

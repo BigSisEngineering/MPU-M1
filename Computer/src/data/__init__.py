@@ -67,6 +67,7 @@ MongoDB_INIT: bool = False
 pot_processed: int = 0
 pot_unloaded: int = 0
 pot_unloaded_since_last_request: int = 0
+
 eggs_last_hour: int = 0
 steps_last_hour: int = 0
 

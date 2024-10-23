@@ -21,8 +21,8 @@ class EggCounter:
         self.count = {
             "egg": 0,
             "noegg": 0,
-            "multiple_eggs":0,
-            "other":0,
+            "multiple_eggs": 0,
+            "other": 0,
             "max_id": 0,
             "date": self.date,
             "start_time": self.start_date_time,
@@ -85,8 +85,8 @@ class EggCounter:
                 self.count = {
                     "egg": 0,
                     "noegg": 0,
-                    "multiple_eggs":0,
-                    "other":0,
+                    "multiple_eggs": 0,
+                    "other": 0,
                     "max_id": 0,
                     "date": self.date,
                     "start_time": self.start_date_time,
@@ -126,7 +126,6 @@ class EggCounter:
             print(f"Connection error in data upload {e}")
         except Exception as e:
             print(f"Upload data error: {e}")
-
 
 
 # DataBase = EggCounter()

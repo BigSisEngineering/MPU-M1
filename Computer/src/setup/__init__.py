@@ -44,7 +44,7 @@ def get_master_ip(arg=None):
         ip = result[0][4][0]
         CLI.printline(Level.INFO, f"(setup)-Master IP set: {ip}")
     except socket.gaierror:
-        CLI.printline(Level.WARNING, f"(setup)-Master IP cannout found. Does master exist? ")
+        CLI.printline(Level.WARNING, f"(setup)-Master IP cannot found. Does master exist? ")
     return ip
 
 
@@ -72,18 +72,19 @@ def read_mask_coordinates():
         return CENTER_X, CENTER_Y, RADIUS
 
 
-def save_mask_coordinates(mask_coordinates):
+def save_mask_coordinates():
+    global CENTER_X, CENTER_Y, RADIUS
     with lock_mask_config:
         try:
             # print("save")
-            config_parser.set("MaskCoordinates", "center_x", str(mask_coordinates[0]))
-            config_parser.set("MaskCoordinates", "center_y", str(mask_coordinates[1]))
-            config_parser.set("MaskCoordinates", "radius", str(mask_coordinates[2]))
+            config_parser.set("MaskCoordinates", "center_x", str(CENTER_X))
+            config_parser.set("MaskCoordinates", "center_y", str(CENTER_Y))
+            config_parser.set("MaskCoordinates", "radius", str(RADIUS))
 
             with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "DEFAULT.ini"), "w") as configfile:
                 config_parser.write(configfile)
         except Exception as e:
-            print("oops {}".format(e))
+            CLI.printline(Level.INFO, f"(setup)-Failed to save mask coordinates: {e}")
 
 
 CAGE_ID = get_cage_id()

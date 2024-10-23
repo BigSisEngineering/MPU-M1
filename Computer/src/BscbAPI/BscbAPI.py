@@ -6,6 +6,7 @@ from enum import Enum
 from typing import List
 import datetime
 import logging
+import threading
 
 from src import CLI
 from src.CLI import Level
@@ -49,15 +50,16 @@ class StarWheelTimer:
 
     def move_index(self) -> None:
         self.index = (self.index + 1) % 80
-        print(f"starwheel timer index {self.index}")
+        # print(f"starwheel timer index {self.index}")
 
     def update_slot(self) -> None:
         # Update the slot time for the previous index to the current time, formatted as a string
         current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.timer[self.index] = current_time_str
         self.unloaded_count[self.index] += 1
-        print(f"slot updated for index {self.index}")
-        print(f"Unloaded count list: {self.unloaded_count}")
+
+        # print(f"slot updated for index {self.index}")
+        # print(f"Unloaded count list: {self.unloaded_count}")
 
     def is_it_overtime(self, timeout_s: int = 3600) -> bool:
         """Check if the current slot's time exceeds the timeout."""
@@ -67,19 +69,18 @@ class StarWheelTimer:
         time_difference = (current_time - slot_time).total_seconds()
         is_overtime = time_difference > timeout_s
 
-        print(
-            f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}'
+        CLI.printline(
+            Level.DEBUG,
+            f'Slot time: {slot_time_str}, Current time: {current_time.strftime("%Y-%m-%d %H:%M:%S")}, time difference : {time_difference}',
         )
-
-        if is_overtime:
-            print("The pot is overtime.")
-        else:
-            print("The pot is not overtime.")
+        CLI.printline(Level.DEBUG, "The pot is overtime." if is_overtime else "The pot is not overtime.")
 
         return is_overtime
 
 
 # SWTimer = StarWheelTimer()
+
+
 class BScbAPI:
     BAUD_RATE = 115200
     DEVICE_NAME_LIST = ["Arduino Leonardo", "Arduino Leonardo (COM5)"]
@@ -92,11 +93,9 @@ class BScbAPI:
         self.unloader_status = Status.idle
         self.com_port = self.get_port() if port == "" else port
         self.timer = StarWheelTimer()
-        print(f"Serial communication port: {self.com_port}")
+
         if self.com_port is not None:
-            self.ser = serial.Serial(
-                self.com_port, self.baud_rate, timeout=self.timeout
-            )
+            self.ser = serial.Serial(self.com_port, self.baud_rate, timeout=self.timeout)
             self.is_inited = True
         else:
             self.ser = None
@@ -112,11 +111,8 @@ class BScbAPI:
     def update_com_port(self):
         self.ser.close()
         self.com_port = self.get_port()
-        print(f"Serial communication port: {self.com_port}")
         if self.com_port is not None:
-            self.ser = serial.Serial(
-                self.com_port, self.baud_rate, timeout=self.timeout
-            )
+            self.ser = serial.Serial(self.com_port, self.baud_rate, timeout=self.timeout)
             self.is_inited = True
 
     def is_com_ready(self):
@@ -182,15 +178,13 @@ class BScbAPI:
                 # print('servo executing')
                 # if len(ack) > 1:
                 #     print(f"Readback: {ack}")
-                if from_starwheel_init:
-                    # data.sw_homing = True
-                    print("StarWheel is homing...")
+                # if from_starwheel_init:
+                #     # data.sw_homing = True
+                #     print("StarWheel is homing...")
                 # else:
                 # data.sw_homing = False
                 if len(ack) > 7:
-                    header, target, action, status, _, _, crc = struct.unpack(
-                        "=BBBBBBh", ack
-                    )
+                    header, target, action, status, _, _, crc = struct.unpack("=BBBBBBh", ack)
                     # print(f"(got_Status_respond) - {Status(status)}, {status} ")
                     return Status(status)
                 if time.time() > time_out:
@@ -286,9 +280,7 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
             print(f"Serial error: {e}")
-        self.star_wheel_status = self.got_Status_respond(
-            timeout=65, from_starwheel_init=True
-        )
+        self.star_wheel_status = self.got_Status_respond(timeout=65, from_starwheel_init=True)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
             current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -354,12 +346,15 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
+        if not self.is_readback_status_normal(self.unloader_status):
+            return False
         if not self.timer.is_inited():
             return False
         if not self.IsUnloaderHomed():
             print("Unloader not in home position.")
             self.unloader_status = Status.not_init
             return False
+
         # Hex message to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")
@@ -417,8 +412,9 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.unloader_status):
             return False
-        # if not self.is_readback_status_normal(self.star_wheel_status):
-        #     return False
+        if not self.is_readback_status_normal(self.star_wheel_status):
+            return False
+
         # Hex message to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")
@@ -436,7 +432,9 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
         self.unloader_status = self.got_Status_respond()
-        CLI.printline(Level.SPECIFIC, f"unloader time: , {time.time()-t1}")
+
+        # CLI.printline(Level.SPECIFIC, f"unloader time: , {time.time()-t1}") # !NO
+
         if self.is_readback_status_normal(self.unloader_status):
             # self.timer.update_slot()
             return True
@@ -517,11 +515,10 @@ class BScbAPI:
         return msg == b"ACK\x00\x00\x00\x00\x00"
 
     def is_readback_status_normal(self, status):
-        return (
-            (status is Status.idle)
-            or (status is Status.normal)
-            or (status is Status.not_init)
-        )
+        return (status is Status.idle) or (status is Status.normal) or (status is Status.not_init)
+
+    def is_servo_ready(self, status):
+        return status is Status.normal
 
     # ------------------------------------------------------------------------------------------- #
     def resolve_sensor_status(self, sensor, id: int, low: int = 89, high: int = 90):
@@ -621,9 +618,7 @@ class BScbAPI:
         hex_message += bytearray.fromhex("04")  # TARGET_VALVE (0x04)
         hex_message += bytearray.fromhex("01")  # ACTION_SET_DELAY (0x01)
 
-        hex_message += struct.pack(
-            "<H", delay_ms
-        )  # Pack the delay in little-endian format
+        hex_message += struct.pack("<H", delay_ms)  # Pack the delay in little-endian format
 
         hex_message += bytearray.fromhex("00")
         crc = self.generate_crc16(hex_message)
@@ -637,7 +632,7 @@ class BScbAPI:
             return False
         ack_status = self.got_ACK_respond()
         return True if self.is_readback_status_normal(ack_status) else False
-    
+
     def get_unloader_position(self):
         if not self.is_com_ready():
             return None
@@ -669,18 +664,12 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
             return None
-        
+
     def IsUnloaderHomed(self):
-        if 0 <= self.get_unloader_position()<= 370 or 3725 <= self.get_unloader_position()<= 4095:
+        if 0 <= self.get_unloader_position() <= 370 or 3725 <= self.get_unloader_position() <= 4095:
             return True
         else:
             return False
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -690,16 +679,12 @@ if __name__ == "__main__":
         with BScbAPI(port="COM10", baud_rate=115200) as board:
             if board.is_com_ready():
                 if not board.star_wheel_clear_error():
-                    print(
-                        f"Star wheel clear error error, see error {board.star_wheel_status}"
-                    )
+                    print(f"Star wheel clear error error, see error {board.star_wheel_status}")
                 else:
                     print("Clear star wheel error")
 
                 if not board.unloader_clear_error():
-                    print(
-                        f"unloader clear error error, see error {board.unloader_status}"
-                    )
+                    print(f"unloader clear error error, see error {board.unloader_status}")
                 else:
                     print("Clear unloader error")
 

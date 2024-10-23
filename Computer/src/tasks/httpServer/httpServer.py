@@ -22,6 +22,7 @@ print_name = "FLASK"
 # ============================================== #
 from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src.tasks import camera
+
 # from src.tasks import checkAlignment
 from src import setup
 from src import vision
@@ -48,6 +49,7 @@ CORS(app)
 app.register_blueprint(httpGetHandler.get_api)
 app.register_blueprint(httpPostHandler.post_api)
 
+
 @app.route("/")
 def index():
     title = f"{setup.CAGE_ID}"
@@ -58,12 +60,14 @@ def index():
     )
 
 
-bbox = ComputerVision_y10() if data.model == 'v10' else ComputerVision()
-model = data.model 
+bbox = ComputerVision_y10() if data.model == "v10" else ComputerVision()
+model = data.model
+
 
 def gen():
+    compression_params = [cv2.IMWRITE_WEBP_QUALITY, 30]
+
     new_shape = (480, 320)
-    # Desired dimensions for the cropped image
     desired_width = 640
     desired_height = 480
 
@@ -80,77 +84,84 @@ def gen():
         )
         return frame
 
-    def _add_top_right_text(frame, text, line_offset=0, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1, color=(0, 255, 0), thickness=2):
+    def _add_top_right_text(
+        frame, text, line_offset=0, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1, color=(0, 255, 0), thickness=2
+    ):
         text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
         text_x = frame.shape[1] - text_size[0] - 10
         text_y = text_size[1] + 10 + line_offset
         cv2.putText(frame, text, (text_x, text_y), font, font_scale, color, thickness)
-    
-    def _draw_lines_to_bbox(frame, circle_center, radius, bbox):
-        x_min, y_min, x_max, y_max = bbox
-        # Top and bottom points of the circle
-        top_circle = (circle_center[0], circle_center[1] - radius)
-        bottom_circle = (circle_center[0], circle_center[1] + radius)
-        if top_circle[1] < 0 or bottom_circle[1] >= frame.shape[0] or x_min < 0 or x_max >= frame.shape[1]:
-            print("Invalid coordinates for drawing.", flush=True)
-            return frame
-        top_edge_point = (top_circle[0], y_min)  # Same x as top_circle, y is the top edge of the box (y_min)
-        bottom_edge_point = (bottom_circle[0], y_max)  # Same x as bottom_circle, y is the bottom edge of the box (y_max)
-        cv2.line(frame, top_circle, top_edge_point, (255, 0, 0), 2)  # Blue line from top of circle to top edge of bbox
-        cv2.line(frame, bottom_circle, bottom_edge_point, (255, 0, 0), 2)  # Blue line from bottom of circle to bottom edge of bbox
-        return frame
+
+    # ! The young Tan doesn't know what this function does
+    # def _draw_lines_to_bbox(frame, circle_center, radius, bbox):
+    #     x_min, y_min, x_max, y_max = bbox
+    #     # Top and bottom points of the circle
+    #     top_circle = (circle_center[0], circle_center[1] - radius)
+    #     bottom_circle = (circle_center[0], circle_center[1] + radius)
+    #     if top_circle[1] < 0 or bottom_circle[1] >= frame.shape[0] or x_min < 0 or x_max >= frame.shape[1]:
+    #         print("Invalid coordinates for drawing.", flush=True)
+    #         return frame
+    #     top_edge_point = (top_circle[0], y_min)  # Same x as top_circle, y is the top edge of the box (y_min)
+    #     bottom_edge_point = (
+    #         bottom_circle[0],
+    #         y_max,
+    #     )  # Same x as bottom_circle, y is the bottom edge of the box (y_max)
+    #     cv2.line(frame, top_circle, top_edge_point, (255, 0, 0), 2)  # Blue line from top of circle to top edge of bbox
+    #     cv2.line(
+    #         frame, bottom_circle, bottom_edge_point, (255, 0, 0), 2
+    #     )  # Blue line from bottom of circle to bottom edge of bbox
+    #     return frame
 
     while True:
-        # print('inside gen looooooooooooooooopppppp ........................................')
         frame = camera.CAMERA.get_frame()
-        # print('after frame ................................................................')
+
         if frame is None:
-            print("Frame is None, creating dummy image")
+            # create error image
             frame = _create_dummy_image()
+
         else:
             x1 = max(setup.CENTER_X - desired_width // 2, 0)
             y1 = max(setup.CENTER_Y - desired_height // 2, 0)
             x2 = min(x1 + desired_width, frame.shape[1])
             y2 = min(y1 + desired_height, frame.shape[0])
+
             # Adjust x1 and y1 in case x2 or y2 are out of bounds
             if x2 - x1 < desired_width:
                 x1 = max(x2 - desired_width, 0)
             if y2 - y1 < desired_height:
                 y1 = max(y2 - desired_height, 0)
+
             # Adjust the circle's center coordinates relative to the cropped frame
             adjusted_center_x = setup.CENTER_X - x1
             adjusted_center_y = setup.CENTER_Y - y1
-            circle_center = (adjusted_center_x, adjusted_center_y)
+
+            # FIXME -> Commented because not used
+            # circle_center = (adjusted_center_x, adjusted_center_y)
 
             frame = frame[y1:y2, x1:x2]
-            if model != 'v10':
+            if model != "v10":
                 frame = bbox.letterbox(frame)
-            with data.pnp_vision_lock:
-                if vision.PNP.boxes is not None:
-                    frame = bbox.draw(
-                        frame,
-                        vision.PNP.boxes,
-                        vision.PNP.scores,
-                        vision.PNP.classes
-                    )
-  
-            # if (model == 'v10' or model == 'v5c3') and vision.PNP.classes is not None:
-            #     for i,cls in enumerate(vision.PNP.classes):
-            #         if cls == 1:  # Check if the class is 1
-            #             frame = _draw_lines_to_bbox(frame, circle_center, setup.RADIUS, vision.PNP.boxes[i])
-            #             break
-        with data.lock:
-            _add_top_right_text(frame, f"pots last hour : {data.eggs_last_hour}")
-            _add_top_right_text(frame, f"steps last hour : {data.steps_last_hour}", line_offset=40)
 
-        try:
-            img = cv2.imencode(".jpg", frame)[1].tobytes()
-            if img is not None:
-                yield (b"--frame\r\n" b"Content-Type: image/jpg\r\n\r\n" + img + b"\r\n")
-            else:
-                print("Image encoding failed")
-        except Exception as e:
-            print(f"Error during image encoding: {e}")
+            # read pnp result and draw
+            with data.pnp_vision_lock:
+                _boxes = vision.PNP.boxes
+                _scores = vision.PNP.scores
+                _classes = vision.PNP.classes
+
+            if _boxes is not None:
+                frame = bbox.draw(frame, _boxes, _scores, _classes)
+
+        # read data and draw to frame
+        with data.lock:
+            _eggs_last_hour = data.eggs_last_hour
+            _steps_last_hour = data.steps_last_hour
+
+        _add_top_right_text(frame, f"pots last hour : {_eggs_last_hour}")
+        _add_top_right_text(frame, f"steps last hour : {_steps_last_hour}", line_offset=40)
+
+        _, img = cv2.imencode(".webp", frame, compression_params)
+        if img is not None:
+            yield (b"--frame\r\n" b"Content-Type: image/webp\r\n\r\n" + img.tobytes() + b"\r\n")
 
 
 # def gen_alignment():
@@ -167,7 +178,7 @@ def gen():
 #             2,
 #         )
 #         return frame
-    
+
 #     while True:
 #         frame = camera.CAMERA.get_frame()
 #         if frame is None:
@@ -190,6 +201,7 @@ def gen():
 @app.route("/video_feed")
 def video_feed():
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
 
 # @app.route("/video_feed_alignment")
 # def video_feed_alignment():
