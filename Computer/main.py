@@ -13,7 +13,8 @@ def main():
     server_thread = threading.Thread(target=httpServer.start_server)
     server_thread.start()
     tasks.start_all_threads()
-    server_thread.join() 
+    server_thread.join()
+
 
 # ------------------------------------------------------------------------------------ #
 if __name__ == "__main__":
