@@ -17,10 +17,18 @@ MongoDB_INIT = False
 time_stamp = time.time()
 sensor_timer_flag = False
 sensor_time = None
-auto_clear_error = 0
 sensor_timeout = 3600
 fake_sw_init_counter = 0
 timer_error = None
+
+
+class StatusCode:
+    SW_INITIALIZING = 0x00
+    PRIMING_CHANNELS = 0x01
+    UL_INITIALIZING = 0x02
+    IDLE = 0x03
+    ERROR_SW = 0x04
+    ERROR_UL = 0x05
 
 
 @dataclass
@@ -29,9 +37,16 @@ class BoardData:
     star_wheel_status: str
     unloader_status: str
     mode: str
+    status_code: int
 
     def dict(self):
         return {k: str(v) for k, v in asdict(self).items()}
+
+
+def __update_status_code(status_code: StatusCode):
+    global BOARD_DATA, lock
+    with lock:
+        BOARD_DATA.status_code = status_code
 
 
 def get_str_from_Status(input: Status):
@@ -51,57 +66,66 @@ def get_str_from_Status(input: Status):
         return ""
 
 
+# ==================================================================================== #
+#                                      Sub actions                                     #
+# ==================================================================================== #
+def __action_servo_initialize():
+    global BOARD_DATA, BOARD, lock, KILLER
+
+    with data.lock:
+        data.initialize_servo_flag = False
+
+    _auto_clear_error = 0
+
+    while _auto_clear_error < data.max_auto_clear_error:
+        __update_status_code(StatusCode.UL_INITIALIZING)
+        ul_init_successful = BOARD.unloader_init()
+
+        if ul_init_successful:  # if ul init successful, move on
+            is_buffer_full: bool = False
+            is_loader_get_pot: bool = False
+
+            __update_status_code(StatusCode.PRIMING_CHANNELS)
+            while not KILLER.is_set() and not is_buffer_full and not is_loader_get_pot:
+                with lock:
+                    BOARD_DATA.sensors_values = BOARD.ask_sensors()
+                    is_buffer_full = BOARD.resolve_sensor_status(BOARD_DATA.sensors_values, SensorID.BUFFER.value) == 1
+                    is_loader_get_pot = BOARD.resolve_sensor_status(BOARD_DATA.sensors_values, SensorID.LOAD.value) == 1
+
+            __update_status_code(StatusCode.SW_INITIALIZING)
+            sw_init_successful = BOARD.starWheel_init()
+            if sw_init_successful:
+                break
+            else:
+                __update_status_code(StatusCode.ERROR_SW)
+
+        else:
+            __update_status_code(StatusCode.ERROR_UL)
+
+        _auto_clear_error += 1
+
+
+# ==================================================================================== #
+#                                      Main thread                                     #
+# ==================================================================================== #
 def update(stop_event: threading.Event):
-    global BOARD_DATA, BOARD, lock
-    # Initialization
-    print("Initializing Starwheel and unloader..")
-    BOARD.unloader_init()
-    wait_until_buffer_and_loader_ready()
-    BOARD.starWheel_init()
-    print("Complete Initializing Starwheel and unloader..")
     timer = time.time()
     while not stop_event.is_set():
         try:
             if time.time() - timer > (1 / 60):
+                # read initialize flag
+                with data.lock:
+                    _initialize_servo_flag = data.initialize_servo_flag
+
+                # perform 3 initialization attempts
+                if _initialize_servo_flag:
+                    __action_servo_initialize()
+
+                # main loop
                 execute()
                 timer = time.time()
         except Exception as e:
             CLI.printline(Level.ERROR, f"(BscbAPI)-Loop error-{e}")
-
-
-def wait_until_buffer_and_loader_ready():
-    """
-    Wait until both is_buffer_full and is_loader_get_pot are True.
-    This function will block execution until both conditions are satisfied.
-    """
-    global BOARD, BOARD_DATA
-    while True:
-
-        with lock:
-            BOARD_DATA.mode = "initializing"
-            BOARD_DATA.sensors_values = BOARD.ask_sensors()  # Get updated sensor values
-            # Check buffer and loader status
-            is_buffer_full = BOARD.resolve_sensor_status(BOARD_DATA.sensors_values, SensorID.BUFFER.value) == 1
-            is_loader_get_pot = BOARD.resolve_sensor_status(BOARD_DATA.sensors_values, SensorID.LOAD.value) == 1
-
-        if is_buffer_full and is_loader_get_pot:
-            CLI.printline(
-                Level.INFO,
-                "Buffer is full and loader has received a pot. Proceeding with star wheel initialization.",
-            )
-            break
-        else:
-            CLI.printline(
-                Level.DEBUG,
-                f"Waiting for buffer and loader. Buffer Full: {is_buffer_full}, Loader Get Pot: {is_loader_get_pot}",
-            )
-
-
-def IsUnloaderHomed():
-    if 0 <= BOARD.get_unloader_position() <= 370 or 3725 <= BOARD.get_unloader_position() <= 4095:
-        return True
-    else:
-        return False
 
 
 @comm.timer()

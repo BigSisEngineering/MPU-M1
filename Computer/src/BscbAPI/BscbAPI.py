@@ -234,7 +234,7 @@ class BScbAPI:
         return crc & 0xFFFF
 
     # ========================================== Action ========================================== #
-    def unloader_init(self):
+    def unloader_init(self) -> bool:
         if not self.is_com_ready():
             return False
         if not self.is_readback_status_normal(self.unloader_status):
@@ -256,9 +256,12 @@ class BScbAPI:
             self.update_com_port()
             print(f"Serial error: {e}")
         self.unloader_status = self.got_Status_respond(timeout=20)
-        return True if self.is_readback_status_normal(self.unloader_status) else False
 
-    def starWheel_init(self):
+        if self.is_readback_status_normal(self.unloader_status):
+            return self.IsUnloaderHomed()
+        return False
+
+    def starWheel_init(self) -> bool:
         if not self.is_com_ready():
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):

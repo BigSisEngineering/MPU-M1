@@ -2,6 +2,7 @@ import time
 from flask import Blueprint, request, jsonify, make_response
 import logging
 import datetime
+
 # ------------------------------------------------------------------------------------------------ #
 from src import BscbAPI
 from src import data
@@ -10,15 +11,17 @@ from src.app import handler
 from src import setup
 
 
-post_api = Blueprint('post_api', __name__)
+post_api = Blueprint("post_api", __name__)
+
 
 def post_star_wheel():
     with BscbAPI("/dev/ttyACM0", 115200) as board:
-        time_param = int(request.args.get('time', 0))
+        time_param = int(request.args.get("time", 0))
         board.starWheelInit()
         for _ in range(3):
             board.starWheelMoveTime(time_param)
-    return  "Star Wheel operation completed"
+    return "Star Wheel operation completed"
+
 
 def post_star_wheel_init():
     with data.lock:
@@ -27,6 +30,7 @@ def post_star_wheel_init():
             return "Star wheel init will proceed"
     return "Error, disable dummy or pnp before proceeding"
 
+
 def post_fake_star_wheel_init():
     with data.lock:
         if not data.dummy_enabled or not data.pnp_enabled:
@@ -34,21 +38,28 @@ def post_fake_star_wheel_init():
             return "Star wheel fake init will proceed"
     return "Error, disable dummy or pnp before proceeding"
 
+
 def post_unloader_init():
     with data.lock:
         if not data.dummy_enabled or not data.pnp_enabled:
             handler.init_unloader()
-            return  "Unloader init will proceed"
+            return "Unloader init will proceed"
     return "Error, disable dummy or pnp before proceeding"
+
 
 def post_all_servos_init():
     with data.lock:
-        if data.servos_ready:
-            handler.init_unloader()
-            handler.clear_star_wheel_error()
-            handler.init_star_wheel()
-            return "All servos initialized"
-    return "Error, disable dummy or pnp before proceeding"
+        data.initialize_servo_flag = True
+
+    return "Initialize servo -> True"
+
+    # if data.servos_ready:
+    #     handler.init_unloader()
+    #     handler.clear_star_wheel_error()
+    #     handler.init_star_wheel()
+    #     return "All servos initialized"
+    # return "Error, disable dummy or pnp before proceeding"
+
 
 def post_enable_dummy():
     with data.lock:
@@ -58,6 +69,7 @@ def post_enable_dummy():
             return "Dummy enabled"
     return "Initialize servos first"
 
+
 def post_enable_pnp():
     with data.lock:
         if data.servos_ready:
@@ -65,6 +77,7 @@ def post_enable_pnp():
             logging.info(f"PNP mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             return "PNP enabled"
     return "Initialize servos first"
+
 
 def post_enable_experiment():
     with data.lock:
@@ -75,6 +88,7 @@ def post_enable_experiment():
             return "Experiment mode enabled"
     return "Initialize servos first"
 
+
 def post_enable_purge():
     with data.lock:
         if data.servos_ready:
@@ -82,11 +96,13 @@ def post_enable_purge():
             return "Purge enabled"
     return "Initialize servos first"
 
+
 def post_disable_dummy():
     with data.lock:
         data.dummy_enabled = False
         logging.info(f"Dummy mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "Dummy disabled"
+
 
 def post_disable_pnp():
     with data.lock:
@@ -94,12 +110,14 @@ def post_disable_pnp():
         logging.info(f"PNP mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "PNP disabled"
 
+
 def post_disable_experiment():
     with data.lock:
-        data.experiment_status = ''
+        data.experiment_status = ""
         data.experiment_enabled = False
         logging.info(f"Experiment mode disabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return "Experiment mode disabled"
+
 
 def post_set_star_wheel_speed(speed):
     with data.lock:
@@ -109,6 +127,7 @@ def post_set_star_wheel_speed(speed):
             return f"Star wheel speed set to {speed}"
     return "Speed should be between 600-5000ms"
 
+
 def post_set_dummy_unload_probability(probability):
     with data.lock:
         # probability = int(request.args.get('probability', 0))
@@ -116,6 +135,7 @@ def post_set_dummy_unload_probability(probability):
             data.unload_probability = probability / 100.0
             return f"Dummy unload probability set to {probability}%"
     return "Probability should be between 0-100"
+
 
 def post_set_pnp_confidence_level(confidence):
     with data.lock:
@@ -125,63 +145,70 @@ def post_set_pnp_confidence_level(confidence):
             return f"PNP confidence level set to {confidence}%"
     return "Confidence should be between 0-100"
 
+
 def post_clear_star_wheel_error():
     handler.clear_star_wheel_error()
     return "Star wheel error cleared"
 
+
 def post_clear_unloader_error():
     handler.clear_unloader_error()
     return "Unloader error cleared"
+
 
 def post_clear_error():
     handler.clear_unloader_error()
     handler.clear_star_wheel_error()
     return "error cleared"
 
+
 def post_move_cw():
     handler.move_star_wheel_cw()
     return "Moved clockwise"
+
 
 def post_move_ccw():
     handler.move_star_wheel_ccw()
     return "Moved counter-clockwise"
 
+
 def post_unload():
     handler.unload()
     return "Unloaded successfully"
+
 
 def post_set_cycle_time(cycle_time):
     with data.lock:
         if 0 <= cycle_time <= 20:
             data.pnp_data.cycle_time = cycle_time
-            logging.info(f"Cycle Time set to {cycle_time} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            return  f"Cycle time set to {cycle_time} seconds"
+            logging.info(
+                f"Cycle Time set to {cycle_time} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+            return f"Cycle time set to {cycle_time} seconds"
     return "Cycle time should be between 0-20 seconds"
+
 
 def post_set_pause_interval(pause_interval):
     with data.lock:
         data.experiment_pause_interval = pause_interval
         # logging.info(f"Pause Interval set to {pause_interval} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return  f"pause interval set to {pause_interval} seconds"
+        return f"pause interval set to {pause_interval} seconds"
 
 
 def post_set_white_shade(value):
     with data.lock:
         data.white_shade = value
-        return  f"white shade set to {value}"
- 
+        return f"white shade set to {value}"
+
 
 def post_save_mask_coordinates():
-    mask_coordinates = (
-        setup.CENTER_X,
-        setup.CENTER_Y,
-        setup.RADIUS
-    )
+    mask_coordinates = (setup.CENTER_X, setup.CENTER_Y, setup.RADIUS)
     setup.save_mask_coordinates(mask_coordinates)
     return f"Circle coordinates saved {mask_coordinates}"
 
+
 def post_save_star_wheel_zero():
-     with data.lock:
+    with data.lock:
         if not data.dummy_enabled or data.pnp_enabled:
             handler.save_star_wheel_zero()
             time.sleep(1)
@@ -189,6 +216,7 @@ def post_save_star_wheel_zero():
             time.sleep(1)
             BscbAPI.BOARD.starWheel_init()
             return "Star wheel zero position saved"
+
 
 def post_save_star_wheel_offset(offset):
     with data.lock:
@@ -211,7 +239,7 @@ def post_move_star_wheel(pos):
             return f"Star wheel moved to position {pos}"
         else:
             return "Dummy or PNP is enabled, operation denied."
-        
+
 
 def post_move_star_wheel_relative(pos):
     with data.lock:
@@ -221,6 +249,7 @@ def post_move_star_wheel_relative(pos):
             return f"Star wheel moved to position {pos}"
         else:
             return "Dummy or PNP is enabled, operation denied."
+
 
 def post_set_valve_delay(delay):
     with data.lock:
@@ -262,7 +291,7 @@ post_endpoints = {
     "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1},
     "MOVE_STAR_WHEEL_REL": {"func": post_move_star_wheel_relative, "arg_num": 1},
     "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1},
-    "VALVE_DELAY": {"func": post_set_valve_delay, "arg_num": 1}
+    "VALVE_DELAY": {"func": post_set_valve_delay, "arg_num": 1},
 }
 
 
@@ -276,6 +305,7 @@ def run_func(endpoint: str):
             return make_response(f"Error: {str(e)}", 500)
     return make_response("Invalid endpoint or incorrect method usage.", 404)
 
+
 @post_api.route("/<string:endpoint>/<int:v1>", methods=["POST"])
 def run_func_1_arg(endpoint: str, v1):
     if endpoint in post_endpoints and post_endpoints[endpoint]["arg_num"] == 1:
@@ -285,4 +315,3 @@ def run_func_1_arg(endpoint: str, v1):
         except Exception as e:
             return make_response(f"Error: {str(e)}", 500)
     return make_response("Invalid endpoint or incorrect method usage.", 404)
-

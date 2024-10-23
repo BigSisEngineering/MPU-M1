@@ -45,10 +45,10 @@ is_unloader_error: bool = False
 max_auto_clear_error = 3
 
 servos_ready: bool = False
-sw_homing : bool =False
+sw_homing: bool = False
 
 star_wheel_duration_ms: int = 600
-sw_pos : int = 0
+sw_pos: int = 0
 
 dummy_enabled: bool = False
 unload_probability: float = 1.0
@@ -60,15 +60,15 @@ experiment_enabled: bool = False
 experiment_pause_interval = 600.0
 experiment_pause_start_time = None
 experiment_pause_state = False
-experiment_status = ''
+experiment_status = ""
 
 MongoDB_INIT: bool = False
 
 pot_processed: int = 0
 pot_unloaded: int = 0
 pot_unloaded_since_last_request: int = 0
-eggs_last_hour : int = 0
-steps_last_hour : int = 0
+eggs_last_hour: int = 0
+steps_last_hour: int = 0
 
 purge_enabled: bool = False
 purge_stage: int = 0
@@ -76,11 +76,13 @@ purge_start_unload: bool = False
 purge_counter: int = 0
 purge_all_timer = None
 
-valve_delay : int =200
+valve_delay: int = 200
 
-model = 'v5'
+model = "v5"
 
-white_shade : int = 225
+white_shade: int = 225
+
+initialize_servo_flag = True
 
 # logging
 # logging.basicConfig(
