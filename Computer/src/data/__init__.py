@@ -97,6 +97,7 @@ experiment2_time_per_sequence = 14 * 60  # 14 min
 experiment2_pot_counter = 0
 experiment2_max_pot = 80
 experiment2_time_stamp = None  # initialize as None
+experiment2_new_session = True
 
 # logging
 # logging.basicConfig(

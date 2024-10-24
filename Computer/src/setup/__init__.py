@@ -87,9 +87,17 @@ def save_mask_coordinates():
             CLI.printline(Level.INFO, f"(setup)-Failed to save mask coordinates: {e}")
 
 
+# experiment
+def get_start_delay():
+    global CAGE_ID
+    cage_number = int(CAGE_ID[-2:])
+    return (cage_number - 1) * 60
+
+
 CAGE_ID = get_cage_id()
 MASTER_HOSTNAME = get_master_hostname()
 MASTER_IP = get_master_ip(MASTER_HOSTNAME)
 MASTER_SERVER_PORT = get_master_server_port()
 SOFTWARE_VERSION = get_software_version()
 CENTER_X, CENTER_Y, RADIUS = read_mask_coordinates()
+EXPERIMENT_STAGGER_DELAY = get_start_delay()

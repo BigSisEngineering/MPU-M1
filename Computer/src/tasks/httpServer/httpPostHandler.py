@@ -115,6 +115,7 @@ def post_enable_experiment(experiment_iteration: 0):  # defaults to 0 if start w
             data.experiment2_pot_counter = 0  # reset value
             data.experiment2_time_stamp = time.time()  # reset value
             data.experiment2_current_iteration = experiment_iteration
+            data.experiment2_new_session = True
 
         logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         return "Experiment enabled. Iteration set to {}".format(experiment_iteration)
