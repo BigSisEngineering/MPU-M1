@@ -35,6 +35,38 @@ ACTION_LIST = [
 ]
 
 
+# glen experiment
+def __get_experiment_iteration(hostname):
+    if hostname == "cage0x0001":
+        return 4
+    if hostname == "cage0x0002":
+        return 4
+    if hostname == "cage0x0003":
+        return 3
+    if hostname == "cage0x0004":
+        return 3
+    if hostname == "cage0x0005":
+        return 3
+    if hostname == "cage0x0006":
+        return 2
+    if hostname == "cage0x0007":
+        return 2
+    if hostname == "cage0x0008":
+        return 2
+    if hostname == "cage0x0009":
+        return 1
+    if hostname == "cage0x0010":
+        return 1
+    if hostname == "cage0x0011":
+        return 1
+    if hostname == "cage0x0012":
+        return 0
+    if hostname == "cage0x0013":
+        return 0
+    if hostname == "cage0x0014":
+        return 0
+
+
 class HTTPCage:
     lock_acquire_timeout_status = 1
     lock_acquire_timeout_action = 5
@@ -152,6 +184,12 @@ class HTTPCage:
             try:
                 if action in ACTION_LIST:
                     url = f"http://{self._hostname}.local:8080/{action}"
+
+                    # ------------------------------------------------------------------------------------ #
+                    # !glen experiment temp
+                    if action == "ENABLE_EXPERIMENT":
+                        url = url + f"/{__get_experiment_iteration(self._hostname)}"
+                    # ------------------------------------------------------------------------------------ #
 
                     if params is not None:
                         params = (params,) if not isinstance(params, tuple) else params
