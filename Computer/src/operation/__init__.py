@@ -493,12 +493,13 @@ def experiment(
             _experiment2_max_pot = data.experiment2_max_pot
             _experiment2_time_stamp = data.experiment2_time_stamp
 
-        # ================================= Update time stamp ================================ #
+        # ================================= Update time stamp ===================s============= #
+        # ! startExperiment now sets initial time stamp
         # first init
-        if _experiment2_time_stamp is None:
-            with data.lock:
-                data.experiment2_time_stamp = time.time()
-                _experiment2_time_stamp = data.experiment2_time_stamp  # reassign
+        # if _experiment2_time_stamp is None:
+        #     with data.lock:
+        #         data.experiment2_time_stamp = time.time()
+        #         _experiment2_time_stamp = data.experiment2_time_stamp  # reassign
 
         _dt = time_current - _experiment2_time_stamp
         # reset pot counter and time slot on timeout

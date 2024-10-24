@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response
 import logging
 import datetime
+import time
 
 # ------------------------------------------------------------------------------------------------ #
 from src import BscbAPI
@@ -112,7 +113,7 @@ def post_enable_experiment(experiment_iteration: 0):  # defaults to 0 if start w
         with data.lock:
             data.experiment_enabled = True
             data.experiment2_pot_counter = 0  # reset value
-            data.experiment2_time_stamp = None  # reset value
+            data.experiment2_time_stamp = time.time()  # reset value
             data.experiment2_current_iteration = experiment_iteration
 
         logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
