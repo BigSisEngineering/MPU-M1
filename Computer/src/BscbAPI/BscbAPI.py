@@ -160,43 +160,32 @@ class BScbAPI:
             try:
                 ack = self.ser.readline()
                 if len(ack) > 7:
-                    # print(f"Readback: {ack}")
                     if self.isReadBackCorrect(ack):
                         return Status.normal
+                    
                 if time.time() > time_out:
                     return Status.timeout
+                
             except serial.SerialException as e:
                 self.update_com_port()
-                print(f"Serial error: {e}")
 
-    def got_Status_respond(self, timeout=3, from_starwheel_init=False):
+    def got_Status_respond(self, timeout=3):
         time_out = time.time() + timeout
-        # data.sw_homing = False
         while True:
             try:
                 ack = self.ser.readline()
-                # print('servo executing')
-                # if len(ack) > 1:
-                #     print(f"Readback: {ack}")
-                # if from_starwheel_init:
-                #     # data.sw_homing = True
-                #     print("StarWheel is homing...")
-                # else:
-                # data.sw_homing = False
                 if len(ack) > 7:
                     header, target, action, status, _, _, crc = struct.unpack("=BBBBBBh", ack)
-                    # print(f"(got_Status_respond) - {Status(status)}, {status} ")
                     return Status(status)
+                
                 if time.time() > time_out:
                     self.update_com_port()
                     # return Status.timeout # FIXME - IDK why its not returning any reading time by time, so just bypass
                     return Status.normal
+                
             except serial.SerialException as e:
                 self.update_com_port()
-                print(f"Serial error: {e}")
-            # except struct.error as e:
-            #     print(f"Struct unpacking error: {e}, received data: {ack}")
-            #     return Status.error
+                return Status.error
 
     def phase_sensor_msg(self, timeout=3):
         time_out = time.time() + timeout
@@ -261,7 +250,6 @@ class BScbAPI:
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
 
-        # Hex message to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
@@ -274,18 +262,18 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
+
         except serial.SerialException as e:
             self.update_com_port()
-            print(f"Serial error: {e}")
-        self.star_wheel_status = self.got_Status_respond(timeout=65, from_starwheel_init=True)
+
+        self.star_wheel_status = self.got_Status_respond(timeout=65)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
             current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             sw_init_time_str = f"starwheel init at {current_time_str}"
             logging.info(sw_init_time_str)
             return True
-        else:
-            return False
+        return False
 
     def starWheel_fake_init(self):
         if not self.is_com_ready():
@@ -293,7 +281,6 @@ class BScbAPI:
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
         
-        # Hex message to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
@@ -306,9 +293,10 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
+
         except serial.SerialException as e:
             self.update_com_port()
-            print(f"Serial error: {e}")
+
         self.star_wheel_status = self.got_Status_respond(timeout=10)
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
@@ -321,7 +309,7 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
-        # Hex message to send
+
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
@@ -331,11 +319,13 @@ class BScbAPI:
         hex_message += bytearray.fromhex("00")
         crc = self.generate_crc16(hex_message)
         hex_message += struct.pack("<H", crc)
+
         try:
             self.ser.write(hex_message)
+
         except serial.SerialException as e:
             self.update_com_port()
-            print(f"Serial error: {e}")
+
         self.star_wheel_status = self.got_ACK_respond()
         return True if self.is_readback_status_normal(self.star_wheel_status) else False
 
@@ -378,7 +368,7 @@ class BScbAPI:
     def star_wheel_clear_error(self):
         if not self.is_com_ready():
             return False
-        # Hex message to send
+
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
@@ -391,11 +381,12 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
+
         except serial.SerialException as e:
             self.update_com_port()
-            print(f"Serial error: {e}")
+
         self.star_wheel_status = self.got_ACK_respond()
-        self.star_wheel_status = Status.not_init
+        self.star_wheel_status = Status.not_init # ?Why
         return True if self.is_readback_status_normal(self.star_wheel_status) else False
 
     def unload(self):
@@ -415,14 +406,14 @@ class BScbAPI:
         hex_message += bytearray.fromhex("00")
         crc = self.generate_crc16(hex_message)
         hex_message += struct.pack("<H", crc)
-        # t1 = time.time()
+
         try:
             self.ser.write(hex_message)
 
         except serial.SerialException as e:
             self.update_com_port()
 
-        self.unloader_status = self.got_Status_respond() # ?Don't understand
+        self.unloader_status = self.got_Status_respond()
 
         return self.is_readback_status_normal(self.unloader_status)
 
@@ -445,11 +436,12 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
 
-        self.unloader_status = self.got_ACK_respond() # ? Why
+        self.unloader_status = self.got_ACK_respond()
         return self.is_readback_status_normal(self.unloader_status)
 
     # -------------------------------------------------------------------------------------------- #
-    def askStarWheelStep(self):
+    def askStarWheelStep(self) -> Status:
+        # ?What is this for
         if not self.is_com_ready():
             return Status.error
 
