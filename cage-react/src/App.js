@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 // import { FetchBoardData } from "./Middleware/FetchBoardData";
 // import { FetchExperimentData } from "./Middleware/ExperimentData"; // Import the custom hook
-import { useFetchData, parseBoardData, parseExperimentData } from "./Middleware/fetchData";
+// import { useFetchData, parseBoardData, parseExperimentData } from "./Middleware/fetchData"; // !marco ori
+import { useDict, Dicts } from "./Middleware/fetchData";
 import Header from "./Components/Header";
 import CageStatus from "./Components/CageStatus";
 import { VideoFeed } from "./Components/VideoFeed";
@@ -32,8 +33,8 @@ class StatusCode {
 }
 
 function App() {
-  const [boardData, setBoardData] = useState(null);
-  const [experimentData, setExperimentData] = useState(null);
+  // const [boardData, setBoardData] = useState(null);
+  // const [experimentData, setExperimentData] = useState(null);
   const [error, setError] = useState(null);
   const [position, setPosition] = useState("");
   const [pauseinterval, setInterval] = useState("");
@@ -45,7 +46,7 @@ function App() {
       case StatusCode.SW_INITIALIZING:
         return "initializing starwheel";
       case StatusCode.PRIMING_CHANNELS:
-        return "priming channels";s
+        return "priming channels";
       case StatusCode.UL_INITIALIZING:
         return "initializing unloader";
       case StatusCode.IDLE:
@@ -87,8 +88,11 @@ function App() {
   // useFetchData(setBoardData, setError, "http://cege0x0000:8080/BoardData", parseBoardData);
   // useFetchData(setExperimentData, setError, "http://cege0x0000:8080/ExperimentData", parseExperimentData);
 
-  useFetchData(setBoardData, setError, `http://${hostname}:8080/BoardData`, parseBoardData);
-  useFetchData(setExperimentData, setError, `http://${hostname}:8080/ExperimentData`, parseExperimentData);
+  // useFetchData(setBoardData, setError, `/BoardData`, parseBoardData);
+  // useFetchData(setExperimentData, setError, `/ExperimentData`, parseExperimentData);
+
+  const boardData = useDict(Dicts.boardData);
+  const experimentData = useDict(Dicts.experimentData);
 
   // Extract statuses from the fetched data
   const starWheelStatus = boardData ? boardData.star_wheel_status : "";

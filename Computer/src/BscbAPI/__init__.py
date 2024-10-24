@@ -151,7 +151,9 @@ def __action_servo_initialize() -> None:
         make_auto_home_decision = True
     else:
         # disable operation
-        __disable_operation()
+        pass
+        # ! temporarily never pass
+        # __disable_operation()
 
 
 def __disable_operation():
@@ -288,17 +290,13 @@ def execute():
                 __update_status_code(StatusCode.NORMAL)
 
         # ==================================== Time stamp ==================================== #
-        _time_now = time.time()
-        _dt = _time_now - time_stamp
+        time_now = time.time()
+        _dt = time_now - time_stamp
 
         # ======================================= PNP? ======================================= #
         if run_pnp:
-            if (_dt < 0 or _dt > cycle_time) and is_camera_operation_ready:
-                time_stamp = (
-                    time.time() - (cycle_time - _dt)
-                    if cycle_time != 0
-                    else time.time() if cycle_time != 0 else time.time()
-                )
+            if _dt > cycle_time and is_camera_operation_ready:
+                time_stamp = time.time()
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
                 __update_mode(Mode.PNP)
@@ -334,8 +332,8 @@ def execute():
 
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
-            if (_dt < 0 or _dt > cycle_time) and is_safe_to_move:
-                time_stamp = time.time() - (cycle_time - _dt) if cycle_time != 0 else time.time()
+            if _dt > cycle_time and is_safe_to_move:
+                time_stamp = time.time()
 
                 CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
                 __update_mode(Mode.DUMMY)
@@ -373,8 +371,8 @@ def execute():
 
         # ================================== Experiment mode ================================= #
         elif run_experiment:
-            if (_dt < 0 or _dt > cycle_time) and is_camera_operation_ready:
-                time_stamp = time.time() - (cycle_time - _dt) if cycle_time != 0 else time.time()
+            if _dt > cycle_time and is_camera_operation_ready:
+                time_stamp = time.time()
 
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
                 __update_mode(Mode.EXPERIMENT)

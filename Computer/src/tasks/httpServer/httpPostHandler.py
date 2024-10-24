@@ -102,7 +102,7 @@ def post_enable_pnp():
     return "PNP not enabled. Servos or camera not ready"
 
 
-def post_enable_experiment():
+def post_enable_experiment(experiment_iteration: 0):  # defaults to 0 if start with cage UI
     with data.lock:
         _servos_ready = data.servos_ready
 
@@ -111,9 +111,12 @@ def post_enable_experiment():
     if _servos_ready and _camera_ready:
         with data.lock:
             data.experiment_enabled = True
+            data.experiment2_pot_counter = 0  # reset value
+            data.experiment2_time_stamp = None  # reset value
+            data.experiment2_current_iteration = experiment_iteration
 
         logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return "Experiment enabled"
+        return "Experiment enabled. Iteration set to {}".format(experiment_iteration)
 
     return "Experiment not enabled. Servos or camera not ready"
 
@@ -322,7 +325,7 @@ post_endpoints = {
     "ALL_SERVOS_INIT": {"func": post_all_servos_init, "arg_num": 0},
     "ENABLE_DUMMY": {"func": post_enable_dummy, "arg_num": 0},
     "ENABLE_PNP": {"func": post_enable_pnp, "arg_num": 0},
-    "ENABLE_EXPERIMENT": {"func": post_enable_experiment, "arg_num": 0},
+    "ENABLE_EXPERIMENT": {"func": post_enable_experiment, "arg_num": 1},  #!Modified for experiment
     "ENABLE_PURGE": {"func": post_enable_purge, "arg_num": 0},
     "DISABLE_DUMMY": {"func": post_disable_dummy, "arg_num": 0},
     "DISABLE_PNP": {"func": post_disable_pnp, "arg_num": 0},

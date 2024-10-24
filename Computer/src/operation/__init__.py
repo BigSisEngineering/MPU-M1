@@ -266,6 +266,182 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
     pass
 
 
+# ==================================================================================== #
+#                                       ORIGINAL                                       #
+# ==================================================================================== #
+# def experiment(
+#     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
+# ):
+#     global threads
+
+#     def wait_thread_to_finish(id: str):
+#         if threads[f"{id}"] is not None:
+#             if threads[f"{id}"].is_alive():
+#                 threads[f"{id}"].join()
+#                 CLI.printline(Level.WARNING, f"(experiment mode)-waited {id}")
+
+#     def get_ai_result(image, pnp_confidence):
+#         global ai_result
+#         ai_result = vision.PNP.is_egg_detected(image, pnp_confidence)
+#         CLI.printline(Level.INFO, f"(Experiment)-ai done")
+
+#     def comm_thread(BOARD: BScbAPI, image, tmp_egg_pot_counter, timestamp_of_image):
+#         global ai_result
+#         camera.CAMERA.save_raw_frame(image, 1, ai_result, timestamp_of_image)
+#         with data.lock:
+#             data.pot_processed += 1
+#             data.pot_unloaded += tmp_egg_pot_counter
+
+#     def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
+#         with lock:
+#             BOARD.star_wheel_move_ms(star_wheel_move_time)
+
+#     def _unload(BOARD: BScbAPI, lock: threading.Lock):
+#         with lock:
+#             BOARD.unload()
+
+#     try:
+#         # ====================================== Sense Check ===================================== #
+#         if BOARD is None:
+#             return
+#         if not is_safe_to_move:
+#             return
+
+#         with data.lock:
+#             _purge_counter = data.purge_counter
+
+#         if _purge_counter >= 80:
+#             # ============================ Read experiment pause state =========================== #
+#             with data.lock:
+#                 _experiment_pause_interval = data.experiment_pause_interval
+#                 experiment_pause_state = data.experiment_pause_state
+
+#             CLI.printline(Level.INFO, f"(experiment) Operation is in pause state: {experiment_pause_state}")
+
+#             # ============================ Initialize new pause state ============================ #
+#             if not experiment_pause_state:
+#                 with data.lock:
+#                     _new_experiment_pause_start_time = time.time()
+#                     data.experiment_pause_start_time = _new_experiment_pause_start_time
+
+#                 CLI.printline(
+#                     Level.INFO, f"(experiment) New pause started at: {round(_new_experiment_pause_start_time, 2)}"
+#                 )
+
+#                 with data.lock:
+#                     data.experiment_pause_state = True
+
+#                 logging.info(
+#                     f"Experiment mode in Pause State for {_experiment_pause_interval} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+#                 )
+
+#             # ============================== Calculate elapsed time ============================== #
+#             with data.lock:
+#                 _experiment_pause_start_time = data.experiment_pause_start_time
+
+#             elapsed_time = time.time() - _experiment_pause_start_time
+
+#             CLI.printline(
+#                 Level.INFO,
+#                 f"(experiment mode)- pause state - remaining time : {_experiment_pause_interval - elapsed_time} ",
+#             )
+
+#             with data.lock:
+#                 data.experiment_status = f"pause state for {_experiment_pause_interval}s - remaining time : {_experiment_pause_interval - elapsed_time}s"
+
+#             # ================================ Reset purge counter =============================== #
+#             if elapsed_time > _experiment_pause_interval:
+#                 with data.lock:
+#                     data.purge_counter = 0
+#                     data.experiment_pause_state = False
+
+#         else:
+#             wait_thread_to_finish("sw")
+#             image = camera.CAMERA.get_frame()
+#             timestamp_of_image = datetime.now()
+#             CLI.printline(Level.INFO, f"(Experiment)-image captured")
+#             wait_thread_to_finish("ul")
+#             threads["sw"] = threading.Thread(
+#                 target=_move_sw,
+#                 args=(
+#                     BOARD,
+#                     lock,
+#                     star_wheel_move_time,
+#                 ),
+#             )
+#             threads["sw"].start()
+#             CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
+
+#             # ======================================= AI thread ====================================== #
+#             wait_thread_to_finish("ai")
+#             threads["ai"] = threading.Thread(
+#                 target=get_ai_result,
+#                 args=(
+#                     image,
+#                     pnp_confidence,
+#                 ),
+#             )
+#             threads["ai"].start()
+#             CLI.printline(Level.INFO, f"(PnP)-ai started")
+
+#             # ======================================= ul thread ====================================== #
+#             wait_thread_to_finish("sw")
+#             wait_thread_to_finish("ai")
+
+#             # =================================== What is this =================================== #
+#             # FIXME
+#             # !data.purge_all_timer is initialized as None. This makes it that every first loop is an exception
+#             with data.lock:
+#                 _purge_all_timer = data.purge_all_timer
+#                 _purge_counter = data.purge_counter
+
+#             if _purge_all_timer is None:
+#                 _purge_all_timer = time.time()
+
+#             tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - _purge_all_timer) > 3600) else 0
+#             if (time.time() - _purge_all_timer) > 3600 and _purge_counter == 80:
+#                 with data.lock:
+#                     data.purge_all_timer = time.time()
+
+#             cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+#             cloud.DataBase.data_upload()
+#             if tmp_egg_pot_counter > 0:
+#                 threads["ul"] = threading.Thread(
+#                     target=_unload,
+#                     args=(
+#                         BOARD,
+#                         lock,
+#                     ),
+#                 )
+#                 threads["ul"].start()
+
+#             # ====================================== comm thread ===================================== #
+#             threads["comm"] = threading.Thread(
+#                 target=comm_thread,
+#                 args=(
+#                     BOARD,
+#                     image,
+#                     # pnp_confidence,
+#                     tmp_egg_pot_counter,
+#                     timestamp_of_image,
+#                 ),
+#             )
+#             threads["comm"].start()
+
+#             # ============================== Increase purge counter ============================== #
+#             with data.lock:
+#                 _purge_counter = data.purge_counter + 1
+#                 data.purge_counter = _purge_counter
+
+#             CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {_purge_counter} ")
+#             data.experiment_status = f"purging state - pots unloaded : {_purge_counter}"
+#             logging.info(
+#                 f"Experiment mode in Purging State, pot unloaded :{_purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+#             )
+#     except Exception as e:
+#         CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
+
+
 def experiment(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
 ):
@@ -298,65 +474,61 @@ def experiment(
             BOARD.unload()
 
     try:
+        time_current = time.time()
+        pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
+
         # ====================================== Sense Check ===================================== #
         if BOARD is None:
             return
         if not is_safe_to_move:
             return
 
+        # =============================== Read experiment data =============================== #
         with data.lock:
-            _purge_counter = data.purge_counter
+            _experiment2_current_iteration = data.experiment2_current_iteration
+            _experiment2_max_iteration = data.experiment2_max_iteration
+            _experiment2_purge_iteration = data.experiment2_purge_iteration
+            _experiment2_time_per_sequence = data.experiment2_time_per_sequence
+            _experiment2_pot_counter = data.experiment2_pot_counter
+            _experiment2_max_pot = data.experiment2_max_pot
+            _experiment2_time_stamp = data.experiment2_time_stamp
 
-        if _purge_counter >= 80:
-            # ============================ Read experiment pause state =========================== #
+        # ================================= Update time stamp ================================ #
+        # first init
+        if _experiment2_time_stamp is None:
             with data.lock:
-                _experiment_pause_interval = data.experiment_pause_interval
-                experiment_pause_state = data.experiment_pause_state
+                data.experiment2_time_stamp = time.time()
+                _experiment2_time_stamp = data.experiment2_time_stamp  # reassign
 
-            CLI.printline(Level.INFO, f"(experiment) Operation is in pause state: {experiment_pause_state}")
-
-            # ============================ Initialize new pause state ============================ #
-            if not experiment_pause_state:
-                with data.lock:
-                    _new_experiment_pause_start_time = time.time()
-                    data.experiment_pause_start_time = _new_experiment_pause_start_time
-
-                CLI.printline(
-                    Level.INFO, f"(experiment) New pause started at: {round(_new_experiment_pause_start_time, 2)}"
-                )
-
-                with data.lock:
-                    data.experiment_pause_state = True
-
-                logging.info(
-                    f"Experiment mode in Pause State for {_experiment_pause_interval} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                )
-
-            # ============================== Calculate elapsed time ============================== #
+        _dt = time_current - _experiment2_time_stamp
+        # reset pot counter and time slot on timeout
+        if _dt > _experiment2_time_per_sequence:
             with data.lock:
-                _experiment_pause_start_time = data.experiment_pause_start_time
+                data.experiment2_time_stamp = time.time()
 
-            elapsed_time = time.time() - _experiment_pause_start_time
+                # reset pot counter on new iteration
+                data.experiment2_pot_counter = 0
+                _experiment2_pot_counter = data.experiment2_pot_counter
 
-            CLI.printline(
-                Level.INFO,
-                f"(experiment mode)- pause state - remaining time : {_experiment_pause_interval - elapsed_time} ",
-            )
+                # shift current iteration forward. Reset if = max (bounded from 0 - 4)
+                if data.experiment2_current_iteration >= _experiment2_max_iteration:
+                    data.experiment2_current_iteration = 0
+                else:
+                    data.experiment2_current_iteration += 1
+                _experiment2_current_iteration = data.experiment2_current_iteration  # reassign
 
-            with data.lock:
-                data.experiment_status = f"pause state for {_experiment_pause_interval}s - remaining time : {_experiment_pause_interval - elapsed_time}s"
+        # ==================================================================================== #
+        #                                         Move?                                        #
+        # ==================================================================================== #
+        # less than 80
+        if _experiment2_pot_counter < _experiment2_max_pot:
 
-            # ================================ Reset purge counter =============================== #
-            if elapsed_time > _experiment_pause_interval:
-                with data.lock:
-                    data.purge_counter = 0
-                    data.experiment_pause_state = False
-
-        else:
+            # ===================================== SW thread ==================================== #
+            # Move starwheel
             wait_thread_to_finish("sw")
             image = camera.CAMERA.get_frame()
             timestamp_of_image = datetime.now()
-            CLI.printline(Level.INFO, f"(Experiment)-image captured")
+            CLI.printline(Level.INFO, f"(experiment)-image captured")
             wait_thread_to_finish("ul")
             threads["sw"] = threading.Thread(
                 target=_move_sw,
@@ -367,9 +539,10 @@ def experiment(
                 ),
             )
             threads["sw"].start()
-            CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
+            CLI.printline(Level.INFO, f"(experiment)-sw moving")
 
             # ======================================= AI thread ====================================== #
+            # Run AI
             wait_thread_to_finish("ai")
             threads["ai"] = threading.Thread(
                 target=get_ai_result,
@@ -379,27 +552,21 @@ def experiment(
                 ),
             )
             threads["ai"].start()
-            CLI.printline(Level.INFO, f"(PnP)-ai started")
+            CLI.printline(Level.INFO, f"(experiment)-ai started")
 
-            # ======================================= ul thread ====================================== #
-            wait_thread_to_finish("sw")
-            wait_thread_to_finish("ai")
-
-            # =================================== What is this =================================== #
-            # FIXME
-            # !data.purge_all_timer is initialized as None. This makes it that every first loop is an exception
-            with data.lock:
-                _purge_all_timer = data.purge_all_timer
-                _purge_counter = data.purge_counter
-
-            tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - _purge_all_timer) > 3600) else 0
-            if (time.time() - _purge_all_timer) > 3600 and _purge_counter == 80:
-                with data.lock:
-                    data.purge_all_timer = time.time()
-
+            # ==================================== Upload data =================================== #
             cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
             cloud.DataBase.data_upload()
-            if tmp_egg_pot_counter > 0:
+
+            # ==================================== ul decision =================================== #
+            # Unload if egg, overtime, or if is on purge iteration
+            wait_thread_to_finish("sw")
+            wait_thread_to_finish("ai")
+            tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
+
+            if tmp_egg_pot_counter > 0 or (_experiment2_current_iteration == _experiment2_purge_iteration):
+                # Update egg timer on BOARD
+                BOARD.timer.update_slot()
                 threads["ul"] = threading.Thread(
                     target=_unload,
                     args=(
@@ -422,18 +589,45 @@ def experiment(
             )
             threads["comm"].start()
 
-            # ============================== Increase purge counter ============================== #
+            # =============================== Increase slot counter ============================== #
             with data.lock:
-                _purge_counter = data.purge_counter + 1
-                data.purge_counter = _purge_counter
+                # add 1
+                data.experiment2_pot_counter += 1
+                _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
 
-            CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {_purge_counter} ")
-            data.experiment_status = f"purging state - pots unloaded : {_purge_counter}"
+                data.experiment_status = "[{}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
+                    _experiment2_current_iteration,
+                    data.experiment2_pot_counter,
+                    data.experiment2_max_pot,
+                    round(_dt / 60, 2),
+                    round(data.experiment2_time_per_sequence / 60, 2),
+                )
+
+            # ===================================== Log state ==================================== #
             logging.info(
-                f"Experiment mode in Purging State, pot unloaded :{_purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                "Experiment mode in {}({}) State, pot unloaded :{} at {}".format(
+                    "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
+                    _experiment2_current_iteration,
+                    _experiment2_pot_counter,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                )
             )
+
+        else:
+            # more than 80
+            with data.lock:
+                data.experiment_status = "[{}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
+                    _experiment2_current_iteration,
+                    data.experiment2_pot_counter,
+                    data.experiment2_max_pot,
+                    round(_dt / 60, 2),
+                    round(data.experiment2_time_per_sequence / 60, 2),
+                )
+
     except Exception as e:
-        CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
+        CLI.printline(Level.ERROR, f"(experiment)-{e}")
 
 
 timestamp: time.time = 0

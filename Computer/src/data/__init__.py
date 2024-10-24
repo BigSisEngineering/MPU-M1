@@ -85,6 +85,19 @@ white_shade: int = 225
 
 initialize_servo_flag = True
 
+# ==================================================================================== #
+#                                     Experiment 2                                     #
+# ==================================================================================== #
+# | AI | AI | AI | AI | PURGE |
+# Purge can be anywhere
+experiment2_current_iteration = 0  # set from master
+experiment2_max_iteration = 5
+experiment2_purge_iteration = 4  # purges wherever i = 4
+experiment2_time_per_sequence = 14 * 60  # 14 min
+experiment2_pot_counter = 0
+experiment2_max_pot = 80
+experiment2_time_stamp = None  # initialize as None
+
 # logging
 # logging.basicConfig(
 #     filename="/home/linaro/SmartCage_4/Statistics.log",
