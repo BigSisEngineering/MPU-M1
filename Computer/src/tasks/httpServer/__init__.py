@@ -23,7 +23,7 @@ print_name = "FLASK"
 from src.tasks.httpServer import httpGetHandler, httpPostHandler
 from src.tasks import camera
 
-# from src.tasks import checkAlignment
+# from src.tasks import check_alignment
 from src import setup
 from src import vision
 from src.vision.prediction import ComputerVision, ComputerVision_y10
@@ -31,9 +31,6 @@ from src.vision.prediction import ComputerVision, ComputerVision_y10
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
-
-#
-# app = Flask(__name__, static_url_path="/static")  # flask app
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 react_folder = f"{script_dir}/react_app"
@@ -131,11 +128,11 @@ def gen():
             if y2 - y1 < desired_height:
                 y1 = max(y2 - desired_height, 0)
 
-            # Adjust the circle's center coordinates relative to the cropped frame
-            adjusted_center_x = setup.CENTER_X - x1
-            adjusted_center_y = setup.CENTER_Y - y1
-
             # FIXME -> Commented because not used
+            # Adjust the circle's center coordinates relative to the cropped frame
+            # adjusted_center_x = setup.CENTER_X - x1
+            # adjusted_center_y = setup.CENTER_Y - y1
+
             # circle_center = (adjusted_center_x, adjusted_center_y)
 
             frame = frame[y1:y2, x1:x2]

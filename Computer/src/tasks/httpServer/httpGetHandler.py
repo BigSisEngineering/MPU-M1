@@ -7,22 +7,20 @@ get_api = Blueprint("get_api", __name__)
 
 
 def get_ACK():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_ACK")
     return {}
 
 
 def get_BoardData():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_BoardData")
     with BscbAPI.lock:
         board_data = BscbAPI.BOARD_DATA.dict()
     return board_data
 
 
-# def get_UnloaderPos():
-#     CLI.printline(Level.SPECIFIC, "(http_server)-get_UnloaderPos")
-#     with BscbAPI.lock:
-#         unloader_pos = BscbAPI.BOARD.get_servo_position(2)
-#     return unloader_pos
+def get_UnloaderPos():
+    # CLI.printline(Level.DEBUG, "(http_server)-get_UnloaderPos")
+    with BscbAPI.lock:
+        unloader_pos = BscbAPI.BOARD.get_unloader_position()
+    return unloader_pos
 
 
 def get_DummyData():
@@ -52,20 +50,23 @@ def get_potData():
 
 def get_ERROR():
     # CLI.printline(Level.DEBUG, "(http_server)-get_ERROR")
-    error_data = {"star_wheel_error": data.is_star_wheel_error, "unloader_error": data.is_unloader_error}
+    with data.lock:
+        error_data = {"star_wheel_error": data.is_star_wheel_error, "unloader_error": data.is_unloader_error}
     return error_data
 
 
 def get_experimentData():
     # CLI.printline(Level.DEBUG, "(http_server)-get_experimentData")
     with data.lock:
-        return data.experiment_status
+        experiment_status = data.experiment_status
+    return experiment_status
 
 
 def get_HOMING():
     # CLI.printline(Level.DEBUG, "(http_server)-get_HOMING")
     with data.lock:
-        return data.sw_homing
+        sw_homing = data.sw_homing
+    return sw_homing
 
 
 get_endpoints = {
@@ -77,7 +78,7 @@ get_endpoints = {
     "ERROR": get_ERROR,
     "HOMING": get_HOMING,
     "ExperimentData": get_experimentData,
-    # 'UnloaderPos' : get_UnloaderPos,
+    "UnloaderPos": get_UnloaderPos,
 }
 
 

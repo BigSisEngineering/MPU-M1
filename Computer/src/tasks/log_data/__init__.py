@@ -59,15 +59,17 @@ log_file = f"{socket.gethostname()}.log"
 
 def get_log_data_thread(stop_event: threading.Event):
     time_stamp = time.time()
-    watchdog = 60  # seconds
+    watchdog = 60
 
     while not stop_event.is_set():
         try:
             if (time.time() - time_stamp) > watchdog:
                 time_stamp = time.time()
                 count_score_positive, count_total = count_eggs_last_hour(log_file)
-                data.eggs_last_hour = count_score_positive
-                data.steps_last_hour = count_total
+
+                with data.lock:
+                    data.eggs_last_hour = count_score_positive
+                    data.steps_last_hour = count_total
 
         except Exception as e:
             CLI.printline(Level.ERROR, f"(get_log_data_thread)-{e}")

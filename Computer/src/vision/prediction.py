@@ -5,8 +5,6 @@ import socket
 from math import exp
 
 # ------------------------------------------------------------------------------------------------ #
-# from rknn.api import RKNN           #for tinker
-# from rknnlite.api import RKNNLite     #for rock
 from src import CLI
 from src import data
 from src.CLI import Level
@@ -16,15 +14,15 @@ use_rknnlite = "cage" in hostname and int(hostname.split("cage")[1].split("x")[0
 model = data.model
 
 
-
 # Determine if we need to use RKNN or RKNNLite based on the hostname
 if use_rknnlite:
     from rknnlite.api import RKNNLite  # Import RKNNLite
-    if model == 'v10':
+
+    if model == "v10":
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "yolov10s_rock_v2.rknn",
-    )
+        )
     else:
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
@@ -33,16 +31,18 @@ if use_rknnlite:
 
 else:
     from rknn.api import RKNN  # Import RKNN
-    if model == 'v5c3':
+
+    if model == "v5c3":
         RKNN_MODEL = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1_3c.rknn",
-    )
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5_m1_3c.rknn",
+        )
     else:
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "yolov5_m1_v2.rknn",
         )
+
 
 # # ------------------------------------------------------------------------------------------------ #
 class ComputerVision:
@@ -51,7 +51,7 @@ class ComputerVision:
         self.BOX_THRESH = 0.5
         self.NMS_THRESH = 0.6
         self.IMG_SIZE = (640, 640)
-        self.CLASSES = ("egg","pot","crack")
+        self.CLASSES = ("egg", "pot", "crack")
 
         # self.rknn = RKNN() #for tinker
         # self.rknn = RKNNLite() #for rock
@@ -362,7 +362,7 @@ class ComputerVision:
         # Process the input data using yolov5_post_process
         boxes, classes, scores = self.yolov5_post_process(input_data)
         return boxes, classes, scores
-    
+
     def inference(rknn, image):
         outputs = rknn.inference(inputs=[image])
         return outputs
@@ -377,11 +377,13 @@ class DetectBox:
         self.ymin = ymin
         self.xmax = xmax
         self.ymax = ymax
+
+
 # ------------------------------------------------------------------------------------------------ #
 class ComputerVision_y10:
     def __init__(self):
         self.rknn_ready = False
-        self.CLASSES = ['egg','pot','crack']
+        self.CLASSES = ["egg", "pot", "crack"]
         self.class_num = len(self.CLASSES)
         self.meshgrid = []
         self.head_num = 3
@@ -398,7 +400,6 @@ class ComputerVision_y10:
         else:
             self.rknn = RKNN()
         self.GenerateMeshgrid()
-            
 
     def load_rknn_model(self):
         if not os.path.exists(RKNN_MODEL):
@@ -440,8 +441,7 @@ class ComputerVision_y10:
                     self.meshgrid.append(j + 0.5)
                     self.meshgrid.append(i + 0.5)
 
-
-    def TopK(self,detectResult):
+    def TopK(self, detectResult):
         if len(detectResult) <= self.topK:
             return detectResult
         else:
@@ -451,10 +451,8 @@ class ComputerVision_y10:
                 predBoxs.append(sort_detectboxs[i])
             return predBoxs
 
-
     def sigmoid(self, x):
         return 1 / (1 + exp(-x))
-
 
     def postprocess(self, out, img_h, img_w):
         # print('postprocess ... ')
@@ -480,11 +478,15 @@ class ComputerVision_y10:
                     gridIndex += 2
 
                     if 1 == self.class_num:
-                        cls_max = self.sigmoid(cls[0 * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w])
+                        cls_max = self.sigmoid(
+                            cls[0 * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w]
+                        )
                         cls_index = 0
                     else:
                         for cl in range(self.class_num):
-                            cls_val = cls[cl * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w]
+                            cls_val = cls[
+                                cl * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w
+                            ]
                             if 0 == cl:
                                 cls_max = cls_val
                                 cls_index = cl
@@ -500,13 +502,29 @@ class ComputerVision_y10:
                             sfsum = 0
                             locval = 0
                             for df in range(16):
-                                temp = exp(reg[((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w])
-                                reg[((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][ 1] + w] = temp
+                                temp = exp(
+                                    reg[
+                                        ((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1]
+                                        + h * self.map_size[index][1]
+                                        + w
+                                    ]
+                                )
+                                reg[
+                                    ((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1]
+                                    + h * self.map_size[index][1]
+                                    + w
+                                ] = temp
                                 sfsum += temp
 
                             for df in range(16):
-                                sfval = reg[((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][
-                                    1] + w] / sfsum
+                                sfval = (
+                                    reg[
+                                        ((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1]
+                                        + h * self.map_size[index][1]
+                                        + w
+                                    ]
+                                    / sfsum
+                                )
                                 locval += sfval * df
                             regdfl.append(locval)
 
@@ -532,26 +550,24 @@ class ComputerVision_y10:
         predBox = self.TopK(detectResult)
 
         return predBox
-    
-    
+
     def pre_process(self, img, input_height=640, input_width=640):
         img_h, img_w = img.shape[:2]  # Get original image dimensions
         input_img = cv2.resize(img, (input_width, input_height))  # Resize image
         input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
         input_img = np.expand_dims(input_img, 0)  # Add batch dimension (for inference)
 
-        return input_img#, img_h, img_w
-    
-    
-    def prepare_inference_data(self,outputs, img_h=480, img_w=640):
+        return input_img  # , img_h, img_w
+
+    def prepare_inference_data(self, outputs, img_h=480, img_w=640):
         """
         Convert model outputs into usable bounding boxes, classes, and scores.
-        
+
         Parameters:
         - outputs: The raw model output from the inference.
         - img_h: The original height of the image.
         - img_w: The original width of the image.
-        
+
         Returns:
         - classes: List of detected class IDs.
         - scores: List of confidence scores for each detection.
@@ -578,7 +594,6 @@ class ComputerVision_y10:
             boxes.append((xmin, ymin, xmax, ymax))
         print(boxes, classes, scores)
         return boxes, classes, scores
-    
 
     def draw(self, img, boxes, scores, classes):
         for i in range(len(boxes)):
@@ -594,6 +609,6 @@ class ComputerVision_y10:
             cv2.putText(img, title, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA)
 
         return img
-    
 
-#[0.7108973] [[254.26714 339.85162 282.50098 371.06683]] [0]
+
+# [0.7108973] [[254.26714 339.85162 282.50098 371.06683]] [0]

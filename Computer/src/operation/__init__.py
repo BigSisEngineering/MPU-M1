@@ -6,11 +6,10 @@ from datetime import datetime  # NOTE FOR TESTING ONLY
 import logging
 
 # ------------------------------------------------------------------------------------------------ #
-from src import data, cloud, comm
+from src import data, cloud
 from src.tasks import camera
 from src.BscbAPI.BscbAPI import BScbAPI
 from src import vision
-from src import setup
 from src import CLI
 from src.CLI import Level
 

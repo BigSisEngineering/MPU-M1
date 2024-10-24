@@ -14,7 +14,6 @@ def aws_image_upload(predict, img_name):
     files = [("image", (img_name, open(img_name, "rb"), "image/jpg"))]
     headers = {}
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
-    print(f"aws-image-upload {response}")
     return response
 
 
@@ -38,7 +37,7 @@ def create_thread():
                     else:
                         CLI.printline(Level.WARNING, f"(aws) internet access fail -- with response {response}")
         except Exception as e:
-            print(f"Error in AWS IMAGE UPLOAD : {e}")
+            CLI.printline(Level.ERROR, f"(aws) Error in AWS IMAGE UPLOAD : {e}")
 
     def loop(killer: threading.Event):
         while not killer.is_set():

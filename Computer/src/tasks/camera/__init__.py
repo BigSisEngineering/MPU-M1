@@ -1,12 +1,7 @@
 import cv2
-import numpy as np
 import threading
 import subprocess
-import time
 import os
-import math
-from skimage.feature import canny
-from skimage.transform import hough_circle, hough_circle_peaks
 import socket
 import logging
 from datetime import datetime, timedelta  # NOTE FOR TESTING ONLY
@@ -16,8 +11,6 @@ from src import CLI
 from src.CLI import Level
 from src import setup
 from src.tasks import find_circle
-from src import vision
-from src.vision.prediction import ComputerVision
 
 # Ensure the log file is created if it doesn't exist
 log_file = f"{socket.gethostname()}.log"

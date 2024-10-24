@@ -260,10 +260,7 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
-        # if not self.IsUnloaderHomed():
-        #     print("Unloader not in home position.")
-        #     self.unloader_status = Status.not_init
-        #     return False
+
         # Hex message to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")
@@ -295,6 +292,7 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
+        
         # Hex message to send
         hex_message = []
         hex_message += bytearray.fromhex("AA")
