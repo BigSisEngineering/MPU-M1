@@ -149,6 +149,10 @@ def __action_servo_initialize() -> None:
         # reset auto homing
         update_error_timer = True
         make_auto_home_decision = True
+
+        # reset board timer
+        BOARD.timer.reset() #FIXME -> link directly with board functions
+
     else:
         # disable operation
         pass
@@ -206,6 +210,13 @@ def __update_sensor_timer_flag(sensors_values) -> None:
         if sensor_timer_flag == False:
             sensor_time = time.time()
             sensor_timer_flag = True
+
+def __compute_new_time_stamp(dt, cycle_time) -> float:
+    _time_diff = dt - cycle_time
+    if _time_diff > 0:
+        return time.time() - _time_diff
+    return time.time()
+
 
 
 @comm.timer()
@@ -296,7 +307,7 @@ def execute():
         # ======================================= PNP? ======================================= #
         if run_pnp:
             if _dt > cycle_time and is_camera_operation_ready:
-                time_stamp = time.time()
+                time_stamp = __compute_new_time_stamp(_dt, cycle_time)
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
                 __update_mode(Mode.PNP)
@@ -333,7 +344,7 @@ def execute():
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
             if _dt > cycle_time and is_safe_to_move:
-                time_stamp = time.time()
+                time_stamp = __compute_new_time_stamp(_dt, cycle_time)
 
                 CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
                 __update_mode(Mode.DUMMY)
@@ -372,7 +383,7 @@ def execute():
         # ================================== Experiment mode ================================= #
         elif run_experiment:
             if _dt > cycle_time and is_camera_operation_ready:
-                time_stamp = time.time()
+                time_stamp = __compute_new_time_stamp(_dt, cycle_time)
 
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
                 __update_mode(Mode.EXPERIMENT)
@@ -382,6 +393,7 @@ def execute():
                     MongoDB_INIT = True
 
                 # mongoDB entry (new session on timeout)
+                # ? Becomes not session based
                 if sensor_timer_flag == True:
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time

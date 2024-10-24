@@ -20,6 +20,7 @@ sw_thread: threading.Thread = None
 unload_thread: threading.Thread = None
 star_wheel_move_time: int = data.star_wheel_duration_ms
 ai_result = 0
+unloaded: bool = False
 threads: Dict[str, threading.Thread] = {
     "sw": None,
     "ul": None,
@@ -31,7 +32,6 @@ counter = 0
 
 def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
     global threads
-    is_it_overtime = BOARD.timer.is_it_overtime()
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -46,7 +46,7 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
 
     def comm_thread(BOARD: BScbAPI, image, pnp_confidence, tmp_egg_pot_counter, timestamp_of_image):
         global ai_result
-        if ai_result <= 0 and is_it_overtime:
+        if ai_result <= 0 and pot_is_overtime:
             camera.CAMERA.save_raw_frame(image, 0, 0, timestamp_of_image)
         else:
             camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result, timestamp_of_image)
@@ -78,6 +78,12 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
             return
         if not is_safe_to_move:
             return
+        
+        # ============================ Set new timer for fresh pot =========================== #
+        if unloaded:
+            # Assume pot loaded because 'is_safe_to_move'
+            BOARD.timer.update_slot()
+
         # ======================================== Camera ======================================== #
         wait_thread_to_finish("sw")
         image = camera.CAMERA.get_frame()
@@ -86,6 +92,12 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
 
         # ======================================= sw thread ====================================== #
         wait_thread_to_finish("ul")
+
+        # Get details for pot at unload position
+        BOARD.timer.move_index()
+        pot_is_overtime = BOARD.timer.is_it_overtime()
+
+        # move starwheel
         threads["sw"] = threading.Thread(
             target=_move_sw,
             args=(
@@ -96,6 +108,7 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
         )
         threads["sw"].start()
         CLI.printline(Level.INFO, f"(PnP)-sw moving")
+
         # ======================================= AI thread ====================================== #
         wait_thread_to_finish("ai")
         threads["ai"] = threading.Thread(
@@ -107,14 +120,16 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
         )
         threads["ai"].start()
         CLI.printline(Level.INFO, f"(PnP)-ai started")
+
         # ======================================= ul thread ====================================== #
         wait_thread_to_finish("sw")
         wait_thread_to_finish("ai")
-        tmp_egg_pot_counter = 1 if (ai_result > 0 or is_it_overtime) else 0
-        # tmp_egg_pot_counter = 0
+
+        tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
         if tmp_egg_pot_counter > 0:
-            if data.model != "v10":
-                BOARD.timer.update_slot()
+            # if data.model != "v10": # ? why model
+            #     BOARD.timer.update_slot()
+            unloaded = True
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -123,8 +138,10 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
                 ),
             )
             threads["ul"].start()
-        # ====================================== comm thread ===================================== #
+        else:
+            unloaded = False
 
+        # ====================================== comm thread ===================================== #
         threads["comm"] = threading.Thread(
             target=comm_thread,
             args=(
@@ -137,14 +154,13 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
         )
         threads["comm"].start()
 
-        if is_it_overtime:
-            cloud.DataBase.data_update("other")
-        else:
-            cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
-
+        # ==================================== data upload =================================== #
+        _data = "other" if pot_is_overtime else ("egg" if ai_result > 0 else "noegg")
+        cloud.DataBase.data_update(_data)
         cloud.DataBase.data_upload()
-        if data.model != "v10":
-            BOARD.timer.move_index()
+
+        # if data.model != "v10": # ?what this has to do with model
+        #     BOARD.timer.move_index()
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(PnP)-{e}")
@@ -187,9 +203,19 @@ def dummy(
             return
         if not is_safe_to_move:
             return
-        # ======================================= sw thread ====================================== #
+        
+        # ============================ Set new timer for fresh pot =========================== #
+        if unloaded:
+            # Assume pot loaded because 'is_safe_to_move'
+            BOARD.timer.update_slot()
+
+        # ==================================== Do nothing ==================================== #
         wait_thread_to_finish("sw")
+
+        # ======================================= sw thread ====================================== #           
         wait_thread_to_finish("ul")
+
+        BOARD.timer.move_index() #? move this to the SW forward function
         threads["sw"] = threading.Thread(
             target=_move_sw,
             args=(
@@ -200,6 +226,7 @@ def dummy(
         )
         threads["sw"].start()
         CLI.printline(Level.INFO, f"(dummy)-sw moving")
+
         # ======================================= AI thread ====================================== #
         wait_thread_to_finish("ai")
         threads["ai"] = threading.Thread(
@@ -208,6 +235,7 @@ def dummy(
         )
         threads["ai"].start()
         CLI.printline(Level.INFO, f"(dummy)-fake ai started")
+
         # ======================================= ul thread ====================================== #
         wait_thread_to_finish("sw")
         wait_thread_to_finish("ai")
@@ -215,10 +243,8 @@ def dummy(
 
         CLI.printline(Level.INFO, f"(dummy)-{timer_unload}/{ai_result}")
         tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
-        # tmp_egg_pot_counter = 0
-        # cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
-        # cloud.DataBase.data_upload()
         if tmp_egg_pot_counter > 0:
+            unloaded = True
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -227,8 +253,10 @@ def dummy(
                 ),
             )
             threads["ul"].start()
-        # ====================================== comm thread ===================================== #
+        else:
+            unloaded = False
 
+        # ====================================== comm thread ===================================== #
         threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
         threads["comm"].start()
         logging.info(f"Dummy mode, pot unloaded at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -476,7 +504,6 @@ def experiment(
 
     try:
         time_current = time.time()
-        pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
 
         # ====================================== Sense Check ===================================== #
         if BOARD is None:
@@ -484,6 +511,11 @@ def experiment(
         if not is_safe_to_move:
             return
 
+        # ============================ Set new timer for fresh pot =========================== #
+        if unloaded:
+            # Assume pot loaded because 'is_safe_to_move'
+            BOARD.timer.update_slot()
+            
         # =============================== Read experiment data =============================== #
         with data.lock:
             _experiment2_current_iteration = data.experiment2_current_iteration
@@ -539,13 +571,19 @@ def experiment(
             # less than 80
             if _experiment2_pot_counter < _experiment2_max_pot:
 
-                # ===================================== SW thread ==================================== #
-                # Move starwheel
+                # ==================================== Take image ==================================== #
                 wait_thread_to_finish("sw")
                 image = camera.CAMERA.get_frame()
                 timestamp_of_image = datetime.now()
                 CLI.printline(Level.INFO, f"(experiment)-image captured")
                 wait_thread_to_finish("ul")
+
+                # ===================================== SW thread ==================================== #
+                # Get details for pot at unload position
+                BOARD.timer.move_index() #? move this to the SW forward function
+                pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
+                
+                # Move starwheel
                 threads["sw"] = threading.Thread(
                     target=_move_sw,
                     args=(
@@ -571,18 +609,19 @@ def experiment(
                 CLI.printline(Level.INFO, f"(experiment)-ai started")
 
                 # ==================================== Upload data =================================== #
+                wait_thread_to_finish("sw")
+                wait_thread_to_finish("ai")
+
+                # upload new AI result
                 cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
                 cloud.DataBase.data_upload()
 
                 # ==================================== ul decision =================================== #
-                # Unload if egg, overtime, or if is on purge iteration
-                wait_thread_to_finish("sw")
-                wait_thread_to_finish("ai")
+                # Unload if previous result is egg, overtime, or if is on purge iteration
                 tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
 
                 if tmp_egg_pot_counter > 0 or (_experiment2_current_iteration == _experiment2_purge_iteration):
-                    # Update egg timer on BOARD
-                    BOARD.timer.update_slot()
+                    unloaded = True
                     threads["ul"] = threading.Thread(
                         target=_unload,
                         args=(
@@ -591,6 +630,8 @@ def experiment(
                         ),
                     )
                     threads["ul"].start()
+                else:
+                    unloaded = False
 
                 # ====================================== comm thread ===================================== #
                 threads["comm"] = threading.Thread(

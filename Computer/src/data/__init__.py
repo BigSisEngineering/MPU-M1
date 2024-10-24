@@ -96,7 +96,7 @@ experiment2_purge_iteration = 4  # purges wherever i = 4
 experiment2_time_per_sequence = 14 * 60  # 14 min
 experiment2_pot_counter = 0
 experiment2_max_pot = 80
-experiment2_time_stamp = None  # initialize as None
+experiment2_time_stamp = None
 experiment2_new_session = True
 
 # logging
