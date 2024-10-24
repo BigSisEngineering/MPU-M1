@@ -66,7 +66,7 @@ def delete_old_files_from_log(log_file, days_old=3):
         for line in remaining_files:
             file.write(f"{line}\n")
 
-    print("Old files deleted and log file updated.")
+    CLI.printline(Level.INFO, f"(log) Old files deleted and log file updated.")
 
 
 def delete_old_log_entries(log_file, days_old=3):
@@ -114,7 +114,7 @@ def delete_old_log_entries(log_file, days_old=3):
     else:
         logging.error(f"Log file {log_file} does not exist.")
 
-    print("Old log entries and errors deleted, log file updated.")
+    CLI.printline(Level.INFO, f"(log) Old log entries and errors deleted, log file updated.")
 
 
 # Call the function to delete old log entries

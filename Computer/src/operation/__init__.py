@@ -238,31 +238,32 @@ def dummy(
 
 
 # !OBSOLETE
-# def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
-#     # 1. The 1A will purge its old pot out
-#     if BOARD is not None:
-#         with data.lock:
-#             purge_state = data.purge_stage
-#         # 2. (RESET) the cage will unload pot(s) until the buffer sensor trigger
-#         if purge_state == 0:
-#             pass
-#             purge_state = 1
-#         # 3. (FILL) the 1A will send pots into cage system until the last cage auxiliary buffer sensor trigger
-#         #    around 160 pots
-#         # 4. (UNLOAD) Start to unload for 80+14 cycle and do the request as usual
-#         if purge_state == 1 and is_filled:
-#             with lock:
-#                 BOARD.unload()
-#                 BOARD.star_wheel_move_ms(600)
-#             with data.lock:
-#                 data.pot_unloaded += 1
-#                 data.purge_counter += 1
-#                 if data.purge_counter >= 94:
-#                     purge_state = 2
-#                     data.pot_unloaded = 0
-#                     data.pot_unloaded_since_last_request = 0
-#         with data.lock:
-#             data.purge_stage = purge_state
+def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
+    #     # 1. The 1A will purge its old pot out
+    #     if BOARD is not None:
+    #         with data.lock:
+    #             purge_state = data.purge_stage
+    #         # 2. (RESET) the cage will unload pot(s) until the buffer sensor trigger
+    #         if purge_state == 0:
+    #             pass
+    #             purge_state = 1
+    #         # 3. (FILL) the 1A will send pots into cage system until the last cage auxiliary buffer sensor trigger
+    #         #    around 160 pots
+    #         # 4. (UNLOAD) Start to unload for 80+14 cycle and do the request as usual
+    #         if purge_state == 1 and is_filled:
+    #             with lock:
+    #                 BOARD.unload()
+    #                 BOARD.star_wheel_move_ms(600)
+    #             with data.lock:
+    #                 data.pot_unloaded += 1
+    #                 data.purge_counter += 1
+    #                 if data.purge_counter >= 94:
+    #                     purge_state = 2
+    #                     data.pot_unloaded = 0
+    #                     data.pot_unloaded_since_last_request = 0
+    #         with data.lock:
+    #             data.purge_stage = purge_state
+    pass
 
 
 def experiment(
@@ -304,94 +305,133 @@ def experiment(
             return
 
         with data.lock:
-            if data.purge_counter >= 80:
-                watchdog = data.experiment_pause_interval
-                print(f"experiment status {data.experiment_pause_state}")
-                if data.experiment_pause_state == False:
-                    data.experiment_pause_start_time = time.time()
-                    print(f"experiment status {data.experiment_pause_state}")
-                    data.experiment_pause_state = True
-                    logging.info(
-                        f"Experiment mode in Pause State for {watchdog} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                    )
-                elapsed_time = time.time() - data.experiment_pause_start_time
+            _purge_counter = data.purge_counter
+
+        if _purge_counter >= 80:
+            # ============================ Read experiment pause state =========================== #
+            with data.lock:
+                _experiment_pause_interval = data.experiment_pause_interval
+                experiment_pause_state = data.experiment_pause_state
+
+            CLI.printline(Level.INFO, f"(experiment) Operation is in pause state: {experiment_pause_state}")
+
+            # ============================ Initialize new pause state ============================ #
+            if not experiment_pause_state:
+                with data.lock:
+                    _new_experiment_pause_start_time = time.time()
+                    data.experiment_pause_start_time = _new_experiment_pause_start_time
+
                 CLI.printline(
-                    Level.INFO, f"(experiment mode)- pause state - remaining time : {watchdog - elapsed_time} "
+                    Level.INFO, f"(experiment) New pause started at: {round(_new_experiment_pause_start_time, 2)}"
                 )
-                data.experiment_status = f"pause state for {watchdog}s - remaining time : {watchdog - elapsed_time}s"
-                if elapsed_time > watchdog:
+
+                with data.lock:
+                    data.experiment_pause_state = True
+
+                logging.info(
+                    f"Experiment mode in Pause State for {_experiment_pause_interval} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+
+            # ============================== Calculate elapsed time ============================== #
+            with data.lock:
+                _experiment_pause_start_time = data.experiment_pause_start_time
+
+            elapsed_time = time.time() - _experiment_pause_start_time
+
+            CLI.printline(
+                Level.INFO,
+                f"(experiment mode)- pause state - remaining time : {_experiment_pause_interval - elapsed_time} ",
+            )
+
+            with data.lock:
+                data.experiment_status = f"pause state for {_experiment_pause_interval}s - remaining time : {_experiment_pause_interval - elapsed_time}s"
+
+            # ================================ Reset purge counter =============================== #
+            if elapsed_time > _experiment_pause_interval:
+                with data.lock:
                     data.purge_counter = 0
                     data.experiment_pause_state = False
-            else:
-                wait_thread_to_finish("sw")
-                image = camera.CAMERA.get_frame()
-                timestamp_of_image = datetime.now()
-                CLI.printline(Level.INFO, f"(Experiment)-image captured")
-                wait_thread_to_finish("ul")
-                threads["sw"] = threading.Thread(
-                    target=_move_sw,
+
+        else:
+            wait_thread_to_finish("sw")
+            image = camera.CAMERA.get_frame()
+            timestamp_of_image = datetime.now()
+            CLI.printline(Level.INFO, f"(Experiment)-image captured")
+            wait_thread_to_finish("ul")
+            threads["sw"] = threading.Thread(
+                target=_move_sw,
+                args=(
+                    BOARD,
+                    lock,
+                    star_wheel_move_time,
+                ),
+            )
+            threads["sw"].start()
+            CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
+
+            # ======================================= AI thread ====================================== #
+            wait_thread_to_finish("ai")
+            threads["ai"] = threading.Thread(
+                target=get_ai_result,
+                args=(
+                    image,
+                    pnp_confidence,
+                ),
+            )
+            threads["ai"].start()
+            CLI.printline(Level.INFO, f"(PnP)-ai started")
+
+            # ======================================= ul thread ====================================== #
+            wait_thread_to_finish("sw")
+            wait_thread_to_finish("ai")
+
+            # =================================== What is this =================================== #
+            # FIXME
+            # !data.purge_all_timer is initialized as None. This makes it that every first loop is an exception
+            with data.lock:
+                _purge_all_timer = data.purge_all_timer
+                _purge_counter = data.purge_counter
+
+            tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - _purge_all_timer) > 3600) else 0
+            if (time.time() - _purge_all_timer) > 3600 and _purge_counter == 80:
+                with data.lock:
+                    data.purge_all_timer = time.time()
+
+            cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+            cloud.DataBase.data_upload()
+            if tmp_egg_pot_counter > 0:
+                threads["ul"] = threading.Thread(
+                    target=_unload,
                     args=(
                         BOARD,
                         lock,
-                        star_wheel_move_time,
                     ),
                 )
-                threads["sw"].start()
-                CLI.printline(Level.INFO, f"(experiment mode)-sw moving")
-                # ======================================= AI thread ====================================== #
-                wait_thread_to_finish("ai")
-                threads["ai"] = threading.Thread(
-                    target=get_ai_result,
-                    args=(
-                        image,
-                        pnp_confidence,
-                    ),
-                )
-                threads["ai"].start()
-                CLI.printline(Level.INFO, f"(PnP)-ai started")
-                # ======================================= ul thread ====================================== #
-                wait_thread_to_finish("sw")
-                wait_thread_to_finish("ai")
-                # timer_unload = need_unload_in_interval(ai_result > 0)
+                threads["ul"].start()
 
-                # CLI.printline(Level.INFO, f"(experiment mode)-{timer_unload}/{ai_result}")
-                # tmp_egg_pot_counter = 1 #if (ai_result > 0 or timer_unload) else 0
-                tmp_egg_pot_counter = 1 if (ai_result > 0 or (time.time() - data.purge_all_timer) > 3600) else 0
-                if (time.time() - data.purge_all_timer) > 3600 and data.purge_counter == 80:
-                    data.purge_all_timer = time.time()
+            # ====================================== comm thread ===================================== #
+            threads["comm"] = threading.Thread(
+                target=comm_thread,
+                args=(
+                    BOARD,
+                    image,
+                    # pnp_confidence,
+                    tmp_egg_pot_counter,
+                    timestamp_of_image,
+                ),
+            )
+            threads["comm"].start()
 
-                cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
-                cloud.DataBase.data_upload()
-                if tmp_egg_pot_counter > 0:
-                    threads["ul"] = threading.Thread(
-                        target=_unload,
-                        args=(
-                            BOARD,
-                            lock,
-                        ),
-                    )
-                    threads["ul"].start()
-                # ====================================== comm thread ===================================== #
+            # ============================== Increase purge counter ============================== #
+            with data.lock:
+                _purge_counter = data.purge_counter + 1
+                data.purge_counter = _purge_counter
 
-                # threads["comm"] = threading.Thread(target=comm_thread, args=(BOARD, tmp_egg_pot_counter))
-                # threads["comm"].start()
-                threads["comm"] = threading.Thread(
-                    target=comm_thread,
-                    args=(
-                        BOARD,
-                        image,
-                        # pnp_confidence,
-                        tmp_egg_pot_counter,
-                        timestamp_of_image,
-                    ),
-                )
-                threads["comm"].start()
-                data.purge_counter += 1
-                CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {data.purge_counter} ")
-                data.experiment_status = f"purging state - pots unloaded : {data.purge_counter}"
-                logging.info(
-                    f"Experiment mode in Purging State, pot unloaded :{data.purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                )
+            CLI.printline(Level.INFO, f"(experiment mode)- purging state - pots unloaded : {_purge_counter} ")
+            data.experiment_status = f"purging state - pots unloaded : {_purge_counter}"
+            logging.info(
+                f"Experiment mode in Purging State, pot unloaded :{_purge_counter} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
     except Exception as e:
         CLI.printline(Level.ERROR, f"(experiment mode)-{e}")
 
