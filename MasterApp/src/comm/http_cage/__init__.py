@@ -35,38 +35,6 @@ ACTION_LIST = [
 ]
 
 
-# glen experiment
-def __get_experiment_iteration(hostname):
-    if hostname == "cage0x0001":
-        return 4
-    if hostname == "cage0x0002":
-        return 4
-    if hostname == "cage0x0003":
-        return 3
-    if hostname == "cage0x0004":
-        return 3
-    if hostname == "cage0x0005":
-        return 3
-    if hostname == "cage0x0006":
-        return 2
-    if hostname == "cage0x0007":
-        return 2
-    if hostname == "cage0x0008":
-        return 2
-    if hostname == "cage0x0009":
-        return 1
-    if hostname == "cage0x0010":
-        return 1
-    if hostname == "cage0x0011":
-        return 1
-    if hostname == "cage0x0012":
-        return 0
-    if hostname == "cage0x0013":
-        return 0
-    if hostname == "cage0x0014":
-        return 0
-
-
 class HTTPCage:
     lock_acquire_timeout_status = 1
     lock_acquire_timeout_action = 5
@@ -85,6 +53,40 @@ class HTTPCage:
         # -------------------------------------------------------- #
         self._status = None
         self._timeout_counter: int = 0
+
+    # glen experiment
+    @staticmethod
+    def __get_experiment_iteration(hostname):
+        num = 0
+        if hostname == "cage0x0001":
+            num = 4
+        if hostname == "cage0x0002":
+            num = 4
+        if hostname == "cage0x0003":
+            num = 3
+        if hostname == "cage0x0004":
+            num = 3
+        if hostname == "cage0x0005":
+            num = 3
+        if hostname == "cage0x0006":
+            num = 2
+        if hostname == "cage0x0007":
+            num = 2
+        if hostname == "cage0x0008":
+            num = 2
+        if hostname == "cage0x0009":
+            num = 1
+        if hostname == "cage0x0010":
+            num = 1
+        if hostname == "cage0x0011":
+            num = 1
+        if hostname == "cage0x0012":
+            num = 0
+        if hostname == "cage0x0013":
+            num = 0
+        if hostname == "cage0x0014":
+            num = 0
+        return num
 
     # PUBLIC
     # -------------------------------------------------------- #
@@ -180,7 +182,7 @@ class HTTPCage:
         return 0
 
     def exec_action(self, action, params=None) -> str:
-        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
+        with self._lock_request:
             try:
                 if action in ACTION_LIST:
                     url = f"http://{self._hostname}.local:8080/{action}"
@@ -188,7 +190,8 @@ class HTTPCage:
                     # ------------------------------------------------------------------------------------ #
                     # !glen experiment temp
                     if action == "ENABLE_EXPERIMENT":
-                        url = url + f"/{__get_experiment_iteration(self._hostname)}"
+                        url = url + f"/{HTTPCage.__get_experiment_iteration(self._hostname)}"
+                        print(f"url: {url}")
                     # ------------------------------------------------------------------------------------ #
 
                     if params is not None:
@@ -210,7 +213,6 @@ class HTTPCage:
                             print_name, action, self._hostname, response.content.decode("utf-8")
                         ),
                     )
-                    # return "{}".format(response.content.decode("utf-8"))
                     return "Successful"
 
                 else:
@@ -232,13 +234,3 @@ class HTTPCage:
                     "({:^10})-({:^8}) [{:^10}] Error: {}".format(print_name, action, self._hostname, e),
                 )
                 return f"An error occured"
-
-            finally:
-                self._lock_request.release()
-
-        else:
-            CLI.printline(
-                Level.WARNING,
-                "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(print_name, action, self._hostname),
-            )
-            return f"Send failed. Cage is busy."
