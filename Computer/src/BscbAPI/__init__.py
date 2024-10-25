@@ -306,11 +306,14 @@ def execute():
 
         # ======================================= PNP? ======================================= #
         if run_pnp:
-            if _dt > cycle_time and is_camera_operation_ready:
+            __update_mode(Mode.PNP)
+            _execute = _dt > cycle_time and is_camera_operation_ready
+
+            if _execute:
+                # only update timestamp if execute, else flush
                 time_stamp = __compute_new_time_stamp(_dt, cycle_time)
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
-                __update_mode(Mode.PNP)
 
                 # init session
                 if MongoDB_INIT == False:
@@ -329,45 +332,43 @@ def execute():
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
 
-                # run PNP
-                operation.pnp(BOARD, lock, is_camera_operation_ready, star_wheel_duration_ms, pnp_confidence)
+            else:
+                CLI.printline(
+                    Level.DEBUG,
+                    (
+                        f"(Background)-PNP Countdown ->{round(_dt, 2) - cycle_time}"
+                        if is_camera_operation_ready
+                        else "(Background)-PNP Waiting for system"
+                    ),
+                )
 
-            CLI.printline(
-                Level.DEBUG,
-                (
-                    f"(Background)-PNP Countdown ->{round(_dt, 2) - cycle_time}"
-                    if is_camera_operation_ready
-                    else "(Background)-PNP Waiting for system"
-                ),
-            )
+            # run PNP
+            operation.pnp(BOARD, lock, _execute, star_wheel_duration_ms, pnp_confidence)
 
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
-            if _dt > cycle_time and is_safe_to_move:
+            __update_mode(Mode.DUMMY)
+            _execute = _dt > cycle_time and is_safe_to_move
+
+            if _execute:
                 time_stamp = __compute_new_time_stamp(_dt, cycle_time)
 
                 CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
-                __update_mode(Mode.DUMMY)
 
                 MongoDB_INIT == False
 
-                # run DUMMY
-                operation.dummy(
-                    BOARD,
-                    lock,
-                    is_safe_to_move,
-                    star_wheel_duration_ms,
-                    unload_probability,
+            else:
+                CLI.printline(
+                    Level.DEBUG,
+                    (
+                        f"(Background)-DUMMY Countdown ->{round(_dt, 2) - cycle_time}"
+                        if is_safe_to_move
+                        else "(Background)-DUMMY Waiting for system"
+                    ),
                 )
 
-            CLI.printline(
-                Level.DEBUG,
-                (
-                    f"(Background)-DUMMY Countdown ->{round(_dt, 2) - cycle_time}"
-                    if is_safe_to_move
-                    else "(Background)-DUMMY Waiting for system"
-                ),
-            )
+            # run DUMMY
+            operation.dummy(BOARD, lock, _execute, star_wheel_duration_ms, unload_probability)
 
         # ======================================== Purge? ======================================== #
         elif run_purge and is_safe_to_move:
@@ -382,11 +383,13 @@ def execute():
 
         # ================================== Experiment mode ================================= #
         elif run_experiment:
-            if _dt > cycle_time and is_camera_operation_ready:
+            __update_mode(Mode.EXPERIMENT)
+            _execute = _dt > cycle_time and is_camera_operation_ready
+
+            if _execute:
                 time_stamp = __compute_new_time_stamp(_dt, cycle_time)
 
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
-                __update_mode(Mode.EXPERIMENT)
 
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
@@ -405,17 +408,18 @@ def execute():
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
 
-                # run EXPERIMENT
-                operation.experiment(BOARD, lock, is_safe_to_move, star_wheel_duration_ms, pnp_confidence)
+            else:
+                CLI.printline(
+                    Level.DEBUG,
+                    (
+                        f"(Background)-EXPERIMENT Countdown ->{round(_dt, 2) - cycle_time}"
+                        if is_camera_operation_ready
+                        else "(Background)-EXPERIMENT Waiting for system"
+                    ),
+                )
 
-            CLI.printline(
-                Level.DEBUG,
-                (
-                    f"(Background)-EXPERIMENT Countdown ->{round(_dt, 2) - cycle_time}"
-                    if is_camera_operation_ready
-                    else "(Background)-EXPERIMENT Waiting for system"
-                ),
-            )
+            # run EXPERIMENT
+            operation.experiment(BOARD, lock, _execute, star_wheel_duration_ms, pnp_confidence)
 
         # ========================================= IDLE ========================================= #
         else:

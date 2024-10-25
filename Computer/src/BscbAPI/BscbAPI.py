@@ -198,10 +198,9 @@ class BScbAPI:
                 if time.time() > time_out:
                     self.update_com_port()
                     return (0, 0, 0, 0)
-                
+
             except serial.SerialException as e:
                 self.update_com_port()
-
 
     def generate_crc16(self, data):
         crc = 0xFFFF
