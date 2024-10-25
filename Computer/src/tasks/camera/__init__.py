@@ -1,12 +1,7 @@
 import cv2
-import numpy as np
 import threading
 import subprocess
-import time
 import os
-import math
-from skimage.feature import canny
-from skimage.transform import hough_circle, hough_circle_peaks
 import socket
 import logging
 from datetime import datetime, timedelta  # NOTE FOR TESTING ONLY
@@ -15,29 +10,24 @@ from datetime import datetime, timedelta  # NOTE FOR TESTING ONLY
 from src import CLI
 from src.CLI import Level
 from src import setup
-from src.tasks import findCircle
-from src import vision
-from src.vision.prediction import ComputerVision
+from src.tasks import find_circle
 
 # Ensure the log file is created if it doesn't exist
-log_file = f'{socket.gethostname()}.log'
+log_file = f"{socket.gethostname()}.log"
 if not os.path.exists(log_file):
-    open(log_file, 'a').close()
+    open(log_file, "a").close()
 
 # Set up the logger
-logging.basicConfig(
-    filename=log_file,
-    level=logging.INFO,
-    format='%(message)s'
-)
+logging.basicConfig(filename=log_file, level=logging.INFO, format="%(message)s")
 w = 1440
-h= 1080
+h = 1080
+
 
 def delete_old_files_from_log(log_file, days_old=3):
     # Read the log file
     def read_log_file(file_path):
         if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
+            with open(file_path, "r") as file:
                 lines = file.readlines()
                 return [line.strip() for line in lines]
         else:
@@ -46,10 +36,10 @@ def delete_old_files_from_log(log_file, days_old=3):
 
     # Parse the timestamp from the filename
     def parse_timestamp_from_filename(filename):
-        parts = filename.split('_')
+        parts = filename.split("_")
         if len(parts) == 10:
             timestamp_str = f"{parts[1]}-{parts[2]}-{parts[3]} {parts[4]}:{parts[5]}:{parts[6]}"
-            return datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+            return datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
         return None
 
     # Calculate the cutoff date
@@ -72,31 +62,43 @@ def delete_old_files_from_log(log_file, days_old=3):
             remaining_files.append(path)
 
     # Update the log file
-    with open(log_file, 'w') as file:
+    with open(log_file, "w") as file:
         for line in remaining_files:
             file.write(f"{line}\n")
 
-    print("Old files deleted and log file updated.")
+    CLI.printline(Level.INFO, f"(log) Old files deleted and log file updated.")
+
 
 def delete_old_log_entries(log_file, days_old=3):
     cutoff_date = datetime.now() - timedelta(days=days_old)
     remaining_entries = []
 
     # Keywords to identify error messages
-    error_keywords = ['Traceback', 'Error', 'Exception', 'File', 'TimeoutError', 'OSError', 'execute(self.server.app)', 'write(data)', 'self.wfile.write(data)', 'self._sock.sendall(b)']
+    error_keywords = [
+        "Traceback",
+        "Error",
+        "Exception",
+        "File",
+        "TimeoutError",
+        "OSError",
+        "execute(self.server.app)",
+        "write(data)",
+        "self.wfile.write(data)",
+        "self._sock.sendall(b)",
+    ]
 
     # Read and filter log entries
     if os.path.exists(log_file):
-        with open(log_file, 'r') as file:
+        with open(log_file, "r") as file:
             for line in file:
                 # Skip lines containing error keywords
                 if any(keyword in line for keyword in error_keywords):
                     continue
-                
-                if 'at' in line:
-                    timestamp_str = line.split('at')[-1].strip()
+
+                if "at" in line:
+                    timestamp_str = line.split("at")[-1].strip()
                     try:
-                        log_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+                        log_timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
                         if log_timestamp >= cutoff_date:
                             remaining_entries.append(line)
                     except ValueError as e:
@@ -106,13 +108,14 @@ def delete_old_log_entries(log_file, days_old=3):
                     remaining_entries.append(line)
 
         # Write the remaining entries back to the log file
-        with open(log_file, 'w') as file:
+        with open(log_file, "w") as file:
             file.writelines(remaining_entries)
 
     else:
         logging.error(f"Log file {log_file} does not exist.")
 
-    print("Old log entries and errors deleted, log file updated.")
+    CLI.printline(Level.INFO, f"(log) Old log entries and errors deleted, log file updated.")
+
 
 # Call the function to delete old log entries
 delete_old_log_entries(log_file, days_old=4)
@@ -185,7 +188,7 @@ class CameraThreading:
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)  # FIXME -
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)  # FIXME
         cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         while not killer.is_set():
             try:
                 ret, raw_frame = cap.read()
@@ -199,16 +202,15 @@ class CameraThreading:
                         cap.set(cv2.CAP_PROP_FRAME_WIDTH, w)  # FIXME -
                         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, h)  # FIXME
                         cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)  # Disable auto-exposure
-                        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+                        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
                         # time.sleep(0.1)
                         continue  # non-return thread
                     except Exception as e:
                         CLI.printline(Level.ERROR, f"(CameraThreading)-{e}")
                 # CLI.printline(Level.DEBUG, "(camera)-Frame Captured")
                 # Update frame
-                if self.frame_lock.acquire(timeout=1 / 24):
+                with self.frame_lock:
                     self.raw_frame = raw_frame
-                    self.frame_lock.release()
                     # CLI.printline(Level.WARNING, "(camera)-Frames updated")
 
             except Exception as e:
@@ -226,7 +228,7 @@ class CameraThreading:
                 if frame is not None:
                     with self._lock_device_ready:
                         self._device_ready = True
-                    frame = findCircle.CircularMask(frame)
+                    frame = find_circle.circular_mask(frame)
                 else:
                     with self._lock_device_ready:
                         self._device_ready = False

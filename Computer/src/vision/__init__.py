@@ -1,12 +1,7 @@
 import threading
 import os
 import numpy as np
-import cv2
 import socket
-
-
-# from rknn.api import RKNN           #for tinker
-# from rknnlite.api import RKNNLite    #for rock
 
 # ------------------------------------------------------------------------------------------------ #
 from src import CLI, comm
@@ -20,15 +15,15 @@ use_rknnlite = "cage" in hostname and int(hostname.split("cage")[1].split("x")[0
 model = data.model
 
 
-
 # Determine if we need to use RKNN or RKNNLite based on the hostname
 if use_rknnlite:
     from rknnlite.api import RKNNLite  # Import RKNNLite
-    if model == 'v10':
+
+    if model == "v10":
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "yolov10s_rock_v2.rknn",
-    )
+        )
     else:
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
@@ -37,11 +32,12 @@ if use_rknnlite:
 
 else:
     from rknn.api import RKNN  # Import RKNN
-    if model == 'v5c3':
+
+    if model == "v5c3":
         RKNN_MODEL = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        "yolov5_m1_3c.rknn",
-    )
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5_m1_3c.rknn",
+        )
     else:
         RKNN_MODEL = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
@@ -53,20 +49,19 @@ def get_misalignment(circle_center, radius, bbox):
     x_min, y_min, x_max, y_max = bbox
     top_circle = (circle_center[0], circle_center[1] - radius)
     bottom_circle = (circle_center[0], circle_center[1] + radius)
-    top_edge_point = (top_circle[0], y_min)  
-    bottom_edge_point = (bottom_circle[0], y_max)  
+    top_edge_point = (top_circle[0], y_min)
+    bottom_edge_point = (bottom_circle[0], y_max)
     top_line_length = np.linalg.norm(np.array(top_circle) - np.array(top_edge_point))
     bottom_line_length = np.linalg.norm(np.array(bottom_circle) - np.array(bottom_edge_point))
     if top_line_length > bottom_line_length:
-        return top_line_length, 'top'
+        return top_line_length, "top"
     else:
-        return bottom_line_length, 'bottom'
-
+        return bottom_line_length, "bottom"
 
 
 class ProcessAndPrediction:
     def __init__(self):
-        if model == 'v10':
+        if model == "v10":
             self.computer_vision = ComputerVision_y10()
         else:
             self.computer_vision = ComputerVision()
@@ -98,10 +93,10 @@ class ProcessAndPrediction:
             # Crop the image
             image = image[y1:y2, x1:x2]
             with data.pnp_vision_lock:
-                if (use_rknnlite and model == 'v10') or model == 'v5c3':
+                if (use_rknnlite and model == "v10") or model == "v5c3":
                     # Get the detections (boxes, classes, scores)
                     self.boxes, self.classes, self.scores = self.computer_vision.prepare_inference_data(
-                    self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
+                        self.computer_vision.get_rknn().inference(inputs=[self.computer_vision.pre_process(image)])
                     )
 
                     egg_count = 0
@@ -112,9 +107,9 @@ class ProcessAndPrediction:
                         score = self.scores[i]
                         if class_id == 0 and score > confident_level:  # Class 0: Egg
                             egg_count += 1
-                        elif class_id == 2: #and score > 0.35:  # Class 2: Crack
+                        elif class_id == 2:  # and score > 0.35:  # Class 2: Crack
                             crack_detected = True
-                    
+
                     # if self.boxes is not None:
                     #     adjusted_center_x = setup.CENTER_X - x1
                     #     adjusted_center_y = setup.CENTER_Y - y1
@@ -123,13 +118,13 @@ class ProcessAndPrediction:
                     #         if cls == 1:  # Check if the class is 1
                     #             line_length, line_position = get_misalignment(circle_center, setup.RADIUS, self.boxes[i])
                     #             print(f'line length : {line_length}, line position : {line_position}')
-                            
+
                     # Logic for returning based on detection
                     if egg_count > 0:
-                        print(f'egg detected {egg_count}')
+                        print(f"egg detected {egg_count}")
                         return egg_count  # Return number of eggs detected
                     elif crack_detected:
-                        print('crack detected')
+                        print("crack detected")
                         return 99  # Crack detected but no eggs with high confidence
                     else:
                         return 0
@@ -144,11 +139,10 @@ class ProcessAndPrediction:
                         egg_list = [score for score in self.scores if score > confident_level]
                         return len(egg_list)
 
-            
         return 0  # No eggs or cracks detected with sufficient confidence
 
 
 PNP = ProcessAndPrediction()
 
 
-#[0.7108973] [[254.26714 339.85162 282.50098 371.06683]] [0]
+# [0.7108973] [[254.26714 339.85162 282.50098 371.06683]] [0]

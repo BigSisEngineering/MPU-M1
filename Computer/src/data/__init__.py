@@ -1,5 +1,5 @@
 import threading
-import logging
+from src import setup
 from dataclasses import dataclass, asdict
 import time
 
@@ -45,10 +45,10 @@ is_unloader_error: bool = False
 max_auto_clear_error = 3
 
 servos_ready: bool = False
-sw_homing : bool =False
+sw_homing: bool = False
 
 star_wheel_duration_ms: int = 600
-sw_pos : int = 0
+sw_pos: int = 0
 
 dummy_enabled: bool = False
 unload_probability: float = 1.0
@@ -60,15 +60,16 @@ experiment_enabled: bool = False
 experiment_pause_interval = 600.0
 experiment_pause_start_time = None
 experiment_pause_state = False
-experiment_status = ''
+experiment_status = ""
 
 MongoDB_INIT: bool = False
 
 pot_processed: int = 0
 pot_unloaded: int = 0
 pot_unloaded_since_last_request: int = 0
-eggs_last_hour : int = 0
-steps_last_hour : int = 0
+
+eggs_last_hour: int = 0
+steps_last_hour: int = 0
 
 purge_enabled: bool = False
 purge_stage: int = 0
@@ -76,16 +77,64 @@ purge_start_unload: bool = False
 purge_counter: int = 0
 purge_all_timer = None
 
-valve_delay : int =200
+valve_delay: int = 200
 
-model = 'v5'
+model = "v5"
 
-white_shade : int = 225
+white_shade: int = 225
 
-# logging
-# logging.basicConfig(
-#     filename="/home/linaro/SmartCage_4/Statistics.log",
-#     level=logging.INFO,
-#     format="%(asctime)s,%(message)s",
-#     datefmt="%Y-%m-%d,%H:%M:%S",
-# )
+initialize_servo_flag = True
+
+
+# ==================================================================================== #
+#                                     Experiment 2                                     #
+# ==================================================================================== #
+def get_cage_number():
+    cage_number = int(setup.CAGE_ID[-2:])
+    return cage_number
+
+
+def get_shift(cage_number: int):
+    if cage_number == 1:
+        return 0
+    if cage_number == 2:
+        return 1
+    if cage_number == 3:
+        return 2
+    if cage_number == 4:
+        return 3
+    if cage_number == 5:
+        return 4
+    if cage_number == 6:
+        return 0
+    if cage_number == 7:
+        return 1
+    if cage_number == 8:
+        return 2
+    if cage_number == 9:
+        return 3
+    if cage_number == 10:
+        return 4
+    if cage_number == 11:
+        return 0
+    if cage_number == 12:
+        return 1
+    if cage_number == 13:
+        return 2
+    if cage_number == 14:
+        return 3
+
+
+# | AI | AI | AI | AI | PURGE |
+# ============================= To be exposed if required ============================ #
+experiment2_interval = 60
+experiment2_purge_frequency = 5
+
+# ====================================== Driven ====================================== #
+experiment2_pot_counter = 0
+experiment2_max_pot = 80
+experiment2_sequence_number = 0
+experiment2_previous_sequence_number = experiment2_purge_frequency + 1
+experiment2_sequence_duration = 14 * experiment2_interval  # 14 min
+# dummy out of bound value for initial toggling
+cage_number = get_cage_number()
