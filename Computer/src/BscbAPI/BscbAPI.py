@@ -33,7 +33,6 @@ class StarWheelTimer:
     def __init__(self) -> None:
         self.inited: bool = False
         self.index: int = 0
-        # Initialize all slots with the current time formatted as a string
         current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.timer: List[str] = [current_time_str] * 80
         self.unloaded_count: List[int] = [0] * 80
@@ -162,10 +161,10 @@ class BScbAPI:
                 if len(ack) > 7:
                     if self.isReadBackCorrect(ack):
                         return Status.normal
-                    
+
                 if time.time() > time_out:
                     return Status.timeout
-                
+
             except serial.SerialException as e:
                 self.update_com_port()
 
@@ -177,12 +176,12 @@ class BScbAPI:
                 if len(ack) > 7:
                     header, target, action, status, _, _, crc = struct.unpack("=BBBBBBh", ack)
                     return Status(status)
-                
+
                 if time.time() > time_out:
                     self.update_com_port()
                     # return Status.timeout # FIXME - IDK why its not returning any reading time by time, so just bypass
                     return Status.normal
-                
+
             except serial.SerialException as e:
                 self.update_com_port()
                 return Status.error
@@ -280,7 +279,7 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
-        
+
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
@@ -346,7 +345,7 @@ class BScbAPI:
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
         hex_message += bytearray.fromhex("05")
-        max(min(5000, time_ms), 600) # FIXME -> What is this for?
+        max(min(5000, time_ms), 600)  # FIXME -> What is this for?
         hex_message += struct.pack("<H", time_ms)
         hex_message += bytearray.fromhex("00")
         crc = self.generate_crc16(hex_message)
@@ -354,13 +353,14 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
+            
         except serial.SerialException as e:
             self.update_com_port()
-            print(f"Serial error: {e}")
+
         self.star_wheel_status = self.got_Status_respond()
 
         if self.is_readback_status_normal(self.star_wheel_status):
-            # self.timer.move_index()
+            self.timer.move_index()
             return True
         else:
             return False
@@ -385,8 +385,8 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
 
-        self.star_wheel_status = self.got_ACK_respond()
-        self.star_wheel_status = Status.not_init # ?Why
+        # self.star_wheel_status = self.got_ACK_respond()
+        self.star_wheel_status = Status.not_init
         return True if self.is_readback_status_normal(self.star_wheel_status) else False
 
     def unload(self):
@@ -479,7 +479,7 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
-            
+
         except serial.SerialException as e:
             self.update_com_port()
 
@@ -520,7 +520,7 @@ class BScbAPI:
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
         hex_message += bytearray.fromhex("07")
-        max(min(0, count), 255) # ?Why is this needed
+        # max(min(0, count), 255)  # ?Why is this needed
         hex_message += struct.pack("<H", count)
         hex_message += bytearray.fromhex("00")
         crc = self.generate_crc16(hex_message)
@@ -536,17 +536,17 @@ class BScbAPI:
         # print(f"Star Wheel Move ms readback: { self.star_wheel_status}")
         # return True if self.is_readback_status_normal(self.star_wheel_status) else False
         # print("-".join("{:02x}".format(x) for x in hex_message))
-        return hex_message # ?Why return list
+        return hex_message  # ?Why return list
 
     def star_wheel_move_count_relative(self, count):
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
-        
+
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("01")
         hex_message += bytearray.fromhex("04")
-        max(min(0, count), 255) # ?Why is this needed
+        # max(min(0, count), 255)  # ?Why is this needed
         hex_message += struct.pack("<H", count)
         hex_message += bytearray.fromhex("00")
         crc = self.generate_crc16(hex_message)
@@ -559,10 +559,12 @@ class BScbAPI:
             self.update_com_port()
 
         # self.star_wheel_status = self.got_Status_respond()
+        # return self.is_readback_status_normal( self.star_wheel_status)
+
         # print(f"Star Wheel Move ms readback: { self.star_wheel_status}")
         # return True if self.is_readback_status_normal(self.star_wheel_status) else False
         # print("-".join("{:02x}".format(x) for x in hex_message))
-        return hex_message # ?Why return list
+        return hex_message  # ?Why return list
 
     def starWheel_save_offset(self, count):
         # ?shouldn't affect
@@ -584,7 +586,7 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
 
-        return hex_message # ?Why return list
+        return hex_message  # ?Why return list
 
     def set_valve_delay(self, delay_ms):
         if not self.is_com_ready():
@@ -605,8 +607,8 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
             return False
-        
-        ack_status = self.got_ACK_respond() # ?why
+
+        ack_status = self.got_ACK_respond()
         return self.is_readback_status_normal(ack_status)
 
     def get_unloader_position(self):
@@ -639,7 +641,6 @@ class BScbAPI:
     def is_unloader_homed(self):
         _unloader_position = self.get_unloader_position()
         return 0 <= _unloader_position <= 370 or 3725 <= _unloader_position <= 4095
-
 
 
 if __name__ == "__main__":

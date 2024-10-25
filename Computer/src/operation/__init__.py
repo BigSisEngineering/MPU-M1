@@ -12,7 +12,6 @@ from src.BscbAPI.BscbAPI import BScbAPI
 from src import vision
 from src import CLI
 from src.CLI import Level
-from src import setup
 
 
 purge_state: int = 0
@@ -78,24 +77,22 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
             return
         if not is_safe_to_move:
             return
-        
+
         # ============================ Set new timer for fresh pot =========================== #
         if unloaded:
             # Assume pot loaded because 'is_safe_to_move'
             BOARD.timer.update_slot()
 
-        # ======================================== Camera ======================================== #
         wait_thread_to_finish("sw")
+        pot_is_overtime = BOARD.timer.is_it_overtime()
+
+        # ======================================== Camera ======================================== #
         image = camera.CAMERA.get_frame()
         timestamp_of_image = datetime.now()
         CLI.printline(Level.INFO, f"(PnP)-image captured")
 
         # ======================================= sw thread ====================================== #
         wait_thread_to_finish("ul")
-
-        # Get details for pot at unload position
-        BOARD.timer.move_index()
-        pot_is_overtime = BOARD.timer.is_it_overtime()
 
         # move starwheel
         threads["sw"] = threading.Thread(
@@ -203,7 +200,7 @@ def dummy(
             return
         if not is_safe_to_move:
             return
-        
+
         # ============================ Set new timer for fresh pot =========================== #
         if unloaded:
             # Assume pot loaded because 'is_safe_to_move'
@@ -212,10 +209,10 @@ def dummy(
         # ==================================== Do nothing ==================================== #
         wait_thread_to_finish("sw")
 
-        # ======================================= sw thread ====================================== #           
+        # ======================================= sw thread ====================================== #
         wait_thread_to_finish("ul")
 
-        BOARD.timer.move_index() #? move this to the SW forward function
+        BOARD.timer.move_index()  # ? move this to the SW forward function
         threads["sw"] = threading.Thread(
             target=_move_sw,
             args=(
@@ -515,7 +512,7 @@ def experiment(
         if unloaded:
             # Assume pot loaded because 'is_safe_to_move'
             BOARD.timer.update_slot()
-            
+
         # =============================== Read experiment data =============================== #
         with data.lock:
             _experiment2_current_iteration = data.experiment2_current_iteration
@@ -526,13 +523,14 @@ def experiment(
             _experiment2_max_pot = data.experiment2_max_pot
             _experiment2_time_stamp = data.experiment2_time_stamp
             _experiment2_new_session = data.experiment2_new_session
+            _experiment2_staggered_delay = data.experiment2_staggered_delay
 
         # ================================= Update time stamp ===================s============= #
         _dt = time_current - _experiment2_time_stamp
 
-        # first init
+        # =================================== Init and Wait ================================== #
         if _experiment2_new_session:
-            if _dt > setup.EXPERIMENT_STAGGER_DELAY:
+            if _dt > _experiment2_staggered_delay:
                 with data.lock:
                     data.experiment2_time_stamp = time.time()
                     _experiment2_time_stamp = data.experiment2_time_stamp  # reassign time_stamp
@@ -545,7 +543,7 @@ def experiment(
                         data.experiment2_pot_counter,
                         data.experiment2_max_pot,
                         round(_dt / 60, 2),
-                        round(setup.EXPERIMENT_STAGGER_DELAY, 2),
+                        round(_experiment2_staggered_delay, 2),
                     )
 
         else:
@@ -571,8 +569,10 @@ def experiment(
             # less than 80
             if _experiment2_pot_counter < _experiment2_max_pot:
 
-                # ==================================== Take image ==================================== #
                 wait_thread_to_finish("sw")
+                pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
+
+                # ==================================== Take image ==================================== #
                 image = camera.CAMERA.get_frame()
                 timestamp_of_image = datetime.now()
                 CLI.printline(Level.INFO, f"(experiment)-image captured")
@@ -580,9 +580,7 @@ def experiment(
 
                 # ===================================== SW thread ==================================== #
                 # Get details for pot at unload position
-                BOARD.timer.move_index() #? move this to the SW forward function
-                pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
-                
+
                 # Move starwheel
                 threads["sw"] = threading.Thread(
                     target=_move_sw,

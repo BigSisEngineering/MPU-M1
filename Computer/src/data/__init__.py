@@ -1,5 +1,5 @@
 import threading
-import logging
+from src import setup
 from dataclasses import dataclass, asdict
 import time
 
@@ -85,9 +85,17 @@ white_shade: int = 225
 
 initialize_servo_flag = True
 
+
 # ==================================================================================== #
 #                                     Experiment 2                                     #
 # ==================================================================================== #
+# experiment
+def get_start_delay():
+    global experiment2_time_per_sequence
+    cage_number = int(setup.CAGE_ID[-2:])
+    return (cage_number - 1) * (experiment2_time_per_sequence / 14 * 60) * 60
+
+
 # | AI | AI | AI | AI | PURGE |
 # Purge can be anywhere
 experiment2_current_iteration = 0  # set from master
@@ -98,6 +106,7 @@ experiment2_pot_counter = 0
 experiment2_max_pot = 80
 experiment2_time_stamp = None
 experiment2_new_session = True
+experiment2_staggered_delay = get_start_delay()
 
 # logging
 # logging.basicConfig(
