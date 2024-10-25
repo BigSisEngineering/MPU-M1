@@ -3,28 +3,30 @@ import numpy as np
 
 from src import data
 
+
 def process_image(image, center_point, radius):
     img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, binary = cv2.threshold(img, data.white_shade, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
-        print(f'Area : {cv2.contourArea(largest_contour)}')
+        print(f"Area : {cv2.contourArea(largest_contour)}")
         is_inside = cv2.pointPolygonTest(largest_contour, center_point, False)
         contour_image_bgr = cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)
         cv2.drawContours(contour_image_bgr, [largest_contour], -1, (0, 255, 0), 2)
         if is_inside >= 0:
-            print('center inside')
+            print("center inside")
             line_length = process_center_inside(binary, center_point, contour_image_bgr)
         else:
-            print('center outside')
+            print("center outside")
             line_length = process_center_outside(binary, center_point, largest_contour, contour_image_bgr)
-        
+
         print(f"Line Length: {line_length} pixels, Radius: {radius} pixels")
 
         # combined_image = np.concatenate((image, contour_image_bgr), axis=1)
         return contour_image_bgr
     return image
+
 
 def process_center_inside(binary, center_point, contour_image_bgr):
     y_up = y_down = None
@@ -39,7 +41,7 @@ def process_center_inside(binary, center_point, contour_image_bgr):
     if y_up is not None and y_down is not None:
         cv2.line(contour_image_bgr, (center_point[0], y_up), (center_point[0], y_down), (255, 0, 0), 2)
         return y_down - y_up
-    return 0 
+    return 0
 
 
 def process_center_outside(binary, center_point, largest_contour, contour_image_bgr):
@@ -53,15 +55,15 @@ def process_center_outside(binary, center_point, largest_contour, contour_image_
 
     # Determine if the centroid is above or below the center point
     if cY < center_point[1]:
-        print('Centroid above center')
-        direction = 'above'
+        print("Centroid above center")
+        direction = "above"
     else:
-        print('Centroid below center')
-        direction = 'below'
+        print("Centroid below center")
+        direction = "below"
 
     # Find intersection point by scanning in the appropriate direction
     intersection_point = None
-    if direction == 'above':
+    if direction == "above":
         for y in range(center_point[1], -1, -1):  # Scan upwards
             if cv2.pointPolygonTest(largest_contour, (center_point[0], y), False) >= 0:
                 intersection_point = (center_point[0], y)

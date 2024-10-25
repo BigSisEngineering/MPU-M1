@@ -93,20 +93,22 @@ initialize_servo_flag = True
 def get_start_delay():
     global experiment2_time_per_sequence
     cage_number = int(setup.CAGE_ID[-2:])
-    return (cage_number - 1) * (experiment2_time_per_sequence / 14 * 60) * 60
+    return (cage_number - 1) * (experiment2_time_per_sequence / 14 / 60) * 60
 
 
 # | AI | AI | AI | AI | PURGE |
-# Purge can be anywhere
+# ============================= To be exposed if required ============================ #
 experiment2_current_iteration = 0  # set from master
 experiment2_max_iteration = 5
-experiment2_purge_iteration = 4  # purges wherever i = 4
 experiment2_time_per_sequence = 14 * 60  # 14 min
+
+# ====================================== Driven ====================================== #
+experiment2_staggered_delay = get_start_delay()
+experiment2_purge_iteration = experiment2_max_iteration - 1
 experiment2_pot_counter = 0
 experiment2_max_pot = 80
 experiment2_time_stamp = None
 experiment2_new_session = True
-experiment2_staggered_delay = get_start_delay()
 
 # logging
 # logging.basicConfig(

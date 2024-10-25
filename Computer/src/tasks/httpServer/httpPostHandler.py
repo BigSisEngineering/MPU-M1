@@ -75,52 +75,30 @@ def post_all_servos_init():
 
 def post_enable_dummy():
     with data.lock:
-        _servos_ready = data.servos_ready
+        data.dummy_enabled = True
 
-    if _servos_ready:
-        with data.lock:
-            data.dummy_enabled = True
-
-        logging.info(f"Dummy mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return "Dummy enabled"
-
-    return "Dummy not enabled. Servos not ready."
+    logging.info(f"Dummy mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return "Dummy enabled"
 
 
 def post_enable_pnp():
     with data.lock:
-        _servos_ready = data.servos_ready
+        data.pnp_enabled = True
 
-    _camera_ready = camera.CAMERA.device_ready
-
-    if _servos_ready and _camera_ready:
-        with data.lock:
-            data.pnp_enabled = True
-
-        logging.info(f"PNP mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return "PNP enabled"
-
-    return "PNP not enabled. Servos or camera not ready"
+    logging.info(f"PNP mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return "PNP enabled"
 
 
 def post_enable_experiment(experiment_iteration: 0):  # defaults to 0 if start with cage UI
     with data.lock:
-        _servos_ready = data.servos_ready
+        data.experiment_enabled = True
+        data.experiment2_pot_counter = 0  # reset value
+        data.experiment2_time_stamp = time.time()  # reset value
+        data.experiment2_current_iteration = experiment_iteration
+        data.experiment2_new_session = True
 
-    _camera_ready = camera.CAMERA.device_ready
-
-    if _servos_ready and _camera_ready:
-        with data.lock:
-            data.experiment_enabled = True
-            data.experiment2_pot_counter = 0  # reset value
-            data.experiment2_time_stamp = time.time()  # reset value
-            data.experiment2_current_iteration = experiment_iteration
-            data.experiment2_new_session = True
-
-        logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return "Experiment enabled. Iteration set to {}".format(experiment_iteration)
-
-    return "Experiment not enabled. Servos or camera not ready"
+    logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return "Experiment enabled. Iteration set to {}".format(experiment_iteration)
 
 
 def post_enable_purge():

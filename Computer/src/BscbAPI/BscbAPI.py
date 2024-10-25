@@ -47,7 +47,7 @@ class StarWheelTimer:
         current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.timer = [current_time_str] * 80
 
-    def move_index(self, direction: 1) -> None:
+    def move_index(self, direction=1) -> None:
         self.index = (self.index + direction) % 80
 
     def update_slot(self) -> None:

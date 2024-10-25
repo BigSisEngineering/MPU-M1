@@ -546,7 +546,7 @@ def experiment(
                         data.experiment2_pot_counter,
                         data.experiment2_max_pot,
                         round(_dt / 60, 2),
-                        round(_experiment2_staggered_delay, 2),
+                        round(_experiment2_staggered_delay / 60, 2),
                     )
 
         else:
