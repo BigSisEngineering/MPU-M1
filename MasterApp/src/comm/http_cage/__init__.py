@@ -54,40 +54,6 @@ class HTTPCage:
         self._status = None
         self._timeout_counter: int = 0
 
-    # !glen experiment. To be tidied up
-    @staticmethod
-    def __get_experiment_iteration(hostname):
-        num = 0
-        if hostname == "cage0x0001":
-            num = 0
-        if hostname == "cage0x0002":
-            num = 1
-        if hostname == "cage0x0003":
-            num = 2
-        if hostname == "cage0x0004":
-            num = 3
-        if hostname == "cage0x0005":
-            num = 4
-        if hostname == "cage0x0006":
-            num = 0
-        if hostname == "cage0x0007":
-            num = 1
-        if hostname == "cage0x0008":
-            num = 2
-        if hostname == "cage0x0009":
-            num = 3
-        if hostname == "cage0x0010":
-            num = 4
-        if hostname == "cage0x0011":
-            num = 0
-        if hostname == "cage0x0012":
-            num = 1
-        if hostname == "cage0x0013":
-            num = 2
-        if hostname == "cage0x0014":
-            num = 3
-        return num
-
     # PUBLIC
     # -------------------------------------------------------- #
     @property
@@ -186,13 +152,6 @@ class HTTPCage:
             try:
                 if action in ACTION_LIST:
                     url = f"http://{self._hostname}.local:8080/{action}"
-
-                    # ------------------------------------------------------------------------------------ #
-                    # !glen experiment temp
-                    if action == "ENABLE_EXPERIMENT":
-                        url = url + f"/{HTTPCage.__get_experiment_iteration(self._hostname)}"
-                        print(f"url: {url}")
-                    # ------------------------------------------------------------------------------------ #
 
                     if params is not None:
                         params = (params,) if not isinstance(params, tuple) else params
