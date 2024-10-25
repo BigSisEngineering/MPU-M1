@@ -509,6 +509,17 @@ def experiment(
         if BOARD is None:
             return
         if not is_safe_to_move:
+            # Keep updating the report
+            # more than 80
+            with data.lock:
+                data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
+                    _experiment2_current_iteration,
+                    data.experiment2_pot_counter,
+                    data.experiment2_max_pot,
+                    round(_dt / 60, 2),
+                    round(data.experiment2_time_per_sequence / 60, 2),
+                )
             return
 
         # ============================ Set new timer for fresh pot =========================== #

@@ -12,15 +12,27 @@ for i in range(1, 15):
     result_dict[hostname] = ""
 
 
-def get_experiment_status(hostname):
-    try:
-        url = f"http://{hostname}.local:8080/ExperimentData"
-        response = requests.get(url=url, timeout=10)
-        result_dict[hostname] = f"{hostname}: {response.text.strip()}"
+def get_experiment_status(hostname, retries=2, delay=0):
+    url = f"http://{hostname}.local:8080/ExperimentData"
 
-    except Exception as e:
-        result_dict[hostname] = f"{hostname}: error occured/n"
-        pass
+    for attempt in range(retries):
+        try:
+            response = requests.get(url=url, timeout=50)
+            if response.status_code == 200:
+                result_dict[hostname] = f"{hostname}: {response.text.strip()}"
+                return  # Exit function if successful
+            else:
+                result_dict[hostname] = f"{hostname}: received status {response.status_code}"
+
+        except requests.exceptions.RequestException as e:
+            # Log the exception or response failure
+            result_dict[hostname] = f"{hostname}: error occurred, attempt {attempt + 1}"
+
+        # Delay before retrying
+        time.sleep(delay)
+
+    # If all retries fail, set a final error message
+    result_dict[hostname] = f"{hostname}: failed after {retries} attempts"
 
 
 if __name__ == "__main__":
