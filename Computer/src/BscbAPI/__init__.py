@@ -119,6 +119,7 @@ def __action_servo_initialize() -> None:
                 is_loader_get_pot: bool = False
 
                 # wait for sensors to trigger (priming)
+                # FIXME -> still blocking
                 __update_status_code(StatusCode.PRIMING_CHANNELS)
                 while not KILLER.is_set() and not is_buffer_full and not is_loader_get_pot:
                     with lock:
@@ -149,9 +150,6 @@ def __action_servo_initialize() -> None:
         # reset auto homing
         update_error_timer = True
         make_auto_home_decision = True
-
-        # reset board timer
-        BOARD.timer.reset()  # FIXME -> link directly with board functions
 
     else:
         # disable operation
