@@ -92,8 +92,8 @@ def post_enable_pnp():
 def post_enable_experiment():  # defaults to 0 if start with cage UI
     with data.lock:
         data.experiment_enabled = True
-        data.experiment2_previous_sequence_number = (
-            data.experiment2_max_index + 1
+        data.experiment2_previous_sequence_index = (
+            data.max_sequence_index + 1
         )  # reset to dummy value to trigger new index
 
     logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
