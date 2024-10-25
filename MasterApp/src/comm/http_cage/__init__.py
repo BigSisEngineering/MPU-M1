@@ -54,38 +54,38 @@ class HTTPCage:
         self._status = None
         self._timeout_counter: int = 0
 
-    # glen experiment
+    # !glen experiment. To be tidied up
     @staticmethod
     def __get_experiment_iteration(hostname):
         num = 0
         if hostname == "cage0x0001":
-            num = 4
+            num = 0
         if hostname == "cage0x0002":
-            num = 4
+            num = 1
         if hostname == "cage0x0003":
-            num = 3
+            num = 2
         if hostname == "cage0x0004":
             num = 3
         if hostname == "cage0x0005":
-            num = 3
+            num = 4
         if hostname == "cage0x0006":
-            num = 2
+            num = 0
         if hostname == "cage0x0007":
-            num = 2
+            num = 1
         if hostname == "cage0x0008":
             num = 2
         if hostname == "cage0x0009":
-            num = 1
+            num = 3
         if hostname == "cage0x0010":
-            num = 1
+            num = 4
         if hostname == "cage0x0011":
-            num = 1
+            num = 0
         if hostname == "cage0x0012":
-            num = 0
+            num = 1
         if hostname == "cage0x0013":
-            num = 0
+            num = 2
         if hostname == "cage0x0014":
-            num = 0
+            num = 3
         return num
 
     # PUBLIC
