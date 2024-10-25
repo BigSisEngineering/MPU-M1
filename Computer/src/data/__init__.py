@@ -127,23 +127,14 @@ def get_shift(cage_number: int):
 
 # | AI | AI | AI | AI | PURGE |
 # ============================= To be exposed if required ============================ #
-experiment2_max_index = 5
-experiment2_time_per_sequence = 14 * 60  # 14 min
+experiment2_interval = 60
+experiment2_purge_frequency = 5
 
 # ====================================== Driven ====================================== #
-experiment2_purge_sequence_number = experiment2_max_index - 1
 experiment2_pot_counter = 0
 experiment2_max_pot = 80
 experiment2_sequence_number = 0
-experiment2_previous_sequence_number = experiment2_max_index + 1  # dummy out of bound value for initial toggling
+experiment2_previous_sequence_number = experiment2_purge_frequency + 1
+experiment2_sequence_duration = 14 * experiment2_interval  # 14 min
+# dummy out of bound value for initial toggling
 cage_number = get_cage_number()
-experiment2_shift = get_shift(cage_number)
-
-
-# logging
-# logging.basicConfig(
-#     filename="/home/linaro/SmartCage_4/Statistics.log",
-#     level=logging.INFO,
-#     format="%(asctime)s,%(message)s",
-#     datefmt="%Y-%m-%d,%H:%M:%S",
-# )

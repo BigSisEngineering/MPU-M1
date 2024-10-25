@@ -508,94 +508,51 @@ def experiment(
         total_seconds = _time_now.hour * 3600 + _time_now.minute * 60 + _time_now.second
 
         # ========================= Read user input and compute index ======================== #
-        # _time_shift_factor = data.experiment2_time_per_sequence / (14 * 60)  # time over 14 cages = 1
-        interval = 60
-        sequence_duration = 14 * interval
-        purge_frequency = 5
 
         with data.lock:
-            _experiment2_purge_sequence_number = data.experiment2_purge_sequence_number
+            _experiment2_interval = data.experiment2_interval
             _experiment2_pot_counter = data.experiment2_pot_counter
             _experiment2_max_pot = data.experiment2_max_pot
             _experiment2_previous_sequence_number = data.experiment2_previous_sequence_number
-            _experiment2_time_per_sequence = data.experiment2_time_per_sequence
+            _experiment2_purge_frequency = data.experiment2_purge_frequency
+            _experiment2_sequence_duration = data.experiment2_sequence_duration
 
-            # ================================ Get supposed index ================================ #
-            # FIXME -> do it outside the lock
-            # Get the interval index, cycling through 0, 1, 2, 3, 4
-            # data.experiment2_sequence_number = (
-            #     (total_seconds + (data.cage_number - 1) * (_time_shift_factor * 60))
-            #     // data.experiment2_time_per_sequence
-            #     + data.experiment2_shift
-            # ) % data.experiment2_max_index
-            data.experiment2_sequence_number = total_seconds // sequence_duration
-            sequence_elapsed = total_seconds % sequence_duration
+            # compute sequence number
+            data.experiment2_sequence_number = total_seconds // _experiment2_sequence_duration
+            sequence_elapsed = total_seconds % _experiment2_sequence_duration
 
             _experiment2_sequence_number = data.experiment2_sequence_number
 
-        # ------------------------------------------------------------------------------------ #
-        # shift based on cage
-        # _shift = (data.cage_number - 1) * (_time_shift_factor * 60)
-
-        # # nearest time (unshifted)
-        # nearest_time = (total_seconds // _experiment2_time_per_sequence + 1) * _experiment2_time_per_sequence
-
-        # # nearest time (shifted)
-        # nearest_time_shifted = nearest_time + _shift
-
-        # # FIXME -> data variables accessed outside lock
-        # # difference in time (from target)
-        # _dt_tar = nearest_time_shifted - total_seconds
-
-        # while _dt_tar > data.experiment2_time_per_sequence:
-        #     _dt_tar = _dt_tar - data.experiment2_time_per_sequence
-
-        # # difference in time (from start)
-        # _dt = data.experiment2_time_per_sequence - _dt_tar
-
-        # ------------------------------------------------------------------------------------ #
-        """
-        cages = 14
-        interval = 60  #secs
-        purge_frequency = 5
-        sequence_duration = cages x interval
-
-        total_secs = time.now
-
-        this_sequence_number = total_secs // sequence_duration
-        this_sequence_sequence_elapsed = total_secs % sequence_duration
-
-        # ------------------------------------------------------------------------------------ #
-        cage_starting = this_sequence_sequence_elapsed // interval
-
-    
-        if cage_starting >= (this_cage – 1)
-
-        if this_sequence_number != last_sequence_number
-            last_sequence_number = this_sequence_number
-            reset pot count
-            if this_sequence_number % purgefreq == this_cage % purge_frequency
-                    then purge else ai
-        """
-        # ------------------------------------------------------------------------------------ #
         # ==================================================================================== #
         #                                        Run now?                                      #
         # ==================================================================================== #
-        cage_starting = sequence_elapsed // interval
-        _dt = (sequence_elapsed - (data.cage_number - 1) * interval) % sequence_duration  # !temp
+        cage_starting = sequence_elapsed // _experiment2_interval
+        _dt = (sequence_elapsed - (data.cage_number - 1) * _experiment2_interval) % _experiment2_sequence_duration
 
-        if cage_starting >= (data.cage_number - 1):
-            # ==================================================================================== #
-            #                                  New index session?                                  #
-            # ==================================================================================== #
-            if _experiment2_previous_sequence_number != _experiment2_sequence_number:
-                with data.lock:
-                    # reset pot counter on new iteration
-                    data.experiment2_pot_counter = 0
-                    _experiment2_pot_counter = data.experiment2_pot_counter
+        # ==================================================================================== #
+        #                                  New index session?                                  #
+        # ==================================================================================== #
+        if _experiment2_previous_sequence_number != _experiment2_sequence_number and cage_starting >= (
+            data.cage_number - 1
+        ):
+            with data.lock:
+                # reset pot counter on new iteration
+                data.experiment2_pot_counter = 0
+                _experiment2_pot_counter = data.experiment2_pot_counter
 
-                    # update previous sequence number
-                    data.experiment2_previous_sequence_number = data.experiment2_sequence_number
+                # update previous sequence number
+                data.experiment2_previous_sequence_number = data.experiment2_sequence_number
+
+        # ==================================================================================== #
+        #                                    Purge Sequence?                                   #
+        # ==================================================================================== #
+        purge_now = (
+            True
+            if ((total_seconds - (data.cage_number - 1) * _experiment2_interval) // _experiment2_sequence_duration)
+            % _experiment2_purge_frequency
+            == (data.cage_number - 1) % _experiment2_purge_frequency
+            else False
+        )
 
         # ====================================== Sense Check ===================================== #
         if not is_safe_to_move or BOARD is None:
@@ -603,17 +560,12 @@ def experiment(
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    (
-                        "Purge"
-                        if ((total_seconds - (data.cage_number - 1) * interval) // sequence_duration) % purge_frequency
-                        == (data.cage_number - 1) % purge_frequency
-                        else "AI"
-                    ),
+                    ("Purge" if purge_now else "AI"),
                     _experiment2_sequence_number,
                     data.experiment2_pot_counter,
                     data.experiment2_max_pot,
                     round(_dt / 60, 2),
-                    round(data.experiment2_time_per_sequence / 60, 2),
+                    round(data.experiment2_sequence_duration / 60, 2),
                 )
             return
 
@@ -678,7 +630,8 @@ def experiment(
             tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
 
             if tmp_egg_pot_counter > 0 or (
-                _experiment2_sequence_number % purge_frequency == data.cage_number % purge_frequency
+                _experiment2_sequence_number % _experiment2_purge_frequency
+                == data.cage_number % _experiment2_purge_frequency
             ):
                 unloaded = True
                 threads["ul"] = threading.Thread(
@@ -712,28 +665,18 @@ def experiment(
                 _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
 
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    (
-                        "Purge"
-                        if ((total_seconds - (data.cage_number - 1) * interval) // sequence_duration) % purge_frequency
-                        == (data.cage_number - 1) % purge_frequency
-                        else "AI"
-                    ),
+                    ("Purge" if purge_now else "AI"),
                     _experiment2_sequence_number,
                     data.experiment2_pot_counter,
                     data.experiment2_max_pot,
                     round(_dt / 60, 2),
-                    round(data.experiment2_time_per_sequence / 60, 2),
+                    round(data.experiment2_sequence_duration / 60, 2),
                 )
 
             # ===================================== Log state ==================================== #
             logging.info(
                 "Experiment mode in {}({}) State, pot unloaded :{} at {}".format(
-                    (
-                        "Purge"
-                        if ((total_seconds - (data.cage_number - 1) * interval) // sequence_duration) % purge_frequency
-                        == (data.cage_number - 1) % purge_frequency
-                        else "AI"
-                    ),
+                    ("Purge" if purge_now else "AI"),
                     _experiment2_sequence_number,
                     _experiment2_pot_counter,
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -744,17 +687,12 @@ def experiment(
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    (
-                        "Purge"
-                        if ((total_seconds - (data.cage_number - 1) * interval) // sequence_duration) % purge_frequency
-                        == (data.cage_number - 1) % purge_frequency
-                        else "AI"
-                    ),
+                    ("Purge" if purge_now else "AI"),
                     _experiment2_sequence_number,
                     data.experiment2_pot_counter,
                     data.experiment2_max_pot,
                     round(_dt / 60, 2),
-                    round(data.experiment2_time_per_sequence / 60, 2),
+                    round(data.experiment2_sequence_duration / 60, 2),
                 )
 
     except Exception as e:
