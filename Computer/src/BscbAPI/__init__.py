@@ -132,7 +132,7 @@ def __action_servo_initialize() -> None:
 
                 # initialize sw
                 __update_status_code(StatusCode.SW_INITIALIZING)
-                _sw_init_successful = BOARD.starWheel_init()
+                _sw_init_successful = BOARD.star_wheel_init()
                 if _sw_init_successful:
                     break
                 else:
@@ -151,7 +151,7 @@ def __action_servo_initialize() -> None:
         make_auto_home_decision = True
 
         # reset board timer
-        BOARD.timer.reset() #FIXME -> link directly with board functions
+        BOARD.timer.reset()  # FIXME -> link directly with board functions
 
     else:
         # disable operation
@@ -211,12 +211,14 @@ def __update_sensor_timer_flag(sensors_values) -> None:
             sensor_time = time.time()
             sensor_timer_flag = True
 
-def __compute_new_time_stamp(dt, cycle_time) -> float:
-    _time_diff = dt - cycle_time
-    if _time_diff > 0:
-        return time.time() - _time_diff
-    return time.time()
 
+def __compute_new_time_stamp(dt, cycle_time) -> float:
+    # FIXME -> does not work
+    # _time_diff = dt - cycle_time
+    # if _time_diff > 0:
+    #     # shift time backwards
+    #     return time.time() - _time_diff
+    return time.time()
 
 
 @comm.timer()

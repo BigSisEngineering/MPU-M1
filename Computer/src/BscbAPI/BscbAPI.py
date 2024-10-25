@@ -47,9 +47,8 @@ class StarWheelTimer:
         current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.timer = [current_time_str] * 80
 
-    def move_index(self) -> None:
-        self.index = (self.index + 1) % 80
-        # print(f"starwheel timer index {self.index}")
+    def move_index(self, direction: 1) -> None:
+        self.index = (self.index + direction) % 80
 
     def update_slot(self) -> None:
         # Update the slot time for the previous index to the current time, formatted as a string
@@ -159,7 +158,7 @@ class BScbAPI:
             try:
                 ack = self.ser.readline()
                 if len(ack) > 7:
-                    if self.isReadBackCorrect(ack):
+                    if self.__is_readback_correct(ack):
                         return Status.normal
 
                 if time.time() > time_out:
@@ -243,7 +242,7 @@ class BScbAPI:
             return self.is_unloader_homed()
         return False
 
-    def starWheel_init(self) -> bool:
+    def star_wheel_init(self) -> bool:
         if not self.is_com_ready():
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
@@ -266,15 +265,19 @@ class BScbAPI:
             self.update_com_port()
 
         self.star_wheel_status = self.got_Status_respond(timeout=65)
+
         if self.is_readback_status_normal(self.star_wheel_status):
             self.timer.reset()
+
+            # log homing
             current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             sw_init_time_str = f"starwheel init at {current_time_str}"
             logging.info(sw_init_time_str)
+
             return True
         return False
 
-    def starWheel_fake_init(self):
+    def star_wheel_fake_init(self):
         if not self.is_com_ready():
             return False
         if not self.is_readback_status_normal(self.star_wheel_status):
@@ -326,7 +329,12 @@ class BScbAPI:
             self.update_com_port()
 
         self.star_wheel_status = self.got_ACK_respond()
-        return True if self.is_readback_status_normal(self.star_wheel_status) else False
+
+        if self.is_readback_status_normal(self.star_wheel_status):
+            self.timer.move_index(-1)
+            return True
+        else:
+            return False
 
     def star_wheel_move_ms(self, time_ms):
         if not self.is_com_ready():
@@ -353,7 +361,7 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
-            
+
         except serial.SerialException as e:
             self.update_com_port()
 
@@ -385,7 +393,10 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
 
-        # self.star_wheel_status = self.got_ACK_respond()
+        # clear the response buffer
+        self.star_wheel_status = self.got_ACK_respond()
+
+        # manually set to not init
         self.star_wheel_status = Status.not_init
         return True if self.is_readback_status_normal(self.star_wheel_status) else False
 
@@ -433,6 +444,7 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
+
         except serial.SerialException as e:
             self.update_com_port()
 
@@ -440,8 +452,8 @@ class BScbAPI:
         return self.is_readback_status_normal(self.unloader_status)
 
     # -------------------------------------------------------------------------------------------- #
-    def askStarWheelStep(self) -> Status:
-        # ?What is this for
+    def ask_star_wheel_step(self) -> Status:
+        # !OBSOLETE
         if not self.is_com_ready():
             return Status.error
 
@@ -486,7 +498,7 @@ class BScbAPI:
         return self.phase_sensor_msg()
 
     # -------------------------------------------------------------------------------------------- #
-    def isReadBackCorrect(self, msg):
+    def __is_readback_correct(self, msg):
         return msg == b"ACK\x00\x00\x00\x00\x00"
 
     def is_readback_status_normal(self, status):
@@ -566,7 +578,7 @@ class BScbAPI:
         # print("-".join("{:02x}".format(x) for x in hex_message))
         return hex_message  # ?Why return list
 
-    def starWheel_save_offset(self, count):
+    def star_wheel_save_offset(self, count):
         # ?shouldn't affect
         if not self.is_readback_status_normal(self.star_wheel_status):
             return False
@@ -659,7 +671,7 @@ if __name__ == "__main__":
                 else:
                     print("Clear unloader error")
 
-                # if not board.starWheel_init():
+                # if not board.star_wheel_init():
                 #     print(f"Star wheel init error, see error {board.star_wheel_status}")
                 # else:
                 #     print("Start wheel inited")
@@ -667,11 +679,11 @@ if __name__ == "__main__":
                 # print("move 1")
                 # print(board.star_wheel_move_ms(600))
 
-                board.starWheel_init()
+                board.star_wheel_init()
                 count = 460
                 # print(board.star_wheel_move_count(count))
                 # time.sleep(1)
-                # print(board.starWheel_save_offset(count))
+                # print(board.star_wheel_save_offset(count))
 
                 # print("move -1")
                 # print(board.star_wheel_move_back())

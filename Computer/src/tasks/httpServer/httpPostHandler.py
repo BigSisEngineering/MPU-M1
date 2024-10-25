@@ -34,7 +34,7 @@ def post_star_wheel():
     # !Rewritten code -> uses the correct 'BOARD' object
     time_param = int(request.args.get("time", 0))
     with BscbAPI.lock:
-        BscbAPI.BOARD.starWheel_init()
+        BscbAPI.BOARD.star_wheel_init()
 
     for _ in range(3):
         with BscbAPI.lock:
@@ -46,7 +46,7 @@ def post_star_wheel():
 def post_star_wheel_init():
     if not __is_operation_running():
         with BscbAPI.lock:
-            outcome = BscbAPI.BOARD.starWheel_init()
+            outcome = BscbAPI.BOARD.star_wheel_init()
         return "SW init -> {}".format(outcome)
     return "Error, disable operation before proceeding"
 
@@ -54,7 +54,7 @@ def post_star_wheel_init():
 def post_fake_star_wheel_init():
     if not __is_operation_running():
         with BscbAPI.lock:
-            outcome = BscbAPI.BOARD.starWheel_fake_init()
+            outcome = BscbAPI.BOARD.star_wheel_fake_init()
         return "SW fake init -> {}".format(outcome)
     return "Error, disable operation before proceeding"
 
@@ -276,9 +276,9 @@ def post_save_mask_coordinates():
 def post_save_star_wheel_zero():
     if not __is_operation_running():
         with BscbAPI.lock:
-            BscbAPI.BOARD.starWheel_save_offset(0)
+            BscbAPI.BOARD.star_wheel_save_offset(0)
             BscbAPI.BOARD.unloader_init()
-            BscbAPI.BOARD.starWheel_init()
+            BscbAPI.BOARD.star_wheel_init()
         return "Star wheel zero position saved"
     return "Error, disable operation before proceeding"
 
@@ -286,9 +286,9 @@ def post_save_star_wheel_zero():
 def post_save_star_wheel_offset(offset):
     if not __is_operation_running():
         with BscbAPI.lock:
-            BscbAPI.BOARD.starWheel_save_offset(offset)
+            BscbAPI.BOARD.star_wheel_save_offset(offset)
             BscbAPI.BOARD.unloader_init()
-            BscbAPI.BOARD.starWheel_init()
+            BscbAPI.BOARD.star_wheel_init()
 
         return f"Star wheel offset saved at {offset}"
     return "Error, disable operation before proceeding"

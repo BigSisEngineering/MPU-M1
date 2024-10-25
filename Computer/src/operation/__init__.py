@@ -30,7 +30,7 @@ counter = 0
 
 
 def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float):
-    global threads
+    global threads, unloaded
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -124,8 +124,11 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
 
         tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
         if tmp_egg_pot_counter > 0:
-            # if data.model != "v10": # ? why model
+
+            # Use timer if not model v10 with crack detection
+            # if data.model != "v10":
             #     BOARD.timer.update_slot()
+
             unloaded = True
             threads["ul"] = threading.Thread(
                 target=_unload,
@@ -156,7 +159,8 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
         cloud.DataBase.data_update(_data)
         cloud.DataBase.data_upload()
 
-        # if data.model != "v10": # ?what this has to do with model
+        # Use timer if not model v10 with crack detection
+        # if data.model != "v10":
         #     BOARD.timer.move_index()
 
     except Exception as e:
@@ -166,7 +170,7 @@ def pnp(BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_
 def dummy(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, unload_probability: float
 ):
-    global threads, counter
+    global threads, counter, unloaded
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
@@ -212,7 +216,6 @@ def dummy(
         # ======================================= sw thread ====================================== #
         wait_thread_to_finish("ul")
 
-        BOARD.timer.move_index()  # ? move this to the SW forward function
         threads["sw"] = threading.Thread(
             target=_move_sw,
             args=(
@@ -471,7 +474,7 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
 def experiment(
     BOARD: BScbAPI, lock: threading.Lock, is_safe_to_move: bool, star_wheel_move_time: int, pnp_confidence: float
 ):
-    global threads
+    global threads, unloaded
 
     def wait_thread_to_finish(id: str):
         if threads[f"{id}"] is not None:
