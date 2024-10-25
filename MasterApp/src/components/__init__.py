@@ -53,7 +53,9 @@ def generate_cage_dict(raw_dict: bool = False):
     dict_1B = {}
 
     for cage in Cages:
-        dict_1B[cage.value] = cage_dict[cage].status_ui
+        _dict = cage_dict[cage].status_ui
+        _dict["maintainence_flag"] = cage_dict[cage].maintainence_flag
+        dict_1B[cage.value] = _dict
 
     if raw_dict:
         return dict_1B

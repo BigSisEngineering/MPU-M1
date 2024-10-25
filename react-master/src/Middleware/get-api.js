@@ -35,7 +35,7 @@ const ContentProvider = ({ children }) => {
     [Dicts.system]: null,
     [Dicts.info]: null,
     [Dicts.session]: null,
-    [Dicts.lastping]: null,
+    [Dicts.lastping]: { time: Math.floor(Date.now() / 1000) },
   });
 
   useEffect(() => {

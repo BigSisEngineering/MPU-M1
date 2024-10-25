@@ -45,7 +45,6 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
   function createPOSTBody(action, data = {}) {
     const dict = { action: action, bool_list: isSelectedArray };
     const result = { ...dict, ...data };
-    console.log(result);
     return result;
   }
 
@@ -54,6 +53,11 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
   const handlePauseInterval = (event) => {
     setPauseInterval(event.target.value);
   };
+
+  async function execFunction(func, ...args) {
+    await func(...args);
+    clearAll();
+  }
 
   return (
     <>
@@ -85,7 +89,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Start PNP"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Start PNP on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -96,13 +101,20 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Stop PNP"
             onclick={() =>
-              exec(`Stop PNP on ${getSelectedCages()}`, httpPOST, "/operate_cage", createPOSTBody(CageActions.pnp_stop))
+              execFunction(
+                exec,
+                `Stop PNP on ${getSelectedCages()}`,
+                httpPOST,
+                "/operate_cage",
+                createPOSTBody(CageActions.pnp_stop)
+              )
             }
           />
           <Button
             name="Start Dummy"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Start DUMMY on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -113,7 +125,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Stop Dummy"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Stop DUMMY on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -124,7 +137,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Servo Init"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Servo Init on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -140,7 +154,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Start Experiment"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Start EXPERIMENT on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -151,7 +166,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Stop Experiment"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Stop EXPERIMENT on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -162,7 +178,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
           <Button
             name="Set Pause Interval"
             onclick={() =>
-              exec(
+              execFunction(
+                exec,
                 `Set PAUSE INTERVAL on ${getSelectedCages()}`,
                 httpPOST,
                 "/operate_cage",
@@ -171,6 +188,29 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
             }
           />
           <TextInput value={pauseInterval} onChange={handlePauseInterval} placeholder={"seconds"} />
+        </div>
+        <Gap />
+        Maintainence
+        <HorizontalLine />
+        <div className="buttons-container">
+          <Button
+            name="Set Flag"
+            onclick={() =>
+              execFunction(exec, `Set Maintainence flag on ${getSelectedCages()}`, httpPOST, "/set_maintainence_flag", {
+                bool_list: isSelectedArray,
+                bool_val: true,
+              })
+            }
+          />
+          <Button
+            name="Clear Flag"
+            onclick={() =>
+              execFunction(exec, `Set Maintainence flag on ${getSelectedCages()}`, httpPOST, "/set_maintainence_flag", {
+                bool_list: isSelectedArray,
+                bool_val: false,
+              })
+            }
+          />
         </div>
         (*Note: Affects selected cages only)
       </div>

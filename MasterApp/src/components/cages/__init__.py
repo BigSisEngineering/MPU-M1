@@ -33,6 +33,10 @@ class Cage(http_cage.HTTPCage):
         self._lock_status_ui = threading.Lock()
         self._status_ui: Dict = Cage.DEFAULT_STATUS
 
+        # -------------------------------------------------------- #
+        self._lock_maintainence_flag = threading.Lock()
+        self._maintainence_flag = False
+
         threading.Thread(target=self._background_status_refresh).start()
 
     # PRIVATE
@@ -71,3 +75,16 @@ class Cage(http_cage.HTTPCage):
         with self._lock_status_ui:
             _status = self._status_ui
         return _status
+
+    @property
+    def maintainence_flag(self) -> bool:
+        with self._lock_maintainence_flag:
+            _flag = self._maintainence_flag
+        return _flag
+
+    def set_maintainence_flag(self, w: str) -> str:
+        _w = True if w == "true" else False
+
+        with self._lock_maintainence_flag:
+            self._maintainence_flag = w
+        return f"Maintainence set to {w}"
