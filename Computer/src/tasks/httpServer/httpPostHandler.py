@@ -89,14 +89,15 @@ def post_enable_pnp():
     return "PNP enabled"
 
 
-def post_enable_experiment(shift: 0):  # defaults to 0 if start with cage UI
+def post_enable_experiment():  # defaults to 0 if start with cage UI
     with data.lock:
         data.experiment_enabled = True
-        data.experiment2_shift = shift
-        data.experiment2_previous_index = data.experiment2_max_index + 1  # reset to dummy value to trigger new index
+        data.experiment2_previous_sequence_number = (
+            data.experiment2_max_index + 1
+        )  # reset to dummy value to trigger new index
 
     logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    return "Experiment enabled. Shift set to {}".format(shift)
+    return "Experiment enabled.".format()
 
 
 def post_enable_purge():
@@ -303,7 +304,7 @@ post_endpoints = {
     "ALL_SERVOS_INIT": {"func": post_all_servos_init, "arg_num": 0},
     "ENABLE_DUMMY": {"func": post_enable_dummy, "arg_num": 0},
     "ENABLE_PNP": {"func": post_enable_pnp, "arg_num": 0},
-    "ENABLE_EXPERIMENT": {"func": post_enable_experiment, "arg_num": 1},  #!Modified for experiment
+    "ENABLE_EXPERIMENT": {"func": post_enable_experiment, "arg_num": 0},
     "ENABLE_PURGE": {"func": post_enable_purge, "arg_num": 0},
     "DISABLE_DUMMY": {"func": post_disable_dummy, "arg_num": 0},
     "DISABLE_PNP": {"func": post_disable_pnp, "arg_num": 0},

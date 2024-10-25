@@ -37,36 +37,26 @@ def get_experiment_status(hostname, retries=2, delay=0):
 
 
 if __name__ == "__main__":
-    now = datetime.datetime.now()
-    total_seconds = now.hour * 3600 + now.minute * 60 + now.second
+    row = row - 1
+    while True:
+        try:
+            threads = []
+            for i in range(1, 15):
+                hostname = f"cage{row}x{str(i).zfill(4)}"
+                threads.append(threading.Thread(target=get_experiment_status, args=(hostname,)))
 
-    # 14 minutes in seconds
-    interval_seconds = 14 * 60
+            for thread in threads:
+                thread.start()
 
-    # Get the interval index, cycling through 0, 1, 2, 3, 4
-    interval_index = (total_seconds // interval_seconds) % 5
+            for thread in threads:
+                thread.join()
 
-    print(interval_index)
-    # row = row - 1
-    # while True:
-    #     try:
-    #         threads = []
-    #         for i in range(1, 15):
-    #             hostname = f"cage{row}x{str(i).zfill(4)}"
-    #             threads.append(threading.Thread(target=get_experiment_status, args=(hostname,)))
+            for i in range(1, 15):
+                hostname = f"cage{row}x{str(i).zfill(4)}"
+                print(result_dict[hostname])
 
-    #         for thread in threads:
-    #             thread.start()
+            print("\n========================================================================\n")
+            time.sleep(5)
 
-    #         for thread in threads:
-    #             thread.join()
-
-    #         for i in range(1, 15):
-    #             hostname = f"cage{row}x{str(i).zfill(4)}"
-    #             print(result_dict[hostname])
-
-    #         print("\n========================================================================\n")
-    #         time.sleep(5)
-
-    #     except KeyboardInterrupt:
-    #         break
+        except KeyboardInterrupt:
+            break

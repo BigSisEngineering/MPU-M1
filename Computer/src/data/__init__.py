@@ -89,25 +89,56 @@ initialize_servo_flag = True
 # ==================================================================================== #
 #                                     Experiment 2                                     #
 # ==================================================================================== #
-# experiment
-def get_start_delay():
-    global experiment2_time_per_sequence
+def get_cage_number():
     cage_number = int(setup.CAGE_ID[-2:])
-    return (cage_number - 1) * (experiment2_time_per_sequence / 14 / 60) * 60
+    return cage_number
+
+
+def get_shift(cage_number: int):
+    if cage_number == 1:
+        return 0
+    if cage_number == 2:
+        return 1
+    if cage_number == 3:
+        return 2
+    if cage_number == 4:
+        return 3
+    if cage_number == 5:
+        return 4
+    if cage_number == 6:
+        return 0
+    if cage_number == 7:
+        return 1
+    if cage_number == 8:
+        return 2
+    if cage_number == 9:
+        return 3
+    if cage_number == 10:
+        return 4
+    if cage_number == 11:
+        return 0
+    if cage_number == 12:
+        return 1
+    if cage_number == 13:
+        return 2
+    if cage_number == 14:
+        return 3
 
 
 # | AI | AI | AI | AI | PURGE |
 # ============================= To be exposed if required ============================ #
-experiment2_shift = 0  # ?assign from master or just locally?
 experiment2_max_index = 5
 experiment2_time_per_sequence = 14 * 60  # 14 min
 
 # ====================================== Driven ====================================== #
-experiment2_purge_index = experiment2_max_index - 1
+experiment2_purge_sequence_number = experiment2_max_index - 1
 experiment2_pot_counter = 0
 experiment2_max_pot = 80
-experiment2_current_index = 0
-experiment2_previous_index = experiment2_max_index + 1  # dummy out of bound value for initial toggling
+experiment2_sequence_number = 0
+experiment2_previous_sequence_number = experiment2_max_index + 1  # dummy out of bound value for initial toggling
+cage_number = get_cage_number()
+experiment2_shift = get_shift(cage_number)
+
 
 # logging
 # logging.basicConfig(
