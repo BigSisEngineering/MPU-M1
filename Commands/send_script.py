@@ -340,9 +340,9 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot_tinker(hostname)
-        # reboot(hostname)
+        reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)

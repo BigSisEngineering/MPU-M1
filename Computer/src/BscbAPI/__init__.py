@@ -294,7 +294,7 @@ def execute():
         if is_star_wheel_ready and is_unloader_ready:
             if not is_camera_ready:
                 __update_status_code(StatusCode.ERROR_CAMERA)
-                __disable_operation_with_camera()
+                # __disable_operation_with_camera() # FIXME -> ignore for now
             elif not is_buffer_full:
                 __update_status_code(StatusCode.WAITING_FOR_BUFFER)
             elif is_buffer_full and not is_loader_get_pot:

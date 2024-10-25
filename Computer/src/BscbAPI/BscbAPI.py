@@ -198,9 +198,10 @@ class BScbAPI:
                 if time.time() > time_out:
                     self.update_com_port()
                     return (0, 0, 0, 0)
+                
             except serial.SerialException as e:
                 self.update_com_port()
-                print(f"Serial error: {e}")
+
 
     def generate_crc16(self, data):
         crc = 0xFFFF
@@ -477,7 +478,7 @@ class BScbAPI:
 
     def ask_sensors(self):
         if not self.is_com_ready():
-            return None
+            return (0, 0, 0, 0)
 
         hex_message = []
         hex_message += bytearray.fromhex("BB")
@@ -494,6 +495,7 @@ class BScbAPI:
 
         except serial.SerialException as e:
             self.update_com_port()
+            return (0, 0, 0, 0)
 
         return self.phase_sensor_msg()
 
