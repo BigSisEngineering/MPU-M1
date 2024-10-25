@@ -2,7 +2,7 @@ import random
 import time
 import threading
 from typing import Dict
-from datetime import datetime  # NOTE FOR TESTING ONLY
+from datetime import datetime
 import logging
 
 # ------------------------------------------------------------------------------------------------ #
@@ -503,19 +503,39 @@ def experiment(
             BOARD.unload()
 
     try:
-        # =============================== Read experiment data =============================== #
+
+        # ========================= Read user input and compute index ======================== #
+        _time_now = datetime.now()
+        total_seconds = _time_now.hour * 3600 + _time_now.minute * 60 + _time_now.second
+
         with data.lock:
-            _experiment2_current_iteration = data.experiment2_current_iteration
-            _experiment2_max_iteration = data.experiment2_max_iteration
-            _experiment2_purge_iteration = data.experiment2_purge_iteration
-            _experiment2_time_per_sequence = data.experiment2_time_per_sequence
+            _experiment2_purge_index = data.experiment2_purge_index
             _experiment2_pot_counter = data.experiment2_pot_counter
             _experiment2_max_pot = data.experiment2_max_pot
-            _experiment2_time_stamp = data.experiment2_time_stamp
-            _experiment2_new_session = data.experiment2_new_session
-            _experiment2_staggered_delay = data.experiment2_staggered_delay
+            _experiment2_previous_index = data.experiment2_previous_index
+            _experiment2_time_per_sequence = data.experiment2_time_per_sequence
 
-        time_current = time.time()
+            # ================================ Get supposed index ================================ #
+            # Get the interval index, cycling through 0, 1, 2, 3, 4
+            data.experiment2_current_index = (
+                total_seconds // data.experiment2_time_per_sequence + data.experiment2_shift
+            ) % data.experiment2_max_index
+            _experiment2_current_index = data.experiment2_current_index
+
+        nearest_time = (total_seconds // _experiment2_time_per_sequence + 1) * _experiment2_time_per_sequence
+        _dt = nearest_time - total_seconds
+
+        # ==================================================================================== #
+        #                                  New index session?                                  #
+        # ==================================================================================== #
+        if _experiment2_previous_index != _experiment2_current_index:
+            with data.lock:
+                # reset pot counter on new iteration
+                data.experiment2_pot_counter = 0
+                _experiment2_pot_counter = data.experiment2_pot_counter
+
+                # update previous index
+                data.experiment2_previous_index = data.experiment2_current_index
 
         # ====================================== Sense Check ===================================== #
         if not is_safe_to_move or BOARD is None:
@@ -523,8 +543,8 @@ def experiment(
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
-                    _experiment2_current_iteration,
+                    "Purge" if _experiment2_current_index == _experiment2_purge_index else "AI",
+                    _experiment2_current_index,
                     data.experiment2_pot_counter,
                     data.experiment2_max_pot,
                     round(_dt / 60, 2),
@@ -537,161 +557,123 @@ def experiment(
             # Assume pot loaded because 'is_safe_to_move'
             BOARD.timer.update_slot()
 
-        # ================================= Update time stamp ===================s============= #
-        _dt = time_current - _experiment2_time_stamp
+        # ==================================================================================== #
+        #                                         Move?                                        #
+        # ==================================================================================== #
+        # less than 80
+        if _experiment2_pot_counter < _experiment2_max_pot:
 
-        # =================================== Init and Wait ================================== #
-        if _experiment2_new_session:
-            if _dt > _experiment2_staggered_delay:
-                with data.lock:
-                    data.experiment2_time_stamp = time.time()
-                    _experiment2_time_stamp = data.experiment2_time_stamp  # reassign time_stamp
-                    data.experiment2_new_session = False
-            else:
-                with data.lock:
-                    data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                        "waiting",
-                        _experiment2_current_iteration,
-                        data.experiment2_pot_counter,
-                        data.experiment2_max_pot,
-                        round(_dt / 60, 2),
-                        round(_experiment2_staggered_delay / 60, 2),
-                    )
+            wait_thread_to_finish("sw")
+            pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
 
-        else:
-            # reset pot counter and time slot on timeout
-            if _dt > _experiment2_time_per_sequence:
-                with data.lock:
-                    data.experiment2_time_stamp = time.time()
+            # ==================================== Take image ==================================== #
+            image = camera.CAMERA.get_frame()
+            timestamp_of_image = datetime.now()
+            CLI.printline(Level.INFO, f"(experiment)-image captured")
+            wait_thread_to_finish("ul")
 
-                    # reset pot counter on new iteration
-                    data.experiment2_pot_counter = 0
-                    _experiment2_pot_counter = data.experiment2_pot_counter
+            # ===================================== SW thread ==================================== #
+            # Get details for pot at unload position
 
-                    # shift current iteration forward. Reset if = max (bounded from 0 - 4)
-                    if data.experiment2_current_iteration >= _experiment2_max_iteration:
-                        data.experiment2_current_iteration = 0
-                    else:
-                        data.experiment2_current_iteration += 1
-                    _experiment2_current_iteration = data.experiment2_current_iteration  # reassign
+            # Move starwheel
+            threads["sw"] = threading.Thread(
+                target=_move_sw,
+                args=(
+                    BOARD,
+                    lock,
+                    star_wheel_move_time,
+                ),
+            )
+            threads["sw"].start()
+            CLI.printline(Level.INFO, f"(experiment)-sw moving")
 
-            # ==================================================================================== #
-            #                                         Move?                                        #
-            # ==================================================================================== #
-            # less than 80
-            if _experiment2_pot_counter < _experiment2_max_pot:
+            # ======================================= AI thread ====================================== #
+            # Run AI
+            wait_thread_to_finish("ai")
+            threads["ai"] = threading.Thread(
+                target=get_ai_result,
+                args=(
+                    image,
+                    pnp_confidence,
+                ),
+            )
+            threads["ai"].start()
+            CLI.printline(Level.INFO, f"(experiment)-ai started")
 
-                wait_thread_to_finish("sw")
-                pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
+            # ==================================== Upload data =================================== #
+            wait_thread_to_finish("sw")
+            wait_thread_to_finish("ai")
 
-                # ==================================== Take image ==================================== #
-                image = camera.CAMERA.get_frame()
-                timestamp_of_image = datetime.now()
-                CLI.printline(Level.INFO, f"(experiment)-image captured")
-                wait_thread_to_finish("ul")
+            # upload new AI result
+            cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
+            cloud.DataBase.data_upload()
 
-                # ===================================== SW thread ==================================== #
-                # Get details for pot at unload position
+            # ==================================== ul decision =================================== #
+            # Unload if previous result is egg, overtime, or if is on purge iteration
+            tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
 
-                # Move starwheel
-                threads["sw"] = threading.Thread(
-                    target=_move_sw,
+            if tmp_egg_pot_counter > 0 or (_experiment2_current_index == _experiment2_purge_index):
+                unloaded = True
+                threads["ul"] = threading.Thread(
+                    target=_unload,
                     args=(
                         BOARD,
                         lock,
-                        star_wheel_move_time,
                     ),
                 )
-                threads["sw"].start()
-                CLI.printline(Level.INFO, f"(experiment)-sw moving")
-
-                # ======================================= AI thread ====================================== #
-                # Run AI
-                wait_thread_to_finish("ai")
-                threads["ai"] = threading.Thread(
-                    target=get_ai_result,
-                    args=(
-                        image,
-                        pnp_confidence,
-                    ),
-                )
-                threads["ai"].start()
-                CLI.printline(Level.INFO, f"(experiment)-ai started")
-
-                # ==================================== Upload data =================================== #
-                wait_thread_to_finish("sw")
-                wait_thread_to_finish("ai")
-
-                # upload new AI result
-                cloud.DataBase.data_update("egg" if ai_result > 0 else "noegg")
-                cloud.DataBase.data_upload()
-
-                # ==================================== ul decision =================================== #
-                # Unload if previous result is egg, overtime, or if is on purge iteration
-                tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
-
-                if tmp_egg_pot_counter > 0 or (_experiment2_current_iteration == _experiment2_purge_iteration):
-                    unloaded = True
-                    threads["ul"] = threading.Thread(
-                        target=_unload,
-                        args=(
-                            BOARD,
-                            lock,
-                        ),
-                    )
-                    threads["ul"].start()
-                else:
-                    unloaded = False
-
-                # ====================================== comm thread ===================================== #
-                threads["comm"] = threading.Thread(
-                    target=comm_thread,
-                    args=(
-                        BOARD,
-                        image,
-                        # pnp_confidence,
-                        tmp_egg_pot_counter,
-                        timestamp_of_image,
-                    ),
-                )
-                threads["comm"].start()
-
-                # =============================== Increase slot counter ============================== #
-                with data.lock:
-                    # add 1
-                    data.experiment2_pot_counter += 1
-                    _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
-
-                    data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                        "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
-                        _experiment2_current_iteration,
-                        data.experiment2_pot_counter,
-                        data.experiment2_max_pot,
-                        round(_dt / 60, 2),
-                        round(data.experiment2_time_per_sequence / 60, 2),
-                    )
-
-                # ===================================== Log state ==================================== #
-                logging.info(
-                    "Experiment mode in {}({}) State, pot unloaded :{} at {}".format(
-                        "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
-                        _experiment2_current_iteration,
-                        _experiment2_pot_counter,
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    )
-                )
-
+                threads["ul"].start()
             else:
-                # more than 80
-                with data.lock:
-                    data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                        "Purge" if _experiment2_current_iteration == _experiment2_purge_iteration else "AI",
-                        _experiment2_current_iteration,
-                        data.experiment2_pot_counter,
-                        data.experiment2_max_pot,
-                        round(_dt / 60, 2),
-                        round(data.experiment2_time_per_sequence / 60, 2),
-                    )
+                unloaded = False
+
+            # ====================================== comm thread ===================================== #
+            threads["comm"] = threading.Thread(
+                target=comm_thread,
+                args=(
+                    BOARD,
+                    image,
+                    # pnp_confidence,
+                    tmp_egg_pot_counter,
+                    timestamp_of_image,
+                ),
+            )
+            threads["comm"].start()
+
+            # =============================== Increase slot counter ============================== #
+            with data.lock:
+                # add 1
+                data.experiment2_pot_counter += 1
+                _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
+
+                data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    "Purge" if _experiment2_current_index == _experiment2_purge_index else "AI",
+                    _experiment2_current_index,
+                    data.experiment2_pot_counter,
+                    data.experiment2_max_pot,
+                    round(_dt / 60, 2),
+                    round(data.experiment2_time_per_sequence / 60, 2),
+                )
+
+            # ===================================== Log state ==================================== #
+            logging.info(
+                "Experiment mode in {}({}) State, pot unloaded :{} at {}".format(
+                    "Purge" if _experiment2_current_index == _experiment2_purge_index else "AI",
+                    _experiment2_current_index,
+                    _experiment2_pot_counter,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                )
+            )
+
+        else:
+            # more than 80
+            with data.lock:
+                data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    "Purge" if _experiment2_current_index == _experiment2_purge_index else "AI",
+                    _experiment2_current_index,
+                    data.experiment2_pot_counter,
+                    data.experiment2_max_pot,
+                    round(_dt / 60, 2),
+                    round(data.experiment2_time_per_sequence / 60, 2),
+                )
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(experiment)-{e}")

@@ -98,17 +98,16 @@ def get_start_delay():
 
 # | AI | AI | AI | AI | PURGE |
 # ============================= To be exposed if required ============================ #
-experiment2_current_iteration = 0  # set from master
-experiment2_max_iteration = 5
+experiment2_shift = 0  # ?assign from master or just locally?
+experiment2_max_index = 5
 experiment2_time_per_sequence = 14 * 60  # 14 min
 
 # ====================================== Driven ====================================== #
-experiment2_staggered_delay = get_start_delay()
-experiment2_purge_iteration = experiment2_max_iteration - 1
+experiment2_purge_index = experiment2_max_index - 1
 experiment2_pot_counter = 0
 experiment2_max_pot = 80
-experiment2_time_stamp = None
-experiment2_new_session = True
+experiment2_current_index = 0
+experiment2_previous_index = experiment2_max_index + 1  # dummy out of bound value for initial toggling
 
 # logging
 # logging.basicConfig(

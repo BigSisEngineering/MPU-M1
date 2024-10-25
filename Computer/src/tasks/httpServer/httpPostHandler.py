@@ -89,16 +89,14 @@ def post_enable_pnp():
     return "PNP enabled"
 
 
-def post_enable_experiment(experiment_iteration: 0):  # defaults to 0 if start with cage UI
+def post_enable_experiment(shift: 0):  # defaults to 0 if start with cage UI
     with data.lock:
         data.experiment_enabled = True
-        data.experiment2_pot_counter = 0  # reset value
-        data.experiment2_time_stamp = time.time()  # reset value
-        data.experiment2_current_iteration = experiment_iteration
-        data.experiment2_new_session = True
+        data.experiment2_shift = shift
+        data.experiment2_previous_index = data.experiment2_max_index + 1  # reset to dummy value to trigger new index
 
     logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    return "Experiment enabled. Iteration set to {}".format(experiment_iteration)
+    return "Experiment enabled. Shift set to {}".format(shift)
 
 
 def post_enable_purge():
