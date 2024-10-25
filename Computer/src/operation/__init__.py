@@ -503,12 +503,22 @@ def experiment(
             BOARD.unload()
 
     try:
+        # =============================== Read experiment data =============================== #
+        with data.lock:
+            _experiment2_current_iteration = data.experiment2_current_iteration
+            _experiment2_max_iteration = data.experiment2_max_iteration
+            _experiment2_purge_iteration = data.experiment2_purge_iteration
+            _experiment2_time_per_sequence = data.experiment2_time_per_sequence
+            _experiment2_pot_counter = data.experiment2_pot_counter
+            _experiment2_max_pot = data.experiment2_max_pot
+            _experiment2_time_stamp = data.experiment2_time_stamp
+            _experiment2_new_session = data.experiment2_new_session
+            _experiment2_staggered_delay = data.experiment2_staggered_delay
+
         time_current = time.time()
 
         # ====================================== Sense Check ===================================== #
-        if BOARD is None:
-            return
-        if not is_safe_to_move:
+        if not is_safe_to_move or BOARD is None:
             # Keep updating the report
             # more than 80
             with data.lock:
@@ -526,18 +536,6 @@ def experiment(
         if unloaded:
             # Assume pot loaded because 'is_safe_to_move'
             BOARD.timer.update_slot()
-
-        # =============================== Read experiment data =============================== #
-        with data.lock:
-            _experiment2_current_iteration = data.experiment2_current_iteration
-            _experiment2_max_iteration = data.experiment2_max_iteration
-            _experiment2_purge_iteration = data.experiment2_purge_iteration
-            _experiment2_time_per_sequence = data.experiment2_time_per_sequence
-            _experiment2_pot_counter = data.experiment2_pot_counter
-            _experiment2_max_pot = data.experiment2_max_pot
-            _experiment2_time_stamp = data.experiment2_time_stamp
-            _experiment2_new_session = data.experiment2_new_session
-            _experiment2_staggered_delay = data.experiment2_staggered_delay
 
         # ================================= Update time stamp ===================s============= #
         _dt = time_current - _experiment2_time_stamp
