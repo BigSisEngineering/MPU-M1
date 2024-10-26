@@ -536,9 +536,7 @@ def experiment(
         _current_sequence_index = int(total_seconds_shifted // _time_interval) % _max_sequence_index
 
         # factor based on cage number
-        _current_sequence_index = (
-            _current_sequence_index + (data.cage_number - 1)
-        ) % _max_sequence_index
+        _current_sequence_index = (_current_sequence_index + (data.cage_number - 1)) % _max_sequence_index
 
         # =================================== Time elapsed =================================== #
         dt = total_seconds_shifted % _time_interval
@@ -560,15 +558,13 @@ def experiment(
             # Keep updating the report
             # more than 80
             with data.lock:
-                data.experiment_status = (
-                    "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                        ("Purge" if _current_sequence_index == data.PURGE_SEQUENCE_INDEX else "AI"),
-                        _current_sequence_index,
-                        data.experiment2_pot_counter,
-                        data.STARWHEEL_SLOTS,
-                        round(dt / 60, 2),
-                        round(_time_interval / 60, 2),
-                    )
+                data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    ("Purge" if _current_sequence_index == data.PURGE_SEQUENCE_INDEX else "AI"),
+                    _current_sequence_index,
+                    data.experiment2_pot_counter,
+                    data.STARWHEEL_SLOTS,
+                    round(dt / 60, 2),
+                    round(_time_interval / 60, 2),
                 )
             return
 
@@ -664,15 +660,13 @@ def experiment(
                 data.experiment2_pot_counter += 1
                 _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
 
-                data.experiment_status = (
-                    "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                        ("Purge" if _current_sequence_index == data.PURGE_SEQUENCE_INDEX else "AI"),
-                        _current_sequence_index,
-                        data.experiment2_pot_counter,
-                        data.STARWHEEL_SLOTS,
-                        round(dt / 60, 2),
-                        round(_time_interval / 60, 2),
-                    )
+                data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    ("Purge" if _current_sequence_index == data.PURGE_SEQUENCE_INDEX else "AI"),
+                    _current_sequence_index,
+                    data.experiment2_pot_counter,
+                    data.STARWHEEL_SLOTS,
+                    round(dt / 60, 2),
+                    round(_time_interval / 60, 2),
                 )
 
             # ===================================== Log state ==================================== #
@@ -688,15 +682,13 @@ def experiment(
         else:
             # more than 80
             with data.lock:
-                data.experiment_status = (
-                    "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                        ("Purge" if _current_sequence_index == data.PURGE_SEQUENCE_INDEX else "AI"),
-                        _current_sequence_index,
-                        data.experiment2_pot_counter,
-                        data.STARWHEEL_SLOTS,
-                        round(dt / 60, 2),
-                        round(_time_interval / 60, 2),
-                    )
+                data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
+                    ("Purge" if _current_sequence_index == data.PURGE_SEQUENCE_INDEX else "AI"),
+                    _current_sequence_index,
+                    data.experiment2_pot_counter,
+                    data.STARWHEEL_SLOTS,
+                    round(dt / 60, 2),
+                    round(_time_interval / 60, 2),
                 )
 
     except Exception as e:
