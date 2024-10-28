@@ -17,14 +17,12 @@ def get_BoardData():
 
 
 def get_UnloaderPos():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_UnloaderPos")
     with BscbAPI.lock:
         unloader_pos = BscbAPI.BOARD.get_unloader_position()
     return unloader_pos
 
 
 def get_DummyData():
-    # CLI.printline(Level.DEBUG, "(http_server)-DummyData")
     with data.lock:
         res = {
             "unload_probability": data.unload_probability,
@@ -34,14 +32,12 @@ def get_DummyData():
 
 
 def get_PNPData():
-    # CLI.printline(Level.DEBUG, "(http_server)-PNPData")
     with data.lock:
         pnp_data = data.pnp_data
     return pnp_data
 
 
 def get_potData():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_potData")
     with data.lock:
         num_pot = data.pot_unloaded - data.pot_unloaded_since_last_request
         data.pot_unloaded_since_last_request = data.pot_unloaded
@@ -49,21 +45,18 @@ def get_potData():
 
 
 def get_ERROR():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_ERROR")
     with data.lock:
         error_data = {"star_wheel_error": data.is_star_wheel_error, "unloader_error": data.is_unloader_error}
     return error_data
 
 
 def get_experimentData():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_experimentData")
     with data.lock:
         experiment_status = data.experiment_status
     return experiment_status
 
 
 def get_HOMING():
-    # CLI.printline(Level.DEBUG, "(http_server)-get_HOMING")
     with data.lock:
         sw_homing = data.sw_homing
     return sw_homing

@@ -57,7 +57,6 @@ def pnp(
             camera.CAMERA.save_raw_frame(image, pnp_confidence, ai_result, timestamp_of_image)
         with data.lock:
             data.pot_processed += 1
-            data.pot_unloaded += tmp_egg_pot_counter
 
     def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
         with lock:
@@ -136,6 +135,10 @@ def pnp(
             #     BOARD.timer.update_slot()
 
             unloaded = True
+
+            with data.lock:
+                data.pot_unloaded += 1  # request pot
+
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -198,7 +201,6 @@ def dummy(
     def comm_thread(BOARD: BScbAPI, tmp_egg_pot_counter):
         with data.lock:
             data.pot_processed += 1
-            data.pot_unloaded += tmp_egg_pot_counter
 
     def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
         with lock:
@@ -255,6 +257,10 @@ def dummy(
         tmp_egg_pot_counter = 1 if (ai_result > 0 or timer_unload) else 0
         if tmp_egg_pot_counter > 0:
             unloaded = True
+
+            with data.lock:
+                data.pot_unloaded += 1  # request pot
+
             threads["ul"] = threading.Thread(
                 target=_unload,
                 args=(
@@ -329,7 +335,7 @@ def purge(BOARD: BScbAPI, lock: threading.Lock, is_filled: bool = False):
 #         camera.CAMERA.save_raw_frame(image, 1, ai_result, timestamp_of_image)
 #         with data.lock:
 #             data.pot_processed += 1
-#             data.pot_unloaded += tmp_egg_pot_counter
+#
 
 #     def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
 #         with lock:
@@ -506,7 +512,6 @@ def experiment(
         camera.CAMERA.save_raw_frame(image, 1, ai_result, timestamp_of_image)
         with data.lock:
             data.pot_processed += 1
-            data.pot_unloaded += tmp_egg_pot_counter
 
     def _move_sw(BOARD: BScbAPI, lock: threading.Lock, star_wheel_move_time):
         with lock:
@@ -630,6 +635,10 @@ def experiment(
 
             if tmp_egg_pot_counter > 0 or _current_sequence_index == data.PURGE_SEQUENCE_INDEX:
                 unloaded = True
+
+                with data.lock:
+                    data.pot_unloaded += 1  # request pot
+
                 threads["ul"] = threading.Thread(
                     target=_unload,
                     args=(
