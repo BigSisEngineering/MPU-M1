@@ -236,7 +236,7 @@ function DisplayModeLeftColumn({
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A row={rowNumber} m1aRunning={m1aRunning} displayButtons={false} />
       <M1C row={rowNumber} m1cRunning={m1cRunning} displayButtons={false} />
-      <CageStatusBar dictExperiment={dictExperiment} />
+      <CageStatusBar row={rowNumber} dictExperiment={dictExperiment} />
     </div>
   );
 }
@@ -271,7 +271,7 @@ function Main() {
   const dictLastPing = useDict(Dicts.lastping);
   const dictExperiment = useDict(Dicts.experiment);
 
-  console.log(dictExperiment);
+  // console.log(dictExperiment);
 
   useEffect(() => {
     async function isLoaded() {
