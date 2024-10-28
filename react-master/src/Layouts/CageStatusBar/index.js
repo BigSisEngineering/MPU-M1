@@ -77,7 +77,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
   );
 }
 
-function CageStatusBar({ row }) {
+function CageStatusBar({ row, dictExperiment }) {
   const [c1ExperimentDict, setC1ExperimentDict] = useState(null);
   const [c2ExperimentDict, setC2ExperimentDict] = useState(null);
   const [c3ExperimentDict, setC3ExperimentDict] = useState(null);
@@ -94,26 +94,23 @@ function CageStatusBar({ row }) {
   const [c14ExperimentDict, setC14ExperimentDict] = useState(null);
 
   /* ---------------------------------------------------------------------------------- */
-  // data update
-  const dictData = useDict(Dicts.cagesExperiment);
-
   useEffect(() => {
-    if (dictData) {
+    if (dictExperiment) {
       try {
-        setC1ExperimentDict(dictData[`cage${row - 1}x0001`]);
-        setC2ExperimentDict(dictData[`cage${row - 1}x0002`]);
-        setC3ExperimentDict(dictData[`cage${row - 1}x0003`]);
-        setC4ExperimentDict(dictData[`cage${row - 1}x0004`]);
-        setC5ExperimentDict(dictData[`cage${row - 1}x0005`]);
-        setC6ExperimentDict(dictData[`cage${row - 1}x0006`]);
-        setC7ExperimentDict(dictData[`cage${row - 1}x0007`]);
-        setC8ExperimentDict(dictData[`cage${row - 1}x0008`]);
-        setC9ExperimentDict(dictData[`cage${row - 1}x0009`]);
-        setC10ExperimentDict(dictData[`cage${row - 1}x0010`]);
-        setC11ExperimentDict(dictData[`cage${row - 1}x0011`]);
-        setC12ExperimentDict(dictData[`cage${row - 1}x0012`]);
-        setC13ExperimentDict(dictData[`cage${row - 1}x0013`]);
-        setC14ExperimentDict(dictData[`cage${row - 1}x0014`]);
+        setC1ExperimentDict(dictExperiment[`cage${row - 1}x0001`]);
+        setC2ExperimentDict(dictExperiment[`cage${row - 1}x0002`]);
+        setC3ExperimentDict(dictExperiment[`cage${row - 1}x0003`]);
+        setC4ExperimentDict(dictExperiment[`cage${row - 1}x0004`]);
+        setC5ExperimentDict(dictExperiment[`cage${row - 1}x0005`]);
+        setC6ExperimentDict(dictExperiment[`cage${row - 1}x0006`]);
+        setC7ExperimentDict(dictExperiment[`cage${row - 1}x0007`]);
+        setC8ExperimentDict(dictExperiment[`cage${row - 1}x0008`]);
+        setC9ExperimentDict(dictExperiment[`cage${row - 1}x0009`]);
+        setC10ExperimentDict(dictExperiment[`cage${row - 1}x0010`]);
+        setC11ExperimentDict(dictExperiment[`cage${row - 1}x0011`]);
+        setC12ExperimentDict(dictExperiment[`cage${row - 1}x0012`]);
+        setC13ExperimentDict(dictExperiment[`cage${row - 1}x0013`]);
+        setC14ExperimentDict(dictExperiment[`cage${row - 1}x0014`]);
       } catch {
         setC1ExperimentDict(null);
         setC2ExperimentDict(null);
@@ -146,7 +143,7 @@ function CageStatusBar({ row }) {
       setC13ExperimentDict(null);
       setC14ExperimentDict(null);
     }
-  }, [row, dictData]);
+  }, [row, dictExperiment]);
 
   /* ---------------------------------------------------------------------------------- */
 

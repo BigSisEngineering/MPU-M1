@@ -21,7 +21,7 @@ class Readback:
     CAGES = 2
     SYSTEM = 3
     INFO = 4
-    CAGES_EXPERIMENT_STATUS = 4
+    EXPERIMENT = 5
     SESSION_ACTIVE = 6
     SESSION_END = 7
 
@@ -37,7 +37,7 @@ def get_readback_dict(readback: Readback) -> Dict:
         return SV.system_status_raw
     elif readback == Readback.INFO:
         return setup.get_setup_info(raw_dict=True)
-    elif readback == Readback.CAGES_EXPERIMENT_STATUS:
+    elif readback == Readback.EXPERIMENT:
         return components.generate_cage_experiment_dict(raw_dict=True)
     elif readback == Readback.SESSION_ACTIVE:
         return {"session_timeout": False}
@@ -56,8 +56,8 @@ def get_readback_event(readback: Readback) -> str:
         return "system"
     elif readback == Readback.INFO:
         return "info"
-    elif readback == Readback.CAGES_EXPERIMENT_STATUS:
-        return "cages_experiment"
+    elif readback == Readback.EXPERIMENT:
+        return "experiment"
     elif readback == Readback.SESSION_ACTIVE:
         return "session"
     elif readback == Readback.SESSION_END:
@@ -85,7 +85,7 @@ class Session:
             self.__emit(Readback.INFO, sid)
             self.__emit(Readback.M1A, sid)
             self.__emit(Readback.M1C, sid)
-            self.__emit(Readback.CAGES_EXPERIMENT_STATUS, sid)
+            self.__emit(Readback.EXPERIMENT, sid)
             self.__emit(Readback.SYSTEM, sid)
             self.__emit(Readback.CAGES, sid)
             self.socketio.sleep(Session.TRANSMIT_DELAY)

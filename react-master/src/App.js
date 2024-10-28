@@ -150,7 +150,7 @@ function OperationModeRightColumn({ rowNumber, isSelected, setIsSelected, toggle
 /* ================================================================================== */
 /*                                    Display Mode                                    */
 /* ================================================================================== */
-function DisplayModeContent({ rowNumber }) {
+function DisplayModeContent({ rowNumber, dictExperiment }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
 
@@ -209,6 +209,7 @@ function DisplayModeContent({ rowNumber }) {
         m1aRunning={m1aRunning}
         m1cRunning={m1cRunning}
         toggleMaintainence={toggleMaintainence}
+        dictExperiment={dictExperiment}
       />
       <DisplayModeRightColumn
         rowNumber={rowNumber}
@@ -229,12 +230,13 @@ function DisplayModeLeftColumn({
   m1aRunning,
   m1cRunning,
   toggleMaintainence,
+  dictExperiment,
 }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A row={rowNumber} m1aRunning={m1aRunning} displayButtons={false} />
       <M1C row={rowNumber} m1cRunning={m1cRunning} displayButtons={false} />
-      <CageStatusBar />
+      <CageStatusBar dictExperiment={dictExperiment} />
     </div>
   );
 }
@@ -267,6 +269,9 @@ function Main() {
   const dictInfo = useDict(Dicts.info);
   const dictSession = useDict(Dicts.session);
   const dictLastPing = useDict(Dicts.lastping);
+  const dictExperiment = useDict(Dicts.experiment);
+
+  console.log(dictExperiment);
 
   useEffect(() => {
     async function isLoaded() {
@@ -321,7 +326,7 @@ function Main() {
           isDisplayOnly={isDisplayOnly}
           setIsDisplayOnly={setIsDisplayOnly}
         />
-        <DisplayModeContent rowNumber={rowNumber} />
+        <DisplayModeContent rowNumber={rowNumber} dictExperiment={dictExperiment} />
       </>
     );
   }
