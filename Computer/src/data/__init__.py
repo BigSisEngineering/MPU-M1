@@ -104,6 +104,7 @@ TOTAL_CAGES = 14
 STARWHEEL_SLOTS = 80
 stagger_delay = time_interval / TOTAL_CAGES
 PURGE_SEQUENCE_INDEX = max_sequence_index - 1  # last iteration
+time_elapsed = 0
 
 experiment2_pot_counter = 0
 experiment2_previous_sequence_index = max_sequence_index + 1  # out of bound value for init

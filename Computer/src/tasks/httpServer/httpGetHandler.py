@@ -62,6 +62,18 @@ def get_HOMING():
     return sw_homing
 
 
+def get_experimentStatus():
+    dict = {}
+    with data.lock:
+        dict["operation_index"] = data.experiment2_previous_sequence_index
+        dict["slots"] = data.experiment2_pot_counter
+        dict["max_slots"] = data.STARWHEEL_SLOTS
+        dict["time_elapsed"] = data.time_elapsed
+        dict["time_interval"] = data.time_interval
+
+    return dict
+
+
 get_endpoints = {
     "ACK": get_ACK,
     "BoardData": get_BoardData,
@@ -72,6 +84,7 @@ get_endpoints = {
     "HOMING": get_HOMING,
     "ExperimentData": get_experimentData,
     "UnloaderPos": get_UnloaderPos,
+    "ExperimentStatus": get_experimentStatus,
 }
 
 
