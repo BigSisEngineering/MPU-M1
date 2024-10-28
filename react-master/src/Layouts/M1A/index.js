@@ -5,7 +5,7 @@ import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG, httpPOST, exec } from "../../Utils/Utils.js";
 import { Gap, HorizontalLine, Button, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function M1A({ row, m1aRunning }) {
+function M1A({ row, m1aRunning, displayButtons = true }) {
   const [a1StatusDict, setA1StatusDict] = useState(null);
   const [a2StatusDict, setA2StatusDict] = useState(null);
   const [a3StatusDict, setA3StatusDict] = useState(null);
@@ -166,19 +166,23 @@ function M1A({ row, m1aRunning }) {
         <Gap /> */}
         <InfoSameRow title="ⓘ Status" text={getA2StatusText()} color={getA2StatusColor()} />
         <Gap />
-        <div className="buttons-container">
-          <Button name="Raise Nozzle" onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")} />
-          <Button name="Lower Nozzle" onclick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")} />
-          <Button name="Home SW" onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
-        </div>
+        {displayButtons && (
+          <div className="buttons-container">
+            <Button name="Raise Nozzle" onClick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")} />
+            <Button name="Lower Nozzle" onClick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")} />
+            <Button name="Home SW" onClick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
+          </div>
+        )}
         <Gap height="20" />
         <SubcontentTitle text={"Pot Dispenser"} link={`http://10.207.1${row}.13`} />
         <HorizontalLine />
         <InfoSameRow title="ⓘ Status" text={getA3StatusText()} color={getA3StatusColor()} />
         <Gap />
-        <div className="buttons-container">
-          <Button name="Home SW" onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")} />
-        </div>
+        {displayButtons && (
+          <div className="buttons-container">
+            <Button name="Home SW" onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")} />
+          </div>
+        )}
       </div>
     </>
   );

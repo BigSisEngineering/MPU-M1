@@ -13,6 +13,8 @@ html {
   height: 5%;
   padding: 5px 15px;
   box-sizing: border-box;
+  display: flex; /* Enable flexbox for alignment */
+  align-items: center; /* Vertically centers items within the header */
 }
 .header-container-module-name {
   display: inline-flex;
@@ -34,6 +36,32 @@ html {
   height: 100%;
   width: 20%;
   align-items: center;
+}
+.header-container-button {
+  display: inline-flex;
+  font-family: "Trebuchet MS";
+  font-size: 20px;
+  height: 100%;
+  width: 10%;
+  align-items: center;
+  margin-left: auto;
+}
+.header-button {
+  display: inline-block;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  background-color: rgba(0, 188, 190, 1);
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Trebuchet MS";
+  font-size: 28px;
+  transition: background-color 0.2s ease;
+}
+.header-button:not([disabled]):hover {
+  background-color: rgba(255, 157, 0, 1);
 }
 /* ================================== Full display ================================== */
 .full-display {
@@ -87,6 +115,9 @@ html {
   height: 100%;
   flex-direction: column;
   align-items: flex-start;
+}
+.character-container {
+  width: 8ch;
 }
 /* ================================= Shared Elements ================================ */
 .gap {
@@ -188,7 +219,14 @@ html {
 .subcontent-info-same-row-container {
   display: flex;
   flex-direction: row;
+  align-items: center;
+}
+.subcontent-same_column-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
   align-items: flex-start;
+  margin-left: 5px;
 }
 .subcontent-info-box {
   display: inline-flex;
@@ -329,4 +367,45 @@ html {
   border-radius: 10px;
   display: none;
   z-index: 5000;
+}
+
+/* =================================== Loading Bar ================================== */
+/* Container to hold the loading bar */
+.loading-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #0b5163;
+  border-radius: 7px;
+  overflow: hidden;
+  position: relative; /* Makes container the reference point for positioning */
+}
+
+.loading-bar {
+  height: 20px; /* Adjust height as needed */
+  background-color: #4caf50; /* Background color */
+  border-radius: 7px; /* Rounded corners */
+  position: relative; /* For positioning the text inside */
+  color: rgb(255, 255, 255); /* Text color */
+  font-weight: bold;
+}
+
+.loading-text {
+  position: absolute; /* Position text absolutely */
+  right: 5px; /* Move the text outside the loading bar */
+  top: 50%; /* Center vertically */
+  transform: translateY(-60%); /* Adjust for perfect centering */
+  color: white; /* Text color */
+  font-weight: bold;
+}
+
+@keyframes load {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
 }

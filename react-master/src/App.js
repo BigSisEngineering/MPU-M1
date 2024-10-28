@@ -8,6 +8,7 @@ import M1A from "./Layouts/M1A/index.js";
 import M1C from "./Layouts/M1C/index.js";
 import Cages from "./Layouts/Cages/index.js";
 import CageControl from "./Layouts/CageControl/index.js";
+import CageStatusBar from "./Layouts/CageStatusBar/index.js";
 import OperationControl from "./Layouts/OperationControl/index.js";
 import { DEFAULT_BOOL } from "./Utils/Utils.js";
 
@@ -35,7 +36,7 @@ function generateDocumentTitle(module, row) {
 /* ================================================================================== */
 /*                                     Main Blocks                                    */
 /* ================================================================================== */
-function MainContent({ rowNumber }) {
+function OperationModeContent({ rowNumber }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
 
@@ -86,7 +87,7 @@ function MainContent({ rowNumber }) {
 
   return (
     <div className="mains-container">
-      <LeftColumn
+      <OperationModeLeftColumn
         rowNumber={rowNumber}
         isSelected={isSelected}
         selectAll={selectAll}
@@ -95,7 +96,7 @@ function MainContent({ rowNumber }) {
         m1cRunning={m1cRunning}
         toggleMaintainence={toggleMaintainence}
       />
-      <RightColumn
+      <OperationModeRightColumn
         rowNumber={rowNumber}
         isSelected={isSelected}
         setIsSelected={setIsSelected}
@@ -106,7 +107,15 @@ function MainContent({ rowNumber }) {
   );
 }
 
-function LeftColumn({ rowNumber, isSelected, selectAll, clearAll, m1aRunning, m1cRunning, toggleMaintainence }) {
+function OperationModeLeftColumn({
+  rowNumber,
+  isSelected,
+  selectAll,
+  clearAll,
+  m1aRunning,
+  m1cRunning,
+  toggleMaintainence,
+}) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A row={rowNumber} m1aRunning={m1aRunning} />
@@ -122,7 +131,115 @@ function LeftColumn({ rowNumber, isSelected, selectAll, clearAll, m1aRunning, m1
   );
 }
 
-function RightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected, maintainenceFlag }) {
+function OperationModeRightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected, maintainenceFlag }) {
+  return (
+    <div
+      className="columns-container"
+      style={{ width: "76%", padding: "0px 0px", marginBottom: "0px", alignItems: "center" }}
+    >
+      <Cages
+        row={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+      />
+    </div>
+  );
+}
+/* ================================================================================== */
+/*                                    Display Mode                                    */
+/* ================================================================================== */
+function DisplayModeContent({ rowNumber }) {
+  // cage select
+  const [isSelected, setIsSelected] = useState(Array(14).fill(false));
+
+  const toggleSelected = (index) => () => {
+    setIsSelected((prevSelected) => {
+      const newIsSelected = [...prevSelected];
+      newIsSelected[index] = !newIsSelected[index];
+      return newIsSelected;
+    });
+  };
+
+  const selectAll = () => {
+    setIsSelected(Array(14).fill(true));
+  };
+
+  const clearAll = () => {
+    setIsSelected(Array(14).fill(false));
+  };
+
+  // maintainence
+  const [maintainenceFlag, setMaintainenceFlag] = useState(Array(14).fill(false));
+  function toggleMaintainence(indexList, bool) {
+    indexList.forEach(function (index) {
+      setMaintainenceFlag((prevSelected) => {
+        const newIsSelected = [...prevSelected];
+        newIsSelected[index] = bool;
+        return newIsSelected;
+      });
+    });
+  }
+
+  // data update
+  const [m1aRunning, setM1aRunning] = useState(DEFAULT_BOOL);
+  const [m1cRunning, setM1cRunning] = useState(DEFAULT_BOOL);
+  const dictSystem = useDict(Dicts.system);
+
+  useEffect(() => {
+    if (dictSystem) {
+      setM1aRunning(dictSystem["1a"]);
+      setM1cRunning(dictSystem["1c"]);
+    } else {
+      setM1aRunning(DEFAULT_BOOL);
+      setM1cRunning(DEFAULT_BOOL);
+    }
+  }, [dictSystem]);
+
+  /* ---------------------------------------------------------------------------------- */
+
+  return (
+    <div className="mains-container">
+      <DisplayModeLeftColumn
+        rowNumber={rowNumber}
+        isSelected={isSelected}
+        selectAll={selectAll}
+        clearAll={clearAll}
+        m1aRunning={m1aRunning}
+        m1cRunning={m1cRunning}
+        toggleMaintainence={toggleMaintainence}
+      />
+      <DisplayModeRightColumn
+        rowNumber={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+      />
+    </div>
+  );
+}
+
+function DisplayModeLeftColumn({
+  rowNumber,
+  isSelected,
+  selectAll,
+  clearAll,
+  m1aRunning,
+  m1cRunning,
+  toggleMaintainence,
+}) {
+  return (
+    <div className="columns-container" style={{ width: "22%" }}>
+      <M1A row={rowNumber} m1aRunning={m1aRunning} displayButtons={false} />
+      <M1C row={rowNumber} m1cRunning={m1cRunning} displayButtons={false} />
+      <CageStatusBar />
+    </div>
+  );
+}
+
+function DisplayModeRightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected, maintainenceFlag }) {
   return (
     <div
       className="columns-container"
@@ -145,6 +262,7 @@ function Main() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isTimeout, setIsTimeout] = useState(false);
+  const [isDisplayOnly, setIsDisplayOnly] = useState(true);
 
   const dictInfo = useDict(Dicts.info);
   const dictSession = useDict(Dicts.session);
@@ -192,11 +310,33 @@ function Main() {
     }
   }
 
+  if (isDisplayOnly) {
+    return (
+      <>
+        <AlertBox />
+        <Header
+          module={moduleNumber}
+          unit={"Master (Display Mode)"}
+          row={rowNumber}
+          isDisplayOnly={isDisplayOnly}
+          setIsDisplayOnly={setIsDisplayOnly}
+        />
+        <DisplayModeContent rowNumber={rowNumber} />
+      </>
+    );
+  }
+
   return (
     <>
       <AlertBox />
-      <Header module={moduleNumber} unit={"Master"} row={rowNumber} />
-      <MainContent rowNumber={rowNumber} />
+      <Header
+        module={moduleNumber}
+        unit={"Master (Operation Mode)"}
+        row={rowNumber}
+        isDisplayOnly={isDisplayOnly}
+        setIsDisplayOnly={setIsDisplayOnly}
+      />
+      <OperationModeContent rowNumber={rowNumber} />
     </>
   );
 }
