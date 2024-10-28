@@ -262,7 +262,7 @@ function Main() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isTimeout, setIsTimeout] = useState(false);
-  const [isDisplayOnly, setIsDisplayOnly] = useState(true);
+  const [isDisplayOnly, setIsDisplayOnly] = useState(false);
 
   const dictInfo = useDict(Dicts.info);
   const dictSession = useDict(Dicts.session);

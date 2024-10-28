@@ -73,7 +73,7 @@ class Cage(http_cage.HTTPCage):
 
                     _experiment_status = self.experiment_status
                     if _experiment_status is not None:
-                        self._w_experiment_status_ui(_status)
+                        self._w_experiment_status_ui(_experiment_status)
                     else:
                         self._w_experiment_status_ui(Cage.DEFAULT_EXPERIMENT_STATUS)
 
