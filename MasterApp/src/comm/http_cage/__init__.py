@@ -101,7 +101,7 @@ class HTTPCage:
         return None
 
     def fetch_pot_data(self) -> int:
-        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
+        with self._lock_request:
             try:
                 pot_num = requests.get(
                     url=f"http://{self._hostname}.local:8080/potData",
@@ -133,18 +133,6 @@ class HTTPCage:
                         Level.ERROR,
                         "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(print_name, "POTDATA", self._hostname, e),
                     )
-
-            finally:
-                self._lock_request.release()
-
-        else:
-            if not hide_exception:
-                CLI.printline(
-                    Level.WARNING,
-                    "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(
-                        print_name, "POTDATA", self._hostname
-                    ),
-                )
         return 0
 
     def exec_action(self, action, params=None) -> str:
