@@ -36,6 +36,7 @@ class StarWheelTimer:
         current_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.timer: List[str] = [current_time_str] * 80
         self.unloaded_count: List[int] = [0] * 80
+        self.use_timer_purge = False
 
     def is_inited(self) -> bool:
         return self.inited
@@ -73,7 +74,7 @@ class StarWheelTimer:
         )
         CLI.printline(Level.DEBUG, "The pot is overtime." if is_overtime else "The pot is not overtime.")
 
-        return is_overtime
+        return is_overtime and self.use_timer_purge
 
 
 # SWTimer = StarWheelTimer()
