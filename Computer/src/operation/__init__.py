@@ -631,9 +631,11 @@ def experiment(
 
             # ==================================== ul decision =================================== #
             # Unload if previous result is egg, overtime, or if is on purge iteration
-            tmp_egg_pot_counter = 1 if (ai_result > 0 or pot_is_overtime) else 0
+            tmp_egg_pot_counter = (
+                1 if (ai_result > 0 or pot_is_overtime or _current_sequence_index == data.PURGE_SEQUENCE_INDEX) else 0
+            )
 
-            if tmp_egg_pot_counter > 0 or _current_sequence_index == data.PURGE_SEQUENCE_INDEX:
+            if tmp_egg_pot_counter > 0:
                 unloaded = True
 
                 with data.lock:
