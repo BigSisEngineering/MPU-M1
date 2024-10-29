@@ -23,6 +23,23 @@ function CageLoadingBar({ title, cageExperimentDict }) {
     }
   }
 
+  function getBarOpacity(operationIndex) {
+    switch (operationIndex) {
+      case 0:
+        return 0.2;
+      case 1:
+        return 0.4;
+      case 2:
+        return 0.6;
+      case 3:
+        return 0.8;
+      case 4:
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
   // Read dict
   let operationIndex = null;
   let slots = null;
@@ -42,6 +59,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
   const slotBarWidth = maxSlots ? (slots / maxSlots) * 100 : 0;
   const timeBarWidth = timeInterval ? (timeElapsed / timeInterval) * 100 : 0;
   const currentMode = getOperationMode(operationIndex);
+  const barOpacity = getBarOpacity(operationIndex);
 
   return (
     <>
@@ -65,7 +83,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
           <div className="loading-bar-container">
             <div
               className="loading-bar"
-              style={{ width: `${timeBarWidth}%`, backgroundColor: "rgba(245, 148, 39, 0.8)" }}
+              style={{ width: `${timeBarWidth}%`, backgroundColor: `rgba(245, 148, 39, ${barOpacity})` }}
             >
               <span className="loading-text">{currentMode}</span>
             </div>
