@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-// import { fetchJSON } from "../Utils/Utils.js";
 import io from "socket.io-client";
 
 const socket = io();

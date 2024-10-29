@@ -271,8 +271,6 @@ function Main() {
   const dictLastPing = useDict(Dicts.lastping);
   const dictExperiment = useDict(Dicts.experiment);
 
-  // console.log(dictExperiment);
-
   useEffect(() => {
     async function isLoaded() {
       if (dictInfo != null) {
