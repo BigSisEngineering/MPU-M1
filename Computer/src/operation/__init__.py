@@ -597,7 +597,7 @@ def experiment(
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    ("Purge" if _purge_now else f"AI") + f"{_cage_sequence_index}",
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
                     _cage_sequence_index,
                     data.experiment2_pot_counter,
                     data.STARWHEEL_SLOTS,
@@ -703,7 +703,7 @@ def experiment(
                 _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
 
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    ("Purge" if _purge_now else f"AI") + f"{_cage_sequence_index}",
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
                     _cage_sequence_index,
                     data.experiment2_pot_counter,
                     data.STARWHEEL_SLOTS,
@@ -714,7 +714,7 @@ def experiment(
             # ===================================== Log state ==================================== #
             logging.info(
                 "Experiment mode in {}({}) State, pot unloaded :{} at {}".format(
-                    ("Purge" if _purge_now else f"AI") + f"{_cage_sequence_index}",
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
                     _cage_sequence_index,
                     _experiment2_pot_counter,
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -725,7 +725,7 @@ def experiment(
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    ("Purge" if _purge_now else f"AI") + f"{_cage_sequence_index}",
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
                     _cage_sequence_index,
                     data.experiment2_pot_counter,
                     data.STARWHEEL_SLOTS,

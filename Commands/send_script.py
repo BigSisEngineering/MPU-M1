@@ -6,7 +6,7 @@ import os
 import threading
 import requests
 
-row = 2 - 1
+row = 3 - 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
@@ -340,13 +340,13 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot_tinker(hostname)
         # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
-        # restart_service(hostname)
+        restart_service(hostname)
         # get_log_file(hostname)
         # save_mask_requests()
         # time.sleep(0.1)
