@@ -70,6 +70,7 @@ def get_experimentStatus():
         dict["max_slots"] = data.STARWHEEL_SLOTS
         dict["time_elapsed"] = data.time_elapsed
         dict["sequence_duration"] = data.sequence_duration
+        dict["sequence_number"] = data.experiment2_previous_sequence_number
 
     return dict
 
