@@ -235,7 +235,7 @@ def execute():
 
         __update_sensor_timer_flag(sensors_values)
 
-        # ======================================= Check status ======================================= #
+        # ==================================== Read status =================================== #
         # Check buffer
         is_buffer_full = BOARD.resolve_sensor_status(sensors_values, SensorID.BUFFER.value) == 1
 
@@ -248,7 +248,7 @@ def execute():
 
         is_camera_operation_ready = is_camera_ready and is_safe_to_move
 
-        # ===================================== Check user input ===================================== #
+        # ================================== Read user input ================================= #
         with data.lock:
             star_wheel_duration_ms = data.star_wheel_duration_ms
             unload_probability = data.unload_probability
@@ -256,7 +256,6 @@ def execute():
             run_pnp = data.pnp_enabled
             run_purge = data.purge_enabled
             run_experiment = data.experiment_enabled
-            data.servos_ready = is_star_wheel_ready and is_unloader_ready
             run_purge = data.purge_enabled
             pnp_confidence = data.pnp_confidence
             cycle_time = data.pnp_data.cycle_time
@@ -293,6 +292,7 @@ def execute():
         if is_star_wheel_ready and is_unloader_ready:
             if not is_camera_ready:
                 __update_status_code(StatusCode.ERROR_CAMERA)
+
             elif not is_buffer_full:
                 # Initialize time stamp
                 if waiting_for_buffer_time_stamp is None:

@@ -43,7 +43,6 @@ pnp_data: PNPData = PNPData(
 max_auto_clear_error = 3
 auto_clear_error_attempts = 0
 
-servos_ready: bool = False
 sw_homing: bool = False
 
 star_wheel_duration_ms: int = 600

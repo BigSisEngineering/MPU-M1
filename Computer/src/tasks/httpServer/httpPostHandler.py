@@ -103,16 +103,10 @@ def post_enable_experiment():  # defaults to 0 if start with cage UI
 def post_enable_purge():
     # !OBSOLETE
     with data.lock:
-        _servos_ready = data.servos_ready
+        data.purge_enabled = True
 
-    if _servos_ready:
-        with data.lock:
-            data.purge_enabled = True
-
-        logging.info(f"Purge mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return "Purge enabled"
-
-    return "Purge not enabled. Servos not ready."
+    logging.info(f"Purge mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return "Purge enabled"
 
 
 def post_disable_dummy():
