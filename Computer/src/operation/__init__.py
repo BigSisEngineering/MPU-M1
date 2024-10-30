@@ -587,7 +587,7 @@ def experiment(
         # 2-ai
         # 3-ai
         # 4-purge
-        _index_shift = _purge_frequency - 1
+        _index_shift = _purge_frequency - _cage_purge_sequence_index
         with data.lock:
             data.index_ui = (_cage_sequence_index + _index_shift) % _purge_frequency
 
