@@ -65,7 +65,7 @@ def get_HOMING():
 def get_experimentStatus():
     dict = {}
     with data.lock:
-        dict["operation_index"] = data.index_ui
+        dict["operation_index"] = int(data.index_ui)  # float -> int
         dict["slots"] = data.experiment2_pot_counter
         dict["max_slots"] = data.STARWHEEL_SLOTS
         dict["time_elapsed"] = data.time_elapsed
