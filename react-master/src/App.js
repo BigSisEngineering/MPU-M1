@@ -13,7 +13,7 @@ import OperationControl from "./Layouts/OperationControl/index.js";
 import { DEFAULT_BOOL } from "./Utils/Utils.js";
 
 // DEBUG FLAG
-let DEBUG = true;
+let DEBUG = false;
 
 /* ---------------------------------------------------------------------------------- */
 function generateDocumentTitle(module, row) {
