@@ -52,7 +52,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
     slots = cageExperimentDict["slots"];
     maxSlots = cageExperimentDict["max_slots"];
     timeElapsed = cageExperimentDict["time_elapsed"];
-    timeInterval = cageExperimentDict["time_interval"];
+    timeInterval = cageExperimentDict["sequence_duration"];
   }
 
   // Text
