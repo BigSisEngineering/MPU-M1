@@ -3,6 +3,7 @@ from dataclasses import dataclass, asdict
 import time
 import logging
 import datetime
+from typing import Optional
 
 # ------------------------------------------------------------------------------------------------ #
 from src.BscbAPI.BscbAPI import BScbAPI
@@ -22,6 +23,10 @@ first_error = True
 last_error = time.time()
 time_stamp = time.time()
 
+RAISE_FLAG_TIME = 5  # seconds
+waiting_for_buffer_time_stamp: Optional[float] = None
+waiting_for_passive_load_time_stamp: Optional[float] = None
+
 
 class InitializeStep:
     CLEAR_ERROR = 0
@@ -35,7 +40,7 @@ initialize_step_current = InitializeStep.CLEAR_ERROR
 
 class StatusCode:
     SW_INITIALIZING = 0x00
-    PRIMING_CHANNELS = 0x01
+    PRIMING_CHANNELS = 0x01  # !obsolete
     UL_INITIALIZING = 0x02
     IDLE = 0x03
     ERROR_SW = 0x04
@@ -153,8 +158,6 @@ def __servo_initialize(is_buffer_full: bool, is_loader_get_pot: bool) -> None:
 
     elif initialize_step_current == InitializeStep.WAIT_FOR_SENSORS:
         # wait
-        __update_status_code(StatusCode.PRIMING_CHANNELS)
-
         if is_buffer_full and is_loader_get_pot:
             # move on to next step
             initialize_step_current = InitializeStep.INIT_STARWHEEL
@@ -214,7 +217,10 @@ def __update_sensor_timer_flag(sensors_values) -> None:
 
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, sensor_timeout, last_error, make_auto_home_decision, update_error_timer, first_error
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, sensor_timeout
+    global last_error, make_auto_home_decision, update_error_timer, first_error
+    global RAISE_FLAG_TIME, waiting_for_buffer_time_stamp, waiting_for_passive_load_time_stamp
+
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -287,12 +293,28 @@ def execute():
         if is_star_wheel_ready and is_unloader_ready:
             if not is_camera_ready:
                 __update_status_code(StatusCode.ERROR_CAMERA)
-                # __disable_operation_with_camera() # FIXME -> ignore for now
             elif not is_buffer_full:
-                __update_status_code(StatusCode.WAITING_FOR_BUFFER)
+                # Initialize time stamp
+                if waiting_for_buffer_time_stamp is None:
+                    waiting_for_buffer_time_stamp = time.time()
+                else:
+                    # Raise flag (action: add pots / check flip at infeed / check sensor)
+                    if time.time() - waiting_for_buffer_time_stamp >= RAISE_FLAG_TIME:
+                        __update_status_code(StatusCode.WAITING_FOR_BUFFER)
+
             elif is_buffer_full and not is_loader_get_pot:
-                __update_status_code(StatusCode.WAITING_FOR_PASSIVE_LOAD)
+                # Initialize time stamp
+                if waiting_for_passive_load_time_stamp is None:
+                    waiting_for_passive_load_time_stamp = time.time()
+                else:
+                    # Raise flag (action: poke)
+                    if time.time() - waiting_for_passive_load_time_stamp >= RAISE_FLAG_TIME:
+                        __update_status_code(StatusCode.WAITING_FOR_PASSIVE_LOAD)
+
             else:
+                # clear both time stamps on normal
+                waiting_for_buffer_time_stamp = None
+                waiting_for_passive_load_time_stamp = None
                 __update_status_code(StatusCode.NORMAL)
 
         # ==================================== Time stamp ==================================== #
