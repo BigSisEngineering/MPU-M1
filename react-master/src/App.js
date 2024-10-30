@@ -13,7 +13,7 @@ import OperationControl from "./Layouts/OperationControl/index.js";
 import { DEFAULT_BOOL } from "./Utils/Utils.js";
 
 // DEBUG FLAG
-let DEBUG = false;
+let DEBUG = true;
 
 /* ---------------------------------------------------------------------------------- */
 function generateDocumentTitle(module, row) {
@@ -36,7 +36,7 @@ function generateDocumentTitle(module, row) {
 /* ================================================================================== */
 /*                                     Main Blocks                                    */
 /* ================================================================================== */
-function OperationModeContent({ rowNumber }) {
+function OperationModeContent({ rowNumber, isCageActionMode, setIsCageActionMode }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
 
@@ -95,6 +95,8 @@ function OperationModeContent({ rowNumber }) {
         m1aRunning={m1aRunning}
         m1cRunning={m1cRunning}
         toggleMaintainence={toggleMaintainence}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
       />
       <OperationModeRightColumn
         rowNumber={rowNumber}
@@ -102,6 +104,8 @@ function OperationModeContent({ rowNumber }) {
         setIsSelected={setIsSelected}
         toggleSelected={toggleSelected}
         maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
       />
     </div>
   );
@@ -115,6 +119,8 @@ function OperationModeLeftColumn({
   m1aRunning,
   m1cRunning,
   toggleMaintainence,
+  isCageActionMode,
+  setIsCageActionMode,
 }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
@@ -126,12 +132,21 @@ function OperationModeLeftColumn({
         clearAll={clearAll}
         isSelectedArray={isSelected}
         toggleMaintainence={toggleMaintainence}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
       />
     </div>
   );
 }
 
-function OperationModeRightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected, maintainenceFlag }) {
+function OperationModeRightColumn({
+  rowNumber,
+  isSelected,
+  setIsSelected,
+  toggleSelected,
+  maintainenceFlag,
+  isCageActionMode,
+}) {
   return (
     <div
       className="columns-container"
@@ -143,6 +158,7 @@ function OperationModeRightColumn({ rowNumber, isSelected, setIsSelected, toggle
         setIsSelected={setIsSelected}
         toggleSelected={toggleSelected}
         maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
       />
     </div>
   );
@@ -150,7 +166,7 @@ function OperationModeRightColumn({ rowNumber, isSelected, setIsSelected, toggle
 /* ================================================================================== */
 /*                                    Display Mode                                    */
 /* ================================================================================== */
-function DisplayModeContent({ rowNumber, dictExperiment }) {
+function DisplayModeContent({ rowNumber, dictExperiment, isCageActionMode, setIsCageActionMode }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
 
@@ -210,6 +226,8 @@ function DisplayModeContent({ rowNumber, dictExperiment }) {
         m1cRunning={m1cRunning}
         toggleMaintainence={toggleMaintainence}
         dictExperiment={dictExperiment}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
       />
       <DisplayModeRightColumn
         rowNumber={rowNumber}
@@ -217,6 +235,7 @@ function DisplayModeContent({ rowNumber, dictExperiment }) {
         setIsSelected={setIsSelected}
         toggleSelected={toggleSelected}
         maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
       />
     </div>
   );
@@ -231,6 +250,8 @@ function DisplayModeLeftColumn({
   m1cRunning,
   toggleMaintainence,
   dictExperiment,
+  isCageActionMode,
+  setIsCageActionMode,
 }) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
@@ -241,7 +262,14 @@ function DisplayModeLeftColumn({
   );
 }
 
-function DisplayModeRightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected, maintainenceFlag }) {
+function DisplayModeRightColumn({
+  rowNumber,
+  isSelected,
+  setIsSelected,
+  toggleSelected,
+  maintainenceFlag,
+  isCageActionMode,
+}) {
   return (
     <div
       className="columns-container"
@@ -253,6 +281,7 @@ function DisplayModeRightColumn({ rowNumber, isSelected, setIsSelected, toggleSe
         setIsSelected={setIsSelected}
         toggleSelected={toggleSelected}
         maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
       />
     </div>
   );
@@ -265,6 +294,7 @@ function Main() {
   const [isError, setIsError] = useState(false);
   const [isTimeout, setIsTimeout] = useState(false);
   const [isDisplayOnly, setIsDisplayOnly] = useState(false);
+  const [isCageActionMode, setIsCageActionMode] = useState(true);
 
   const dictInfo = useDict(Dicts.info);
   const dictSession = useDict(Dicts.session);
@@ -324,7 +354,12 @@ function Main() {
           isDisplayOnly={isDisplayOnly}
           setIsDisplayOnly={setIsDisplayOnly}
         />
-        <DisplayModeContent rowNumber={rowNumber} dictExperiment={dictExperiment} />
+        <DisplayModeContent
+          rowNumber={rowNumber}
+          dictExperiment={dictExperiment}
+          isCageActionMode={isCageActionMode}
+          setIsCageActionMode={setIsCageActionMode}
+        />
       </>
     );
   }
@@ -339,7 +374,11 @@ function Main() {
         isDisplayOnly={isDisplayOnly}
         setIsDisplayOnly={setIsDisplayOnly}
       />
-      <OperationModeContent rowNumber={rowNumber} />
+      <OperationModeContent
+        rowNumber={rowNumber}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
+      />
     </>
   );
 }

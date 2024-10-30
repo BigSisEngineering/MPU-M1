@@ -4,14 +4,21 @@ import Cage from "../Cage/index.js";
 import CCTV from "../CCTV/index.js";
 import { Gap } from "../../Components/index.js";
 
-function Cages({ row, isSelected, toggleSelected }) {
+function Cages({ row, isSelected, toggleSelected, isCageActionMode }) {
   return (
     <>
       <Gap height={50} />
       <div className="row-container" style={{ justifyContent: "center" }}>
         {Array.from({ length: 5 }, (_, i) => (
           <div className="columns-container" style={{ width: "14%" }}>
-            <Cage key={i} row={row} number={i + 1} isSelected={isSelected[i]} toggleSelected={toggleSelected(i)} />
+            <Cage
+              key={i}
+              row={row}
+              number={i + 1}
+              isSelected={isSelected[i]}
+              toggleSelected={toggleSelected(i)}
+              isCageActionMode={isCageActionMode}
+            />
           </div>
         ))}
       </div>
@@ -24,6 +31,7 @@ function Cages({ row, isSelected, toggleSelected }) {
               number={i + 6}
               isSelected={isSelected[i + 5]}
               toggleSelected={toggleSelected(i + 5)}
+              isCageActionMode={isCageActionMode}
             />
           </div>
         ))}
@@ -37,6 +45,7 @@ function Cages({ row, isSelected, toggleSelected }) {
               number={i + 11}
               isSelected={isSelected[i + 10]}
               toggleSelected={toggleSelected(i + 10)}
+              isCageActionMode={isCageActionMode}
             />
           </div>
         ))}
