@@ -168,9 +168,9 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
         <Gap />
         {displayButtons && (
           <div className="buttons-container">
-            <Button name="Raise Nozzle" onClick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")} />
-            <Button name="Lower Nozzle" onClick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")} />
-            <Button name="Home SW" onClick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
+            <Button name="Raise Nozzle" onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")} />
+            <Button name="Lower Nozzle" onclick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")} />
+            <Button name="Home SW" onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
           </div>
         )}
         <Gap height="20" />

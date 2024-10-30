@@ -38,7 +38,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
   const [unloaderStatus, setUnloaderStatus] = useState(DEFAULT_MSG);
   const [starwheelStatus, setStarwheelStatus] = useState(DEFAULT_MSG);
   const [maintainenceFlag, setMaintainenceFlag] = useState(DEFAULT_BOOL);
-  const [statusCode, setStatusCode] = useState(DEFAULT_MSG);
+  const [statusCode, setStatusCode] = useState(-1);
   //
   const [loadSensor, setLoadSensor] = useState(-1);
   const [unloadSensor, setUnloadSensor] = useState(-1);
@@ -59,7 +59,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
       try {
         setUnloaderStatus(dictData[cageHostname]["unloader_status"]);
         setStarwheelStatus(dictData[cageHostname]["star_wheel_status"]);
-        setStatusCode(dictData[cageHostname]["status_code"]);
+        setStatusCode(parseInt(dictData[cageHostname]["status_code"]));
         //
         const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
         setLoadSensor(sensors[0]);
@@ -70,7 +70,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
       } catch {
         setUnloaderStatus(DEFAULT_MSG);
         setStarwheelStatus(DEFAULT_MSG);
-        setStatusCode(DEFAULT_MSG);
+        setStatusCode(-1);
         setLoadSensor(-1);
         setUnloadSensor(-1);
         setBufferSensor(-1);
@@ -82,7 +82,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
     } else {
       setUnloaderStatus(DEFAULT_MSG);
       setStarwheelStatus(DEFAULT_MSG);
-      setStatusCode(DEFAULT_MSG);
+      setStatusCode(-1);
       setLoadSensor(-1);
       setUnloadSensor(-1);
       setBufferSensor(-1);
