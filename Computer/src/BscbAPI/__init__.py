@@ -23,6 +23,16 @@ last_error = time.time()
 time_stamp = time.time()
 
 
+class InitializeStep:
+    CLEAR_ERROR = 0
+    INIT_UNLOADER = 1
+    WAIT_FOR_SENSORS = 2
+    INIT_STARWHEEL = 3
+
+
+initialize_step_current = InitializeStep.CLEAR_ERROR
+
+
 class StatusCode:
     SW_INITIALIZING = 0x00
     PRIMING_CHANNELS = 0x01
@@ -93,82 +103,83 @@ def get_str_from_Status(input: Status):
 # ==================================================================================== #
 #                                      Sub actions                                     #
 # ==================================================================================== #
-def __action_servo_initialize() -> None:
-    global BOARD_DATA, BOARD, lock, KILLER, auto_clear_error, make_auto_home_decision, update_error_timer
+def __servo_initialize(is_buffer_full: bool, is_loader_get_pot: bool) -> None:
+    global BOARD_DATA, BOARD, lock, KILLER, make_auto_home_decision, update_error_timer, initialize_step_current
 
     with data.lock:
-        data.initialize_servo_flag = False
+        _auto_clear_attempts = data.auto_clear_error_attempts
 
-    auto_clear_error = 0
-    _ul_init_successful: bool = False
-    _sw_init_successful: bool = False
+    # ===================================== Give up? ===================================== #
+    if _auto_clear_attempts >= data.max_auto_clear_error:
+        # give up on auto init
+        with data.lock:
+            data.initialize_servo_flag = False
 
-    while auto_clear_error < data.max_auto_clear_error:
+        # Require start from beginning
+        initialize_step_current = InitializeStep.CLEAR_ERROR
+        return
+
+    # ====================================== Action ====================================== #
+    if initialize_step_current == InitializeStep.CLEAR_ERROR:
         # clear error
         __update_status_code(StatusCode.CLEARING_SERVO_ERROR)
-        ul_error_cleared = BOARD.unloader_clear_error()
-        sw_error_cleared = BOARD.star_wheel_clear_error()
+        _ul_error_cleared = BOARD.unloader_clear_error()
+        _sw_error_cleared = BOARD.star_wheel_clear_error()
 
-        if ul_error_cleared and sw_error_cleared:
-            # initialize unloader
-            __update_status_code(StatusCode.UL_INITIALIZING)
-            _ul_init_successful = BOARD.unloader_init()
-
-            if _ul_init_successful:
-                is_buffer_full: bool = False
-                is_loader_get_pot: bool = False
-
-                # wait for sensors to trigger (priming)
-                # FIXME -> still blocking
-                __update_status_code(StatusCode.PRIMING_CHANNELS)
-                while not KILLER.is_set() and not is_buffer_full and not is_loader_get_pot:
-                    with lock:
-                        BOARD_DATA.sensors_values = BOARD.ask_sensors()
-                        is_buffer_full = (
-                            BOARD.resolve_sensor_status(BOARD_DATA.sensors_values, SensorID.BUFFER.value) == 1
-                        )
-                        is_loader_get_pot = (
-                            BOARD.resolve_sensor_status(BOARD_DATA.sensors_values, SensorID.LOAD.value) == 1
-                        )
-
-                # initialize sw
-                __update_status_code(StatusCode.SW_INITIALIZING)
-                _sw_init_successful = BOARD.star_wheel_init()
-                if _sw_init_successful:
-                    break
-                else:
-                    __update_status_code(StatusCode.ERROR_SW)
-
-            else:
-                __update_status_code(StatusCode.ERROR_UL)
+        if _ul_error_cleared and _sw_error_cleared:
+            # move on to next step
+            initialize_step_current = InitializeStep.INIT_UNLOADER
         else:
+            # add to attempt on failure
             __update_status_code(StatusCode.UNABLE_TO_CLEAR_ERROR)
+            with data.lock:
+                data.auto_clear_error_attempts += 1
+        return
 
-        auto_clear_error += 1
+    elif initialize_step_current == InitializeStep.INIT_UNLOADER:
+        # init unloader
+        __update_status_code(StatusCode.UL_INITIALIZING)
+        _ul_init_successful = BOARD.unloader_init()
 
-    if _ul_init_successful and _sw_init_successful:
-        # reset auto homing
-        update_error_timer = True
-        make_auto_home_decision = True
+        if _ul_init_successful:
+            # move on to next step
+            initialize_step_current = InitializeStep.WAIT_FOR_SENSORS
+        else:
+            # add to attempt on failure
+            __update_status_code(StatusCode.ERROR_UL)
+            with data.lock:
+                data.auto_clear_error_attempts += 1
+        return
 
-    else:
-        # disable operation
-        pass
-        # ! temporarily never pass
-        # __disable_operation()
+    elif initialize_step_current == InitializeStep.WAIT_FOR_SENSORS:
+        # wait
+        __update_status_code(StatusCode.PRIMING_CHANNELS)
 
+        if is_buffer_full and is_loader_get_pot:
+            # move on to next step
+            initialize_step_current = InitializeStep.INIT_STARWHEEL
+        return
 
-def __disable_operation():
-    with data.lock:
-        data.dummy_enabled = False
-        data.pnp_enabled = False
-        data.experiment_enabled = False
+    elif initialize_step_current == InitializeStep.INIT_STARWHEEL:
+        # initialize sw
+        __update_status_code(StatusCode.SW_INITIALIZING)
+        _sw_init_successful = BOARD.star_wheel_init()
 
+        if _sw_init_successful:
+            # reset
+            initialize_step_current = InitializeStep.CLEAR_ERROR
+            update_error_timer = True
+            make_auto_home_decision = True
 
-def __disable_operation_with_camera():
-    with data.lock:
-        data.pnp_enabled = False
-        data.experiment_enabled = False
+            with data.lock:
+                data.initialize_servo_flag = False
+                data.auto_clear_error_attempts = 0
+        else:
+            # add to attempt on failure
+            __update_status_code(StatusCode.ERROR_UL)
+            with data.lock:
+                data.auto_clear_error_attempts += 1
+        return
 
 
 # ==================================================================================== #
@@ -179,17 +190,8 @@ def update(stop_event: threading.Event):
     while not stop_event.is_set():
         try:
             if time.time() - timer > (1 / 60):
-
                 # main loop
                 execute()
-
-                # read initialize flag
-                with data.lock:
-                    _initialize_servo_flag = data.initialize_servo_flag
-
-                # perform 3 initialization attempts
-                if _initialize_servo_flag:
-                    __action_servo_initialize()
 
                 timer = time.time()
         except Exception as e:
@@ -210,18 +212,9 @@ def __update_sensor_timer_flag(sensors_values) -> None:
             sensor_timer_flag = True
 
 
-def __compute_new_time_stamp(dt, cycle_time) -> float:
-    # FIXME -> does not work
-    # _time_diff = dt - cycle_time
-    # if _time_diff > 0:
-    #     # shift time backwards
-    #     return time.time() - _time_diff
-    return time.time()
-
-
 @comm.timer()
 def execute():
-    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, auto_clear_error, sensor_timeout, last_error, make_auto_home_decision, update_error_timer, first_error
+    global BOARD_DATA, BOARD, lock, MongoDB_INIT, time_stamp, sensor_timer_flag, sensor_time, sensor_timeout, last_error, make_auto_home_decision, update_error_timer, first_error
     try:
         # ===================================== Update board data ==================================== #
         with lock:
@@ -282,9 +275,11 @@ def execute():
             # initialize timer for last error
             if update_error_timer:
                 # log instance
-                logging.info(
-                    f"{'Starwheel overload' if is_star_wheel_error else 'Unloader overload'} at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                )
+                if is_star_wheel_error:
+                    logging.info(f"Starwheel overload at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                if is_unloader_error:
+                    logging.info(f"Unloader overload at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
                 last_error = time.time()
                 update_error_timer = False
 
@@ -311,7 +306,7 @@ def execute():
 
             if _execute:
                 # only update timestamp if execute, else flush
-                time_stamp = __compute_new_time_stamp(_dt, cycle_time)
+                time_stamp = time.time()
 
                 CLI.printline(Level.INFO, f"(Background)-Running PNP")
 
@@ -351,7 +346,7 @@ def execute():
             _execute = _dt > cycle_time and is_safe_to_move
 
             if _execute:
-                time_stamp = __compute_new_time_stamp(_dt, cycle_time)
+                time_stamp = time.time()
 
                 CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
 
@@ -387,7 +382,7 @@ def execute():
             _execute = _dt > cycle_time and is_camera_operation_ready
 
             if _execute:
-                time_stamp = __compute_new_time_stamp(_dt, cycle_time)
+                time_stamp = time.time()
 
                 CLI.printline(Level.INFO, f"(Background)-Running EXPERIMENT ")
 
@@ -425,6 +420,14 @@ def execute():
         else:
             __update_mode(Mode.IDLE)
             MongoDB_INIT = False
+
+        # ==================================== Initialize? =================================== #
+        with data.lock:
+            _initialize_servo_flag = data.initialize_servo_flag
+
+        # perform initialization
+        if _initialize_servo_flag:
+            __servo_initialize(is_buffer_full, is_loader_get_pot)
 
     except Exception as e:
         CLI.printline(Level.ERROR, f"(BscbAPI)-Loop error-{e}")

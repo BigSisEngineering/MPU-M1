@@ -69,7 +69,9 @@ def post_unloader_init():
 
 def post_all_servos_init():
     with data.lock:
+        # set flag to true, reset auto clear attempts
         data.initialize_servo_flag = True
+        data.auto_clear_error_attempts = 0
     return "Initialize servo -> True"
 
 
