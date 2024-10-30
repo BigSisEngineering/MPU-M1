@@ -221,7 +221,7 @@ class BScbAPI:
             return False
         if not self.is_readback_status_normal(self.unloader_status):
             return False
-        # Hex message to send
+
         hex_message = []
         hex_message += bytearray.fromhex("AA")
         hex_message += bytearray.fromhex("02")
@@ -234,9 +234,10 @@ class BScbAPI:
 
         try:
             self.ser.write(hex_message)
+
         except serial.SerialException as e:
             self.update_com_port()
-            print(f"Serial error: {e}")
+
         self.unloader_status = self.got_Status_respond(timeout=20)
 
         if self.is_readback_status_normal(self.unloader_status):
@@ -650,7 +651,7 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
 
-        return None
+        return -1  # on error
 
     def is_unloader_homed(self):
         _unloader_position = self.get_unloader_position()

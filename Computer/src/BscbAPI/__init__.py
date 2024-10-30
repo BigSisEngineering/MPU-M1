@@ -157,8 +157,16 @@ def __servo_initialize(is_buffer_full: bool, is_loader_get_pot: bool) -> None:
         return
 
     elif initialize_step_current == InitializeStep.WAIT_FOR_SENSORS:
+        if not is_buffer_full:
+            # ?timestamp here as well
+            __update_status_code(StatusCode.WAITING_FOR_BUFFER)
+
+        elif is_buffer_full and not is_loader_get_pot:
+            # ?timestamp here as well
+            __update_status_code(StatusCode.WAITING_FOR_PASSIVE_LOAD)
+
         # wait
-        if is_buffer_full and is_loader_get_pot:
+        elif is_buffer_full and is_loader_get_pot:
             # move on to next step
             initialize_step_current = InitializeStep.INIT_STARWHEEL
         return
