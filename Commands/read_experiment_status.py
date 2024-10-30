@@ -1,19 +1,11 @@
 import requests
 import threading
 import time
-import datetime
 
-# set row
-row = 1
-
-# initialize dict
-result_dict = {}
-for i in range(1, 15):
-    hostname = f"cage{row}x{str(i).zfill(4)}"
-    result_dict[hostname] = ""
+killer = threading.Event()
 
 
-def get_experiment_status(hostname, retries=2, delay=0):
+def get_experiment_status(hostname, result_dict, retries=2, delay=0):
     url = f"http://{hostname}.local:8080/ExperimentData"
 
     for attempt in range(retries):
@@ -21,29 +13,43 @@ def get_experiment_status(hostname, retries=2, delay=0):
             response = requests.get(url=url, timeout=50)
             if response.status_code == 200:
                 result_dict[hostname] = f"{hostname}: {response.text.strip()}"
-                return  # Exit function if successful
+                return
             else:
                 result_dict[hostname] = f"{hostname}: received status {response.status_code}"
 
         except requests.exceptions.RequestException as e:
-            # Log the exception or response failure
             result_dict[hostname] = f"{hostname}: error occurred, attempt {attempt + 1}"
 
-        # Delay before retrying
         time.sleep(delay)
 
-    # If all retries fail, set a final error message
     result_dict[hostname] = f"{hostname}: failed after {retries} attempts"
 
 
-if __name__ == "__main__":
+def print_data(row: int):
+    global killer
+
     row = row - 1
-    while True:
+
+    # initialize dict
+    result_dict = {}
+    for i in range(1, 15):
+        hostname = f"cage{row}x{str(i).zfill(4)}"
+        result_dict[hostname] = ""
+
+    while not killer.is_set():
         try:
             threads = []
             for i in range(1, 15):
                 hostname = f"cage{row}x{str(i).zfill(4)}"
-                threads.append(threading.Thread(target=get_experiment_status, args=(hostname,)))
+                threads.append(
+                    threading.Thread(
+                        target=get_experiment_status,
+                        args=(
+                            hostname,
+                            result_dict,
+                        ),
+                    )
+                )
 
             for thread in threads:
                 thread.start()
@@ -59,4 +65,18 @@ if __name__ == "__main__":
             time.sleep(5)
 
         except KeyboardInterrupt:
+            break
+
+
+if __name__ == "__main__":
+    # ===================================== Start row ==================================== #
+    threading.Thread(target=print_data, args=(3,)).start()
+    threading.Thread(target=print_data, args=(4,)).start()
+
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print("event killer set")
+            killer.set()
             break

@@ -6,7 +6,7 @@ import os
 import threading
 import requests
 
-row = 0
+row = 3 - 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []

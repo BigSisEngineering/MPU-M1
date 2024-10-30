@@ -94,47 +94,19 @@ def get_cage_number():
     return cage_number
 
 
-def get_shift(cage_number: int):
-    if cage_number == 1:
-        return 0
-    if cage_number == 2:
-        return 1
-    if cage_number == 3:
-        return 2
-    if cage_number == 4:
-        return 3
-    if cage_number == 5:
-        return 4
-    if cage_number == 6:
-        return 0
-    if cage_number == 7:
-        return 1
-    if cage_number == 8:
-        return 2
-    if cage_number == 9:
-        return 3
-    if cage_number == 10:
-        return 4
-    if cage_number == 11:
-        return 0
-    if cage_number == 12:
-        return 1
-    if cage_number == 13:
-        return 2
-    if cage_number == 14:
-        return 3
-
-
-# | AI | AI | AI | AI | PURGE |
 # ============================= To be exposed if required ============================ #
-experiment2_interval = 60
-experiment2_purge_frequency = 5
+sequence_duration = 14 * 60  # 14 minutes
+purge_frequency = 5
 
 # ====================================== Driven ====================================== #
+TOTAL_CAGES = 14
+STARWHEEL_SLOTS = 80
+interval = sequence_duration / TOTAL_CAGES
+time_elapsed = 0
+index_ui = 0
+
 experiment2_pot_counter = 0
-experiment2_max_pot = 80
-experiment2_sequence_number = 0
-experiment2_previous_sequence_number = experiment2_purge_frequency + 1
-experiment2_sequence_duration = 14 * experiment2_interval  # 14 min
-# dummy out of bound value for initial toggling
+experiment2_previous_sequence_number = -1  # out of bound value for init
+
+
 cage_number = get_cage_number()

@@ -1,0 +1,5 @@
+.vscode/settings.json
+react-master/build/
+react-master/node_modules/
+cage-react/build/
+cage-react/node_modules/
