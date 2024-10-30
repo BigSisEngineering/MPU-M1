@@ -54,6 +54,8 @@ class StatusCode:
     SELF_FIX_PENDING = 0x12
     WAITING_FOR_BUFFER = 0x13
     WAITING_FOR_PASSIVE_LOAD = 0x14
+    INIT_WAITING_FOR_BUFFER = 0x15
+    INIT_WAITING_FOR_PASSIVE_LOAD = 0x16
 
 
 class Mode:
@@ -159,11 +161,11 @@ def __servo_initialize(is_buffer_full: bool, is_loader_get_pot: bool) -> None:
     elif initialize_step_current == InitializeStep.WAIT_FOR_SENSORS:
         if not is_buffer_full:
             # ?timestamp here as well
-            __update_status_code(StatusCode.WAITING_FOR_BUFFER)
+            __update_status_code(StatusCode.INIT_WAITING_FOR_BUFFER)
 
         elif is_buffer_full and not is_loader_get_pot:
             # ?timestamp here as well
-            __update_status_code(StatusCode.WAITING_FOR_PASSIVE_LOAD)
+            __update_status_code(StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD)
 
         # wait
         elif is_buffer_full and is_loader_get_pot:
