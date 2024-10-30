@@ -30,6 +30,8 @@ class StatusCode {
   static SELF_FIX_PENDING = 0x12;
   static WAITING_FOR_BUFFER = 0x13;
   static WAITING_FOR_PASSIVE_LOAD = 0x14;
+  static INIT_WAITING_FOR_BUFFER = 0x15;
+  static INIT_WAITING_FOR_PASSIVE_LOAD = 0x16;
 }
 
 function App() {
@@ -70,9 +72,13 @@ function App() {
       case StatusCode.SELF_FIX_PENDING:
         return "error detected, attempting self fix";
       case StatusCode.WAITING_FOR_BUFFER:
-        return "waiting for buffer";
+        return "waiting for buffer to be filled";
       case StatusCode.WAITING_FOR_PASSIVE_LOAD:
         return "waiting for pot to enter starwheel";
+      case StatusCode.INIT_WAITING_FOR_BUFFER:
+        return "waiting for buffer to proceed with starwheel init";
+      case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
+        return "waiting for pot to enter starwheel to proceed with starwheel init";
       default:
         return "unknown status";
     }
