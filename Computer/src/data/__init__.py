@@ -40,11 +40,9 @@ pnp_data: PNPData = PNPData(
     cycle_time=3.0,
 )
 
-is_star_wheel_error: bool = False
-is_unloader_error: bool = False
 max_auto_clear_error = 3
+auto_clear_error_attempts = 0
 
-servos_ready: bool = False
 sw_homing: bool = False
 
 star_wheel_duration_ms: int = 600

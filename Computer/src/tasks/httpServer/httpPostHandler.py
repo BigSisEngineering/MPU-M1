@@ -69,7 +69,9 @@ def post_unloader_init():
 
 def post_all_servos_init():
     with data.lock:
+        # set flag to true, reset auto clear attempts
         data.initialize_servo_flag = True
+        data.auto_clear_error_attempts = 0
     return "Initialize servo -> True"
 
 
@@ -92,6 +94,7 @@ def post_enable_pnp():
 def post_enable_experiment():  # defaults to 0 if start with cage UI
     with data.lock:
         data.experiment_enabled = True
+        data.experiment2_pot_counter = 0
         data.experiment2_previous_sequence_number = -1  # reset to dummy value to trigger new index
 
     logging.info(f"Experiment mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -101,16 +104,10 @@ def post_enable_experiment():  # defaults to 0 if start with cage UI
 def post_enable_purge():
     # !OBSOLETE
     with data.lock:
-        _servos_ready = data.servos_ready
+        data.purge_enabled = True
 
-    if _servos_ready:
-        with data.lock:
-            data.purge_enabled = True
-
-        logging.info(f"Purge mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        return "Purge enabled"
-
-    return "Purge not enabled. Servos not ready."
+    logging.info(f"Purge mode enabled at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return "Purge enabled"
 
 
 def post_disable_dummy():
