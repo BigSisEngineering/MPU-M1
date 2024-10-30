@@ -94,20 +94,19 @@ def get_cage_number():
     return cage_number
 
 
-# | AI | AI | AI | AI | PURGE |
 # ============================= To be exposed if required ============================ #
-time_interval = 14 * 60  # 14 minutes
-max_sequence_index = 5
+sequence_duration = 14 * 60  # 14 minutes
+purge_frequency = 5
 
 # ====================================== Driven ====================================== #
 TOTAL_CAGES = 14
 STARWHEEL_SLOTS = 80
-stagger_delay = time_interval / TOTAL_CAGES
-PURGE_SEQUENCE_INDEX = max_sequence_index - 1  # last iteration
+interval = sequence_duration / TOTAL_CAGES
 time_elapsed = 0
+index_ui = 0
 
 experiment2_pot_counter = 0
-experiment2_previous_sequence_index = max_sequence_index + 1  # out of bound value for init
+experiment2_previous_sequence_number = -1  # out of bound value for init
 
 
 cage_number = get_cage_number()
