@@ -60,3 +60,15 @@ def generate_cage_dict(raw_dict: bool = False):
     if raw_dict:
         return dict_1B
     return json.dumps(dict_1B).encode()
+
+
+def generate_cage_experiment_dict(raw_dict: bool = False):
+    dict_1B = {}
+
+    for cage in Cages:
+        _dict = cage_dict[cage].experiment_status_ui
+        dict_1B[cage.value] = _dict
+
+    if raw_dict:
+        return dict_1B
+    return json.dumps(dict_1B).encode()

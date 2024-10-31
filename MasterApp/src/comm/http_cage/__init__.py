@@ -36,8 +36,8 @@ ACTION_LIST = [
 
 
 class HTTPCage:
-    lock_acquire_timeout_status = 1
-    lock_acquire_timeout_action = 5
+    lock_acquire_timeout_status = 2
+    lock_acquire_timeout_action = 5  #!OBSOLETE
     request_timeout = (10, 5)
     MAX_TIMEOUT = 3  # instances
 
@@ -56,6 +56,33 @@ class HTTPCage:
 
     # PUBLIC
     # -------------------------------------------------------- #
+    @property
+    def experiment_status(self) -> Dict:
+        """
+        keys: operation_index, slots, max_slots, time_elapsed, time_interval
+        """
+        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_status):
+            try:
+                response = requests.get(
+                    url=f"http://{self._hostname}.local:8080/ExperimentStatus",
+                    timeout=HTTPCage.request_timeout,
+                )
+                return json.loads(response.text)
+
+            except Exception as e:
+                if not hide_exception:
+                    CLI.printline(
+                        Level.ERROR,
+                        "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(
+                            print_name, "GET EXP STS", self._hostname, e
+                        ),
+                    )
+
+            finally:
+                self._lock_request.release()
+
+        return None
+
     @property
     def status(self) -> Dict:
         if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_status):
@@ -101,7 +128,7 @@ class HTTPCage:
         return None
 
     def fetch_pot_data(self) -> int:
-        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
+        with self._lock_request:
             try:
                 pot_num = requests.get(
                     url=f"http://{self._hostname}.local:8080/potData",
@@ -133,18 +160,6 @@ class HTTPCage:
                         Level.ERROR,
                         "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(print_name, "POTDATA", self._hostname, e),
                     )
-
-            finally:
-                self._lock_request.release()
-
-        else:
-            if not hide_exception:
-                CLI.printline(
-                    Level.WARNING,
-                    "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(
-                        print_name, "POTDATA", self._hostname
-                    ),
-                )
         return 0
 
     def exec_action(self, action, params=None) -> str:

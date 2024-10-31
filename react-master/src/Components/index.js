@@ -111,6 +111,20 @@ function Button({ name, onclick, disable = false }) {
   );
 }
 
+function HeaderButton({ name, onclick, disable = false }) {
+  return (
+    <button
+      className="header-button"
+      disabled={disable}
+      onClick={() => {
+        onclick();
+      }}
+    >
+      {name}
+    </button>
+  );
+}
+
 function Gap({ height = null }) {
   if (height === null) {
     return <div className="gap"></div>;
@@ -152,6 +166,7 @@ export {
   Info,
   Subinfo,
   Button,
+  HeaderButton,
   Gap,
   HorizontalLine,
   DebugContent,

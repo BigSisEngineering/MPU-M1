@@ -21,7 +21,7 @@ class CageActions {
   static experiment_set_pause_interval = "SET_PAUSE_INTERVAL";
 }
 
-function CageControl({ selectAll, clearAll, isSelectedArray }) {
+function CageControl({ selectAll, clearAll, isSelectedArray, isCageActionMode, setIsCageActionMode }) {
   function getSelectedCages() {
     let selectedCages = "";
 
@@ -76,11 +76,15 @@ function CageControl({ selectAll, clearAll, isSelectedArray }) {
         {" "}
         <SubcontentTitle text={"⚙ CAGE CONTROL"} />
         <Gap />
-        Quick Select
+        Utility
         <HorizontalLine />
         <div className="buttons-container">
           <Button name="Select All" onclick={selectAll} />
           <Button name="Clear All" onclick={clearAll} />
+          <Button
+            name={isCageActionMode ? "Sensor View" : "Action View"}
+            onclick={() => setIsCageActionMode(!isCageActionMode)}
+          />
         </div>
         <Gap />
         Operation

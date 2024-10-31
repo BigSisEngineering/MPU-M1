@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-// import { fetchJSON } from "../Utils/Utils.js";
 import io from "socket.io-client";
 
 const socket = io();
@@ -14,7 +13,8 @@ class Dicts {
   static system = 4;
   static info = 5;
   static session = 6;
-  static lastping = 7;
+  static experiment = 7;
+  static lastping = 8;
 }
 
 const dictsContext = createContext({
@@ -24,6 +24,7 @@ const dictsContext = createContext({
   [Dicts.system]: null,
   [Dicts.info]: null,
   [Dicts.session]: null,
+  [Dicts.experiment]: null,
   [Dicts.lastping]: null,
 });
 
@@ -35,6 +36,7 @@ const ContentProvider = ({ children }) => {
     [Dicts.system]: null,
     [Dicts.info]: null,
     [Dicts.session]: null,
+    [Dicts.experiment]: null,
     [Dicts.lastping]: { time: Math.floor(Date.now() / 1000) },
   });
 
@@ -60,6 +62,10 @@ const ContentProvider = ({ children }) => {
       setDictValues((prev) => ({ ...prev, [Dicts.info]: data }));
     };
 
+    const handleExperiment = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.experiment]: data }));
+    };
+
     const handleSession = (data) => {
       updateLastPing();
       setDictValues((prev) => ({ ...prev, [Dicts.session]: data }));
@@ -76,6 +82,7 @@ const ContentProvider = ({ children }) => {
     socket.on("cages", handleCages);
     socket.on("system", handleSystem);
     socket.on("info", handleInfo);
+    socket.on("experiment", handleExperiment);
     socket.on("session", handleSession);
 
     // Cleanup function to remove the event listeners
@@ -85,6 +92,7 @@ const ContentProvider = ({ children }) => {
       socket.off("cages", handleCages);
       socket.off("system", handleSystem);
       socket.off("info", handleInfo);
+      socket.off("experiment", handleExperiment);
       socket.off("session", handleSession);
     };
   }, []); // Empty dependency array to run only once on mount

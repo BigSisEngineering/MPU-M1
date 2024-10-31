@@ -21,8 +21,9 @@ class Readback:
     CAGES = 2
     SYSTEM = 3
     INFO = 4
-    SESSION_ACTIVE = 5
-    SESSION_END = 6
+    EXPERIMENT = 5
+    SESSION_ACTIVE = 6
+    SESSION_END = 7
 
 
 def get_readback_dict(readback: Readback) -> Dict:
@@ -36,6 +37,8 @@ def get_readback_dict(readback: Readback) -> Dict:
         return SV.system_status_raw
     elif readback == Readback.INFO:
         return setup.get_setup_info(raw_dict=True)
+    elif readback == Readback.EXPERIMENT:
+        return components.generate_cage_experiment_dict(raw_dict=True)
     elif readback == Readback.SESSION_ACTIVE:
         return {"session_timeout": False}
     elif readback == Readback.SESSION_END:
@@ -53,6 +56,8 @@ def get_readback_event(readback: Readback) -> str:
         return "system"
     elif readback == Readback.INFO:
         return "info"
+    elif readback == Readback.EXPERIMENT:
+        return "experiment"
     elif readback == Readback.SESSION_ACTIVE:
         return "session"
     elif readback == Readback.SESSION_END:
@@ -60,7 +65,7 @@ def get_readback_event(readback: Readback) -> str:
 
 
 class Session:
-    MAX_SESSIONS: int = 2
+    MAX_SESSIONS: int = 4
     TRANSMIT_DELAY = 1
 
     active_sessions: List[str] = []
@@ -75,10 +80,12 @@ class Session:
     def __transmission_thread(self, sid: str):
         # init
         while not Session.end_session_event[sid].is_set():
+            # todo: only emit experiment status when requested
             self.__emit(Readback.SESSION_ACTIVE, sid)
             self.__emit(Readback.INFO, sid)
             self.__emit(Readback.M1A, sid)
             self.__emit(Readback.M1C, sid)
+            self.__emit(Readback.EXPERIMENT, sid)
             self.__emit(Readback.SYSTEM, sid)
             self.__emit(Readback.CAGES, sid)
             self.socketio.sleep(Session.TRANSMIT_DELAY)

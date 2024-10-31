@@ -45,7 +45,7 @@ class SharedVariables:
     PULSE_INTERVAL = 2.5  # seconds
     THREAD_STARTED = False
 
-    BG_WATCHDOG = 2
+    BG_WATCHDOG = 5
     UI_REFRESH_EVENT = threading.Event()
 
     # todo: A1, A2 pause event
