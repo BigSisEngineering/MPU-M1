@@ -15,23 +15,23 @@ import * as PostActions from "./Actions/Post";
 import "./App.css";
 
 class StatusCode {
-  static SW_INITIALIZING = 0;
-  static PRIMING_CHANNELS = 1;
-  static UL_INITIALIZING = 2;
-  static IDLE = 3;
-  static ERROR_SW = 4;
-  static ERROR_UL = 5;
-  static CLEARING_SERVO_ERROR = 6;
-  static UNABLE_TO_CLEAR_ERROR = 7;
-  static ERROR_CAMERA = 8;
-  static NORMAL = 9;
-  static LOADING = 10;
-  static WAIT_ACK = 11;
-  static SELF_FIX_PENDING = 12;
-  static WAITING_FOR_BUFFER = 13;
-  static WAITING_FOR_PASSIVE_LOAD = 14;
-  static INIT_WAITING_FOR_BUFFER = 15;
-  static INIT_WAITING_FOR_PASSIVE_LOAD = 16;
+  static SW_INITIALIZING = "0";
+  static PRIMING_CHANNELS = "1";
+  static UL_INITIALIZING = "2";
+  static IDLE = "3";
+  static ERROR_SW = "4";
+  static ERROR_UL = "5";
+  static CLEARING_SERVO_ERROR = "6";
+  static UNABLE_TO_CLEAR_ERROR = "7";
+  static ERROR_CAMERA = "8";
+  static NORMAL = "9";
+  static LOADING = "10";
+  static WAIT_ACK = "11";
+  static SELF_FIX_PENDING = "12";
+  static WAITING_FOR_BUFFER = "13";
+  static WAITING_FOR_PASSIVE_LOAD = "14";
+  static INIT_WAITING_FOR_BUFFER = "15";
+  static INIT_WAITING_FOR_PASSIVE_LOAD = "16";
 }
 
 function App() {
@@ -105,7 +105,7 @@ function App() {
   const unloaderStatus = boardData ? boardData.unloader_status : "";
   const modeStatus = boardData ? boardData.mode : "";
   const sensorsValues = boardData ? boardData.sensors_values : "(0, 0, 0, 0)";
-  const systemStatus = boardData ? resolveStatusCode(parseInt(boardData.status_code)) : resolveStatusCode(99);
+  const systemStatus = boardData ? resolveStatusCode(boardData.status_code) : resolveStatusCode("99");
 
   // console.log("Sensor Values:", sensorsValues);
   const { starWheel, unloader, mode, load, buffer } = CageStatus(
