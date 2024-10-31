@@ -9,9 +9,11 @@ from src import components
 # -------------------------------------------------------- #
 from src._shared_variables import SV, Cages
 
-print_name = "LOADER_M"
-
 # -------------------------------------------------------- #
+from src import CLI
+from src.CLI import Level
+
+print_name = "POT DISP"
 
 
 class A3:
@@ -58,6 +60,7 @@ class A3:
                         time_stamp = time.time()
                 else:
                     components.A3.stop()
+        CLI.printline(Level.INFO, "({:^10}) End".format(print_name))
 
     # ------------------------------------------------------------------------------------ #
     def _get_pot_cage(self, cage) -> None:
@@ -108,11 +111,11 @@ class A3:
                         self._accumulated_pots += num_pots  # add pots if not executed
 
         except Exception as e:
-            print("{:^10}-{:^15} Exception -> {}".format(print_name, "SEND PULSE", e))
+            CLI.printline(Level.ERROR, "{:^10}-{:^15} Exception -> {}".format(print_name, "SEND PULSE", e))
 
         return False
 
     # -------------------------------------------------------- #
     def start(self) -> None:
-        print("{:^10} Start.".format(print_name))
+        CLI.printline(Level.INFO, "({:^10}) Start".format(print_name))
         self.loop_thread.start()

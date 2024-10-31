@@ -1,11 +1,12 @@
 from enum import Enum
 import threading
-from typing import Optional, Dict
+from typing import Dict
+import json
+
 # ------------------------------------------------------------------------------------ #
 from src import setup
 
 print_name = "SV"
-
 
 
 class Duet(Enum):
@@ -36,32 +37,6 @@ class Cages(Enum):
     CAGE12 = f"cage{setup.ROW-1}x0012"
     CAGE13 = f"cage{setup.ROW-1}x0013"
     CAGE14 = f"cage{setup.ROW-1}x0014"
-    # CAGE15 = f"cage{setup.ROW-1}x0015"
-
-
-# -------------------------------------------------------- #
-class Mode(Enum):
-    pnp_mode = 0
-    dummy_mode = 1
-    idle = 2
-    offline = 3
-
-
-class Status(Enum):
-    normal = 0
-    slot_empty = 1
-    error = 2
-    offline = 3
-    not_init = 4
-
-
-cage_mode_dict: Optional[Dict[Cages, Mode]] = {}
-cage_status_dict: Optional[Dict[Cages, Status]] = {}
-
-for cage in Cages:
-    cage_mode_dict[cage] = Mode.offline
-    cage_status_dict[cage] = Status.offline
-# -------------------------------------------------------- #
 
 
 class SharedVariables:
@@ -70,10 +45,8 @@ class SharedVariables:
     PULSE_INTERVAL = 2.5  # seconds
     THREAD_STARTED = False
 
-    BG_WATCHDOG = 4
+    BG_WATCHDOG = 2
     UI_REFRESH_EVENT = threading.Event()
-
-    last_update_time = "------"
 
     # todo: A1, A2 pause event
 
@@ -83,9 +56,6 @@ class SharedVariables:
 
         self._run_1c = False
         self._lock_run_1c = threading.Lock()
-
-        self.is1AActive = False
-        self.is1CActive = False
 
     # -------------------------------------------------------- #
     @property
@@ -109,6 +79,16 @@ class SharedVariables:
         with self._lock_run_1c:
             self._run_1c = w
         return "{:^10} RUN 1C -> {}".format(print_name, w)
+
+    @property
+    def system_status(self) -> Dict:
+        dict = {"1a": self.run_1a, "1c": self.run_1c}
+        return json.dumps(dict).encode()
+
+    @property
+    def system_status_raw(self) -> Dict:
+        dict = {"1a": self.run_1a, "1c": self.run_1c}
+        return dict
 
 
 SV = SharedVariables()

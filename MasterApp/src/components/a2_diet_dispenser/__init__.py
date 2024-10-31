@@ -5,7 +5,12 @@ import threading
 
 # ------------------------------------------------------------------------------------ #
 from src.comm.http_duet import HTTPDuet
+
+# ------------------------------------------------------------------------------------ #
 from src._shared_variables import Duet, SV
+
+# ------------------------------------------------------------------------------------ #
+from src import data
 
 # ------------------------------------------------------------------------------------ #
 from src import CLI
@@ -86,52 +91,69 @@ class DietDispenser(HTTPDuet):
             _status_ui = self._status_ui
         return _status_ui
 
+    def _get_pots_dispensed(self) -> int:
+        if self.is_ready:
+            return self.read_global("pots_dispensed")
+        return 0
+
+    def _update_data(self) -> None:
+        pots_dispensed = self.read_global("pots_dispensed")
+        if isinstance(pots_dispensed, int):
+            data.A2.update_data(pots_dispensed)
+        else:
+            CLI.printline(
+                Level.WARNING,
+                "{:^10}-{:^15} Update data failed -> Invalid data.".format(print_name, self._duet_name),
+            )
+
     def start(self) -> bool:
-        if self.is_ready and self.read_global("run") == 0:
-            if self.set_global("run", 1):
-                CLI.printline(Level.INFO, "{:^10}-{:^15} Start.".format(print_name, self._duet_name))
-        CLI.printline(Level.WARNING, "{:^10}-{:^15} Start failed.".format(print_name, self._duet_name))
+        if self.is_ready:
+            run = self.read_global("run")
+            if run == 0:
+                if self.set_global("pots_dispensed", 0) and self.set_global("run", 1):
+                    data.A2.create_session()  # create new session
+                    CLI.printline(Level.INFO, "{:^10}-{:^15} Start.".format(print_name, self._duet_name))
+                    return True
+
+            elif run == 1:
+                self._update_data()  # update data
+        else:
+            CLI.printline(Level.WARNING, "{:^10}-{:^15} Start failed.".format(print_name, self._duet_name))
         return False
 
     def stop(self) -> bool:
         if self.is_ready and self.read_global("run") == 1:
             if self.set_global("run", 0):
+                self._update_data()  # final update
                 CLI.printline(Level.INFO, "{:^10}-{:^15} Stop.".format(print_name, self._duet_name))
-        # CLI.printline(Level.WARNING, "{:^10}-{:^15} Stop failed.".format(print_name, self._duet_name))
         return False
 
     # ------------------------------------------------------------------------------------ #
-    def reposition_nozzle(self) -> bool:
+    def reposition_nozzle(self) -> str:
         if self.is_ready and self.read_global("flag_reposition_nozzle") == 0:
             if self.set_global("flag_reposition_nozzle", 1):
-                CLI.printline(Level.INFO, "{:^10}-{:^15} Reposition nozzle.".format(print_name, self._duet_name))
-        CLI.printline(Level.WARNING, "{:^10}-{:^15} Reposition nozzle failed.".format(print_name, self._duet_name))
-        return False
+                return "{:^10}-{:^15} Reposition nozzle.".format(print_name, self._duet_name)
+        return "{:^10}-{:^15} Reposition nozzle failed.".format(print_name, self._duet_name)
 
-    def raise_nozzle(self) -> bool:
+    def raise_nozzle(self) -> str:
         if self.is_ready and self.read_global("flag_raise_nozzle") == 0:
             if self.set_global("flag_raise_nozzle", 1):
-                CLI.printline(Level.INFO, "{:^10}-{:^15} Raise nozzle.".format(print_name, self._duet_name))
-        CLI.printline(Level.WARNING, "{:^10}-{:^15} Raise nozzle failed.".format(print_name, self._duet_name))
-        return False
+                return "{:^10}-{:^15} Raise nozzle.".format(print_name, self._duet_name)
+        return "{:^10}-{:^15} Raise nozzle failed.".format(print_name, self._duet_name)
 
-    def sw_ack_fault(self) -> bool:
+    def sw_ack_fault(self) -> str:
         if self.is_ready:
             if self.set_global("flag_sw_clear_fault", 1):
-                CLI.printline(Level.INFO, "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name))
-                return True
-        CLI.printline(Level.WARNING, "{:^10}-{:^15} SW clear fault failed.".format(print_name, self._duet_name))
-        return False
+                return "{:^10}-{:^15} SW clear fault.".format(print_name, self._duet_name)
+        return "{:^10}-{:^15} SW clear fault failed.".format(print_name, self._duet_name)
 
-    def sw_home(self) -> bool:
+    def sw_home(self) -> str:
         if self.is_ready:
             if self.set_global("flag_sw_home", 1):
-                CLI.printline(Level.INFO, "{:^10}-{:^15} SW home.".format(print_name, self._duet_name))
-                return True
-        CLI.printline(Level.WARNING, "{:^10}-{:^15} SW home failed.".format(print_name, self._duet_name))
-        return False
+                return "{:^10}-{:^15} SW home.".format(print_name, self._duet_name)
+        return "{:^10}-{:^15} SW home failed.".format(print_name, self._duet_name)
 
 
 def debug():
     obj = DietDispenser()
-    obj.sw_home()
+    print(obj.read_object("sensors"))

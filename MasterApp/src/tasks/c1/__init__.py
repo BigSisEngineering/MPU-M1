@@ -7,6 +7,10 @@ from src import components
 # -------------------------------------------------------- #
 from src._shared_variables import SV
 
+# -------------------------------------------------------- #
+from src import CLI
+from src.CLI import Level
+
 print_name = "CHIMNEY_SORTER"
 
 
@@ -22,8 +26,9 @@ class C1:
                 components.C1.start() if SV.run_1c else components.C1.stop()
 
                 time_stamp = time.time()
+        CLI.printline(Level.INFO, "({:^10}) End".format(print_name))
 
     # -------------------------------------------------------- #
     def start(self):
-        print("{:^10} Start.".format(print_name))
+        CLI.printline(Level.INFO, "({:^10}) Start".format(print_name))
         self.loop_thread.start()
