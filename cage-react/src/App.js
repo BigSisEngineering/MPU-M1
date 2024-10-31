@@ -15,23 +15,23 @@ import * as PostActions from "./Actions/Post";
 import "./App.css";
 
 class StatusCode {
-  static SW_INITIALIZING = 0x00;
-  static PRIMING_CHANNELS = 0x01;
-  static UL_INITIALIZING = 0x02;
-  static IDLE = 0x03;
-  static ERROR_SW = 0x04;
-  static ERROR_UL = 0x05;
-  static CLEARING_SERVO_ERROR = 0x06;
-  static UNABLE_TO_CLEAR_ERROR = 0x07;
-  static ERROR_CAMERA = 0x08;
-  static NORMAL = 0x09;
-  static LOADING = 0x10;
-  static WAIT_ACK = 0x11;
-  static SELF_FIX_PENDING = 0x12;
-  static WAITING_FOR_BUFFER = 0x13;
-  static WAITING_FOR_PASSIVE_LOAD = 0x14;
-  static INIT_WAITING_FOR_BUFFER = 0x15;
-  static INIT_WAITING_FOR_PASSIVE_LOAD = 0x16;
+  static SW_INITIALIZING = 0;
+  static PRIMING_CHANNELS = 1;
+  static UL_INITIALIZING = 2;
+  static IDLE = 3;
+  static ERROR_SW = 4;
+  static ERROR_UL = 5;
+  static CLEARING_SERVO_ERROR = 6;
+  static UNABLE_TO_CLEAR_ERROR = 7;
+  static ERROR_CAMERA = 8;
+  static NORMAL = 9;
+  static LOADING = 10;
+  static WAIT_ACK = 11;
+  static SELF_FIX_PENDING = 12;
+  static WAITING_FOR_BUFFER = 13;
+  static WAITING_FOR_PASSIVE_LOAD = 14;
+  static INIT_WAITING_FOR_BUFFER = 15;
+  static INIT_WAITING_FOR_PASSIVE_LOAD = 16;
 }
 
 function App() {
