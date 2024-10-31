@@ -595,10 +595,10 @@ def experiment(
         if not is_safe_to_move or BOARD is None:
             # Keep updating the report
             # more than 80
-            with data.lock:
+            with data.lock:  # for cage UI
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    ("Purge" if _purge_now else f"AI") + f"({_current_sequence_number})",
-                    _cage_sequence_index,
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
+                    _current_sequence_number,
                     data.experiment2_pot_counter,
                     data.STARWHEEL_SLOTS,
                     round(dt / 60, 2),
@@ -702,9 +702,10 @@ def experiment(
                 data.experiment2_pot_counter += 1
                 _experiment2_pot_counter = data.experiment2_pot_counter  # reassign
 
+                # for cage UI
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    ("Purge" if _purge_now else f"AI") + f"({_current_sequence_number})",
-                    _cage_sequence_index,
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
+                    _current_sequence_number,
                     data.experiment2_pot_counter,
                     data.STARWHEEL_SLOTS,
                     round(dt / 60, 2),
@@ -727,8 +728,8 @@ def experiment(
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(
-                    ("Purge" if _purge_now else f"AI") + f"({_current_sequence_number})",
-                    _cage_sequence_index,
+                    ("Purge" if _purge_now else f"AI") + f"({_cage_sequence_index})",
+                    _current_sequence_number,
                     data.experiment2_pot_counter,
                     data.STARWHEEL_SLOTS,
                     round(dt / 60, 2),
