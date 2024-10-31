@@ -8,8 +8,12 @@ import M1A from "./Layouts/M1A/index.js";
 import M1C from "./Layouts/M1C/index.js";
 import Cages from "./Layouts/Cages/index.js";
 import CageControl from "./Layouts/CageControl/index.js";
+import CageStatusBar from "./Layouts/CageStatusBar/index.js";
 import OperationControl from "./Layouts/OperationControl/index.js";
 import { DEFAULT_BOOL } from "./Utils/Utils.js";
+
+// DEBUG FLAG
+let DEBUG = false;
 
 /* ---------------------------------------------------------------------------------- */
 function generateDocumentTitle(module, row) {
@@ -29,44 +33,13 @@ function generateDocumentTitle(module, row) {
   }
 }
 
-// async function getSetupInfo() {
-//   let infoDict = null;
-//   let moduleNumber;
-//   let rowNumber;
-
-//   try {
-//     const response = await fetch("/get_status/info", {
-//       method: "GET",
-//     });
-
-//     if (!response.ok) {
-//       throw new Error("Network response was not ok");
-//     }
-
-//     infoDict = await response.json();
-//   } catch (error) {
-//     console.error(error);
-//   }
-
-//   if (infoDict) {
-//     moduleNumber = infoDict["module"];
-//     rowNumber = infoDict["row"];
-//   } else {
-//     // moduleNumber = 1;
-//     // rowNumber = 6;
-//     moduleNumber = null;
-//     rowNumber = null;
-//   }
-
-//   return { moduleNumber, rowNumber };
-// }
-
 /* ================================================================================== */
 /*                                     Main Blocks                                    */
 /* ================================================================================== */
-function MainContent({ rowNumber }) {
+function OperationModeContent({ rowNumber, isCageActionMode, setIsCageActionMode }) {
   // cage select
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
+
   const toggleSelected = (index) => () => {
     setIsSelected((prevSelected) => {
       const newIsSelected = [...prevSelected];
@@ -82,6 +55,18 @@ function MainContent({ rowNumber }) {
   const clearAll = () => {
     setIsSelected(Array(14).fill(false));
   };
+
+  // maintainence
+  const [maintainenceFlag, setMaintainenceFlag] = useState(Array(14).fill(false));
+  function toggleMaintainence(indexList, bool) {
+    indexList.forEach(function (index) {
+      setMaintainenceFlag((prevSelected) => {
+        const newIsSelected = [...prevSelected];
+        newIsSelected[index] = bool;
+        return newIsSelected;
+      });
+    });
+  }
 
   // data update
   const [m1aRunning, setM1aRunning] = useState(DEFAULT_BOOL);
@@ -102,42 +87,202 @@ function MainContent({ rowNumber }) {
 
   return (
     <div className="mains-container">
-      <LeftColumn
+      <OperationModeLeftColumn
         rowNumber={rowNumber}
         isSelected={isSelected}
         selectAll={selectAll}
         clearAll={clearAll}
         m1aRunning={m1aRunning}
         m1cRunning={m1cRunning}
+        toggleMaintainence={toggleMaintainence}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
       />
-      <RightColumn
+      <OperationModeRightColumn
         rowNumber={rowNumber}
         isSelected={isSelected}
         setIsSelected={setIsSelected}
         toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
       />
     </div>
   );
 }
 
-function LeftColumn({ rowNumber, isSelected, selectAll, clearAll, m1aRunning, m1cRunning }) {
+function OperationModeLeftColumn({
+  rowNumber,
+  isSelected,
+  selectAll,
+  clearAll,
+  m1aRunning,
+  m1cRunning,
+  toggleMaintainence,
+  isCageActionMode,
+  setIsCageActionMode,
+}) {
   return (
     <div className="columns-container" style={{ width: "22%" }}>
       <M1A row={rowNumber} m1aRunning={m1aRunning} />
       <M1C row={rowNumber} m1cRunning={m1cRunning} />
       <OperationControl m1aRunning={m1aRunning} m1cRunning={m1cRunning} />
-      <CageControl selectAll={selectAll} clearAll={clearAll} isSelectedArray={isSelected} />
+      <CageControl
+        selectAll={selectAll}
+        clearAll={clearAll}
+        isSelectedArray={isSelected}
+        toggleMaintainence={toggleMaintainence}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
+      />
     </div>
   );
 }
 
-function RightColumn({ rowNumber, isSelected, setIsSelected, toggleSelected }) {
+function OperationModeRightColumn({
+  rowNumber,
+  isSelected,
+  setIsSelected,
+  toggleSelected,
+  maintainenceFlag,
+  isCageActionMode,
+}) {
   return (
     <div
       className="columns-container"
       style={{ width: "76%", padding: "0px 0px", marginBottom: "0px", alignItems: "center" }}
     >
-      <Cages row={rowNumber} isSelected={isSelected} setIsSelected={setIsSelected} toggleSelected={toggleSelected} />
+      <Cages
+        row={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
+      />
+    </div>
+  );
+}
+/* ================================================================================== */
+/*                                    Display Mode                                    */
+/* ================================================================================== */
+function DisplayModeContent({ rowNumber, dictExperiment, isCageActionMode, setIsCageActionMode }) {
+  // cage select
+  const [isSelected, setIsSelected] = useState(Array(14).fill(false));
+
+  const toggleSelected = (index) => () => {
+    setIsSelected((prevSelected) => {
+      const newIsSelected = [...prevSelected];
+      newIsSelected[index] = !newIsSelected[index];
+      return newIsSelected;
+    });
+  };
+
+  const selectAll = () => {
+    setIsSelected(Array(14).fill(true));
+  };
+
+  const clearAll = () => {
+    setIsSelected(Array(14).fill(false));
+  };
+
+  // maintainence
+  const [maintainenceFlag, setMaintainenceFlag] = useState(Array(14).fill(false));
+  function toggleMaintainence(indexList, bool) {
+    indexList.forEach(function (index) {
+      setMaintainenceFlag((prevSelected) => {
+        const newIsSelected = [...prevSelected];
+        newIsSelected[index] = bool;
+        return newIsSelected;
+      });
+    });
+  }
+
+  // data update
+  const [m1aRunning, setM1aRunning] = useState(DEFAULT_BOOL);
+  const [m1cRunning, setM1cRunning] = useState(DEFAULT_BOOL);
+  const dictSystem = useDict(Dicts.system);
+
+  useEffect(() => {
+    if (dictSystem) {
+      setM1aRunning(dictSystem["1a"]);
+      setM1cRunning(dictSystem["1c"]);
+    } else {
+      setM1aRunning(DEFAULT_BOOL);
+      setM1cRunning(DEFAULT_BOOL);
+    }
+  }, [dictSystem]);
+
+  /* ---------------------------------------------------------------------------------- */
+
+  return (
+    <div className="mains-container">
+      <DisplayModeLeftColumn
+        rowNumber={rowNumber}
+        isSelected={isSelected}
+        selectAll={selectAll}
+        clearAll={clearAll}
+        m1aRunning={m1aRunning}
+        m1cRunning={m1cRunning}
+        toggleMaintainence={toggleMaintainence}
+        dictExperiment={dictExperiment}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
+      />
+      <DisplayModeRightColumn
+        rowNumber={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
+      />
+    </div>
+  );
+}
+
+function DisplayModeLeftColumn({
+  rowNumber,
+  isSelected,
+  selectAll,
+  clearAll,
+  m1aRunning,
+  m1cRunning,
+  toggleMaintainence,
+  dictExperiment,
+  isCageActionMode,
+  setIsCageActionMode,
+}) {
+  return (
+    <div className="columns-container" style={{ width: "22%" }}>
+      <M1A row={rowNumber} m1aRunning={m1aRunning} displayButtons={false} />
+      <M1C row={rowNumber} m1cRunning={m1cRunning} displayButtons={false} />
+      <CageStatusBar row={rowNumber} dictExperiment={dictExperiment} />
+    </div>
+  );
+}
+
+function DisplayModeRightColumn({
+  rowNumber,
+  isSelected,
+  setIsSelected,
+  toggleSelected,
+  maintainenceFlag,
+  isCageActionMode,
+}) {
+  return (
+    <div
+      className="columns-container"
+      style={{ width: "76%", padding: "0px 0px", marginBottom: "0px", alignItems: "center" }}
+    >
+      <Cages
+        row={rowNumber}
+        isSelected={isSelected}
+        setIsSelected={setIsSelected}
+        toggleSelected={toggleSelected}
+        maintainenceFlag={maintainenceFlag}
+        isCageActionMode={isCageActionMode}
+      />
     </div>
   );
 }
@@ -148,10 +293,13 @@ function Main() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isTimeout, setIsTimeout] = useState(false);
+  const [isDisplayOnly, setIsDisplayOnly] = useState(false);
+  const [isCageActionMode, setIsCageActionMode] = useState(true);
 
   const dictInfo = useDict(Dicts.info);
   const dictSession = useDict(Dicts.session);
   const dictLastPing = useDict(Dicts.lastping);
+  const dictExperiment = useDict(Dicts.experiment);
 
   useEffect(() => {
     async function isLoaded() {
@@ -185,21 +333,52 @@ function Main() {
     return () => clearInterval(intervalId);
   }, [setIsLoading, setIsError, setIsTimeout, dictInfo, dictSession, dictLastPing]);
 
-  console.log(isTimeout);
+  if (!DEBUG) {
+    if (isTimeout) {
+      return <div className="full-display">Too many sessions! You have been timedout.</div>;
+    } else if (isError) {
+      return <div className="full-display">Connection lost. Reboot if refreshing does not work.</div>;
+    } else if (isLoading) {
+      return <div className="full-display">Page loading...</div>;
+    }
+  }
 
-  if (isTimeout) {
-    return <div className="full-display">Too many sessions! You have been timedout.</div>;
-  } else if (isError) {
-    return <div className="full-display">Connection lost. Reboot if refreshing does not work.</div>;
-  } else if (isLoading) {
-    return <div className="full-display">Page loading...</div>;
+  if (isDisplayOnly) {
+    return (
+      <>
+        <AlertBox />
+        <Header
+          module={moduleNumber}
+          unit={"Master (Display Mode)"}
+          row={rowNumber}
+          isDisplayOnly={isDisplayOnly}
+          setIsDisplayOnly={setIsDisplayOnly}
+        />
+        <DisplayModeContent
+          rowNumber={rowNumber}
+          dictExperiment={dictExperiment}
+          isCageActionMode={isCageActionMode}
+          setIsCageActionMode={setIsCageActionMode}
+        />
+      </>
+    );
   }
 
   return (
     <>
       <AlertBox />
-      <Header module={moduleNumber} unit={"Master"} row={rowNumber} />
-      <MainContent rowNumber={rowNumber} />
+      <Header
+        module={moduleNumber}
+        unit={"Master (Operation Mode)"}
+        row={rowNumber}
+        isDisplayOnly={isDisplayOnly}
+        setIsDisplayOnly={setIsDisplayOnly}
+      />
+      <OperationModeContent
+        rowNumber={rowNumber}
+        isCageActionMode={isCageActionMode}
+        setIsCageActionMode={setIsCageActionMode}
+      />
     </>
   );
 }
