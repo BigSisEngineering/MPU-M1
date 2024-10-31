@@ -17,6 +17,7 @@ blueprint = Blueprint("post_handler", __name__)
 
 post_endpoints = {
     "operate_cage": {"func": Operation.manage_cage_actions, "arg_num": 0},
+    "set_maintainence_flag": {"func": Operation.set_cage_maintainence_flag, "arg_num": 0},
     #
     "start_1a": {"func": lambda: SV.w_run_1a(True), "arg_num": 0},
     "stop_1a": {"func": lambda: SV.w_run_1a(False), "arg_num": 0},

@@ -14,9 +14,31 @@ import {
   CustomEmoji,
 } from "../../Components/index.js";
 
-function Cage({ row = null, number = null, isSelected, toggleSelected }) {
+class StatusCode {
+  static SW_INITIALIZING = 0;
+  static PRIMING_CHANNELS = 1;
+  static UL_INITIALIZING = 2;
+  static IDLE = 3;
+  static ERROR_SW = 4;
+  static ERROR_UL = 5;
+  static CLEARING_SERVO_ERROR = 6;
+  static UNABLE_TO_CLEAR_ERROR = 7;
+  static ERROR_CAMERA = 8;
+  static NORMAL = 9;
+  static LOADING = 10;
+  static WAIT_ACK = 11;
+  static SELF_FIX_PENDING = 12;
+  static WAITING_FOR_BUFFER = 13;
+  static WAITING_FOR_PASSIVE_LOAD = 14;
+  static INIT_WAITING_FOR_BUFFER = 15;
+  static INIT_WAITING_FOR_PASSIVE_LOAD = 16;
+}
+
+function Cage({ row = null, number = null, isSelected, toggleSelected, isCageActionMode }) {
   const [unloaderStatus, setUnloaderStatus] = useState(DEFAULT_MSG);
   const [starwheelStatus, setStarwheelStatus] = useState(DEFAULT_MSG);
+  const [maintainenceFlag, setMaintainenceFlag] = useState(DEFAULT_BOOL);
+  const [statusCode, setStatusCode] = useState(-1);
   //
   const [loadSensor, setLoadSensor] = useState(-1);
   const [unloadSensor, setUnloadSensor] = useState(-1);
@@ -37,6 +59,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       try {
         setUnloaderStatus(dictData[cageHostname]["unloader_status"]);
         setStarwheelStatus(dictData[cageHostname]["star_wheel_status"]);
+        setStatusCode(parseInt(dictData[cageHostname]["status_code"]));
         //
         const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
         setLoadSensor(sensors[0]);
@@ -47,6 +70,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
       } catch {
         setUnloaderStatus(DEFAULT_MSG);
         setStarwheelStatus(DEFAULT_MSG);
+        setStatusCode(-1);
         setLoadSensor(-1);
         setUnloadSensor(-1);
         setBufferSensor(-1);
@@ -54,9 +78,11 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
         setIsLoaded(false);
       }
       //
+      setMaintainenceFlag(dictData[cageHostname]["maintainence_flag"]);
     } else {
       setUnloaderStatus(DEFAULT_MSG);
       setStarwheelStatus(DEFAULT_MSG);
+      setStatusCode(-1);
       setLoadSensor(-1);
       setUnloadSensor(-1);
       setBufferSensor(-1);
@@ -67,7 +93,50 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
 
   /* ---------------------------------------------------------------------------------- */
 
+  function resolveStatusCodeOperatorAction() {
+    switch (statusCode) {
+      case StatusCode.SW_INITIALIZING:
+        return "-";
+      case StatusCode.PRIMING_CHANNELS:
+        return "-";
+      case StatusCode.UL_INITIALIZING:
+        return "-";
+      case StatusCode.IDLE:
+        return "-";
+      case StatusCode.ERROR_SW:
+        return "SW Error! 'Servo init' to clear.";
+      case StatusCode.ERROR_UL:
+        return "UL Error! 'Servo init' to clear.";
+      case StatusCode.CLEARING_SERVO_ERROR:
+        return "-";
+      case StatusCode.UNABLE_TO_CLEAR_ERROR:
+        return "Arduino Error";
+      case StatusCode.ERROR_CAMERA:
+        return "Camera Error";
+      case StatusCode.NORMAL:
+        return "-";
+      case StatusCode.LOADING:
+        return "-";
+      case StatusCode.WAIT_ACK:
+        return "Frequent Errors! 'Servo init' to clear.";
+      case StatusCode.SELF_FIX_PENDING:
+        return "-";
+      case StatusCode.WAITING_FOR_BUFFER:
+        return "Check infeed. 'Add pots'?";
+      case StatusCode.WAITING_FOR_PASSIVE_LOAD:
+        return "Poke me!";
+      case StatusCode.INIT_WAITING_FOR_BUFFER:
+        return "Check infeed. 'Add pots'?";
+      case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
+        return "Poke me!";
+      default:
+        return "Offline";
+    }
+  }
+
   function modeText(modeState) {
+    if (maintainenceFlag) return "FIX ME";
+
     switch (modeState) {
       case "idle":
         return "IDLE";
@@ -83,6 +152,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function modeColor(modeState) {
+    if (maintainenceFlag) return getColor("RED");
+
     switch (modeState) {
       case "idle":
         return getColor("DEFAULT");
@@ -134,28 +205,152 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
   }
 
   function getbackgroundColor() {
-    if (isLoaded && (unloaderStatus !== "normal" || starwheelStatus !== "normal")) {
-      if (!isSelected) {
-        return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+    if (maintainenceFlag) return ["rgba(255, 61, 0, 0.8)", "rgba(255, 61, 0, 0.4)"];
+
+    if (!isCageActionMode) {
+      if (isLoaded && (unloaderStatus !== "normal" || starwheelStatus !== "normal")) {
+        /*************** RED ****************/
+        if (!isSelected) {
+          return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+        } else {
+          return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+        }
+      } else if (isLoaded && (loadSensor < 100 || bufferSensor < 100)) {
+        /************* YELLOW ***************/
+        if (!isSelected) {
+          return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+        } else {
+          return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+        }
       } else {
-        return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
-      }
-    } else if (isLoaded && (loadSensor < 100 || bufferSensor < 100)) {
-      if (!isSelected) {
-        return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
-      } else {
-        return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+        /*************** GREY ***************/
+        if (!isSelected) {
+          return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+        } else {
+          return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+        }
       }
     } else {
-      if (!isSelected) {
-        return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
-      } else {
-        return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+      switch (statusCode) {
+        case StatusCode.SW_INITIALIZING:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.PRIMING_CHANNELS:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.UL_INITIALIZING:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.IDLE:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.ERROR_SW:
+          if (!isSelected) {
+            return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.ERROR_UL:
+          if (!isSelected) {
+            return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.CLEARING_SERVO_ERROR:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.UNABLE_TO_CLEAR_ERROR:
+          if (!isSelected) {
+            return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.ERROR_CAMERA:
+          if (!isSelected) {
+            return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.NORMAL:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.LOADING:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.WAIT_ACK:
+          if (!isSelected) {
+            return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.SELF_FIX_PENDING:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.WAITING_FOR_BUFFER:
+          if (!isSelected) {
+            return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.WAITING_FOR_PASSIVE_LOAD:
+          if (!isSelected) {
+            return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.INIT_WAITING_FOR_BUFFER:
+          if (!isSelected) {
+            return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
+          if (!isSelected) {
+            return ["rgba(255, 189, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
+        default:
+          if (!isSelected) {
+            return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(170, 253, 214, 0.3)", "rgba(170, 253, 214, 0.3)"];
+          }
       }
     }
   }
 
   function getOpacity() {
+    if (maintainenceFlag) {
+      if (!isSelected) {
+        return 50;
+      }
+      return 75;
+    }
     if (!isLoaded) {
       if (!isSelected) {
         return 25;
@@ -183,16 +378,24 @@ function Cage({ row = null, number = null, isSelected, toggleSelected }) {
         <HorizontalLine />
         <Info text={modeText(mode)} color={modeColor(mode)} />
         <HorizontalLine />
-        <div className="row-container" style={{ justifyContent: "left" }}>
-          <Subinfo title={"SW"} content={<DisplayCustomEmoji emoji={servoEmoji(starwheelStatus)} />} />
-          <Subinfo title={"UL"} content={<DisplayCustomEmoji emoji={servoEmoji(unloaderStatus)} />} />
-        </div>
-        <HorizontalLine />
-        <div className="row-container" style={{ justifyContent: "left" }}>
-          <Subinfo title={"Load"} content={<DisplayCustomEmoji emoji={sensorEmoji(loadSensor)} />} />
-          <Subinfo title={"Unload"} content={<DisplayCustomEmoji emoji={sensorEmoji(unloadSensor)} />} />
-          <Subinfo title={"Buffer"} content={<DisplayCustomEmoji emoji={sensorEmoji(bufferSensor)} />} />
-        </div>
+        {!isCageActionMode && (
+          <div className="row-container" style={{ justifyContent: "left" }}>
+            <Subinfo title={"SW"} content={<DisplayCustomEmoji emoji={servoEmoji(starwheelStatus)} />} />
+            <Subinfo title={"UL"} content={<DisplayCustomEmoji emoji={servoEmoji(unloaderStatus)} />} />
+          </div>
+        )}
+        {isCageActionMode && (
+          <div className="row-container" style={{ justifyContent: "left" }}>
+            <Subinfo title={""} content={resolveStatusCodeOperatorAction()} />
+          </div>
+        )}
+        {!isCageActionMode && (
+          <div className="row-container" style={{ justifyContent: "left" }}>
+            <Subinfo title={"Load"} content={<DisplayCustomEmoji emoji={sensorEmoji(loadSensor)} />} />
+            <Subinfo title={"Unload"} content={<DisplayCustomEmoji emoji={sensorEmoji(unloadSensor)} />} />
+            <Subinfo title={"Buffer"} content={<DisplayCustomEmoji emoji={sensorEmoji(bufferSensor)} />} />
+          </div>
+        )}
         <HorizontalLine />
       </div>
     </>

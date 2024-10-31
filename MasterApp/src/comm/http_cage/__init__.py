@@ -36,9 +36,10 @@ ACTION_LIST = [
 
 
 class HTTPCage:
-    lock_acquire_timeout_status = 1
-    lock_acquire_timeout_action = 5
+    lock_acquire_timeout_status = 2
+    lock_acquire_timeout_action = 5  #!OBSOLETE
     request_timeout = (10, 5)
+    MAX_TIMEOUT = 3  # instances
 
     def __init__(self, hostname: str):
         self._cage_ip: Optional[str] = None
@@ -51,9 +52,37 @@ class HTTPCage:
 
         # -------------------------------------------------------- #
         self._status = None
+        self._timeout_counter: int = 0
 
     # PUBLIC
     # -------------------------------------------------------- #
+    @property
+    def experiment_status(self) -> Dict:
+        """
+        keys: operation_index, slots, max_slots, time_elapsed, time_interval
+        """
+        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_status):
+            try:
+                response = requests.get(
+                    url=f"http://{self._hostname}.local:8080/ExperimentStatus",
+                    timeout=HTTPCage.request_timeout,
+                )
+                return json.loads(response.text)
+
+            except Exception as e:
+                if not hide_exception:
+                    CLI.printline(
+                        Level.ERROR,
+                        "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(
+                            print_name, "GET EXP STS", self._hostname, e
+                        ),
+                    )
+
+            finally:
+                self._lock_request.release()
+
+        return None
+
     @property
     def status(self) -> Dict:
         if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_status):
@@ -63,12 +92,18 @@ class HTTPCage:
                     timeout=HTTPCage.request_timeout,
                 )
                 self._status = json.loads(response.text)
+                self._timeout_counter = 0
                 return self._status
 
             # ?Why
             except ConnectionError as ce:
                 if "NewConnectionError" in str(ce.args[0]):
                     # return old status if timeout
+                    self._timeout_counter += 1
+
+                    if self._timeout_counter >= HTTPCage.MAX_TIMEOUT:
+                        return None
+
                     return self._status
 
             except Exception as e:
@@ -93,7 +128,7 @@ class HTTPCage:
         return None
 
     def fetch_pot_data(self) -> int:
-        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
+        with self._lock_request:
             try:
                 pot_num = requests.get(
                     url=f"http://{self._hostname}.local:8080/potData",
@@ -125,22 +160,10 @@ class HTTPCage:
                         Level.ERROR,
                         "({:^10})-({:^8}) [{:^10}] Exception -> {}".format(print_name, "POTDATA", self._hostname, e),
                     )
-
-            finally:
-                self._lock_request.release()
-
-        else:
-            if not hide_exception:
-                CLI.printline(
-                    Level.WARNING,
-                    "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(
-                        print_name, "POTDATA", self._hostname
-                    ),
-                )
         return 0
 
     def exec_action(self, action, params=None) -> str:
-        if self._lock_request.acquire(timeout=HTTPCage.lock_acquire_timeout_action):
+        with self._lock_request:
             try:
                 if action in ACTION_LIST:
                     url = f"http://{self._hostname}.local:8080/{action}"
@@ -164,7 +187,6 @@ class HTTPCage:
                             print_name, action, self._hostname, response.content.decode("utf-8")
                         ),
                     )
-                    # return "{}".format(response.content.decode("utf-8"))
                     return "Successful"
 
                 else:
@@ -186,13 +208,3 @@ class HTTPCage:
                     "({:^10})-({:^8}) [{:^10}] Error: {}".format(print_name, action, self._hostname, e),
                 )
                 return f"An error occured"
-
-            finally:
-                self._lock_request.release()
-
-        else:
-            CLI.printline(
-                Level.WARNING,
-                "({:^10})-({:^8}) [{:^10}] Failed to acquire request lock!".format(print_name, action, self._hostname),
-            )
-            return f"Send failed. Cage is busy."
