@@ -23,18 +23,21 @@ def create_thread():
 
     @comm.timing_decorator(interval_s=5)
     def upload():
-        files = os.listdir(folder_path)
-        jpg_files = [file for file in files if file.lower().endswith(".jpg")]
-        CLI.printline(Level.DEBUG, f"(aws)-number of photos - {len(jpg_files)}.")
-        if jpg_files:
-            for jpg_file in jpg_files:
-                file_path = os.path.join("/dev/shm", jpg_file)
-                response = aws_image_upload("egg", f"{file_path}")
-                if response.status_code >= 200 and response.status_code < 300:
-                    CLI.printline(Level.INFO, f"(aws)-Uploaded: {file_path}")
-                    os.remove(file_path)
-                else:
-                    CLI.printline(Level.WARNING, f"(aws) internet access fail")
+        try:
+            files = os.listdir(folder_path)
+            jpg_files = [file for file in files if file.lower().endswith(".jpg")]
+            # CLI.printline(Level.DEBUG, f"(aws)-number of photos - {len(jpg_files)}.")
+            if jpg_files:
+                for jpg_file in jpg_files:
+                    file_path = os.path.join("/dev/shm", jpg_file)
+                    response = aws_image_upload("egg", f"{file_path}")
+                    if response.status_code >= 200 and response.status_code < 300:
+                        CLI.printline(Level.INFO, f"(aws)-Uploaded: {file_path}  -- with response {response}")
+                        os.remove(file_path)
+                    else:
+                        CLI.printline(Level.WARNING, f"(aws) internet access fail -- with response {response}")
+        except Exception as e:
+            CLI.printline(Level.ERROR, f"(aws) Error in AWS IMAGE UPLOAD : {e}")
 
     def loop(killer: threading.Event):
         while not killer.is_set():

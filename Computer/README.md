@@ -54,6 +54,31 @@
   - Init servos at the boot and attempt to re-init if servos errors (max = 3)
 - [v5.0.5] - 24 June 2024
   - Init servos at the boot and attempt to re-init if servos errors (max = 3) -- bug fix
+  - fixed variable to change sw speed
+- [v5.0.6] - 25 June 2024
+  - Increased camera resolution
+  - dynamic version of the cage on the front end
+- [v5.0.7] - 27 June 2024
+  - fixed sw homing issue on new sw. if homing sensor is high sw will move untill it becomes low & viceversa
+- [v5.0.8] - 27 June 2024
+  - logging image file names
+- [v5.0.9] - 01 July 2024
+  - sensor logic increased to 3600
+- [v5.0.10] - 01 July 2024
+  - other pot count in mongodb 
+- [v5.0.11] - 19 July 2024
+  - timer increased to 6h 
+- [v5.1.0] - 05 August 2024
+  - changed server to flask
+  - bbox on preview
+  - sw alignment from UI
+- [v5.2.0] - 20 August 2024
+  - added experiment mode
+  - cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG')) for camera feed
+- [v5.3.0] - 10 September 2024
+  - react front end
+  - yolov10 mode
+  - SW init only if load and buff sensors triggered
 
 ### How to use
 

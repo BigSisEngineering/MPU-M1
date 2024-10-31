@@ -4,11 +4,10 @@ After=network.target
 Wants=time-sync.target
 
 [Service]
-ExecStartPre=sudo systemctl start chronyd
-ExecStart=nice /usr/bin/python3 /home/linaro/Computer/main.py --user
-WorkingDirectory=/home/linaro/Computer
+ExecStart=nice /usr/bin/python3 /home/rock/Computer/main.py --user
+WorkingDirectory=/home/rock/Computer
 Restart=always
-User=linaro
+User=rock
 Restart=on-failure
 RestartSec=5s
 
