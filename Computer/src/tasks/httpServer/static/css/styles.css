@@ -37,6 +37,7 @@ header {
     margin-bottom: 20px; /* Increased margin for better spacing between rows */
 }
 
+
 .move-buttons {
     flex-basis: 100%;
     justify-content: center;
@@ -61,7 +62,6 @@ header {
 .control-set button:active, .move-buttons button:active {
     transform: scale(0.95); /* Slight scale down to simulate button press */
 }
-
 
 .status {
     display: flex;
@@ -145,18 +145,27 @@ input[type="range"]:focus::-webkit-slider-runnable-track {
 }
 
 .camera-preview {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1em;
-  background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1em;
+    background-color: #f0f0f0;
 }
 
 #camera {
-  width: 100%;
-  max-width: 640px;
-  height: 100%;
-  max-height: 480px;
-  border: 3px solid #333;
+    width: 100%;
+    max-width: 640px;
+    height: 100%;
+    max-height: 480px;
+    border: 3px solid #333;
 }
 
+input[type="number"] {
+    flex: 1;
+    margin-right: 10px;
+    padding: 20px 0; /* Match the padding of buttons */
+    font-size: 18px; /* Match the font size of buttons */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+}

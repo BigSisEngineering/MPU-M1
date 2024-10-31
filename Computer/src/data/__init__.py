@@ -1,5 +1,5 @@
 import threading
-import logging
+from src import setup
 from dataclasses import dataclass, asdict
 import time
 
@@ -27,6 +27,7 @@ class PNPData:
 
 
 pnp_data_lock = threading.Lock()
+pnp_vision_lock = threading.Lock()
 pnp_data: PNPData = PNPData(
     0,
     True,
@@ -36,16 +37,16 @@ pnp_data: PNPData = PNPData(
     detection=False,
     number_of_egg_pot_since_last_ask=0,
     pnp_confidence=80,
-    cycle_time=6.0,
+    cycle_time=3.0,
 )
 
-is_star_wheel_error: bool = False
-is_unloader_error: bool = False
-max_auto_clear_error = 2
+max_auto_clear_error = 3
+auto_clear_error_attempts = 0
 
-servos_ready: bool = False
+sw_homing: bool = False
 
 star_wheel_duration_ms: int = 600
+sw_pos: int = 0
 
 dummy_enabled: bool = False
 unload_probability: float = 1.0
@@ -53,21 +54,57 @@ unload_probability: float = 1.0
 pnp_enabled: bool = False
 pnp_confidence: float = 0.80
 
+experiment_enabled: bool = False
+experiment_pause_interval = 600.0
+experiment_pause_start_time = None
+experiment_pause_state = False
+experiment_status = ""
+
 MongoDB_INIT: bool = False
 
 pot_processed: int = 0
 pot_unloaded: int = 0
 pot_unloaded_since_last_request: int = 0
 
+eggs_last_hour: int = 0
+steps_last_hour: int = 0
+
 purge_enabled: bool = False
 purge_stage: int = 0
 purge_start_unload: bool = False
 purge_counter: int = 0
+purge_all_timer = None
 
-# logging
-# logging.basicConfig(
-#     filename="/home/linaro/SmartCage_4/Statistics.log",
-#     level=logging.INFO,
-#     format="%(asctime)s,%(message)s",
-#     datefmt="%Y-%m-%d,%H:%M:%S",
-# )
+valve_delay: int = 200
+
+model = "v5"
+
+white_shade: int = 225
+
+initialize_servo_flag = True
+
+
+# ==================================================================================== #
+#                                     Experiment 2                                     #
+# ==================================================================================== #
+def get_cage_number():
+    cage_number = int(setup.CAGE_ID[-2:])
+    return cage_number
+
+
+# ============================= To be exposed if required ============================ #
+sequence_duration = 14 * 60  # 14 minutes
+purge_frequency = 5
+
+# ====================================== Driven ====================================== #
+TOTAL_CAGES = 14
+STARWHEEL_SLOTS = 80
+interval = sequence_duration / TOTAL_CAGES
+time_elapsed = 0
+index_ui = 0
+
+experiment2_pot_counter = 0
+experiment2_previous_sequence_number = -1  # out of bound value for init
+
+
+cage_number = get_cage_number()

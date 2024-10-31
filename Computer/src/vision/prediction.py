@@ -1,31 +1,64 @@
 import os
 import numpy as np
 import cv2
+import socket
+from math import exp
 
 # ------------------------------------------------------------------------------------------------ #
-from rknn.api import RKNN           #for tinker
-# from rknnlite.api import RKNNLite     #for rock
 from src import CLI
+from src import data
 from src.CLI import Level
 
-RKNN_MODEL = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
-    "yolov5_m1_rock.rknn",
-)
+hostname = socket.gethostname()
+use_rknnlite = "cage" in hostname and int(hostname.split("cage")[1].split("x")[0]) > 1
+model = data.model
 
 
-BOX_THRESH = 0.5
-NMS_THRESH = 0.6
-IMG_SIZE = (640, 640)  # (width, height), such as (1280, 736)
-CLASSES = "egg"
+# Determine if we need to use RKNN or RKNNLite based on the hostname
+if use_rknnlite:
+    from rknnlite.api import RKNNLite  # Import RKNNLite
+
+    if model == "v10":
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov10s_rock_v2.rknn",
+        )
+    else:
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5l_m1_rock_v2.rknn",
+        )
+
+else:
+    from rknn.api import RKNN  # Import RKNN
+
+    if model == "v5c3":
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5_m1_3c.rknn",
+        )
+    else:
+        RKNN_MODEL = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "yolov5_m1_v2.rknn",
+        )
 
 
-# ------------------------------------------------------------------------------------------------ #
+# # ------------------------------------------------------------------------------------------------ #
 class ComputerVision:
     def __init__(self):
         self.rknn_ready = False
-        self.rknn = RKNN() #for tinker
+        self.BOX_THRESH = 0.5
+        self.NMS_THRESH = 0.6
+        self.IMG_SIZE = (640, 640)
+        self.CLASSES = ("egg", "pot", "crack")
+
+        # self.rknn = RKNN() #for tinker
         # self.rknn = RKNNLite() #for rock
+        if use_rknnlite:
+            self.rknn = RKNNLite()  # Use RKNNLite if the condition is met
+        else:
+            self.rknn = RKNN()
 
     def load_rknn_model(self):
         if not os.path.exists(RKNN_MODEL):
@@ -89,7 +122,7 @@ class ComputerVision:
         anchors = np.array([anchors[i] for i in mask])
 
         grid_h, grid_w = input.shape[:2]
-        input_size = np.array([IMG_SIZE[1], IMG_SIZE[0]])
+        input_size = np.array([self.IMG_SIZE[1], self.IMG_SIZE[0]])
 
         # Compute box confidence and class probabilities
         box_confidence = self.sigmoid(input[..., 4:5])
@@ -130,7 +163,7 @@ class ComputerVision:
         box_class_probs = box_class_probs.reshape(-1, box_class_probs.shape[-1])
 
         # Filter out boxes with object confidence below the threshold
-        _box_pos = np.where(box_confidences >= BOX_THRESH)
+        _box_pos = np.where(box_confidences >= self.BOX_THRESH)
         boxes = boxes[_box_pos]
         box_confidences = box_confidences[_box_pos]
         box_class_probs = box_class_probs[_box_pos]
@@ -140,7 +173,7 @@ class ComputerVision:
         classes = np.argmax(box_class_probs, axis=-1)
 
         # Further filter boxes based on class score and object confidence
-        _class_pos = np.where(class_max_score * box_confidences >= BOX_THRESH)
+        _class_pos = np.where(class_max_score * box_confidences >= self.BOX_THRESH)
 
         # Apply the class-based filtering to boxes, classes, and scores
         boxes = boxes[_class_pos]
@@ -193,7 +226,7 @@ class ComputerVision:
             iou = intersection / (areas[i] + areas[order[1:]] - intersection)
 
             # Keep boxes where the IoU is below the threshold
-            below_threshold_indices = np.where(iou <= NMS_THRESH)[0]
+            below_threshold_indices = np.where(iou <= self.NMS_THRESH)[0]
             order = order[below_threshold_indices + 1]
 
         return np.array(keep)
@@ -281,7 +314,7 @@ class ComputerVision:
             cv2.rectangle(image, (top, left), (right, bottom), (255, 0, 0), 1)
             cv2.putText(
                 image,
-                "{0} {1:.2f}".format(CLASSES[cl], score),
+                "{0} {1:.2f}".format(self.CLASSES[cl], score),
                 (top, left - 6),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
@@ -316,7 +349,7 @@ class ComputerVision:
 
     def pre_process(self, frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        img = self.letterbox(frame, new_shape=(IMG_SIZE[1], IMG_SIZE[0]))
+        img = self.letterbox(frame, new_shape=(self.IMG_SIZE[1], self.IMG_SIZE[0]))
         return img
 
     def prepare_inference_data(self, outputs):
@@ -329,3 +362,253 @@ class ComputerVision:
         # Process the input data using yolov5_post_process
         boxes, classes, scores = self.yolov5_post_process(input_data)
         return boxes, classes, scores
+
+    def inference(rknn, image):
+        outputs = rknn.inference(inputs=[image])
+        return outputs
+
+
+# ---------------------------------------y10------------------------------------------------------ #
+class DetectBox:
+    def __init__(self, classId, score, xmin, ymin, xmax, ymax):
+        self.classId = classId
+        self.score = score
+        self.xmin = xmin
+        self.ymin = ymin
+        self.xmax = xmax
+        self.ymax = ymax
+
+
+# ------------------------------------------------------------------------------------------------ #
+class ComputerVision_y10:
+    def __init__(self):
+        self.rknn_ready = False
+        self.CLASSES = ["egg", "pot", "crack"]
+        self.class_num = len(self.CLASSES)
+        self.meshgrid = []
+        self.head_num = 3
+        self.strides = [8, 16, 32]
+        self.map_size = [[80, 80], [40, 40], [20, 20]]
+        self.object_thresh = 0.3
+        self.topK = 80
+        self.input_height = 640
+        self.input_width = 640
+        # self.rknn = RKNN() #for tinker
+        # self.rknn = RKNNLite() #for rock
+        if use_rknnlite:
+            self.rknn = RKNNLite()  # Use RKNNLite if the condition is met
+        else:
+            self.rknn = RKNN()
+        self.GenerateMeshgrid()
+
+    def load_rknn_model(self):
+        if not os.path.exists(RKNN_MODEL):
+            CLI.printline(Level.ERROR, "(RKNN) model does not exist")
+            return
+        CLI.printline(Level.INFO, "(RKNN) Loading model..........")
+        ret = self.rknn.load_rknn(RKNN_MODEL)
+        if ret != 0:
+            CLI.printline(Level.ERROR, "(RKNN) Load yolo-V5 failed!")
+            return
+        CLI.printline(Level.INFO, "(RKNN) Init runtime environment........")
+        ret = self.rknn.init_runtime()
+        # ret = rknn.init_runtime('rk1808', device_id='1808')
+        if ret != 0:
+            CLI.printline(Level.ERROR, "(RKNN) Init runtime environment failed")
+            return
+        CLI.printline(Level.INFO, "(RKNN) Model Loaded")
+        self.rknn_ready = True
+
+    def is_rknn_ready(self):
+        return self.rknn_ready
+
+    def get_rknn(self):
+        return self.rknn
+
+    # ------------------------------------------------------------------------------------------------ #
+    def DetectBox(self, classId, score, xmin, ymin, xmax, ymax):
+        self.classId = classId
+        self.score = score
+        self.xmin = xmin
+        self.ymin = ymin
+        self.xmax = xmax
+        self.ymax = ymax
+
+    def GenerateMeshgrid(self):
+        for index in range(self.head_num):
+            for i in range(self.map_size[index][0]):
+                for j in range(self.map_size[index][1]):
+                    self.meshgrid.append(j + 0.5)
+                    self.meshgrid.append(i + 0.5)
+
+    def TopK(self, detectResult):
+        if len(detectResult) <= self.topK:
+            return detectResult
+        else:
+            predBoxs = []
+            sort_detectboxs = sorted(detectResult, key=lambda x: x.score, reverse=True)
+            for i in range(self.topK):
+                predBoxs.append(sort_detectboxs[i])
+            return predBoxs
+
+    def sigmoid(self, x):
+        return 1 / (1 + exp(-x))
+
+    def postprocess(self, out, img_h, img_w):
+        # print('postprocess ... ')
+
+        detectResult = []
+        output = []
+        for i in range(len(out)):
+            output.append(out[i].reshape((-1)))
+
+        scale_h = img_h / self.input_height
+        scale_w = img_w / self.input_width
+
+        gridIndex = -2
+        cls_index = 0
+        cls_max = 0
+
+        for index in range(self.head_num):
+            reg = output[index * 2 + 0]
+            cls = output[index * 2 + 1]
+
+            for h in range(self.map_size[index][0]):
+                for w in range(self.map_size[index][1]):
+                    gridIndex += 2
+
+                    if 1 == self.class_num:
+                        cls_max = self.sigmoid(
+                            cls[0 * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w]
+                        )
+                        cls_index = 0
+                    else:
+                        for cl in range(self.class_num):
+                            cls_val = cls[
+                                cl * self.map_size[index][0] * self.map_size[index][1] + h * self.map_size[index][1] + w
+                            ]
+                            if 0 == cl:
+                                cls_max = cls_val
+                                cls_index = cl
+                            else:
+                                if cls_val > cls_max:
+                                    cls_max = cls_val
+                                    cls_index = cl
+                        cls_max = self.sigmoid(cls_max)
+
+                    if cls_max > self.object_thresh:
+                        regdfl = []
+                        for lc in range(4):
+                            sfsum = 0
+                            locval = 0
+                            for df in range(16):
+                                temp = exp(
+                                    reg[
+                                        ((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1]
+                                        + h * self.map_size[index][1]
+                                        + w
+                                    ]
+                                )
+                                reg[
+                                    ((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1]
+                                    + h * self.map_size[index][1]
+                                    + w
+                                ] = temp
+                                sfsum += temp
+
+                            for df in range(16):
+                                sfval = (
+                                    reg[
+                                        ((lc * 16) + df) * self.map_size[index][0] * self.map_size[index][1]
+                                        + h * self.map_size[index][1]
+                                        + w
+                                    ]
+                                    / sfsum
+                                )
+                                locval += sfval * df
+                            regdfl.append(locval)
+
+                        x1 = (self.meshgrid[gridIndex + 0] - regdfl[0]) * self.strides[index]
+                        y1 = (self.meshgrid[gridIndex + 1] - regdfl[1]) * self.strides[index]
+                        x2 = (self.meshgrid[gridIndex + 0] + regdfl[2]) * self.strides[index]
+                        y2 = (self.meshgrid[gridIndex + 1] + regdfl[3]) * self.strides[index]
+
+                        xmin = x1 * scale_w
+                        ymin = y1 * scale_h
+                        xmax = x2 * scale_w
+                        ymax = y2 * scale_h
+
+                        xmin = xmin if xmin > 0 else 0
+                        ymin = ymin if ymin > 0 else 0
+                        xmax = xmax if xmax < img_w else img_w
+                        ymax = ymax if ymax < img_h else img_h
+
+                        box = DetectBox(cls_index, cls_max, xmin, ymin, xmax, ymax)
+                        detectResult.append(box)
+        # topK
+        # print('before topK num is:', len(detectResult))
+        predBox = self.TopK(detectResult)
+
+        return predBox
+
+    def pre_process(self, img, input_height=640, input_width=640):
+        img_h, img_w = img.shape[:2]  # Get original image dimensions
+        input_img = cv2.resize(img, (input_width, input_height))  # Resize image
+        input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
+        input_img = np.expand_dims(input_img, 0)  # Add batch dimension (for inference)
+
+        return input_img  # , img_h, img_w
+
+    def prepare_inference_data(self, outputs, img_h=480, img_w=640):
+        """
+        Convert model outputs into usable bounding boxes, classes, and scores.
+
+        Parameters:
+        - outputs: The raw model output from the inference.
+        - img_h: The original height of the image.
+        - img_w: The original width of the image.
+
+        Returns:
+        - classes: List of detected class IDs.
+        - scores: List of confidence scores for each detection.
+        - boxes: List of bounding boxes for each detection.
+        """
+        # Postprocess the outputs to get detection boxes
+        predbox = self.postprocess(outputs, img_h, img_w)
+
+        # Prepare the lists for detected classes, scores, and bounding boxes
+        classes = []
+        scores = []
+        boxes = []
+
+        for i in range(len(predbox)):
+            xmin = int(predbox[i].xmin)
+            ymin = int(predbox[i].ymin)
+            xmax = int(predbox[i].xmax)
+            ymax = int(predbox[i].ymax)
+            classId = predbox[i].classId
+            score = predbox[i].score
+
+            classes.append(classId)
+            scores.append(score)
+            boxes.append((xmin, ymin, xmax, ymax))
+        print(boxes, classes, scores)
+        return boxes, classes, scores
+
+    def draw(self, img, boxes, scores, classes):
+        for i in range(len(boxes)):
+            xmin, ymin, xmax, ymax = boxes[i]
+            classId = classes[i]
+            score = scores[i]
+
+            # Draw rectangle
+            cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+
+            # Add label with the class name and score
+            title = f"{self.CLASSES[classId]}: {score:.2f}"
+            cv2.putText(img, title, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA)
+
+        return img
+
+
+# [0.7108973] [[254.26714 339.85162 282.50098 371.06683]] [0]
