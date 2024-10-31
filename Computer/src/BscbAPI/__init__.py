@@ -189,7 +189,7 @@ def __servo_initialize(is_buffer_full: bool, is_loader_get_pot: bool) -> None:
                 data.auto_clear_error_attempts = 0
         else:
             # add to attempt on failure
-            __update_status_code(StatusCode.ERROR_UL)
+            __update_status_code(StatusCode.ERROR_SW)
             with data.lock:
                 data.auto_clear_error_attempts += 1
         return
