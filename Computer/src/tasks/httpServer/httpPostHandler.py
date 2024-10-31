@@ -68,6 +68,7 @@ def post_unloader_init():
 
 
 def post_all_servos_init():
+    logging.info(f"Manual fix requested at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     with data.lock:
         # set flag to true, reset auto clear attempts
         data.initialize_servo_flag = True

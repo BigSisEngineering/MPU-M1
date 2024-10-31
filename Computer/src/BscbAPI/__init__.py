@@ -280,11 +280,13 @@ def execute():
                     with data.lock:
                         data.initialize_servo_flag = True
 
+                    logging.info(f"Auto fix requested at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     __update_status_code(StatusCode.SELF_FIX_PENDING)
 
                     # permanently set first error to false
                     first_error = False
                 else:
+                    logging.info(f"Too many errors raised at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     __update_status_code(StatusCode.WAIT_ACK)
 
             # initialize timer for last error
