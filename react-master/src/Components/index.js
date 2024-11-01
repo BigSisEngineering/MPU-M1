@@ -87,11 +87,11 @@ function InfoSameRow({ title, text, color }) {
   );
 }
 
-function Subinfo({ title, content }) {
+function Subinfo({ title, content, fontSize = 16, gap = 5 }) {
   return (
-    <div className="subcontent-subinfo-container">
+    <div className="subcontent-subinfo-container" style={{ fontSize: `${fontSize}px` }}>
       {title}
-      <div className="gap" style={{ width: `${5}px` }}></div>
+      <div className="gap" style={{ width: `${gap}px` }}></div>
       <div className="display-box">{content}</div>
     </div>
   );

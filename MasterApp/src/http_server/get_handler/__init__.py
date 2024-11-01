@@ -6,7 +6,7 @@ from src.CLI import Level
 from src import CLI
 
 # ------------------------------------------------------------------------------------ #
-from src import components
+from src import components, tasks
 
 # ------------------------------------------------------------------------------------ #
 from src._shared_variables import SV
@@ -28,6 +28,8 @@ def _get_status(component: str) -> Any:
         return SV.system_status
     elif component == "info":
         return setup.get_setup_info()
+    elif component == "cage_score":
+        return tasks.cage_score_task.get_cage_score()
     else:
         return "null"
 

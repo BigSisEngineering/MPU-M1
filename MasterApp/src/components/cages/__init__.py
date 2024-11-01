@@ -25,11 +25,12 @@ class Cage(http_cage.HTTPCage):
     }
 
     DEFAULT_EXPERIMENT_STATUS = {
-        "operation_index": None,
-        "slots": None,
         "max_slots": None,
+        "operation_index": None,
+        "sequence_duration": None,
+        "sequence_number": None,
+        "slots": None,
         "time_elapsed": None,
-        "time_interval": None,
     }
 
     def __init__(self, cage: Cages):

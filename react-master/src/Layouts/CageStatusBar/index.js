@@ -46,6 +46,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
   let maxSlots = null;
   let timeElapsed = null;
   let timeInterval = null;
+  let sequenceNumber = null;
 
   if (cageExperimentDict) {
     operationIndex = cageExperimentDict["operation_index"];
@@ -53,6 +54,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
     maxSlots = cageExperimentDict["max_slots"];
     timeElapsed = cageExperimentDict["time_elapsed"];
     timeInterval = cageExperimentDict["sequence_duration"];
+    sequenceNumber = cageExperimentDict["sequence_number"];
   }
 
   // Text
@@ -85,7 +87,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
               className="loading-bar"
               style={{ width: `${timeBarWidth}%`, backgroundColor: `rgba(245, 148, 39, ${barOpacity})` }}
             >
-              <span className="loading-text">{currentMode}</span>
+              <span className="loading-text">{`${currentMode}-(${sequenceNumber})`}</span>
             </div>
           </div>
           <Gap height={5} />

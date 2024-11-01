@@ -2,6 +2,7 @@ import React from "react";
 import "../../Assets/Styles/styles.css";
 import Cage from "../Cage/index.js";
 import CCTV from "../CCTV/index.js";
+import ScoreBoard from "../ScoreBoard/index.js";
 import { Gap } from "../../Components/index.js";
 
 function Cages({ row, isSelected, toggleSelected, isCageActionMode }) {
@@ -49,9 +50,17 @@ function Cages({ row, isSelected, toggleSelected, isCageActionMode }) {
             />
           </div>
         ))}
-        <div className="columns-container" style={{ width: "14%" }}>
-          <CCTV />
-        </div>
+
+        {isCageActionMode && (
+          <div className="columns-container" style={{ width: "14%" }}>
+            <ScoreBoard />
+          </div>
+        )}
+        {!isCageActionMode && (
+          <div className="columns-container" style={{ width: "14%" }}>
+            <CCTV />
+          </div>
+        )}
       </div>
     </>
   );
