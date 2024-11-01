@@ -2,6 +2,7 @@ from datetime import datetime
 import requests
 import json
 from src import setup
+from typing import Optional
 
 url = "http://18.135.115.43/api/api/cage/egg_count/"
 
@@ -14,12 +15,14 @@ class EggCounter:
         self.row_name = setup.ROW_NUMBER
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
-        self.timeout = 1  # Timeout set to 1 second
+        self.timeout = 2  # Timeout set to 1 second
         self.date = datetime.now().strftime("%Y-%m-%d")
         self.start_date_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         self.count = {
             "egg": 0,
             "noegg": 0,
+            "multiple_eggs": 0,
+            "other": 0,
             "max_id": 0,
             "date": self.date,
             "start_time": self.start_date_time,
@@ -33,11 +36,11 @@ class EggCounter:
             response = self.session.post(self.url, data=json.dumps(data), timeout=self.timeout)
             return response
         except requests.exceptions.Timeout:
-            print("Request timed out")
+            print("Request timed out in post_api_data")
         except requests.exceptions.ConnectionError:
-            print("Connection error")
+            print("Connection error in post_api_data")
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"Unexpected error in post_api_data: {e}")
         return None
 
     def update_entry(self):
@@ -45,6 +48,8 @@ class EggCounter:
             "cage_id": self.cage,
             "egg_pot_count": self.count["egg"],
             "no_egg_pot_count": self.count["noegg"],
+            "multiple_eggs_pot_count": self.count["multiple_eggs"],
+            "other_pot_count": self.count["other"],
             "row": self.row_name,
             "col": "col3c",
             "start_time": self.count["start_time"],
@@ -80,6 +85,8 @@ class EggCounter:
                 self.count = {
                     "egg": 0,
                     "noegg": 0,
+                    "multiple_eggs": 0,
+                    "other": 0,
                     "max_id": 0,
                     "date": self.date,
                     "start_time": self.start_date_time,
@@ -88,7 +95,7 @@ class EggCounter:
                 self.data_init()
 
         except Exception as e:
-            print(f"Update data error: {e}")
+            print(f"Update data error in data update: {e}")
             pass
 
     def data_upload(self):
@@ -97,6 +104,8 @@ class EggCounter:
                 "cage_id": self.cage,
                 "egg_pot_count": self.count["egg"],
                 "no_egg_pot_count": self.count["noegg"],
+                "multiple_eggs_pot_count": self.count["multiple_eggs"],
+                "other_pot_count": self.count["other"],
                 "row": self.row_name,
                 "col": "col3c",
                 "start_time": self.count["start_time"],
@@ -109,15 +118,15 @@ class EggCounter:
                 print("Data successfully uploaded.")
             else:
                 print(
-                    f"Failed to update data. Status code: {response.status_code if response else 'No response'}, Response: {response.text if response else 'No response'}"
+                    f"Failed to upload data. Status code: {response.status_code if response else 'No response'}, Response: {response.text if response else 'No response'}"
                 )
-        except requests.exceptions.Timeout:
-            print("Request timed out")
-        except requests.exceptions.ConnectionError:
-            print("Connection error")
+        except requests.exceptions.Timeout as e:
+            print(f"Request timed out in data upload {e}")
+        except requests.exceptions.ConnectionError as e:
+            print(f"Connection error in data upload {e}")
         except Exception as e:
             print(f"Upload data error: {e}")
 
 
 # DataBase = EggCounter()
-DataBase = None
+DataBase: Optional[EggCounter] = None
