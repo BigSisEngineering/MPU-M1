@@ -50,7 +50,9 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
 
   const cageHostname = `cage${row - 1}x00${number.toString().padStart(2, "0")}`;
 
-  /* ---------------------------------------------------------------------------------- */
+  /* ================================================================================== */
+  /*                                     Board Data                                     */
+  /* ================================================================================== */
   // data update
   const dictData = useDict(Dicts.cages);
 
@@ -90,6 +92,48 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
       setIsLoaded(false);
     }
   }, [dictData, cageHostname]);
+
+  /* ================================================================================== */
+  /*                                   Experiment Dict                                  */
+  /* ================================================================================== */
+  // function getOperationMode(operationIndex) {
+  //   switch (operationIndex) {
+  //     case 0:
+  //       return "Ai";
+  //     case 1:
+  //       return "Ai";
+  //     case 2:
+  //       return "Ai";
+  //     case 3:
+  //       return "Ai";
+  //     case 4:
+  //       return "Purge";
+  //     default:
+  //       return "n/a";
+  //   }
+  // }
+
+  const dictExperiment = useDict(Dicts.experiment);
+
+  // Read dict
+  let operationIndex = null;
+  let slots = null;
+  let maxSlots = null;
+  let timeElapsed = null;
+  let timeInterval = null;
+
+  if (dictExperiment) {
+    operationIndex = dictExperiment[cageHostname]["operation_index"];
+    slots = dictExperiment[cageHostname]["slots"];
+    maxSlots = dictExperiment[cageHostname]["max_slots"];
+    timeElapsed = dictExperiment[cageHostname]["time_elapsed"];
+    timeInterval = dictExperiment[cageHostname]["sequence_duration"];
+  }
+
+  const slotBarWidth = maxSlots ? (slots / maxSlots) * 100 : 0;
+  const isUnderFourMinutes = timeElapsed ? (timeElapsed <= 4 * 60 ? true : false) : false; // temp hard code
+  const isNotComplete = slots ? (slots != 80 ? true : false) : false;
+  // const currentMode = getOperationMode(operationIndex); // ignore first
 
   /* ---------------------------------------------------------------------------------- */
 
@@ -344,26 +388,81 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
     }
   }
 
+  function resolveStatusCodeOpacity() {
+    // if slots not complete, return 'error' opacity anyways
+    if (isNotComplete) return 50;
+
+    switch (statusCode) {
+      case StatusCode.SW_INITIALIZING:
+        return 10;
+      case StatusCode.PRIMING_CHANNELS:
+        return 10;
+      case StatusCode.UL_INITIALIZING:
+        return 10;
+      case StatusCode.IDLE:
+        return 10;
+      case StatusCode.ERROR_SW:
+        return 50;
+      case StatusCode.ERROR_UL:
+        return 50;
+      case StatusCode.CLEARING_SERVO_ERROR:
+        return 10;
+      case StatusCode.UNABLE_TO_CLEAR_ERROR:
+        return 50;
+      case StatusCode.ERROR_CAMERA:
+        return 50;
+      case StatusCode.NORMAL:
+        return 10;
+      case StatusCode.LOADING:
+        return 10;
+      case StatusCode.WAIT_ACK:
+        return 50;
+      case StatusCode.SELF_FIX_PENDING:
+        return 10;
+      case StatusCode.WAITING_FOR_BUFFER:
+        return 50;
+      case StatusCode.WAITING_FOR_PASSIVE_LOAD:
+        return 50;
+      case StatusCode.INIT_WAITING_FOR_BUFFER:
+        return 50;
+      case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
+        return 50;
+      default:
+        return 10;
+    }
+  }
+
   function getOpacity() {
+    // If under maintainence
     if (maintainenceFlag) {
       if (!isSelected) {
         return 50;
       }
       return 75;
     }
+
+    // If cage is offline
     if (!isLoaded) {
       if (!isSelected) {
-        return 25;
+        return 10;
       }
       return 75;
     }
-    return 100;
+
+    // Full opacity if under 4 minutes (focused cages)
+    if (isUnderFourMinutes) {
+      return 100;
+    }
+    if (!isSelected) {
+      return resolveStatusCodeOpacity();
+    }
+    return 75;
   }
 
   return (
     <>
       <div
-        className={`subcontent-container ${isSelected ? "selected" : ""}`}
+        className={`subcontent-container ${isSelected ? "selected" : isUnderFourMinutes ? "highlighted" : ""}`}
         onClick={toggleSelected}
         style={{
           background: `linear-gradient(to bottom, ${getbackgroundColor()[0]}, ${getbackgroundColor()[1]}`,
@@ -379,22 +478,36 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
         <Info text={modeText(mode)} color={modeColor(mode)} />
         <HorizontalLine />
         {!isCageActionMode && (
-          <div className="row-container" style={{ justifyContent: "left" }}>
-            <Subinfo title={"SW"} content={<DisplayCustomEmoji emoji={servoEmoji(starwheelStatus)} />} />
-            <Subinfo title={"UL"} content={<DisplayCustomEmoji emoji={servoEmoji(unloaderStatus)} />} />
-          </div>
+          <>
+            <div className="row-container" style={{ justifyContent: "left" }}>
+              <Subinfo title={"SW"} content={<DisplayCustomEmoji emoji={servoEmoji(starwheelStatus)} />} />
+              <Subinfo title={"UL"} content={<DisplayCustomEmoji emoji={servoEmoji(unloaderStatus)} />} />
+            </div>
+            <div className="row-container" style={{ justifyContent: "left" }}>
+              <Subinfo title={"Load"} content={<DisplayCustomEmoji emoji={sensorEmoji(loadSensor)} />} />
+              <Subinfo title={"Unload"} content={<DisplayCustomEmoji emoji={sensorEmoji(unloadSensor)} />} />
+              <Subinfo title={"Buffer"} content={<DisplayCustomEmoji emoji={sensorEmoji(bufferSensor)} />} />
+            </div>
+          </>
         )}
         {isCageActionMode && (
-          <div className="row-container" style={{ justifyContent: "left" }}>
-            <Subinfo title={""} content={resolveStatusCodeOperatorAction()} />
-          </div>
-        )}
-        {!isCageActionMode && (
-          <div className="row-container" style={{ justifyContent: "left" }}>
-            <Subinfo title={"Load"} content={<DisplayCustomEmoji emoji={sensorEmoji(loadSensor)} />} />
-            <Subinfo title={"Unload"} content={<DisplayCustomEmoji emoji={sensorEmoji(unloadSensor)} />} />
-            <Subinfo title={"Buffer"} content={<DisplayCustomEmoji emoji={sensorEmoji(bufferSensor)} />} />
-          </div>
+          <>
+            <div className="row-container" style={{ justifyContent: "left" }}>
+              <div className="loading-bar-container">
+                <div
+                  className="loading-bar"
+                  style={{ width: `${slotBarWidth}%`, backgroundColor: "rgba(50, 245, 39, 0.8)" }}
+                >
+                  <span className="loading-text">
+                    {slots}/{maxSlots}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="row-container" style={{ justifyContent: "left" }}>
+              <Subinfo title={""} content={resolveStatusCodeOperatorAction()} />
+            </div>
+          </>
         )}
         <HorizontalLine />
       </div>

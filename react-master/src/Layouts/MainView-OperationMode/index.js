@@ -1,13 +1,13 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useDict, Dicts } from "./Middleware/get-api.js";
-import "./Assets/Styles/styles.css";
-import M1A from "./Layouts/M1A/index.js";
-import M1C from "./Layouts/M1C/index.js";
-import Cages from "./Layouts/Cages/index.js";
-import CageControl from "./Layouts/CageControl/index.js";
-import OperationControl from "./Layouts/OperationControl/index.js";
-import { DEFAULT_BOOL } from "./Utils/Utils.js";
+import { useDict, Dicts } from "../../Middleware/get-api.js";
+import "../../Assets/Styles/styles.css";
+import M1A from "../../Layouts/M1A/index.js";
+import M1C from "../../Layouts/M1C/index.js";
+import Cages from "../../Layouts/Cages/index.js";
+import CageControl from "../../Layouts/CageControl/index.js";
+import OperationControl from "../../Layouts/OperationControl/index.js";
+import { DEFAULT_BOOL } from "../../Utils/Utils.js";
 
 /* ====================================== Left ====================================== */
 function OperationModeLeftColumn({
@@ -142,4 +142,4 @@ function OperationModeContent({ rowNumber, isCageActionMode, setIsCageActionMode
   );
 }
 
-export { OperationModeContent };
+export default OperationModeContent;

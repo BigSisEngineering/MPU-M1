@@ -1,10 +1,9 @@
 import threading
 from flask_socketio import SocketIO
 from typing import List, Dict, Optional
-import time
 
 # ------------------------------------------------------------------------------------ #
-from src import components
+from src import components, tasks
 from src._shared_variables import SV
 from src import setup
 
@@ -24,6 +23,7 @@ class Readback:
     EXPERIMENT = 5
     SESSION_ACTIVE = 6
     SESSION_END = 7
+    CAGE_SCORE = 8
 
 
 def get_readback_dict(readback: Readback) -> Dict:
@@ -43,6 +43,8 @@ def get_readback_dict(readback: Readback) -> Dict:
         return {"session_timeout": False}
     elif readback == Readback.SESSION_END:
         return {"session_timeout": True}
+    elif readback == Readback.CAGE_SCORE:
+        return tasks.cage_score_task.get_cage_score(raw_dict=True)
 
 
 def get_readback_event(readback: Readback) -> str:
@@ -62,6 +64,8 @@ def get_readback_event(readback: Readback) -> str:
         return "session"
     elif readback == Readback.SESSION_END:
         return "session"
+    elif readback == Readback.CAGE_SCORE:
+        return "cage_score"
 
 
 class Session:
@@ -88,6 +92,7 @@ class Session:
             self.__emit(Readback.EXPERIMENT, sid)
             self.__emit(Readback.SYSTEM, sid)
             self.__emit(Readback.CAGES, sid)
+            self.__emit(Readback.CAGE_SCORE, sid)
             self.socketio.sleep(Session.TRANSMIT_DELAY)
 
         self.__emit(Readback.SESSION_END, sid)

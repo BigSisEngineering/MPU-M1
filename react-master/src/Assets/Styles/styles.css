@@ -172,6 +172,12 @@ html {
   outline: 3px solid #ccc;
   box-shadow: 0 0 25px #fdfd68cc;
 }
+/*  Experiment mode  */
+.subcontent-container.highlighted {
+  background: rgba(170, 253, 214, 0.3);
+  outline: 10px solid #fffb00;
+  box-shadow: 0 0 50px #ffee00cc;
+}
 
 .subcontent-title {
   display: inline-flex;

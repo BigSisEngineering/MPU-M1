@@ -1,12 +1,12 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useDict, Dicts } from "./Middleware/get-api.js";
-import "./Assets/Styles/styles.css";
-import M1A from "./Layouts/M1A/index.js";
-import M1C from "./Layouts/M1C/index.js";
-import Cages from "./Layouts/Cages/index.js";
-import CageStatusBar from "./Layouts/CageStatusBar/index.js";
-import { DEFAULT_BOOL } from "./Utils/Utils.js";
+import { useDict, Dicts } from "../../Middleware/get-api.js";
+import "../../Assets/Styles/styles.css";
+import M1A from "../../Layouts/M1A/index.js";
+import M1C from "../../Layouts/M1C/index.js";
+import Cages from "../../Layouts/Cages/index.js";
+import CageStatusBar from "../../Layouts/CageStatusBar/index.js";
+import { DEFAULT_BOOL } from "../../Utils/Utils.js";
 
 /* ====================================== Left ====================================== */
 function DisplayModeLeftColumn({
@@ -134,4 +134,4 @@ function DisplayModeContent({ rowNumber, dictExperiment, isCageActionMode, setIs
   );
 }
 
-export { DisplayModeContent };
+export default DisplayModeContent;
