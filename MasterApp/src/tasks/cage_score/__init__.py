@@ -24,10 +24,13 @@ class CageScore:
         self._cage_score = {
             "completed_num": None,
             "completed_score": None,
+            "completed_slots": None,
             "min_num": None,
             "min_score": None,
+            "min_slots": None,
             "max_num": None,
             "max_score": None,
+            "max_slots": None,
         }
 
         # for storage
