@@ -15,6 +15,7 @@ class Dicts {
   static session = 6;
   static experiment = 7;
   static lastping = 8;
+  static cageScore = 9;
 }
 
 const dictsContext = createContext({
@@ -26,6 +27,7 @@ const dictsContext = createContext({
   [Dicts.session]: null,
   [Dicts.experiment]: null,
   [Dicts.lastping]: null,
+  [Dicts.cageScore]: null,
 });
 
 const ContentProvider = ({ children }) => {
@@ -38,6 +40,7 @@ const ContentProvider = ({ children }) => {
     [Dicts.session]: null,
     [Dicts.experiment]: null,
     [Dicts.lastping]: { time: Math.floor(Date.now() / 1000) },
+    [Dicts.cageScore]: null,
   });
 
   useEffect(() => {
@@ -76,6 +79,10 @@ const ContentProvider = ({ children }) => {
       setDictValues((prev) => ({ ...prev, [Dicts.lastping]: { time: lastPing } }));
     }
 
+    const handleCageScore = (data) => {
+      setDictValues((prev) => ({ ...prev, [Dicts.cageScore]: data }));
+    };
+
     // Register socket event listeners
     socket.on("m1a", handleM1A);
     socket.on("m1c", handleM1C);
@@ -84,6 +91,7 @@ const ContentProvider = ({ children }) => {
     socket.on("info", handleInfo);
     socket.on("experiment", handleExperiment);
     socket.on("session", handleSession);
+    socket.on("cage_score", handleCageScore);
 
     // Cleanup function to remove the event listeners
     return () => {
@@ -94,6 +102,7 @@ const ContentProvider = ({ children }) => {
       socket.off("info", handleInfo);
       socket.off("experiment", handleExperiment);
       socket.off("session", handleSession);
+      socket.off("cage_score", handleCageScore);
     };
   }, []); // Empty dependency array to run only once on mount
 

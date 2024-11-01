@@ -116,14 +116,14 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
   const dictExperiment = useDict(Dicts.experiment);
 
   // Read dict
-  let operationIndex = null;
+  let sequenceNumber = null;
   let slots = null;
   let maxSlots = null;
   let timeElapsed = null;
   let timeInterval = null;
 
   if (dictExperiment) {
-    operationIndex = dictExperiment[cageHostname]["operation_index"];
+    sequenceNumber = dictExperiment[cageHostname]["sequence_number"];
     slots = dictExperiment[cageHostname]["slots"];
     maxSlots = dictExperiment[cageHostname]["max_slots"];
     timeElapsed = dictExperiment[cageHostname]["time_elapsed"];
@@ -132,7 +132,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
 
   const slotBarWidth = maxSlots ? (slots / maxSlots) * 100 : 0;
   const isUnderFourMinutes = timeElapsed ? (timeElapsed <= 4 * 60 ? true : false) : false; // temp hard code
-  const isNotComplete = slots ? (slots != 80 ? true : false) : false;
+  const isNotComplete = slots ? (slots !== 80 ? true : false) : false;
   // const currentMode = getOperationMode(operationIndex); // ignore first
 
   /* ---------------------------------------------------------------------------------- */
@@ -450,7 +450,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
     }
 
     // Full opacity if under 4 minutes (focused cages)
-    if (isUnderFourMinutes) {
+    if (isUnderFourMinutes && mode == "experiment") {
       return 100;
     }
     if (!isSelected) {
@@ -462,7 +462,9 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
   return (
     <>
       <div
-        className={`subcontent-container ${isSelected ? "selected" : isUnderFourMinutes ? "highlighted" : ""}`}
+        className={`subcontent-container ${
+          isSelected ? "selected" : isUnderFourMinutes && mode == "experiment" ? "highlighted" : ""
+        }`}
         onClick={toggleSelected}
         style={{
           background: `linear-gradient(to bottom, ${getbackgroundColor()[0]}, ${getbackgroundColor()[1]}`,
