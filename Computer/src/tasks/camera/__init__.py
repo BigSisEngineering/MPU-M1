@@ -163,7 +163,7 @@ class CameraThreading:
     def __init__(self, camera_id: int):
         self.camera_id = camera_id
         self.frame_lock = threading.Lock()
-        self.bbox_lock = threading.Lock()
+        self.shared_frame_lock = threading.Lock()
         self.raw_frame = None  # NOTE FOR TESTING ONLY
         self.ctn = 0
 
@@ -242,18 +242,15 @@ class CameraThreading:
     def get_raw_frame(self):
         with self.frame_lock:
             frame = self.raw_frame
-
         return frame
-
-    def save_frame(self):
-        with self.frame_lock:
-            file_name = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)),
-                f"{self.ctn}.jpg",
-            )
-            cv2.imwrite(f"{file_name}", self.shared_frame)
-            self.ctn += 1
-            # print(f"Image saved: {file_name} ")
+    
+    
+    def is_blurry(self, threshold=30.0):
+        gray = cv2.cvtColor(self.get_frame(), cv2.COLOR_BGR2GRAY)
+        laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        is_blurry = laplacian_var < threshold
+        print(f"Blurry: {'Yes' if is_blurry else 'No'} | Score: {laplacian_var:.2f}")
+        return is_blurry
 
     def save_raw_frame(
         self, frame, confident: float = 0.0, prediction: int = 0, arg_timestamp_now: datetime = None

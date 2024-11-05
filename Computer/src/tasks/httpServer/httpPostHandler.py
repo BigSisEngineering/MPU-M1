@@ -229,10 +229,11 @@ def post_set_cycle_time(cycle_time):
 
 def post_set_pause_interval(pause_interval):
     with data.lock:
+        data.experiment_pause_interval = pause_interval
         data.sequence_duration = (pause_interval + 4) * 60
         data.interval = data.sequence_duration / data.TOTAL_CAGES
-    logging.info(f"Pause Interval set to {pause_interval} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    return f"pause interval set to {pause_interval} seconds"
+    logging.info(f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return f"pause interval set to {pause_interval} mins"
 
 
 def post_set_white_shade(value):

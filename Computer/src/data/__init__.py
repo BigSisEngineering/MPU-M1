@@ -55,7 +55,7 @@ pnp_enabled: bool = False
 pnp_confidence: float = 0.80
 
 experiment_enabled: bool = False
-experiment_pause_interval = 600.0
+experiment_pause_interval = 10.0
 experiment_pause_start_time = None
 experiment_pause_state = False
 experiment_status = ""
@@ -80,9 +80,9 @@ valve_delay: int = 200
 model = "v5"
 
 white_shade: int = 225
+is_blury = False
 
 initialize_servo_flag = True
-
 
 # ==================================================================================== #
 #                                     Experiment 2                                     #

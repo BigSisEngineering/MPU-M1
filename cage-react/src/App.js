@@ -37,7 +37,7 @@ class StatusCode {
 function App() {
   // const [boardData, setBoardData] = useState(null);
   // const [experimentData, setExperimentData] = useState(null);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [position, setPosition] = useState("");
   const [pauseinterval, setInterval] = useState("");
   const [cycletime, setCycleTime] = useState("");
@@ -99,21 +99,29 @@ function App() {
 
   const boardData = useDict(Dicts.boardData);
   const experimentData = useDict(Dicts.experimentData);
+  const experimentSettings = useDict(Dicts.experimentSettings);
 
   // Extract statuses from the fetched data
   const starWheelStatus = boardData ? boardData.star_wheel_status : "";
   const unloaderStatus = boardData ? boardData.unloader_status : "";
-  const modeStatus = boardData ? boardData.mode : "";
+  // const modeStatus = boardData ? boardData.mode : "";
   const sensorsValues = boardData ? boardData.sensors_values : "(0, 0, 0, 0)";
   const systemStatus = boardData ? resolveStatusCode(boardData.status_code) : resolveStatusCode("99");
 
-  // console.log("Sensor Values:", sensorsValues);
+  const get_pause_interval = experimentSettings ? experimentSettings.experiment_pause_interval : "";
+  const get_cycle_time = experimentSettings ? experimentSettings.cycle_time : "";
+  const get_valve_delay = experimentSettings ? experimentSettings.valve_delay : "";
+
+  // console.log("pause_interval:", pause_interval);
+
   const { starWheel, unloader, mode, load, buffer } = CageStatus(
     boardData?.star_wheel_status,
     boardData?.unloader_status,
     boardData?.mode,
     sensorsValues
   );
+
+  
   // const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
   const isIdle = mode.text === "IDLE";
@@ -152,7 +160,7 @@ function App() {
             <div className="subcontent-title">Production Status</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="subcontent-info-same-row-container">
-              ⓘ Status
+              ⓘ Mode
               <div className="subcontent-info-box" style={{ backgroundColor: mode.color }}>
                 {mode.text}
               </div>
@@ -191,15 +199,18 @@ function App() {
             <div className="subcontent-title">Experiment Settings</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={handleSetInterval} label="Set Pause Interval" />
+              <Button onClick={handleSetInterval} label="Set Pause Int" />
+              <div className="subcontent-info-text">{get_pause_interval}</div>
               {getInput("number", "interval", pauseinterval, setInterval)}
             </div>
             <div className="buttons-container">
               <Button onClick={handleSetCycleTime} label="Set Cycle Time" />
+              <div className="subcontent-info-text">{get_cycle_time}</div>
               {getInput("number", "cycletime", cycletime, setCycleTime)}
             </div>
             <div className="buttons-container">
               <Button onClick={handleSetValveDelay} label="Set Valve delay" />
+              <div className="subcontent-info-text">{get_valve_delay}</div>
               {getInput("number", "valvedelay", valvedelay, setDelay)}
             </div>
             <div className="gap"></div>

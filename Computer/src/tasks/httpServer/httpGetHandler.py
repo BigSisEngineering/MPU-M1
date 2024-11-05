@@ -75,6 +75,16 @@ def get_experimentStatus():
     return dict
 
 
+def get_experimentSettings():
+    dict = {}
+    with data.lock:
+        dict["experiment_pause_interval"] = data.experiment_pause_interval
+        dict["cycle_time"] = data.pnp_data.cycle_time
+        dict["valve_delay"] = data.valve_delay
+
+    return dict
+
+
 get_endpoints = {
     "ACK": get_ACK,
     "BoardData": get_BoardData,
@@ -86,6 +96,7 @@ get_endpoints = {
     "ExperimentData": get_experimentData,
     "UnloaderPos": get_UnloaderPos,
     "ExperimentStatus": get_experimentStatus,
+    "ExperimentSettings": get_experimentSettings,
 }
 
 
