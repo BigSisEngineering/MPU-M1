@@ -93,7 +93,8 @@ def get_cage_number():
 
 
 # ============================= To be exposed if required ============================ #
-sequence_duration = 14 * 60  # 14 minutes
+
+sequence_duration = (10 + 4) * 60  # 14 minutes
 purge_frequency = 5
 
 # ====================================== Driven ====================================== #
