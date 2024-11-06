@@ -80,7 +80,8 @@ valve_delay: int = 200
 model = "v5"
 
 white_shade: int = 225
-is_blury = False
+is_blurry = False
+blur_threshold = 3
 
 initialize_servo_flag = True
 

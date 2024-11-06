@@ -256,7 +256,7 @@ def execute():
 
         is_camera_ready = CAMERA.device_ready 
 
-        is_frame_blurry = CAMERA.is_blurry()
+        # is_frame_blurry = CAMERA.is_blurry()
 
         is_camera_operation_ready = is_camera_ready and is_safe_to_move
 

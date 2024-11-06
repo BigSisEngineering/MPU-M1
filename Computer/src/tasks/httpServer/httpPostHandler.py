@@ -293,6 +293,12 @@ def post_set_valve_delay(delay):
     return f"Valve delay set to {delay}"
 
 
+def post_set_blur_threshold(blur_threshold):
+    with data.lock:
+        data.blur_threshold = blur_threshold
+    return f"blur threshold set to {blur_threshold}"
+
+
 # Mapping endpoints to functions and their required argument count
 post_endpoints = {
     "STAR_WHEEL": {"func": post_star_wheel, "arg_num": 0},
@@ -326,6 +332,7 @@ post_endpoints = {
     "MOVE_STAR_WHEEL_REL": {"func": post_move_star_wheel_relative, "arg_num": 1},
     "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1},
     "VALVE_DELAY": {"func": post_set_valve_delay, "arg_num": 1},
+    "BLUR": {"func": post_set_blur_threshold, "arg_num": 1},
 }
 
 
