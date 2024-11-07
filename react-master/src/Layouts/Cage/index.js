@@ -96,23 +96,6 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
   /* ================================================================================== */
   /*                                   Experiment Dict                                  */
   /* ================================================================================== */
-  // function getOperationMode(operationIndex) {
-  //   switch (operationIndex) {
-  //     case 0:
-  //       return "Ai";
-  //     case 1:
-  //       return "Ai";
-  //     case 2:
-  //       return "Ai";
-  //     case 3:
-  //       return "Ai";
-  //     case 4:
-  //       return "Purge";
-  //     default:
-  //       return "n/a";
-  //   }
-  // }
-
   const dictExperiment = useDict(Dicts.experiment);
 
   // Read dict

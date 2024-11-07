@@ -230,9 +230,16 @@ def post_set_cycle_time(cycle_time):
 def post_set_pause_interval(pause_interval):
     with data.lock:
         data.experiment_pause_interval = pause_interval
-    # logging.info(f"Pause Interval set to {pause_interval} seconds at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    return f"pause interval set to {pause_interval} seconds"
+        data.sequence_duration = (pause_interval + 4) * 60
+        data.interval = data.sequence_duration / data.TOTAL_CAGES
+    logging.info(f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return f"pause interval set to {pause_interval} mins"
 
+def post_set_purge_frequency(purge_frequency):
+    with data.lock:
+        data.purge_frequency = purge_frequency
+    logging.info(f"Purge frequency set to {purge_frequency}  at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return f"Purge frequency interval set to {purge_frequency}"
 
 def post_set_white_shade(value):
     with data.lock:
@@ -291,6 +298,12 @@ def post_set_valve_delay(delay):
     return f"Valve delay set to {delay}"
 
 
+def post_set_blur_threshold(blur_threshold):
+    with data.lock:
+        data.blur_threshold = blur_threshold
+    return f"blur threshold set to {blur_threshold}"
+
+
 # Mapping endpoints to functions and their required argument count
 post_endpoints = {
     "STAR_WHEEL": {"func": post_star_wheel, "arg_num": 0},
@@ -320,10 +333,12 @@ post_endpoints = {
     "SET_PNP_CONFIDENCE_LEVEL": {"func": post_set_pnp_confidence_level, "arg_num": 1},
     "SET_CYCLE_TIME": {"func": post_set_cycle_time, "arg_num": 1},
     "SET_PAUSE_INTERVAL": {"func": post_set_pause_interval, "arg_num": 1},
+    "SET_PURGE_FREQUENCY": {"func": post_set_purge_frequency, "arg_num": 1},
     "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1},
     "MOVE_STAR_WHEEL_REL": {"func": post_move_star_wheel_relative, "arg_num": 1},
     "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1},
     "VALVE_DELAY": {"func": post_set_valve_delay, "arg_num": 1},
+    "BLUR": {"func": post_set_blur_threshold, "arg_num": 1},
 }
 
 

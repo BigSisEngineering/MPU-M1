@@ -55,7 +55,7 @@ pnp_enabled: bool = False
 pnp_confidence: float = 0.80
 
 experiment_enabled: bool = False
-experiment_pause_interval = 600.0
+experiment_pause_interval = 10.0
 experiment_pause_start_time = None
 experiment_pause_state = False
 experiment_status = ""
@@ -80,9 +80,10 @@ valve_delay: int = 200
 model = "v5"
 
 white_shade: int = 225
+is_blurry = False
+blur_threshold = 3
 
 initialize_servo_flag = True
-
 
 # ==================================================================================== #
 #                                     Experiment 2                                     #
@@ -93,7 +94,8 @@ def get_cage_number():
 
 
 # ============================= To be exposed if required ============================ #
-sequence_duration = 14 * 60  # 14 minutes
+
+sequence_duration = (10 + 4) * 60  # 14 minutes
 purge_frequency = 5
 
 # ====================================== Driven ====================================== #

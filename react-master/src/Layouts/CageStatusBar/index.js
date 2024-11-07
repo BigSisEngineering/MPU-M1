@@ -6,40 +6,6 @@ import { getColor, DEFAULT_MSG } from "../../Utils/Utils.js";
 import { Gap, HorizontalLine, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
 function CageLoadingBar({ title, cageExperimentDict }) {
-  function getOperationMode(operationIndex) {
-    switch (operationIndex) {
-      case 0:
-        return "Ai";
-      case 1:
-        return "Ai";
-      case 2:
-        return "Ai";
-      case 3:
-        return "Ai";
-      case 4:
-        return "Purge";
-      default:
-        return "n/a";
-    }
-  }
-
-  function getBarOpacity(operationIndex) {
-    switch (operationIndex) {
-      case 0:
-        return 0.2;
-      case 1:
-        return 0.4;
-      case 2:
-        return 0.6;
-      case 3:
-        return 0.8;
-      case 4:
-        return 1;
-      default:
-        return 0;
-    }
-  }
-
   // Read dict
   let operationIndex = null;
   let slots = null;
@@ -47,6 +13,7 @@ function CageLoadingBar({ title, cageExperimentDict }) {
   let timeElapsed = null;
   let timeInterval = null;
   let sequenceNumber = null;
+  let purgeFrequency = null;
 
   if (cageExperimentDict) {
     operationIndex = cageExperimentDict["operation_index"];
@@ -55,6 +22,21 @@ function CageLoadingBar({ title, cageExperimentDict }) {
     timeElapsed = cageExperimentDict["time_elapsed"];
     timeInterval = cageExperimentDict["sequence_duration"];
     sequenceNumber = cageExperimentDict["sequence_number"];
+    purgeFrequency = cageExperimentDict["purge_frequency"] || 5; // if running on old code
+  }
+
+  function getOperationMode(operationIndex) {
+    if (purgeFrequency) {
+      return operationIndex === purgeFrequency - 1 ? "Purge" : "Ai";
+    }
+    return "n/a";
+  }
+
+  function getBarOpacity(operationIndex) {
+    if (purgeFrequency) {
+      return (operationIndex / (purgeFrequency - 1)).toFixed(2);
+    }
+    return 0;
   }
 
   // Text

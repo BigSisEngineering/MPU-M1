@@ -62,7 +62,7 @@ model = data.model
 
 
 def gen():
-    compression_params = [cv2.IMWRITE_WEBP_QUALITY, 30]
+    compression_params = [cv2.IMWRITE_WEBP_QUALITY, 100]
 
     new_shape = (480, 320)
     desired_width = 640
@@ -89,7 +89,7 @@ def gen():
         text_y = text_size[1] + 10 + line_offset
         cv2.putText(frame, text, (text_x, text_y), font, font_scale, color, thickness)
 
-    # ! The young Tan doesn't know what this function does
+
     # def _draw_lines_to_bbox(frame, circle_center, radius, bbox):
     #     x_min, y_min, x_max, y_max = bbox
     #     # Top and bottom points of the circle

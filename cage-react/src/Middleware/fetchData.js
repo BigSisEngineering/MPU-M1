@@ -88,6 +88,7 @@ import { useState, useEffect } from "react";
 class Dicts {
   static boardData = 1;
   static experimentData = 2;
+  static experimentSettings = 3;
 }
 
 async function fetchJSON(url) {
@@ -118,11 +119,13 @@ async function fetchAndSetState(url, setState) {
 function useDict(dictName) {
   const [dictboardData, setDictboardData] = useState(null);
   const [dictExperimentData, setDictExperimentData] = useState(null);
+  const [dictExperimentSettings, setDictExperimentSettings] = useState(null);
 
   useEffect(() => {
     const urls = {
       [Dicts.boardData]: "/BoardData",
       [Dicts.experimentData]: "/ExperimentData",
+      [Dicts.experimentSettings]: "/ExperimentSettings",
     };
 
     const url = urls[dictName];
@@ -134,6 +137,7 @@ function useDict(dictName) {
           {
             [Dicts.boardData]: setDictboardData,
             [Dicts.experimentData]: setDictExperimentData,
+            [Dicts.experimentSettings]: setDictExperimentSettings,
           }[dictName]
         );
       }, 2000);
@@ -147,6 +151,8 @@ function useDict(dictName) {
       return dictboardData;
     case Dicts.experimentData:
       return dictExperimentData;
+    case Dicts.experimentSettings:
+      return dictExperimentSettings;
     default:
       return null;
   }

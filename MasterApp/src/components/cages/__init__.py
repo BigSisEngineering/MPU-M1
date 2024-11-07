@@ -31,6 +31,7 @@ class Cage(http_cage.HTTPCage):
         "sequence_number": None,
         "slots": None,
         "time_elapsed": None,
+        "purge_frequency": None,
     }
 
     def __init__(self, cage: Cages):

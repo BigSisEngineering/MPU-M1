@@ -64,7 +64,6 @@ def circular_mask(image):
 
     return masked_image
 
-
 def find_circle_thread(stop_event: threading.Event):
     watchdog = 60  # seconds
     time_stamp = time.time() - watchdog  # instant first find

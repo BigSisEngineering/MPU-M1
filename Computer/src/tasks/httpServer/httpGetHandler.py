@@ -71,6 +71,18 @@ def get_experimentStatus():
         dict["time_elapsed"] = data.time_elapsed
         dict["sequence_duration"] = data.sequence_duration
         dict["sequence_number"] = data.experiment2_previous_sequence_number
+        dict["purge_frequency"] = data.purge_frequency
+
+    return dict
+
+
+def get_experimentSettings():
+    dict = {}
+    with data.lock:
+        dict["experiment_pause_interval"] = data.experiment_pause_interval
+        dict["experiment_purge_frequency"] = data.purge_frequency
+        dict["cycle_time"] = data.pnp_data.cycle_time
+        dict["valve_delay"] = data.valve_delay
 
     return dict
 
@@ -86,6 +98,7 @@ get_endpoints = {
     "ExperimentData": get_experimentData,
     "UnloaderPos": get_UnloaderPos,
     "ExperimentStatus": get_experimentStatus,
+    "ExperimentSettings": get_experimentSettings,
 }
 
 
