@@ -61,12 +61,13 @@ export const ALLInit = () => sendPostRequest("/ALL_SERVOS_INIT");
 export const ClearError = () => sendPostRequest("/CLEAR_ERROR");
 export const PNP = () => sendPostRequest("/ENABLE_PNP");
 export const Dummy = () => sendPostRequest("/ENABLE_DUMMY");
-export const Experiment = () => sendPostRequest("/ENABLE_EXPERIMENT/0"); //! Added dummy argument
+export const Experiment = () => sendPostRequest("/ENABLE_EXPERIMENT");
 export const SaveZero = () => sendPostRequest("/SAVE_STAR_WHEEL_ZERO");
 
 export const SaveOffset = (param) => sendPostRequestWithParam("/SAVE_STAR_WHEEL_OFFSET", param);
 export const MoveSW = (param) => sendPostRequestWithParam("/MOVE_STAR_WHEEL", param);
 export const SetInterval = (param) => sendPostRequestWithParam("/SET_PAUSE_INTERVAL", param);
+export const SetFrequency = (param) => sendPostRequestWithParam("/SET_PURGE_FREQUENCY", param);
 export const SetCycleTime = (param) => sendPostRequestWithParam("/SET_CYCLE_TIME", param);
 export const SetValveDelay = (param) => sendPostRequestWithParam("/VALVE_DELAY", param);
 
