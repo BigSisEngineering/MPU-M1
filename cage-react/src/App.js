@@ -40,6 +40,7 @@ function App() {
   // const [error, setError] = useState(null);
   const [position, setPosition] = useState("");
   const [pauseinterval, setInterval] = useState("");
+  const [purgefrequency, setFrequency] = useState("");
   const [cycletime, setCycleTime] = useState("");
   const [valvedelay, setDelay] = useState("");
 
@@ -109,6 +110,7 @@ function App() {
   const systemStatus = boardData ? resolveStatusCode(boardData.status_code) : resolveStatusCode("99");
 
   const get_pause_interval = experimentSettings ? experimentSettings.experiment_pause_interval : "";
+  const get_purge_frequency = experimentSettings ? experimentSettings.experiment_purge_frequency : "";
   const get_cycle_time = experimentSettings ? experimentSettings.cycle_time : "";
   const get_valve_delay = experimentSettings ? experimentSettings.valve_delay : "";
 
@@ -137,6 +139,10 @@ function App() {
 
   const handleSetInterval = () => {
     PostActions.SetInterval(pauseinterval);
+  };
+
+  const handleSetPurgeFrequency = () => {
+    PostActions.SetFrequency(purgefrequency);
   };
 
   const handleSetCycleTime = () => {
@@ -178,7 +184,7 @@ function App() {
               <Button onClick={PostActions.MoveCW} label="↩️" disabled={!isIdle} />
             </div>
             <div className="gap"></div>
-            {/* <div className="subcontent-title">Servos Init</div>
+            <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
               <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle}/>
@@ -186,7 +192,7 @@ function App() {
               <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle}/>
               <Button onClick={PostActions.ClearError} label="Clear Error"/>
             </div>
-            <div className="gap"></div> */}
+            <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
@@ -202,6 +208,11 @@ function App() {
               <Button onClick={handleSetInterval} label="Set Pause Int" />
               <div className="subcontent-info-text">{get_pause_interval}</div>
               {getInput("number", "interval", pauseinterval, setInterval)}
+            </div>
+            <div className="buttons-container">
+              <Button onClick={handleSetPurgeFrequency} label="Set Purge freq" />
+              <div className="subcontent-info-text">{get_purge_frequency}</div>
+              {getInput("number", "interval", purgefrequency, setFrequency)}
             </div>
             <div className="buttons-container">
               <Button onClick={handleSetCycleTime} label="Set Cycle Time" />

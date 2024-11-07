@@ -235,6 +235,11 @@ def post_set_pause_interval(pause_interval):
     logging.info(f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return f"pause interval set to {pause_interval} mins"
 
+def post_set_purge_frequency(purge_frequency):
+    with data.lock:
+        data.purge_frequency = purge_frequency
+    logging.info(f"Purge frequency set to {purge_frequency}  at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    return f"Purge frequency interval set to {purge_frequency}"
 
 def post_set_white_shade(value):
     with data.lock:
@@ -328,6 +333,7 @@ post_endpoints = {
     "SET_PNP_CONFIDENCE_LEVEL": {"func": post_set_pnp_confidence_level, "arg_num": 1},
     "SET_CYCLE_TIME": {"func": post_set_cycle_time, "arg_num": 1},
     "SET_PAUSE_INTERVAL": {"func": post_set_pause_interval, "arg_num": 1},
+    "SET_PURGE_FREQUENCY": {"func": post_set_purge_frequency, "arg_num": 1},
     "MOVE_STAR_WHEEL": {"func": post_move_star_wheel, "arg_num": 1},
     "MOVE_STAR_WHEEL_REL": {"func": post_move_star_wheel_relative, "arg_num": 1},
     "WHITE_SHADE": {"func": post_set_white_shade, "arg_num": 1},

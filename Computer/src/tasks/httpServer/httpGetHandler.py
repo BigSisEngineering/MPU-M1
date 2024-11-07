@@ -79,6 +79,7 @@ def get_experimentSettings():
     dict = {}
     with data.lock:
         dict["experiment_pause_interval"] = data.experiment_pause_interval
+        dict["experiment_purge_frequency"] = data.purge_frequency
         dict["cycle_time"] = data.pnp_data.cycle_time
         dict["valve_delay"] = data.valve_delay
 

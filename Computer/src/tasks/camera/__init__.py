@@ -137,19 +137,19 @@ class CameraThreading:
         return frame
     
     
-    def is_blurry(self):
-        gray = cv2.cvtColor(self.get_frame(), cv2.COLOR_BGR2GRAY)
-        # laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
-        # is_blurry = laplacian_var < threshold
-        # print(f"Blurry: {'Yes' if is_blurry else 'No'} | Score: {laplacian_var:.2f}")
-        # return is_blurry
-        sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
-        sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
-        gradient_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)
-        blurriness = np.mean(gradient_magnitude)
-        is_blurry = blurriness < data.blur_threshold
-        print(f"Blurry: {'Yes' if is_blurry else 'No'} | Score: {blurriness:.2f}")
-        return is_blurry
+    # def is_blurry(self):
+    #     gray = cv2.cvtColor(self.get_frame(), cv2.COLOR_BGR2GRAY)
+    #     # laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+    #     # is_blurry = laplacian_var < threshold
+    #     # print(f"Blurry: {'Yes' if is_blurry else 'No'} | Score: {laplacian_var:.2f}")
+    #     # return is_blurry
+    #     sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+    #     sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+    #     gradient_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)
+    #     blurriness = np.mean(gradient_magnitude)
+    #     is_blurry = blurriness < data.blur_threshold
+    #     print(f"Blurry: {'Yes' if is_blurry else 'No'} | Score: {blurriness:.2f}")
+    #     return is_blurry
 
     def save_raw_frame(
         self, frame, confident: float = 0.0, prediction: int = 0, arg_timestamp_now: datetime = None):  # NOTE FOR TESTING ONLY
