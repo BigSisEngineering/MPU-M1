@@ -64,7 +64,11 @@ private:
   bool pri_isMsgValid();
   void pri_actionMsgHandler();
 
-  void pri_valveActionHandler();  // Handles valve-specific actions
+  void pri_valveActionHandler();
+  void pri_valveTurnOnHandler();
+  void pri_valveTurnOffHandler();
+  void pri_valvePulseHandler();
+  
 
   void pri_starWheelActionHandler();
   void pri_starWheelStepHandler();

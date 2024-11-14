@@ -146,7 +146,10 @@ ReadBack_Status StarWheelServo::homing(bool use_constant_blast = true)
 
 ReadBack_Status StarWheelServo::m_init()
 {
-  if ((m_servo == nullptr) || (m_valve == nullptr) || (m_is_error)) {
+//  if ((m_servo == nullptr) || (m_valve == nullptr) || (m_is_error)) {
+//        return ReadBack_Status::ERROR; // No servo object or other error conditions
+//    }
+  if ((m_servo == nullptr) || (m_is_error)) {
         return ReadBack_Status::ERROR; // No servo object or other error conditions
     }
   setCW(); 
@@ -196,14 +199,14 @@ ReadBack_Status StarWheelServo::moveStep(uint16_t time_ms)
   }
   if ((m_step_counter + 1) >= MAX_STEPS)
   {
-    if (m_valve != nullptr) m_valve->blast();
+//    if (m_valve != nullptr) m_valve->blast();
 //    Serial.println("Max steps reached, performing homing.");
     return this->homing(false);
   }
   m_move_counter += (m_direction) * (1 * COUNT_FOR_ONE_SLOT);
   time_ms        = constrain(time_ms, 600, 5000); // Boundary condition for the time
   uint16_t speed = m_servo->calcVelocity(time_ms, m_acc);
-  if (m_valve != nullptr) m_valve->blast();
+//  if (m_valve != nullptr) m_valve->blast();
   m_servo->goPosByCount(ID_STAR_WHEEL_MOTOR, m_move_counter, speed, m_acc);
   uint16_t        delay_time = m_servo->calcDelayTime((m_direction) * (COUNT_FOR_ONE_SLOT), speed, m_acc);
   ReadBack_Status status     = m_servo->delayWithLoadDetection(ID_STAR_WHEEL_MOTOR, delay_time, 600); // FIXME - 600 is a magic number

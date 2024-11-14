@@ -25,7 +25,11 @@
 #define ACTION_SAVE_OFFSET_COUNT 0x08
 #define ACTION_INIT              0x09
 
+//Valve
 #define ACTION_SET_DELAY         0x01
+#define ACTION_TURN_ON           0x02
+#define ACTION_TURN_OFF          0x03
+
 // Sense
 #define SENSE_ERROR_STATUS       0x01
 #define ACTION_READ_POS          0x0A

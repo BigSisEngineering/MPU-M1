@@ -22,6 +22,7 @@ update_error_timer = True
 first_error = True
 last_error = time.time()
 time_stamp = time.time()
+max_warning_count = 2
 
 RAISE_FLAG_TIME = 5  # seconds
 waiting_for_buffer_time_stamp: Optional[float] = None
@@ -56,6 +57,7 @@ class StatusCode:
     WAITING_FOR_PASSIVE_LOAD = 14
     INIT_WAITING_FOR_BUFFER = 15
     INIT_WAITING_FOR_PASSIVE_LOAD = 16
+    WARNING_UNLOADER = 17
 
 
 class Mode:
@@ -103,6 +105,8 @@ def get_str_from_Status(input: Status):
         return "idle"
     elif input == Status.not_init:
         return "not_init"
+    elif input == Status.not_triggered:
+        return "not_triggered"
     else:
         return ""
 
@@ -219,10 +223,17 @@ def __update_sensor_timer_flag(sensors_values) -> None:
 
     if sensor_timer_flag == False:
         sensor_time = None
-    if sensors_values[SensorID.LOAD.value] < 100 or sensors_values[SensorID.BUFFER.value] < 100:
+    if sensors_values[SensorID.LOAD.value] < 90 or sensors_values[SensorID.BUFFER.value] < 90:
         if sensor_timer_flag == False:
             sensor_time = time.time()
             sensor_timer_flag = True
+
+def __update_unloader_status(unloader_status):
+    if unloader_status == 'not_triggered':
+        data.warning_count +=1
+        if data.warning_count > max_warning_count:
+             __update_status_code(StatusCode.WARNING_UNLOADER)
+
 
 
 @comm.timer()
@@ -241,6 +252,7 @@ def execute():
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             is_star_wheel_ready = BOARD.is_servo_ready(BOARD.star_wheel_status)
             is_unloader_ready = BOARD.is_servo_ready(BOARD.unloader_status)
+            is_warning = data.warning_count > max_warning_count
             sensors_values = BOARD_DATA.sensors_values
 
         __update_sensor_timer_flag(sensors_values)
@@ -273,6 +285,7 @@ def execute():
             cycle_time = data.pnp_data.cycle_time
 
         # ================================= Servo error check ================================ #
+
         if is_star_wheel_error or is_unloader_error:
             if make_auto_home_decision:  # used as flag
                 make_auto_home_decision = False
@@ -329,7 +342,10 @@ def execute():
                 # clear both time stamps on normal
                 waiting_for_buffer_time_stamp = None
                 waiting_for_passive_load_time_stamp = None
-                __update_status_code(StatusCode.NORMAL)
+                if is_warning:
+                    __update_status_code(StatusCode.WARNING_UNLOADER)
+                else:
+                    __update_status_code(StatusCode.NORMAL)
 
         # ==================================== Time stamp ==================================== #
         time_now = time.time()
@@ -338,7 +354,7 @@ def execute():
         # ======================================= PNP? ======================================= #
         if run_pnp:
             __update_mode(Mode.PNP)
-            _execute = _dt > cycle_time and is_camera_operation_ready
+            _execute = _dt > cycle_time and is_camera_operation_ready and not is_warning
 
             if _execute:
                 # only update timestamp if execute, else flush
@@ -350,15 +366,15 @@ def execute():
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
-
+                __update_unloader_status(get_str_from_Status(BOARD.unloader_status))
                 # mongoDB entry (new session on timeout)
                 if sensor_timer_flag == True:
                     if sensor_time is not None:
                         sensor_timer = time.time() - sensor_time
                         if (
                             sensor_timer > sensor_timeout
-                            and sensors_values[SensorID.BUFFER.value] > 100
-                            and sensors_values[SensorID.LOAD.value] > 100
+                            and sensors_values[SensorID.BUFFER.value] > 90
+                            and sensors_values[SensorID.LOAD.value] > 90
                         ):
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False
@@ -379,7 +395,7 @@ def execute():
         # ====================================== Dummy? ====================================== #
         elif run_dummy:
             __update_mode(Mode.DUMMY)
-            _execute = _dt > cycle_time and is_safe_to_move
+            _execute = _dt > cycle_time and is_safe_to_move and not is_warning
 
             if _execute:
                 time_stamp = time.time()
@@ -387,6 +403,7 @@ def execute():
                 CLI.printline(Level.INFO, f"(Background)-Running DUMMY")
 
                 MongoDB_INIT == False
+                __update_unloader_status(get_str_from_Status(BOARD.unloader_status))
 
             else:
                 CLI.printline(
@@ -415,7 +432,7 @@ def execute():
         # ================================== Experiment mode ================================= #
         elif run_experiment:
             __update_mode(Mode.EXPERIMENT)
-            _execute = _dt > cycle_time and is_camera_operation_ready
+            _execute = _dt > cycle_time and is_camera_operation_ready and not is_warning
 
             if _execute:
                 time_stamp = time.time()
@@ -425,7 +442,7 @@ def execute():
                 if MongoDB_INIT == False:
                     cloud.DataBase = cloud.EggCounter()
                     MongoDB_INIT = True
-
+                __update_unloader_status(get_str_from_Status(BOARD.unloader_status))
                 # mongoDB entry (new session on timeout)
                 # ? Becomes not session based
                 if sensor_timer_flag == True:
@@ -433,8 +450,8 @@ def execute():
                         sensor_timer = time.time() - sensor_time
                         if (
                             sensor_timer > sensor_timeout
-                            and sensors_values[SensorID.BUFFER.value] > 100
-                            and sensors_values[SensorID.LOAD.value] > 100
+                            and sensors_values[SensorID.BUFFER.value] > 90
+                            and sensors_values[SensorID.LOAD.value] > 90
                         ):
                             cloud.DataBase = cloud.EggCounter()
                             sensor_timer_flag = False

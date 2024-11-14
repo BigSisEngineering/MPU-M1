@@ -44,6 +44,7 @@ enum class ReadBack_Status
   NO_SERIAL,
   IDLE,
   NOT_INIT,
+  NOT_TRIGGERED,
 };
 
 inline unsigned int getReadback(ReadBack_Status status)
@@ -60,6 +61,7 @@ inline unsigned int getReadback(ReadBack_Status status)
   case ReadBack_Status::NO_SERIAL: return (7); break;
   case ReadBack_Status::IDLE: return (8); break;
   case ReadBack_Status::NOT_INIT: return (9); break;
+  case ReadBack_Status::NOT_TRIGGERED: return (5); break;
   }
 };
 

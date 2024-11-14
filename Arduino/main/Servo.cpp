@@ -119,12 +119,49 @@ ReadBack_Status Servo::delayWithLoadDetection(const uint8_t &id, uint16_t ms, ui
     this->getLoad(id, load);
     if (load > load_limit)
     {
+//      Serial.println(load);
       this->overloadProcedure(id);
       return ReadBack_Status::OVERLOAD;
     }
   }
   return ReadBack_Status::NORMAL;
 }
+
+
+//ReadBack_Status Servo::delayWithLoadDetection(const uint8_t &id, uint16_t ms, uint16_t load_limit = NULL)
+//{
+//  if (load_limit == NULL)
+//  {
+//    load_limit = this->calcDynamicLoad(ms);
+//  }
+//  
+//  uint32_t timestamp = millis();
+//  int16_t load{ 0 };
+//  int16_t max_load{ 0 }; // Track the maximum load during the cycle
+//  while ((millis() - timestamp) < ms)
+//  {
+//    this->getLoad(id, load);
+//    
+//    if (load > max_load)
+//    {
+//      max_load = load; // Update max_load if current load is higher
+//    }
+//    if (load > load_limit)
+//    {
+//      Serial.print("overload: ");
+//      Serial.println(load);
+//      this->overloadProcedure(id);
+//      return ReadBack_Status::OVERLOAD;
+//    }
+//  }
+//
+//  // Print the maximum load reached during the cycle
+//  Serial.print("Max load reached: ");
+//  Serial.println(max_load);
+//
+//  return ReadBack_Status::NORMAL;
+//}
+
 
 ReadBack_Status Servo::getPos(const uint8_t &id, int16_t &position)
 {

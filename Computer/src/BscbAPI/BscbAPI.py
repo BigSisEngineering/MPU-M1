@@ -20,6 +20,7 @@ class Status(Enum):
     normal = 3
     idle = 8
     not_init = 9
+    not_triggered = 5
 
 
 class SensorID(Enum):
@@ -92,6 +93,7 @@ class BScbAPI:
         self.unloader_status = Status.idle
         self.com_port = self.get_port() if port == "" else port
         self.timer = StarWheelTimer()
+        self.warning_count = 0
 
         if self.com_port is not None:
             self.ser = serial.Serial(self.com_port, self.baud_rate, timeout=self.timeout)
@@ -158,6 +160,7 @@ class BScbAPI:
         while True:
             try:
                 ack = self.ser.readline()
+                # print(f'ack : {ack}')
                 if len(ack) > 7:
                     if self.__is_readback_correct(ack):
                         return Status.normal
@@ -427,7 +430,6 @@ class BScbAPI:
             self.update_com_port()
 
         self.unloader_status = self.got_Status_respond()
-
         return self.is_readback_status_normal(self.unloader_status)
 
     def unloader_clear_error(self):
@@ -505,10 +507,10 @@ class BScbAPI:
         return msg == b"ACK\x00\x00\x00\x00\x00"
 
     def is_readback_status_normal(self, status):
-        return (status is Status.idle) or (status is Status.normal) or (status is Status.not_init)
+        return (status is Status.idle) or (status is Status.normal) or (status is Status.not_init) or (status is Status.not_triggered)
 
     def is_servo_ready(self, status):
-        return status is Status.normal
+        return status is Status.normal or Status.not_triggered
 
     # ------------------------------------------------------------------------------------------- #
     def resolve_sensor_status(self, sensor, id: int, low: int = 89, high: int = 90):
@@ -625,7 +627,55 @@ class BScbAPI:
 
         ack_status = self.got_ACK_respond()
         return self.is_readback_status_normal(ack_status)
+    
+    def valve_turn_on(self):
+        if not self.is_com_ready():
+            return False
 
+        if not self.is_com_ready():
+            return False
+
+        hex_message = []
+        hex_message += bytearray.fromhex("AA")
+        hex_message += bytearray.fromhex("04")
+        hex_message += bytearray.fromhex("02")
+        hex_message += bytearray.fromhex("00")
+        hex_message += bytearray.fromhex("00")
+        hex_message += bytearray.fromhex("00")
+        crc = self.generate_crc16(hex_message)
+        hex_message += struct.pack("<H", crc)
+        try:
+            self.ser.write(hex_message)
+
+        except serial.SerialException as e:
+            self.update_com_port()
+        ack_status = self.got_ACK_respond()
+        return self.is_readback_status_normal(ack_status)
+    
+    def valve_turn_off(self):
+        if not self.is_com_ready():
+            return False
+
+        if not self.is_com_ready():
+            return False
+
+        hex_message = []
+        hex_message += bytearray.fromhex("AA")
+        hex_message += bytearray.fromhex("04")
+        hex_message += bytearray.fromhex("03")
+        hex_message += bytearray.fromhex("00")
+        hex_message += bytearray.fromhex("00")
+        hex_message += bytearray.fromhex("00")
+        crc = self.generate_crc16(hex_message)
+        hex_message += struct.pack("<H", crc)
+        try:
+            self.ser.write(hex_message)
+
+        except serial.SerialException as e:
+            self.update_com_port()
+        ack_status = self.got_ACK_respond()
+        return self.is_readback_status_normal(ack_status)
+    
     def get_unloader_position(self):
         if not self.is_com_ready():
             return None

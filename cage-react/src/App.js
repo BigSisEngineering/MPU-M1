@@ -32,6 +32,7 @@ class StatusCode {
   static WAITING_FOR_PASSIVE_LOAD = "14";
   static INIT_WAITING_FOR_BUFFER = "15";
   static INIT_WAITING_FOR_PASSIVE_LOAD = "16";
+  static WARNING_UNLOADER = "17";
 }
 
 function App() {
@@ -80,6 +81,8 @@ function App() {
         return "waiting for buffer to proceed with starwheel init";
       case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
         return "waiting for pot to enter starwheel to proceed with starwheel init";
+      case StatusCode.WARNING_UNLOADER:
+        return "check unload sensor if working or unloader";
       default:
         return "unknown status";
     }

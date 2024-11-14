@@ -11,8 +11,7 @@ void Communication::init(Stream *serial) { m_serial = serial; }
 void Communication::setStarWheelServo(StarWheelServo *starwheel) { m_starwheel = starwheel; }
 void Communication::setUnloader(Unloader *unloader) { m_unloader = unloader; }
 void Communication::setSensors(AnalogSensors *ar_sensor) { m_sensor = ar_sensor; }
-
-void Communication::setValve(Valve *ar_valve) { m_valve = ar_valve; }  // Assign the Valve instance
+void Communication::setValve(Valve *ar_valve) { m_valve = ar_valve; }
 
 
 void Communication::update()
@@ -119,7 +118,7 @@ void Communication::pri_actionMsgHandler()
   {
   case TARGET_STARWHEEL: pri_starWheelActionHandler(); break;
   case TARGET_UNLOADER: pri_unloaderActionHandler(); break;
-  case TARGET_VALVE: pri_valveActionHandler(); break;  // Handle valve actions
+  case TARGET_VALVE: pri_valveActionHandler(); break;
   default: break;
   }
 }
@@ -342,19 +341,51 @@ void Communication::pri_GPIOSensorHandler()
 void Communication::pri_valveActionHandler()
 {
   if (m_valve == nullptr) return;
-
-  uint16_t delayTime = 0;  // Declare delayTime outside the switch block
-
-  // Check for valve-specific actions, e.g., setting the delay
   switch (m_stMsg.action)
   {
-    case ACTION_SET_DELAY:
-      delayTime = m_stMsg.params[1] << 8 | m_stMsg.params[0];  // Combine two bytes into delay value
-      m_valve->setBlastDelay(delayTime);  // Set the valve delay
-      replyACK();
-      break;
-
-    default:
-      break;
+  case ACTION_SET_DELAY: pri_valvePulseHandler(); break;
+  case ACTION_TURN_ON: pri_valveTurnOnHandler(); break;
+  case ACTION_TURN_OFF: pri_valveTurnOffHandler(); break;
+  default: break;
   }
 }
+
+void Communication::pri_valvePulseHandler()
+{
+  uint16_t delayTime = 0;
+  delayTime = m_stMsg.params[1] << 8 | m_stMsg.params[0];  // Combine two bytes into delay value
+  m_valve->setBlastDelay(delayTime);
+  replyACK();
+}
+
+void Communication::pri_valveTurnOnHandler()
+{
+  m_valve->turnOn();
+  replyACK();
+}
+
+void Communication::pri_valveTurnOffHandler()
+{
+  m_valve->turnOff();
+  replyACK();
+}
+
+
+//void Communication::pri_valvePulseHandler()
+//{
+//  if (m_valve == nullptr) return;
+//
+//  uint16_t delayTime = 0;
+//
+//  switch (m_stMsg.action)
+//  {
+//    case ACTION_SET_DELAY:
+//      delayTime = m_stMsg.params[1] << 8 | m_stMsg.params[0];  // Combine two bytes into delay value
+//      m_valve->setBlastDelay(delayTime);
+//      replyACK();
+//      break;
+//
+//    default:
+//      break;
+//  }
+//}

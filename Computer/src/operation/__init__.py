@@ -698,6 +698,10 @@ def experiment(
 
             # =============================== Increase slot counter ============================== #
             with data.lock:
+                # if data.experiment2_pot_counter == 0 and is_safe_to_move:
+                #     BOARD.valve_turn_on()
+                # elif data.experiment2_pot_counter == 79:
+                #     BOARD.valve_turn_off()
                 # add 1
                 data.experiment2_pot_counter += 1
                 _experiment2_pot_counter = data.experiment2_pot_counter  # reassign

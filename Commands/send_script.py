@@ -6,18 +6,26 @@ import os
 import threading
 import requests
 
-row = 3 - 1
+row = 5 - 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
-for n in range(1, 14 + 1):
-    hostnames.append(f"cage{row}x00{n:02}")
+# for n in range(1, 14 + 1):
+#     hostnames.append(f"cage{row}x00{n:02}")
 
 # for row in range(1,5):
 #     for n in range(1, 15):
 #         hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage1x0007")
-# hostnames.append("cage3x0002")
+hostnames.append("cage4x0001")
+hostnames.append("cage4x0003")
+hostnames.append("cage4x0004")
+hostnames.append("cage4x0005")
+hostnames.append("cage4x0007")
+hostnames.append("cage4x0008")
+hostnames.append("cage4x0009")
+hostnames.append("cage4x0011")
+hostnames.append("cage4x0012")
+hostnames.append("cage4x0013")
 # hostnames.append("cagetest")
 
 
@@ -340,9 +348,9 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        upload_files(hostname)
+        # upload_files(hostname)
         # reboot_tinker(hostname)
-        # reboot(hostname)
+        reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
