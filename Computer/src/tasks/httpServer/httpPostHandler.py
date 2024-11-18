@@ -182,6 +182,7 @@ def post_clear_unloader_error():
 def post_clear_error():
     with data.lock:
         data.warning_count = 0
+
     if not __is_operation_running():
         with BscbAPI.lock:
             outcome = BscbAPI.BOARD.star_wheel_clear_error() and BscbAPI.BOARD.unloader_clear_error()
@@ -232,20 +233,30 @@ def post_set_cycle_time(cycle_time):
 def post_set_pause_interval(pause_interval):
     with data.lock:
         data.experiment_pause_interval = pause_interval
-        if pause_interval == 5:
+        # ------------------------------------------------------------------------------------ #
+        # FIXME -> Hardcoded. To be updated once dynamic relationship is settled.
+        if pause_interval == 5 * 60:
             data.purge_frequency = 9
-        elif pause_interval == 10:
+        elif pause_interval == 10 * 60:
             data.purge_frequency = 5
-        data.sequence_duration = (pause_interval + 4) * 60
+
+        # ------------------------------------------------------------------------------------ #
+        data.sequence_duration = pause_interval + 4 * 60
         data.interval = data.sequence_duration / data.TOTAL_CAGES
-    logging.info(f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(
+        f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
     return f"pause interval set to {pause_interval} mins"
+
 
 def post_set_purge_frequency(purge_frequency):
     with data.lock:
         data.purge_frequency = purge_frequency
-    logging.info(f"Purge frequency set to {purge_frequency}  at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(
+        f"Purge frequency set to {purge_frequency}  at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
     return f"Purge frequency interval set to {purge_frequency}"
+
 
 def post_set_white_shade(value):
     with data.lock:
@@ -304,10 +315,12 @@ def post_set_valve_delay(delay):
         logging.info(f"valve Delay set to {delay} ms at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return f"Valve delay set to {delay}"
 
+
 def post_set_valve_turn_on():
     with BscbAPI.lock:
         BscbAPI.BOARD.valve_turn_on()
     return f"Valve On"
+
 
 def post_set_valve_turn_off():
     with BscbAPI.lock:
