@@ -231,18 +231,24 @@ def post_set_cycle_time(cycle_time):
 
 
 def post_set_pause_interval(pause_interval):
+    # decide purge frequency
+    # FIXME -> Hardcoded. To be updated once equation is drawn.
+    if pause_interval == 5 * 60:  # 5 mins
+        purge_frequency = 9
+    elif pause_interval == 3 * 60:  # 3 mins
+        purge_frequency = 11
+    elif pause_interval == 10 * 60:  # 10 mins
+        purge_frequency = 5
+    else:
+        purge_frequency = 5
+
+    # set user info
     with data.lock:
         data.experiment_pause_interval = pause_interval
-        # ------------------------------------------------------------------------------------ #
-        # FIXME -> Hardcoded. To be updated once dynamic relationship is settled.
-        if pause_interval == 5 * 60:
-            data.purge_frequency = 9
-        elif pause_interval == 10 * 60:
-            data.purge_frequency = 5
-
-        # ------------------------------------------------------------------------------------ #
-        data.sequence_duration = pause_interval + 4 * 60
+        data.purge_frequency = purge_frequency
+        data.sequence_duration = pause_interval + (4 * 60)
         data.interval = data.sequence_duration / data.TOTAL_CAGES
+
     logging.info(
         f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     )

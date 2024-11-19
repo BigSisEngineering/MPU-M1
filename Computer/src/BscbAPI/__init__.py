@@ -228,12 +228,12 @@ def __update_sensor_timer_flag(sensors_values) -> None:
             sensor_time = time.time()
             sensor_timer_flag = True
 
-def __update_unloader_status(unloader_status):
-    if unloader_status == 'not_triggered':
-        data.warning_count +=1
-        if data.warning_count > max_warning_count:
-             __update_status_code(StatusCode.WARNING_UNLOADER)
 
+def __update_unloader_status(unloader_status):
+    if unloader_status == "not_triggered":
+        data.warning_count += 1
+        if data.warning_count > max_warning_count:
+            __update_status_code(StatusCode.WARNING_UNLOADER)
 
 
 @comm.timer()
@@ -252,7 +252,6 @@ def execute():
             is_unloader_error = not BOARD.is_readback_status_normal(BOARD.unloader_status)
             is_star_wheel_ready = BOARD.is_servo_ready(BOARD.star_wheel_status)
             is_unloader_ready = BOARD.is_servo_ready(BOARD.unloader_status)
-            is_warning = data.warning_count > max_warning_count
             sensors_values = BOARD_DATA.sensors_values
 
         __update_sensor_timer_flag(sensors_values)
@@ -266,7 +265,7 @@ def execute():
 
         is_safe_to_move = is_star_wheel_ready and is_unloader_ready and is_buffer_full and is_loader_get_pot
 
-        is_camera_ready = CAMERA.device_ready 
+        is_camera_ready = CAMERA.device_ready
 
         # is_frame_blurry = CAMERA.is_blurry()
 
@@ -274,6 +273,7 @@ def execute():
 
         # ================================== Read user input ================================= #
         with data.lock:
+            is_warning = data.warning_count > max_warning_count
             star_wheel_duration_ms = data.star_wheel_duration_ms
             unload_probability = data.unload_probability
             run_dummy = data.dummy_enabled
