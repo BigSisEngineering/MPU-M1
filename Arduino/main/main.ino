@@ -223,7 +223,7 @@ void setup() {
 
   // Set Communication
   comm.init(&Serial);
-  comm.setServo(&servo);
+  // comm.setServo(&servo);
   comm.setValve(&valve);
   comm.setStarWheelServo(&star_wheel);
   comm.setUnloader(&unloader);

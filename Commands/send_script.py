@@ -6,7 +6,7 @@ import os
 import threading
 import requests
 
-row = 2 - 1
+row = 4 - 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
@@ -34,7 +34,8 @@ remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    "./Computer",
+    # "./Computer",
+    "./Arduino",
     # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
     # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Arduino",
     # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py',

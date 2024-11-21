@@ -65,16 +65,16 @@
 - [v5.0.9] - 01 July 2024
   - sensor logic increased to 3600
 - [v5.0.10] - 01 July 2024
-  - other pot count in mongodb 
+  - other pot count in mongodb
 - [v5.0.11] - 19 July 2024
-  - timer increased to 6h 
+  - timer increased to 6h
 - [v5.1.0] - 05 August 2024
   - changed server to flask
   - bbox on preview
   - sw alignment from UI
 - [v5.2.0] - 20 August 2024
   - added experiment mode
-  - cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG')) for camera feed
+  - cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(\*'MJPG')) for camera feed
 - [v5.3.0] - 10 September 2024
   - react front end
   - yolov10 mode
@@ -98,6 +98,12 @@ $ ssh linaro@<hostname>
 
 ```
 $ sed -i 's/\r//' /home/linaro/Computer/setup.sh && chmod +x ~/Computer/setup.sh && ~/Computer/setup.sh
+```
+
+or
+
+```
+$ sed -i 's/\r//' /home/rock/Computer/setup_rock.sh && chmod +x ~/Computer/setup_rock.sh && sudo ~/Computer/setup_rock.sh
 ```
 
 ### TODO
