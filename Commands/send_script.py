@@ -34,8 +34,8 @@ remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    # "./Computer",
-    "./Arduino",
+    "./Computer",
+    # "./Arduino",
     # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
     # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Arduino",
     # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py',
