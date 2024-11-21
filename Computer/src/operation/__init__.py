@@ -621,6 +621,7 @@ def experiment(
             pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
 
             # ================================ Start blasting air ================================ #
+            CLI.printline(Level.ERROR, f"(experiment)-VALVE ON")
             BOARD.valve_turn_on()
 
             # ==================================== Take image ==================================== #

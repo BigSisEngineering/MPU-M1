@@ -507,7 +507,12 @@ class BScbAPI:
         return msg == b"ACK\x00\x00\x00\x00\x00"
 
     def is_readback_status_normal(self, status):
-        return (status is Status.idle) or (status is Status.normal) or (status is Status.not_init) or (status is Status.not_triggered)
+        return (
+            (status is Status.idle)
+            or (status is Status.normal)
+            or (status is Status.not_init)
+            or (status is Status.not_triggered)
+        )
 
     def is_servo_ready(self, status):
         return status is Status.normal or Status.not_triggered
@@ -627,7 +632,7 @@ class BScbAPI:
 
         ack_status = self.got_ACK_respond()
         return self.is_readback_status_normal(ack_status)
-    
+
     def valve_turn_on(self):
         if not self.is_com_ready():
             return False
@@ -650,8 +655,9 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
         ack_status = self.got_ACK_respond()
+        print(f"ack_status: {ack_status}")
         return self.is_readback_status_normal(ack_status)
-    
+
     def valve_turn_off(self):
         if not self.is_com_ready():
             return False
@@ -675,7 +681,7 @@ class BScbAPI:
             self.update_com_port()
         ack_status = self.got_ACK_respond()
         return self.is_readback_status_normal(ack_status)
-    
+
     def get_unloader_position(self):
         if not self.is_com_ready():
             return None

@@ -457,6 +457,8 @@ def execute():
                             sensor_timer_flag = False
 
             else:
+                # turn off valve otherswise
+                BOARD.valve_turn_off()
                 CLI.printline(
                     Level.DEBUG,
                     (
