@@ -5,7 +5,7 @@
 //#include "AnalogSensors.h"
 //#include "Define.h"
 //
-//const char* readBackStatusToString(ReadBack_Status status) {
+// const char* readBackStatusToString(ReadBack_Status status) {
 //    switch (status) {
 //        case ReadBack_Status::NORMAL:
 //            return "NORMAL";
@@ -24,13 +24,13 @@
 //    }
 //}
 //
-//AnalogSensors sensorObj;       // AnalogSensors object
-//Servo myServo;                 // Servo object
-//HardwareSerial *serial = &Serial1; // Serial port for communication
-//Unloader unloader;             // Unloader object
+// AnalogSensors sensorObj;       // AnalogSensors object
+// Servo myServo;                 // Servo object
+// HardwareSerial *serial = &Serial1; // Serial port for communication
+// Unloader unloader;             // Unloader object
 ////StarWheelServo sw;           // Uncomment if StarWheelServo is used
 //
-//void setup() {
+// void setup() {
 //  Serial.begin(115200);            // Start serial communication with the PC
 //  Serial1.begin(1000000);          // Initialize serial communication with the servo
 //  myServo.setSerial(&Serial1);     // Set the serial port for the servo commands
@@ -58,7 +58,7 @@
 ////  Serial.println(readBackStatusToString(unloadStatus));
 //}
 //
-//void loop() { 
+// void loop() {
 //  ReadBack_Status unloadStatus = unloader.unload();  // Store the return value of unload()
 //
 ////  if (unloadStatus != ReadBack_Status::NORMAL && unloadStatus != ReadBack_Status::NOT_TRIGGERED) {
@@ -72,16 +72,6 @@
 //  // unloader.getUnloaderPos();
 //   delay(2000);
 //}
-
-
-
-
-
-
-
-
-
-
 
 //#include "StarWheelServo.h"
 //#include "Servo.h"
@@ -170,11 +160,6 @@
 //     }
 // }
 
-
-
-
-
-
 #include "AnalogSensors.h"
 #include "Communication.h"
 #include "Define.h"
@@ -217,8 +202,8 @@ void setup() {
   sensors.init(4, SENSOR_ARRAY);
 
   // Valve
-  // valve.init(GPIO_OPT1); // new board
-   valve.init(GPIO_SPARE6); //rpw5
+  valve.init(GPIO_OPT1); // new board
+  // valve.init(GPIO_SPARE6); //rpw5
   //   valve.init(GPIO_SIG5);// old Board
 
   // Set Communication
@@ -230,7 +215,7 @@ void setup() {
   comm.setSensors(&sensors);
 
   // Create unloader
-//  unloader.init(POSITIONER_PIN_UNLOADER);
+  //  unloader.init(POSITIONER_PIN_UNLOADER);
   unloader.setSensor(&sensors);
   unloader.init();
   unloader.setServo(&servo);
@@ -240,13 +225,9 @@ void setup() {
   star_wheel.setServo(&servo);
   star_wheel.setValve(&valve);
   star_wheel.setCW();
-
 }
 
 void loop() { comm.update(); }
-
-
-
 
 //#include "AnalogSensors.h"
 //#include "Communication.h"
@@ -258,14 +239,14 @@ void loop() { comm.update(); }
 ///* ---------------------------------------------------------------------------------------------- */
 //#include <Arduino.h>
 //
-//static Servo servo;
-//static Unloader unloader;
-//static StarWheelServo star_wheel;
-//static AnalogSensors sensors;
-//static Communication comm;
-//static Valve valve;
+// static Servo servo;
+// static Unloader unloader;
+// static StarWheelServo star_wheel;
+// static AnalogSensors sensors;
+// static Communication comm;
+// static Valve valve;
 //
-//static const uint8_t POSITIONER_PIN_UNLOADER = 7;
+// static const uint8_t POSITIONER_PIN_UNLOADER = 7;
 ///**
 // * Use below for 12V sensor
 // */
@@ -274,11 +255,11 @@ void loop() { comm.update(); }
 ///**
 // * Use below for 5v sensor
 // */
-//static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_SIG6; // new board
+// static const uint8_t POSITIONER_PIN_STAR_WHEEL = GPIO_SIG6; // new board
 //
-//static const uint8_t SENSOR_ARRAY[4]{18, 19, 20, 21};
+// static const uint8_t SENSOR_ARRAY[4]{18, 19, 20, 21};
 //
-//void setup() {
+// void setup() {
 //  // Serial setup
 //  Serial.begin(115200);
 //  Serial1.begin(1000000, SERIAL_8N1);
@@ -313,4 +294,4 @@ void loop() { comm.update(); }
 //  sensors.init(4, SENSOR_ARRAY);
 //}
 //
-//void loop() { comm.update(); }
+// void loop() { comm.update(); }
