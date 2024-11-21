@@ -655,7 +655,6 @@ class BScbAPI:
         except serial.SerialException as e:
             self.update_com_port()
         ack_status = self.got_ACK_respond()
-        print(f"ack_status: {ack_status}")
         return self.is_readback_status_normal(ack_status)
 
     def valve_turn_off(self):
