@@ -254,6 +254,10 @@ def execute():
             is_unloader_ready = BOARD.is_servo_ready(BOARD.unloader_status)
             sensors_values = BOARD_DATA.sensors_values
 
+            print(BOARD_DATA.star_wheel_status)
+            print(is_star_wheel_error)
+            print(is_star_wheel_ready)
+
         __update_sensor_timer_flag(sensors_values)
 
         # ==================================== Read status =================================== #
@@ -458,7 +462,7 @@ def execute():
 
             else:
                 # turn off valve otherswise
-                BOARD.valve_turn_off()
+                # BOARD.valve_turn_off()
                 CLI.printline(
                     Level.DEBUG,
                     (

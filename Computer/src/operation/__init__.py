@@ -729,7 +729,7 @@ def experiment(
 
         else:
             # ================================= Stop blasting air ================================ #
-            BOARD.valve_turn_off()
+            # BOARD.valve_turn_off()
 
             # more than 80
             with data.lock:
