@@ -514,8 +514,8 @@ class BScbAPI:
             or (status is Status.not_triggered)
         )
 
-    def is_servo_ready(self, status):
-        return status is Status.normal or Status.not_triggered
+    def is_servo_ready(self, status) -> bool:
+        return (status is Status.normal) or (status is Status.not_triggered)
 
     # ------------------------------------------------------------------------------------------- #
     def resolve_sensor_status(self, sensor, id: int, low: int = 89, high: int = 90):
