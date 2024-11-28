@@ -232,13 +232,15 @@ def post_set_cycle_time(cycle_time):
 
 def post_set_pause_interval(pause_interval):
     # decide purge frequency
-    # FIXME -> Hardcoded. To be updated once equation is drawn.
+    # FIXME -> Hardcoded. To be updated once equation is drawn. 
     if pause_interval == 5 * 60:  # 5 mins
         purge_frequency = 9
     elif pause_interval == 3 * 60:  # 3 mins
         purge_frequency = 11
     elif pause_interval == 10 * 60:  # 10 mins
         purge_frequency = 5
+    elif pause_interval == 0 * 60:  # 0 mins
+        purge_frequency = 17
     else:
         purge_frequency = 5
 
