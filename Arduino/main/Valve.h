@@ -2,8 +2,7 @@
 #define VALVE_H
 #include <Arduino.h>
 
-class Valve
-{
+class Valve {
 public:
   void init(uint8_t pin);
   void turnOn();
