@@ -7,18 +7,17 @@
 class Servo;
 class Valve;
 
-class StarWheelServo
-{
+class StarWheelServo {
 public:
   // [Encoder Res] * [Gear ratio] / [No. of slot]
   // [4096]        * [150 / 15]   / [80];
   const uint16_t COUNT_FOR_ONE_SLOT = 512;
-  const uint8_t  MAX_STEPS          = 79; // NOTE - Changed to one screw homing
-  uint16_t       SENSOR_SLOT_OFFSET{ 0 }; // 250 for flat head screw, 128 for set screw
+  const uint8_t MAX_STEPS = 79;   // NOTE - Changed to one screw homing
+  uint16_t SENSOR_SLOT_OFFSET{0}; // 250 for flat head screw, 128 for set screw
   /* ---------------------------------------------------------------------------------------------- */
-  void           init(uint8_t sensor_pin);
-  void           setServo(Servo *ar_servo);
-  void           setValve(Valve *ar_valve);
+  void init(uint8_t sensor_pin);
+  void setServo(Servo *ar_servo);
+  void setValve(Valve *ar_valve);
 
   void setCW();
   void setCCW();
@@ -30,11 +29,11 @@ public:
   ReadBack_Status moveCount(uint16_t count);
   ReadBack_Status moveCountRelative(uint16_t count);
   ReadBack_Status m_init();
-  void            spin(int8_t speed);
+  void spin(int8_t speed);
 
   int8_t getStepCount() const { return (m_step_counter); }
   int16_t getPos();
-  int16_t            getStarWheelPos();
+  int16_t getStarWheelPos();
 
   bool isNextMoveCauseOverflow(int8_t step);
   bool isInited() const;
@@ -43,16 +42,16 @@ public:
   void resetError();
 
 private:
-  Servo   *m_servo{ nullptr };
-  Valve   *m_valve{ nullptr };
-  bool     m_is_init{ false };
-  bool     m_is_error{ false };
-  int8_t   m_direction{ -1 };
-  uint8_t  m_sensor_pin{ 0 };
-  int16_t  m_move_counter{ 0 };
-  uint16_t m_speed{ 0 };
-  uint8_t  m_acc{ 0 };
+  Servo *m_servo{nullptr};
+  Valve *m_valve{nullptr};
+  bool m_is_init{false};
+  bool m_is_error{false};
+  int8_t m_direction{-1};
+  uint8_t m_sensor_pin{0};
+  int16_t m_move_counter{0};
+  uint16_t m_speed{0};
+  uint8_t m_acc{0};
 
-  int8_t m_step_counter{ 0 };
+  int8_t m_step_counter{0};
 };
 #endif

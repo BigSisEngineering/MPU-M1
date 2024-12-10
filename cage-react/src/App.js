@@ -32,14 +32,16 @@ class StatusCode {
   static WAITING_FOR_PASSIVE_LOAD = "14";
   static INIT_WAITING_FOR_BUFFER = "15";
   static INIT_WAITING_FOR_PASSIVE_LOAD = "16";
+  static WARNING_UNLOADER = "17";
 }
 
 function App() {
   // const [boardData, setBoardData] = useState(null);
   // const [experimentData, setExperimentData] = useState(null);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [position, setPosition] = useState("");
   const [pauseinterval, setInterval] = useState("");
+  const [purgefrequency, setFrequency] = useState("");
   const [cycletime, setCycleTime] = useState("");
   const [valvedelay, setDelay] = useState("");
 
@@ -79,6 +81,8 @@ function App() {
         return "waiting for buffer to proceed with starwheel init";
       case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
         return "waiting for pot to enter starwheel to proceed with starwheel init";
+      case StatusCode.WARNING_UNLOADER:
+        return "check unload sensor if working or unloader";
       default:
         return "unknown status";
     }
@@ -99,21 +103,29 @@ function App() {
 
   const boardData = useDict(Dicts.boardData);
   const experimentData = useDict(Dicts.experimentData);
+  const experimentSettings = useDict(Dicts.experimentSettings);
 
   // Extract statuses from the fetched data
   const starWheelStatus = boardData ? boardData.star_wheel_status : "";
   const unloaderStatus = boardData ? boardData.unloader_status : "";
-  const modeStatus = boardData ? boardData.mode : "";
+  // const modeStatus = boardData ? boardData.mode : "";
   const sensorsValues = boardData ? boardData.sensors_values : "(0, 0, 0, 0)";
   const systemStatus = boardData ? resolveStatusCode(boardData.status_code) : resolveStatusCode("99");
 
-  // console.log("Sensor Values:", sensorsValues);
+  const get_pause_interval = experimentSettings ? experimentSettings.experiment_pause_interval : "";
+  const get_purge_frequency = experimentSettings ? experimentSettings.experiment_purge_frequency : "";
+  const get_cycle_time = experimentSettings ? experimentSettings.cycle_time : "";
+  const get_valve_delay = experimentSettings ? experimentSettings.valve_delay : "";
+
+  // console.log("pause_interval:", pause_interval);
+
   const { starWheel, unloader, mode, load, buffer } = CageStatus(
     boardData?.star_wheel_status,
     boardData?.unloader_status,
     boardData?.mode,
     sensorsValues
   );
+
   // const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
   const isIdle = mode.text === "IDLE";
@@ -129,6 +141,10 @@ function App() {
 
   const handleSetInterval = () => {
     PostActions.SetInterval(pauseinterval);
+  };
+
+  const handleSetPurgeFrequency = () => {
+    PostActions.SetFrequency(purgefrequency);
   };
 
   const handleSetCycleTime = () => {
@@ -152,7 +168,7 @@ function App() {
             <div className="subcontent-title">Production Status</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="subcontent-info-same-row-container">
-              ⓘ Status
+              ⓘ Mode
               <div className="subcontent-info-box" style={{ backgroundColor: mode.color }}>
                 {mode.text}
               </div>
@@ -170,15 +186,15 @@ function App() {
               <Button onClick={PostActions.MoveCW} label="↩️" disabled={!isIdle} />
             </div>
             <div className="gap"></div>
-            {/* <div className="subcontent-title">Servos Init</div>
+            <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle}/>
-              <Button onClick={PostActions.ULInit} label="UL Init" disabled={!isIdle}/>
-              <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle}/>
-              <Button onClick={PostActions.ClearError} label="Clear Error"/>
+              <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle} />
+              <Button onClick={PostActions.ULInit} label="UL Init" disabled={!isIdle} />
+              <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle} />
+              <Button onClick={PostActions.ClearError} label="Clear Error" />
             </div>
-            <div className="gap"></div> */}
+            <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
@@ -191,16 +207,24 @@ function App() {
             <div className="subcontent-title">Experiment Settings</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={handleSetInterval} label="Set Pause Interval" />
-              {getInput("number", "interval", pauseinterval, setInterval)}
+              <Button onClick={handleSetInterval} label="Set Interval" />
+              <div className="subcontent-info-text">{get_pause_interval}</div>
+              {getInput("number", "interval", pauseinterval, setInterval, "Unit: seconds")}
             </div>
+            {/* <div className="buttons-container">
+              <Button onClick={handleSetPurgeFrequency} label="Set Purge freq" />
+              <div className="subcontent-info-text">{get_purge_frequency}</div>
+              {getInput("number", "interval", purgefrequency, setFrequency, "Enter number")}
+            </div> */}
             <div className="buttons-container">
               <Button onClick={handleSetCycleTime} label="Set Cycle Time" />
-              {getInput("number", "cycletime", cycletime, setCycleTime)}
+              <div className="subcontent-info-text">{get_cycle_time}</div>
+              {getInput("number", "cycletime", cycletime, setCycleTime, "Unit: seconds")}
             </div>
             <div className="buttons-container">
               <Button onClick={handleSetValveDelay} label="Set Valve delay" />
-              {getInput("number", "valvedelay", valvedelay, setDelay)}
+              <div className="subcontent-info-text">{get_valve_delay}</div>
+              {getInput("number", "valvedelay", valvedelay, setDelay, "Unit: milliseconds")}
             </div>
             <div className="gap"></div>
             {mode.text === "EXPERIMENT" && experimentData && (

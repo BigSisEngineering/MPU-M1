@@ -11,20 +11,12 @@ class Unloader;
 class AnalogSensors;
 class Valve;
 
-enum class ActionType
-{
-  NO_MSG    = -2,
-  NO_SERIAL = -1,
-  VOID      = 0,
-  ACTION,
-  SENSE
-};
+enum class ActionType { NO_MSG = -2, NO_SERIAL = -1, VOID = 0, ACTION, SENSE };
 
-class Communication
-{
+class Communication {
 
 public:
-  static const uint8_t MSG_SIZE{ 8 };
+  static const uint8_t MSG_SIZE{8};
 
   /* ---------------------------------------------------------------------------------------------- */
   void init(Stream *ar_serial);
@@ -33,7 +25,7 @@ public:
   void setSensors(AnalogSensors *ar_sensor);
   void setValve(Valve *ar_valve);
   void writeByteArray(uint8_t *pMsg, uint8_t msg_size);
-//  void setServo(Servo *servo);
+  //  void setServo(Servo *servo);
 
   // Always call
   void update();
@@ -43,28 +35,31 @@ public:
   void replyReadbackStatus(ReadBack_Status status);
 
 private:
-  Stream         *m_serial{ nullptr };
-  StarWheelServo *m_starwheel{ nullptr };
-  Unloader       *m_unloader{ nullptr };
-  AnalogSensors  *m_sensor{ nullptr };
-  Valve          *m_valve{ nullptr };  // Add Valve reference
-//  Servo          *m_servo{ nullptr };
+  Stream *m_serial{nullptr};
+  StarWheelServo *m_starwheel{nullptr};
+  Unloader *m_unloader{nullptr};
+  AnalogSensors *m_sensor{nullptr};
+  Valve *m_valve{nullptr}; // Add Valve reference
+                           //  Servo          *m_servo{ nullptr };
 
   // Comm
-  uint8_t         m_msg[MSG_SIZE]{ 0 };
-  uint8_t         m_counter{ 0 };
-  stMsgRecv       m_stMsg;
-  const char      m_ack[MSG_SIZE] = "ACK";
+  uint8_t m_msg[MSG_SIZE]{0};
+  uint8_t m_counter{0};
+  stMsgRecv m_stMsg;
+  const char m_ack[MSG_SIZE] = "ACK";
   /* -------------------------------------------------------------------------------------------- */
-  uint16_t        calculateCRC16(uint8_t *data, uint8_t dataSize);
-  bool            isCRCCorrect();
+  uint16_t calculateCRC16(uint8_t *data, uint8_t dataSize);
+  bool isCRCCorrect();
 
   void pri_ReadDataIntoBuffer();
   bool pri_isHeaderCorrect() const;
   bool pri_isMsgValid();
   void pri_actionMsgHandler();
 
-  void pri_valveActionHandler();  // Handles valve-specific actions
+  void pri_valveActionHandler();
+  void pri_valveTurnOnHandler();
+  void pri_valveTurnOffHandler();
+  void pri_valvePulseHandler();
 
   void pri_starWheelActionHandler();
   void pri_starWheelStepHandler();
@@ -82,11 +77,7 @@ private:
   void pri_unloaderResetErrorHandler();
   void pri_getUnloaderPosHandler();
 
- 
-
   void pri_senseMsgHandler();
-  
-  
 
   void pri_starWheelSensorHandler();
   void pri_starWheelErrorHandler();

@@ -620,6 +620,9 @@ def experiment(
             wait_thread_to_finish("sw")
             pot_is_overtime = BOARD.timer.is_it_overtime()  # is current pot overtime
 
+            # ================================ Start blasting air ================================ #
+            BOARD.valve_turn_on()
+
             # ==================================== Take image ==================================== #
             image = camera.CAMERA.get_frame()
             timestamp_of_image = datetime.now()
@@ -725,6 +728,9 @@ def experiment(
             )
 
         else:
+            # ================================= Stop blasting air ================================ #
+            # BOARD.valve_turn_off()
+
             # more than 80
             with data.lock:
                 data.experiment_status = "[{:^10}-({})] - [{}/{}] slots - [{:^4}/{:^4}] mins".format(

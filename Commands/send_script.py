@@ -6,7 +6,7 @@ import os
 import threading
 import requests
 
-row = 4 - 1
+row = 5 - 1
 
 # ======================================= List of hostnames ====================================== #
 hostnames = []
@@ -16,9 +16,16 @@ for n in range(1, 14 + 1):
 # for row in range(1,5):
 #     for n in range(1, 15):
 #         hostnames.append(f"cage{row}x00{n:02}")
-# hostnames.append("cage1x0007")
-# hostnames.append("cage3x0002")
-# hostnames.append("cagetest")
+# hostnames.append("cage4x0001")
+# hostnames.append("cage4x0003")
+# hostnames.append("cage4x0004")
+# hostnames.append("cage4x0005")
+# hostnames.append("cage4x0007")
+# hostnames.append("cage4x0008")
+# hostnames.append("cage4x0009")
+# hostnames.append("cage4x0011")
+# hostnames.append("cage4x0012")
+# hostnames.append("cage4x0013")
 
 
 # ========================== Common remote directory path for all hosts ========================== #
@@ -26,7 +33,8 @@ remote_dir = "~/."
 
 # ==================================== Files need to transfer =================================== #
 local_files = [
-    "./Computer",
+    # "./Computer",
+    "./Arduino",
     # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Computer",
     # "C:/Users/MarcoZacaria/Documents/Github/MPU-M1/Arduino",
     # 'C:/Users/MarcoZacaria/Documents/GitHub/MPU-M1/Computer/src/data/__init__.py',
@@ -241,6 +249,12 @@ def restart_service(hostname):
     threading.Thread(target=execute_command, args=(hostname, command, username, password)).start()
 
 
+def upload_arduino_code(hostname):
+    global username, password
+    command = "sudo apt update && sudo apt install -y curl avrdude && curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh && echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc && source ~/.bashrc && arduino-cli config init && arduino-cli core update-index && arduino-cli core install arduino:avr && cd ~/Arduino/main && arduino-cli lib install 'TimerOne' && arduino-cli compile --fqbn arduino:avr:leonardo . && arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:leonardo ."
+    threading.Thread(target=execute_command, args=(hostname, command, username, password)).start()
+
+
 def upload_files(hostname):
     global local_files, username, password
     for file in local_files:
@@ -340,14 +354,15 @@ def get_log_file(hostname):
 
 for hostname in hostnames:
     try:
-        # upload_files(hostname)
+        upload_files(hostname)
         # reboot_tinker(hostname)
-        reboot(hostname)
+        # reboot(hostname)
         # remove(hostname)
         # get_logging_data(hostname)
         # get_cage_photos(hostname)
         # restart_service(hostname)
         # get_log_file(hostname)
+        # upload_arduino_code(hostname)
         # save_mask_requests()
         # time.sleep(0.1)
 

@@ -45,6 +45,8 @@ const CageStatus = (starWheelStatus, unloaderStatus, modeStatus, sensorsValues) 
       case "idle":
       case "not_init":
         return "grey"; // Idle or not initialized
+      case "not_triggered":
+        return "yellow"; 
       default:
         return "black"; // Unknown or default condition
     }
