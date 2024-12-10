@@ -32,6 +32,7 @@ class StatusCode {
   static WAITING_FOR_PASSIVE_LOAD = 14;
   static INIT_WAITING_FOR_BUFFER = 15;
   static INIT_WAITING_FOR_PASSIVE_LOAD = 16;
+  static UNLOADER_WARNING = 17;
 }
 
 function Cage({ row = null, number = null, isSelected, toggleSelected, isCageActionMode }) {
@@ -96,23 +97,6 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
   /* ================================================================================== */
   /*                                   Experiment Dict                                  */
   /* ================================================================================== */
-  // function getOperationMode(operationIndex) {
-  //   switch (operationIndex) {
-  //     case 0:
-  //       return "Ai";
-  //     case 1:
-  //       return "Ai";
-  //     case 2:
-  //       return "Ai";
-  //     case 3:
-  //       return "Ai";
-  //     case 4:
-  //       return "Purge";
-  //     default:
-  //       return "n/a";
-  //   }
-  // }
-
   const dictExperiment = useDict(Dicts.experiment);
 
   // Read dict
@@ -173,6 +157,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
         return "Check infeed. 'Add pots'?";
       case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
         return "Poke me!";
+      case StatusCode.UNLOADER_WARNING:
+        return "Check Unloader / Unload Sensor!";
       default:
         return "Offline";
     }
@@ -378,6 +364,12 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
           } else {
             return ["rgba(253, 187, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
           }
+        case StatusCode.UNLOADER_WARNING:
+          if (!isSelected) {
+            return ["rgba(255, 61, 0, 0.4)", "rgba(125, 125, 125, 0.32)"];
+          } else {
+            return ["rgba(255, 61, 0, 0.62)", "rgba(170, 253, 214, 0.3)"];
+          }
         default:
           if (!isSelected) {
             return ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.32)"];
@@ -426,6 +418,8 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
       case StatusCode.INIT_WAITING_FOR_BUFFER:
         return 50;
       case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
+        return 50;
+      case StatusCode.UNLOADER_WARNING:
         return 50;
       default:
         return 10;
