@@ -21,12 +21,12 @@ post_endpoints = {
     #
     "start_1a": {"func": lambda: SV.w_run_1a(True), "arg_num": 0},
     "stop_1a": {"func": lambda: SV.w_run_1a(False), "arg_num": 0},
-    "add_pots": {"func": lambda: tasks.a3_task.add_pots(10), "arg_num": 0},
+    "add_pots": {"func": lambda: tasks.A3.add_pots(10), "arg_num": 0},
     "raise_nozzle": {"func": A2.raise_nozzle, "arg_num": 0},
     "lower_nozzle": {"func": A2.reposition_nozzle, "arg_num": 0},
     "home_a2_sw": {"func": A2.sw_home, "arg_num": 0},
     "home_a3_sw": {"func": A3.sw_home, "arg_num": 0},
-    "set_zero": {"func": tasks.a3_task.set_zero, "arg_num": 0},
+    "set_zero": {"func": tasks.A3.set_zero, "arg_num": 0},
     #
     "start_1c": {"func": lambda: SV.w_run_1c(True), "arg_num": 0},
     "stop_1c": {"func": lambda: SV.w_run_1c(False), "arg_num": 0},

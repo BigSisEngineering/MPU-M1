@@ -19,7 +19,7 @@ blueprint = Blueprint("get_handler", __name__)
 
 def _get_status(component: str) -> Any:
     if component == "m1a":
-        return components.generate_m1a_dict()
+        return tasks.generate_m1a_dict()
     elif component == "m1c":
         return components.generate_m1c_dict()
     elif component == "cages":

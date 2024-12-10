@@ -1,34 +1,60 @@
 import threading
-import time
 
-# -------------------------------------------------------- #
 from src import components
-
-# -------------------------------------------------------- #
+from src.components.a1_pot_sorter import Status, Sensors
 from src._shared_variables import SV
 
-# -------------------------------------------------------- #
+# ------------------------------------------------------------------------------------ #
 from src import CLI
 from src.CLI import Level
 
 print_name = "POT_SORTER"
 
 
-class A1:
+class Task:
     def __init__(self):
-        # -------------------------------------------------------- #
-        self.loop_thread = threading.Thread(target=self._loop)
+        self.lock_status = threading.Lock()
+        self.status: Status = Status()
 
-    def _loop(self):
-        time_stamp = time.time() - 300  # set to 5 mins ago for instant 1st pulse
-        while not SV.KILLER_EVENT.is_set():
-            if time.time() - time_stamp > SV.WATCHDOG:
-                components.A1.start() if SV.run_1a else components.A1.stop()
+        self.loop_thread = threading.Thread(target=self.__loop, daemon=True)
 
-                time_stamp = time.time()
-        CLI.printline(Level.INFO, "({:^10}) End".format(print_name))
+    @property
+    def status(self):
+        with self.lock_status:
+            status = self.status
+        return status.dict()
 
-    # -------------------------------------------------------- #
+    def __loop(self):
+        while True:
+            try:
+                # =================================== Fetch Sensors ================================== #
+                sensor_readings = components.A1.read_object("sensors.gpIn")
+                is_buff_out_triggered = sensor_readings[Sensors.BUFF_OUT]["value"] == 1
+
+                # =================================== Fetch Status =================================== #
+                is_running = not components.A1.is_idle
+
+                # =================================== Update Status ================================== #
+                with self.lock_status:
+                    self.status.connected = True
+                    self.status.running = is_running
+                    self.status.buff_out = is_buff_out_triggered
+
+                # ======================================= Run? ======================================= #
+                if SV.run_1a:
+                    if not is_running:
+                        components.A1.start()
+                else:
+                    if is_running:
+                        components.A1.stop()
+
+            except Exception as e:
+                # default value
+                with self.lock_status:
+                    self.status = Status()
+
+                CLI.printline(Level.ERROR, "({:^10}) {}".format(print_name, e))
+
     def start(self):
         CLI.printline(Level.INFO, "({:^10}) Start".format(print_name))
         self.loop_thread.start()

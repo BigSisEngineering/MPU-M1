@@ -14,9 +14,9 @@ from src.components import (
 
 # ------------------------------------------------------------------------------------ #
 # init object
-A1 = a1_pot_sorter.PotSorter()
-A2 = a2_diet_dispenser.DietDispenser()
-A3 = a3_pot_dispenser.PotDispenser()
+A1 = a1_pot_sorter.API()
+A2 = a2_diet_dispenser.API()
+A3 = a3_pot_dispenser.API()
 C1 = c1_chimney_sorter.ChimneySorter()
 C2 = c2_chimney_placer.ChimneyPlacer()
 
@@ -24,19 +24,6 @@ cage_dict: Optional[Dict[Cages, cages.Cage]] = {}
 
 for cage in Cages:
     cage_dict[cage] = cages.Cage(cage)
-
-
-# ------------------------------------------------------------------------------------ #
-def generate_m1a_dict(raw_dict: bool = False):
-    status_dict = {}
-
-    status_dict["a1"] = A1.status_ui
-    status_dict["a2"] = A2.status_ui
-    status_dict["a3"] = A3.status_ui
-
-    if raw_dict:
-        return status_dict
-    return json.dumps(status_dict).encode()
 
 
 def generate_m1c_dict(raw_dict: bool = False):

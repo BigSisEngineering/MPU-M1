@@ -1,8 +1,8 @@
 import requests
 import threading
-from typing import Optional, Tuple, Any, Union, Callable
+from typing import Optional, Tuple, Any, Union
 
-# -------------------------------------------------------- #
+# ------------------------------------------------------------------------------------ #
 from src import CLI
 from src.CLI import Level
 
@@ -13,11 +13,12 @@ hide_exception = True
 class HTTPDuet:
     def __init__(self, duet_ip: str) -> None:
         self._duet_ip = duet_ip
-        self._timeout = 2  # seconds
+        self._timeout = 1  # seconds
 
-        # -------------------------------------------------------- #
+        # ------------------------------------------------------------------------------------ #
         self._lock_request = threading.Lock()
 
+    # ------------------------------------------------------------------------------------ #
     @property
     def is_connected(self) -> bool:
         with self._lock_request:
@@ -27,11 +28,7 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "CONN", e),
-                    )
-
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "CONN", e))
         return False
 
     @property
@@ -48,11 +45,7 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "IS_IDLE", e),
-                    )
-
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "IS_IDLE", e))
         return False
 
     def run_macro(self, macro_name: str, param: str = None) -> bool:
@@ -66,10 +59,7 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_MCR", e),
-                    )
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_MCR", e))
         return False
 
     def run_command(self, command_name: str) -> bool:
@@ -83,14 +73,10 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_CMD", e),
-                    )
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "RUN_CMD", e))
         return False
 
-    def read_global(self, *args: str) -> Optional[Union[Tuple, int]]:
-        return_val = []
+    def fetch_global_variables(self) -> Optional[Union[Tuple, int]]:
         with self._lock_request:
             try:
                 global_vars = requests.get(
@@ -98,29 +84,11 @@ class HTTPDuet:
                     timeout=self._timeout,
                 ).json()["result"]
 
-                if len(args) > 1:
-                    for arg in args:
-                        if arg in global_vars:
-                            return_val.append(global_vars[arg])
-                        else:
-                            return_val.append(None)
-
-                    return tuple(return_val)
-
-                else:
-                    return global_vars[args[0]]
+                return global_vars
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_GLB", e),
-                    )
-                if len(args) > 1:
-                    for arg in args:
-                        return_val.append(None)
-                    return tuple(return_val)
-
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_GLB", e))
         return None
 
     def set_global(self, var_name: str, value: int) -> bool:
@@ -134,11 +102,7 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "SET_GLB", e),
-                    )
-
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "SET_GLB", e))
         return False
 
     def read_object(self, obj_name: str) -> Optional[Any]:
@@ -152,11 +116,7 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_OBJ", e),
-                    )
-
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "READ_OBJ", e))
         return None
 
     def abort(self) -> None:
@@ -169,14 +129,17 @@ class HTTPDuet:
 
             except Exception as e:
                 if not hide_exception:
-                    CLI.printline(
-                        Level.ERROR,
-                        "({:^10})-({:^8}) Exception -> {}".format(print_name, "ABORT", e),
-                    )
+                    CLI.printline(Level.ERROR, "({:^10})-({:^8}) Exception -> {}".format(print_name, "ABORT", e))
 
 
-# -------------------------------------------------------- #
+# ------------------------------------------------------------------------------------ #
 def debug():
-    obj = HTTPDuet("192.168.83.100")
+    obj = HTTPDuet("10.207.13.11")
 
+    print(obj.is_connected)
+    print(obj.is_idle)
+    print(obj.run_macro("ring_light_intensity.g", "A255"))
+    print(obj.run_command("M42 P0 S0"))
+    print(obj.fetch_global_variables("cycle_time"))
+    print(obj.read_object("sensors.gpIn[0].value"))
     print(obj.abort())

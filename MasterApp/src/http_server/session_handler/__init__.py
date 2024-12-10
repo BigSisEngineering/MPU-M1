@@ -1,6 +1,6 @@
 import threading
 from flask_socketio import SocketIO
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # ------------------------------------------------------------------------------------ #
 from src import components, tasks
@@ -28,7 +28,7 @@ class Readback:
 
 def get_readback_dict(readback: Readback) -> Dict:
     if readback == Readback.M1A:
-        return components.generate_m1a_dict(raw_dict=True)
+        return tasks.generate_m1a_dict(raw_dict=True)
     elif readback == Readback.M1C:
         return components.generate_m1c_dict(raw_dict=True)
     elif readback == Readback.CAGES:
