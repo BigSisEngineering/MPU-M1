@@ -19,7 +19,7 @@ print_name = "CAGE_SCORE"
 MAX_SLOTS_ACROSS_CAGES: int = 14 * 80  # 14 Cages * 80 SW Slots
 
 
-class CageScore:
+class Task:
     def __init__(self):
         self._cage_score_lock = threading.Lock()
         self._cage_score = {

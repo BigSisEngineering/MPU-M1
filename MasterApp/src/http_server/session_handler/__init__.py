@@ -30,7 +30,7 @@ def get_readback_dict(readback: Readback) -> Dict:
     if readback == Readback.M1A:
         return tasks.generate_m1a_dict(raw_dict=True)
     elif readback == Readback.M1C:
-        return components.generate_m1c_dict(raw_dict=True)
+        return tasks.generate_m1c_dict(raw_dict=True)
     elif readback == Readback.CAGES:
         return components.generate_cage_dict(raw_dict=True)
     elif readback == Readback.SYSTEM:
@@ -44,7 +44,7 @@ def get_readback_dict(readback: Readback) -> Dict:
     elif readback == Readback.SESSION_END:
         return {"session_timeout": True}
     elif readback == Readback.CAGE_SCORE:
-        return tasks.cage_score_task.get_cage_score(raw_dict=True)
+        return tasks.CAGE_SCORE.get_cage_score(raw_dict=True)
 
 
 def get_readback_event(readback: Readback) -> str:

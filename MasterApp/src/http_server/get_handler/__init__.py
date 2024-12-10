@@ -21,7 +21,7 @@ def _get_status(component: str) -> Any:
     if component == "m1a":
         return tasks.generate_m1a_dict()
     elif component == "m1c":
-        return components.generate_m1c_dict()
+        return tasks.generate_m1c_dict()
     elif component == "cages":
         return components.generate_cage_dict()
     elif component == "system":
@@ -29,7 +29,7 @@ def _get_status(component: str) -> Any:
     elif component == "info":
         return setup.get_setup_info()
     elif component == "cage_score":
-        return tasks.cage_score_task.get_cage_score()
+        return tasks.CAGE_SCORE.get_cage_score()
     else:
         return "null"
 

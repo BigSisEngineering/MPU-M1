@@ -6,18 +6,18 @@ from src.tasks import a1, a2, a3, c1, c2, cage_score
 A1 = a1.Task()
 A2 = a2.Task()
 A3 = a3.Task()
-c1_task = c1.C1()
-c2_task = c2.C2()
-cage_score_task = cage_score.CageScore()
+C1 = c1.Task()
+C2 = c2.Task()
+CAGE_SCORE = cage_score.Task()
 
 
 def _init():
     A1.start()
     A2.start()
     A3.start()
-    c1_task.start()
-    c2_task.start()
-    cage_score_task.start()
+    C1.start()
+    C2.start()
+    CAGE_SCORE.start()
 
 
 def start():
@@ -34,4 +34,14 @@ def generate_m1a_dict(raw_dict: bool = False):
     if raw_dict:
         return status_dict
 
+    return json.dumps(status_dict).encode()
+
+
+def generate_m1c_dict(raw_dict: bool = False):
+    status_dict = {}
+    status_dict["c1"] = C1.status
+    status_dict["c2"] = C2.status
+
+    if raw_dict:
+        return status_dict
     return json.dumps(status_dict).encode()
