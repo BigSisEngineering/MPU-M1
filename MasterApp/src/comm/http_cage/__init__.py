@@ -136,10 +136,6 @@ class HTTPCage:
                 ).json()
 
                 if isinstance(pot_num, int):
-                    CLI.printline(
-                        Level.DEBUG,
-                        "({:^10})-({:^8}) [{:^10}] {:^3} pots.".format(print_name, "POTDATA", self._hostname, pot_num),
-                    )
                     return pot_num
                 else:
                     CLI.printline(

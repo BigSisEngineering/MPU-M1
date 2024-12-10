@@ -36,7 +36,7 @@ class Task:
                 is_sw_homed = global_variables[GlobalVars.SW_HOMED] == 1
                 is_running = global_variables[GlobalVars.RUN] == 1
                 pots_dispensed = global_variables[GlobalVars.POTS_DISPENSED]
-                is_sw_homing = global_variables[GlobalVars.SW_HOMING]
+                is_sw_homing = global_variables[GlobalVars.SW_HOMING] == 1
 
                 # action flags
                 is_reposition_nozzle_requested = global_variables[GlobalVars.REQUEST_REPOSITION_NOZZLE] == 1

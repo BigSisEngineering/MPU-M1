@@ -79,9 +79,9 @@ class Task:
                 # =================================== Fetch global =================================== #
                 global_variables = components.A3.fetch_global_variables()
 
-                is_sw_homed = global_variables[GlobalVars.SW_HOMED]
-                is_running = global_variables[GlobalVars.RUN]
-                is_sending_pots = global_variables[GlobalVars.IS_RUNNING]
+                is_sw_homed = global_variables[GlobalVars.SW_HOMED] == 1
+                is_running = global_variables[GlobalVars.RUN] == 1
+                is_sending_pots = global_variables[GlobalVars.IS_RUNNING] == 1
                 remaining = global_variables[GlobalVars.REMAINING]
 
                 # =================================== Fetch sensors ================================== #
@@ -111,7 +111,7 @@ class Task:
                         components.A3.start()
                     else:
                         # System ready?
-                        if not is_sending_pots and is_buff_in_full:
+                        if not is_sending_pots and is_buff_in_full and not is_sw_error and is_sw_homed:
                             # > Pulse Time?
                             if pulse_timer.send_now:
                                 # Reset 'remaing' on duet
@@ -145,6 +145,9 @@ class Task:
         with self.lock_num_pots:
             self.num_pots += result
 
+        # prevent flush
+        time.sleep(SV.PULSE_INTERVAL)
+
     def __fetch_num_pots(self) -> int:
         # initialize
         threads: Dict[Cages, threading.Thread] = {
@@ -161,6 +164,7 @@ class Task:
             # =================================== Get num pots =================================== #
             with self.lock_num_pots:
                 num_pots = self.num_pots
+                self.num_pots = 0
 
             # ================================ Set Zero Requested? =============================== #
             if self.__set_zero_flag:  # reset
