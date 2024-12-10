@@ -42,6 +42,7 @@ pnp_data: PNPData = PNPData(
 
 max_auto_clear_error = 3
 auto_clear_error_attempts = 0
+warning_count = 0
 
 sw_homing: bool = False
 

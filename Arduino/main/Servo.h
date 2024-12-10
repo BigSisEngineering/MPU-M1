@@ -5,10 +5,9 @@
 #include "ST3215_Comm.h"
 
 #define ST3215_MaxSpeed 3400
-#define ST3215_MaxAcc   150
+#define ST3215_MaxAcc 150
 
-class Servo : private ST3215_Comm
-{
+class Servo : private ST3215_Comm {
 public:
   // Basic
   virtual void setSerial(HardwareSerial *serial);
@@ -24,17 +23,17 @@ public:
   virtual ReadBack_Status goPosByCount(const uint8_t &id, int16_t count, uint16_t speed, uint8_t acc);
   virtual ReadBack_Status stop(const uint8_t &id);
   virtual ReadBack_Status release(const uint8_t &id);
-  virtual void            overloadProcedure(const uint8_t &id);
+  virtual void overloadProcedure(const uint8_t &id);
   virtual ReadBack_Status delayWithLoadDetection(const uint8_t &id, uint16_t ms, uint16_t load_limit = 0);
 
   // Info
   ReadBack_Status getPos(const uint8_t &id, int16_t &position);
   ReadBack_Status getLoad(const uint8_t &id, int16_t &load);
-  uint16_t        calcDelayTime(const int16_t &count, const uint16_t &speed, const uint8_t &acc);
-  uint16_t        calcVelocity(const uint16_t &time, const uint8_t &acc);
-  uint16_t        calcDynamicLoad(const uint16_t &time_ms);
+  uint16_t calcDelayTime(const int16_t &count, const uint16_t &speed, const uint8_t &acc);
+  uint16_t calcVelocity(const uint16_t &time, const uint8_t &acc);
+  uint16_t calcDynamicLoad(const uint16_t &time_ms);
 
 private:
-  HardwareSerial *m_serial{ nullptr };
+  HardwareSerial *m_serial{nullptr};
 };
 #endif

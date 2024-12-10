@@ -118,10 +118,7 @@ def delete_old_log_entries(log_file, days_old=3):
     CLI.printline(Level.INFO, f"(log) Old log entries and errors deleted, log file updated.")
 
 def count_eggs_last_hour(log_file_path):
-    # Get the current time
     current_time = datetime.now()
-
-    # Calculate the start of the last hour
     start_last_hour = current_time.replace(minute=0, second=0, microsecond=0) - timedelta(hours=1)
 
     # Initialize the counter

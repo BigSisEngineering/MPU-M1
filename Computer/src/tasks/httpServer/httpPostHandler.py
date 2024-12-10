@@ -63,7 +63,7 @@ def post_unloader_init():
     if not __is_operation_running():
         with BscbAPI.lock:
             outcome = BscbAPI.BOARD.unloader_init()
-        return "SW fake init -> {}".format(outcome)
+        return "Unloader init -> {}".format(outcome)
     return "Error, disable operation before proceeding"
 
 
@@ -180,6 +180,9 @@ def post_clear_unloader_error():
 
 
 def post_clear_error():
+    with data.lock:
+        data.warning_count = 0
+
     if not __is_operation_running():
         with BscbAPI.lock:
             outcome = BscbAPI.BOARD.star_wheel_clear_error() and BscbAPI.BOARD.unloader_clear_error()
@@ -228,18 +231,40 @@ def post_set_cycle_time(cycle_time):
 
 
 def post_set_pause_interval(pause_interval):
+    # decide purge frequency
+    # FIXME -> Hardcoded. To be updated once equation is drawn. 
+    if pause_interval == 5 * 60:  # 5 mins
+        purge_frequency = 9
+    elif pause_interval == 3 * 60:  # 3 mins
+        purge_frequency = 11
+    elif pause_interval == 10 * 60:  # 10 mins
+        purge_frequency = 5
+    elif pause_interval == 0 * 60:  # 0 mins
+        purge_frequency = 17
+    else:
+        purge_frequency = 5
+
+    # set user info
     with data.lock:
         data.experiment_pause_interval = pause_interval
-        data.sequence_duration = (pause_interval + 4) * 60
+        data.purge_frequency = purge_frequency
+        data.sequence_duration = pause_interval + (4 * 60)
         data.interval = data.sequence_duration / data.TOTAL_CAGES
-    logging.info(f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    logging.info(
+        f"Pause Interval set to {pause_interval} mins at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
     return f"pause interval set to {pause_interval} mins"
+
 
 def post_set_purge_frequency(purge_frequency):
     with data.lock:
         data.purge_frequency = purge_frequency
-    logging.info(f"Purge frequency set to {purge_frequency}  at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(
+        f"Purge frequency set to {purge_frequency}  at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
     return f"Purge frequency interval set to {purge_frequency}"
+
 
 def post_set_white_shade(value):
     with data.lock:
@@ -293,9 +318,22 @@ def post_move_star_wheel_relative(pos):
 def post_set_valve_delay(delay):
     if not __is_operation_running():
         with BscbAPI.lock:
+            data.valve_delay = delay
             BscbAPI.BOARD.set_valve_delay(delay)
         logging.info(f"valve Delay set to {delay} ms at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     return f"Valve delay set to {delay}"
+
+
+def post_set_valve_turn_on():
+    with BscbAPI.lock:
+        BscbAPI.BOARD.valve_turn_on()
+    return f"Valve On"
+
+
+def post_set_valve_turn_off():
+    with BscbAPI.lock:
+        BscbAPI.BOARD.valve_turn_off()
+    return f"Valve Off"
 
 
 def post_set_blur_threshold(blur_threshold):
@@ -326,6 +364,8 @@ post_endpoints = {
     "UNLOAD": {"func": post_unload, "arg_num": 0},
     "SAVE_STAR_WHEEL_ZERO": {"func": post_save_star_wheel_zero, "arg_num": 0},
     "SAVE_MASK": {"func": post_save_mask_coordinates, "arg_num": 0},
+    "VALVE_ON": {"func": post_set_valve_turn_on, "arg_num": 0},
+    "VALVE_OFF": {"func": post_set_valve_turn_off, "arg_num": 0},
     # Endpoints that require arguments
     "SAVE_STAR_WHEEL_OFFSET": {"func": post_save_star_wheel_offset, "arg_num": 1},
     "SET_STAR_WHEEL_SPEED": {"func": post_set_star_wheel_speed, "arg_num": 1},

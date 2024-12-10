@@ -32,6 +32,7 @@ class StatusCode {
   static WAITING_FOR_PASSIVE_LOAD = "14";
   static INIT_WAITING_FOR_BUFFER = "15";
   static INIT_WAITING_FOR_PASSIVE_LOAD = "16";
+  static WARNING_UNLOADER = "17";
 }
 
 function App() {
@@ -80,6 +81,8 @@ function App() {
         return "waiting for buffer to proceed with starwheel init";
       case StatusCode.INIT_WAITING_FOR_PASSIVE_LOAD:
         return "waiting for pot to enter starwheel to proceed with starwheel init";
+      case StatusCode.WARNING_UNLOADER:
+        return "check unload sensor if working or unloader";
       default:
         return "unknown status";
     }
@@ -123,7 +126,6 @@ function App() {
     sensorsValues
   );
 
-  
   // const { starWheel, unloader, mode } = CageStatus(starWheelStatus, unloaderStatus, modeStatus);
 
   const isIdle = mode.text === "IDLE";
@@ -187,10 +189,10 @@ function App() {
             <div className="subcontent-title">Servos Init</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle}/>
-              <Button onClick={PostActions.ULInit} label="UL Init" disabled={!isIdle}/>
-              <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle}/>
-              <Button onClick={PostActions.ClearError} label="Clear Error"/>
+              <Button onClick={PostActions.SWInit} label="SW Init" disabled={!isIdle} />
+              <Button onClick={PostActions.ULInit} label="UL Init" disabled={!isIdle} />
+              <Button onClick={PostActions.ALLInit} label="ALL Init" disabled={!isIdle} />
+              <Button onClick={PostActions.ClearError} label="Clear Error" />
             </div>
             <div className="gap"></div>
             <div className="subcontent-title">SW Alignment</div>
@@ -205,24 +207,24 @@ function App() {
             <div className="subcontent-title">Experiment Settings</div>
             <div className="subinfo-horizontal-line"></div>
             <div className="buttons-container">
-              <Button onClick={handleSetInterval} label="Set Pause Int" />
+              <Button onClick={handleSetInterval} label="Set Interval" />
               <div className="subcontent-info-text">{get_pause_interval}</div>
-              {getInput("number", "interval", pauseinterval, setInterval)}
+              {getInput("number", "interval", pauseinterval, setInterval, "Unit: seconds")}
             </div>
-            <div className="buttons-container">
+            {/* <div className="buttons-container">
               <Button onClick={handleSetPurgeFrequency} label="Set Purge freq" />
               <div className="subcontent-info-text">{get_purge_frequency}</div>
-              {getInput("number", "interval", purgefrequency, setFrequency)}
-            </div>
+              {getInput("number", "interval", purgefrequency, setFrequency, "Enter number")}
+            </div> */}
             <div className="buttons-container">
               <Button onClick={handleSetCycleTime} label="Set Cycle Time" />
               <div className="subcontent-info-text">{get_cycle_time}</div>
-              {getInput("number", "cycletime", cycletime, setCycleTime)}
+              {getInput("number", "cycletime", cycletime, setCycleTime, "Unit: seconds")}
             </div>
             <div className="buttons-container">
               <Button onClick={handleSetValveDelay} label="Set Valve delay" />
               <div className="subcontent-info-text">{get_valve_delay}</div>
-              {getInput("number", "valvedelay", valvedelay, setDelay)}
+              {getInput("number", "valvedelay", valvedelay, setDelay, "Unit: milliseconds")}
             </div>
             <div className="gap"></div>
             {mode.text === "EXPERIMENT" && experimentData && (
