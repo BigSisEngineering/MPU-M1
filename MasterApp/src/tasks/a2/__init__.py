@@ -14,16 +14,16 @@ print_name = "DIET_DSP"
 
 class Task:
     def __init__(self):
-        self.lock_status = threading.Lock()
-        self.status: Status = Status()
+        self.__lock_status = threading.Lock()
+        self.__status: Status = Status()
 
         self.loop_thread = threading.Thread(target=self.__loop, daemon=True)
 
     @property
     def status(self):
-        with self.lock_status:
-            status = self.status
-        return status.dict()
+        with self.__lock_status:
+            r = self.__status
+        return r.dict()
 
     def __loop(self):
         while True:
@@ -53,15 +53,15 @@ class Task:
                 has_pot = sensor_readings[Sensors.POT_PRESENCE]["value"] == 1
 
                 # =================================== Update Status ================================== #
-                with self.lock_status:
-                    self.status.connected = True
-                    self.status.running = is_running
-                    self.status.dispenser_homed = is_dispenser_homed
-                    self.status.sw_error = is_sw_error
-                    self.status.sw_homed = is_sw_homed
-                    self.status.buff_in = is_buff_in_triggered
-                    self.status.buff_out = is_buff_out_triggered
-                    self.status.pot_sensor = has_pot
+                with self.__lock_status:
+                    self.__status.connected = True
+                    self.__status.running = is_running
+                    self.__status.dispenser_homed = is_dispenser_homed
+                    self.__status.sw_error = is_sw_error
+                    self.__status.sw_homed = is_sw_homed
+                    self.__status.buff_in = is_buff_in_triggered
+                    self.__status.buff_out = is_buff_out_triggered
+                    self.__status.pot_sensor = has_pot
 
                 # ======================================= Run? ======================================= #
                 if SV.run_1a:
@@ -84,8 +84,8 @@ class Task:
 
             except Exception as e:
                 # default value
-                with self.lock_status:
-                    self.status = Status()
+                with self.__lock_status:
+                    self.__status = Status()
 
                 CLI.printline(Level.ERROR, "({:^10}) {}".format(print_name, e))
 

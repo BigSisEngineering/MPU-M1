@@ -29,8 +29,8 @@ class PulseTimer:
 
 class Task:
     def __init__(self):
-        self.lock_status = threading.Lock()
-        self.status: Status = Status()
+        self.__lock_status = threading.Lock()
+        self.__status: Status = Status()
 
         #
         self.__lock_accumulated_pots = threading.Lock()
@@ -46,9 +46,9 @@ class Task:
 
     @property
     def status(self):
-        with self.lock_status:
-            status = self.status
-        return status.dict()
+        with self.__lock_status:
+            r = self.__status
+        return r.dict()
 
     # ------------------------------------------------------------------------------------ #
     @property
@@ -77,7 +77,7 @@ class Task:
         while True:
             try:
                 # =================================== Fetch global =================================== #
-                global_variables = components.A2.fetch_global_variables()
+                global_variables = components.A3.fetch_global_variables()
 
                 is_sw_homed = global_variables[GlobalVars.SW_HOMED]
                 is_running = global_variables[GlobalVars.RUN]
@@ -85,7 +85,7 @@ class Task:
                 remaining = global_variables[GlobalVars.REMAINING]
 
                 # =================================== Fetch sensors ================================== #
-                sensor_readings = components.A2.read_object("sensors.gpIn")
+                sensor_readings = components.A3.read_object("sensors.gpIn")
 
                 is_sw_error = sensor_readings[Sensors.SW_ERROR]["value"] == 1
                 is_buff_in_full = sensor_readings[Sensors.BUFF_IN]["value"] == 1
@@ -93,18 +93,18 @@ class Task:
 
                 # =================================== Update Status ================================== #
 
-                with self.lock_status:
-                    self.status.connected = True
-                    self.status.sw_error = is_sw_error
-                    self.status.sw_homed = is_sw_homed
-                    self.status.buff_in = is_buff_in_full
-                    self.status.pot_sensor = has_pot
+                with self.__lock_status:
+                    self.__status.connected = True
+                    self.__status.sw_error = is_sw_error
+                    self.__status.sw_homed = is_sw_homed
+                    self.__status.buff_in = is_buff_in_full
+                    self.__status.pot_sensor = has_pot
 
                 # ======================================= Run? ======================================= #
                 if SV.run_1a:
                     # Update Status
-                    with self.lock_status:
-                        self.status.running = True
+                    with self.__lock_status:
+                        self.__status.running = True
 
                     # Start belts
                     if not is_running:
@@ -122,8 +122,8 @@ class Task:
 
                 else:
                     # Update Status
-                    with self.lock_status:
-                        self.status.running = False
+                    with self.__lock_status:
+                        self.__status.running = False
 
                     # Stop belts
                     if is_running:
@@ -132,8 +132,8 @@ class Task:
 
             except Exception as e:
                 # default value
-                with self.lock_status:
-                    self.status = Status()
+                with self.__lock_status:
+                    self.__status = Status()
 
                 CLI.printline(Level.ERROR, "({:^10}) {}".format(print_name, e))
 
