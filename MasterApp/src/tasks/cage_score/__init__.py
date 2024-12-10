@@ -117,7 +117,7 @@ class Task:
             _cage_sequence_number = _experiment_dict[_hostname]["sequence_number"]
 
             # If is equal to the latest slot
-            if isinstance(_cage_sequence_number, int):
+            if isinstance(_cage_sequence_number, int) and (_cage_sequence_number != -1):
                 # append to active sequence
                 if not _cage_sequence_number in _active_sequence_list:
                     _active_sequence_list.append(_cage_sequence_number)
@@ -150,10 +150,6 @@ class Task:
 
         # Ongoing
         for index, value in enumerate(_active_sequence_list):
-            if value < 0:
-                # Filter -1 (init int assignment)
-                break
-
             _sequence_number_min = min(_sequence_number_min, value) if not _sequence_number_min is None else value
             _sequence_number_max = max(_sequence_number_max, value) if not _sequence_number_max is None else value
 
