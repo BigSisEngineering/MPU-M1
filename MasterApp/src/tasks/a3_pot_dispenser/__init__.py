@@ -13,6 +13,19 @@ from src.CLI import Level
 print_name = "POT DISP"
 
 
+class StatusCode:
+    IDLE = 0
+    OFFLINE = 1
+    DISPENSING = 2
+    COMPUTING = 3
+    WAITING_BUF_IN = 4
+    STOPPING = 5
+    STARTING = 6
+    SW_ERROR = 7
+    SW_NOT_HOMED = 8
+    SW_HOMING = 9
+
+
 class PulseTimer:
     def __init__(self, interval: float):
         self.time_stamp = time.time()
@@ -32,6 +45,9 @@ class Task:
         self.__lock_status = threading.Lock()
         self.__status: Status = Status()
 
+        self.__lock_status_code = threading.Lock()
+        self.__status_code: StatusCode = StatusCode.OFFLINE
+
         #
         self.__lock_accumulated_pots = threading.Lock()
         self.__accumulated_pots: int = 0
@@ -46,9 +62,23 @@ class Task:
 
     @property
     def status(self):
+        dict = {}
         with self.__lock_status:
             r = self.__status
-        return r.dict()
+
+        dict = r.dict()
+        dict["status_code"] = self.status_code
+        return dict
+
+    @property
+    def status_code(self):
+        with self.__lock_status_code:
+            r = self.__status_code
+        return r
+
+    def __update_status_code(self, code: StatusCode):
+        with self.__lock_status_code:
+            self.__status_code = code
 
     # ------------------------------------------------------------------------------------ #
     @property
@@ -111,11 +141,20 @@ class Task:
 
                     # Start belts
                     if not is_running:
+                        self.__update_status_code(StatusCode.STARTING)
                         components.A3.start()
                     else:
-                        # System ready?
-                        if not is_sending_pots and is_buff_in_full and not is_sw_error and is_sw_homed:
+                        if is_sw_error:
+                            self.__update_status_code(StatusCode.SW_ERROR)
+                        elif not is_sw_homed:
+                            self.__update_status_code(StatusCode.SW_NOT_HOMED)
+                        elif not is_buff_in_full:
+                            self.__update_status_code(StatusCode.WAITING_BUF_IN)
+                        elif is_sending_pots:
+                            self.__update_status_code(StatusCode.DISPENSING)
+                        else:
                             # > Pulse Time?
+                            self.__update_status_code(StatusCode.COMPUTING)
                             if pulse_timer.send_now:
                                 # Reset 'remaing' on duet
                                 components.A3.reset_remaining()
@@ -130,13 +169,18 @@ class Task:
 
                     # Stop belts
                     if is_running:
+                        self.__update_status_code(StatusCode.STOPPING)
                         components.A3.reset_remaining()
                         components.A3.stop()
+                    else:
+                        self.__update_status_code(StatusCode.IDLE)
 
             except Exception as e:
                 # default value
                 with self.__lock_status:
                     self.__status = Status()
+
+                self.__update_status_code(StatusCode.OFFLINE)
 
                 CLI.printline(Level.ERROR, "({:^10}) {}".format(print_name, e))
 

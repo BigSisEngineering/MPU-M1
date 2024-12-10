@@ -4,6 +4,7 @@ from src import components
 from src.components.a2_diet_dispenser import Status, Sensors, GlobalVars
 from src import data
 from src._shared_variables import SV
+from src.utils import WarningTimer
 
 # ------------------------------------------------------------------------------------ #
 from src import CLI
@@ -12,20 +13,54 @@ from src.CLI import Level
 print_name = "DIET_DSP"
 
 
+class StatusCode:
+    IDLE = 0
+    OFFLINE = 1
+    DISPENSING = 2
+    WAITING_BUF_IN = 3
+    WAITING_BUF_IN_TIMEOUT = 4  # wait buff in for too long
+    WAITING_BUF_OUT = 5
+    STOPPING = 6
+    STARTING = 7
+    SW_ERROR = 8
+    SW_NOT_HOMED = 9
+    DISPENSER_NOT_HOMED = 10
+    SW_HOMING = 11
+
+
 class Task:
     def __init__(self):
         self.__lock_status = threading.Lock()
         self.__status: Status = Status()
 
+        self.__lock_status_code = threading.Lock()
+        self.__status_code: StatusCode = StatusCode.OFFLINE
+
         self.loop_thread = threading.Thread(target=self.__loop, daemon=True)
 
     @property
     def status(self):
+        dict = {}
         with self.__lock_status:
             r = self.__status
-        return r.dict()
+
+        dict = r.dict()
+        dict["status_code"] = self.status_code
+        return dict
+
+    @property
+    def status_code(self):
+        with self.__lock_status_code:
+            r = self.__status_code
+        return r
+
+    def __update_status_code(self, code: StatusCode):
+        with self.__lock_status_code:
+            self.__status_code = code
 
     def __loop(self):
+        buff_in_empty_timer = WarningTimer(30)
+
         while True:
             try:
                 # =================================== Fetch global =================================== #
@@ -39,10 +74,10 @@ class Task:
                 is_sw_homing = global_variables[GlobalVars.SW_HOMING] == 1
 
                 # action flags
-                is_reposition_nozzle_requested = global_variables[GlobalVars.REQUEST_REPOSITION_NOZZLE] == 1
-                is_raise_nozzle_requested = global_variables[GlobalVars.REQUEST_RAISE_NOZZLE] == 1
-                is_clear_sw_fault_requested = global_variables[GlobalVars.REQUEST_SW_CLEAR_FAULT] == 1
-                is_sw_home = global_variables[GlobalVars.REQUEST_SW_HOME] == 1
+                # is_reposition_nozzle_requested = global_variables[GlobalVars.REQUEST_REPOSITION_NOZZLE] == 1
+                # is_raise_nozzle_requested = global_variables[GlobalVars.REQUEST_RAISE_NOZZLE] == 1
+                # is_clear_sw_fault_requested = global_variables[GlobalVars.REQUEST_SW_CLEAR_FAULT] == 1
+                # is_sw_home_requested = global_variables[GlobalVars.REQUEST_SW_HOME] == 1
 
                 # =================================== Fetch sensors ================================== #
                 sensor_readings = components.A2.read_object("sensors.gpIn")
@@ -63,29 +98,66 @@ class Task:
                     self.__status.buff_out = is_buff_out_triggered
                     self.__status.pot_sensor = has_pot
 
+                # =================================== Reset Timers? ================================== #
+                if is_buff_in_triggered:
+                    buff_in_empty_timer.reset_timer()
+
                 # ======================================= Run? ======================================= #
-                if SV.run_1a:
-                    if not is_running and not is_sw_homing:
-                        # reset pots dispensed
-                        components.A2.reset_pots_dispensed()
+                if is_sw_homing:
+                    self.__update_status_code(StatusCode.SW_HOMING)
 
-                        # start
-                        components.A2.start()
+                else:
+                    if SV.run_1a:
+                        if not is_running:
+                            self.__update_status_code(StatusCode.STARTING)
 
-                        # create new data session
-                        data.A2.create_session()
+                            # reset pots dispensed
+                            components.A2.reset_pots_dispensed()
+
+                            # start
+                            components.A2.start()
+
+                            # reset timer
+                            buff_in_empty_timer.reset_timer()
+
+                            # create new data session
+                            data.A2.create_session()
+
+                        else:
+                            # log pots dispensed
+                            data.A2.update_data(pots_dispensed)
+
+                            if is_sw_error:
+                                self.__update_status_code(StatusCode.SW_ERROR)
+                            elif not is_dispenser_homed:
+                                self.__update_status_code(StatusCode.DISPENSER_NOT_HOMED)
+                            elif not is_sw_homed:
+                                self.__update_status_code(StatusCode.SW_NOT_HOMED)
+                            elif is_buff_out_triggered:
+                                self.__update_status_code(StatusCode.WAITING_BUF_OUT)
+                            elif not is_buff_in_triggered:
+                                if buff_in_empty_timer.is_overtime:
+                                    self.__update_status_code(StatusCode.WAITING_BUF_IN_TIMEOUT)
+                                else:
+                                    self.__update_status_code(StatusCode.WAITING_BUF_IN)
+                            else:
+                                self.__update_status_code(StatusCode.DISPENSING)
 
                     else:
-                        # log pots dispensed
-                        data.A2.update_data(pots_dispensed)
-                else:
-                    if is_running and not is_sw_homing:
-                        components.A2.stop()
+                        if is_running:
+                            self.__update_status_code(StatusCode.STOPPING)
+
+                            # stop
+                            components.A2.stop()
+                        else:
+                            self.__update_status_code(StatusCode.IDLE)
 
             except Exception as e:
                 # default value
                 with self.__lock_status:
                     self.__status = Status()
+
+                self.__update_status_code(StatusCode.OFFLINE)
 
                 CLI.printline(Level.ERROR, "({:^10}) {}".format(print_name, e))
 
