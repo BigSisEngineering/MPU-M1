@@ -1,13 +1,13 @@
 import threading
 import json
 
-from src.tasks import a1, a2, a3, c1, c2, cage_score
+from src.tasks import a1_pot_sorter, a2_diet_dispenser, a3_pot_dispenser, c1_chimney_sorter, c2_chimney_placer, cage_score
 
-A1 = a1.Task()
-A2 = a2.Task()
-A3 = a3.Task()
-C1 = c1.Task()
-C2 = c2.Task()
+A1 = a1_pot_sorter.Task()
+A2 = a2_diet_dispenser.Task()
+A3 = a3_pot_dispenser.Task()
+C1 = c1_chimney_sorter.Task()
+C2 = c2_chimney_placer.Task()
 CAGE_SCORE = cage_score.Task()
 
 
