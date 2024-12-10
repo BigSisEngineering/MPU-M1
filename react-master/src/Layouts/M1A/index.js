@@ -80,7 +80,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A1StatusCode.FULL_TIMEOUT:
         if (a2StatusCode == A2StatusCode.WAITING_BUF_IN || a2StatusCode == A2StatusCode.WAITING_BUF_IN_TIMEOUT)
           return "POT SORTER ALIGNED? CHANNELIZER JAMMED?";
-        else return "WAITING";
+        else return "WAITING FOR POTS TO CLEAR";
       case A1StatusCode.STOPPING:
         return "STOPPING";
       case A1StatusCode.STARTING:
@@ -150,7 +150,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
   const getA2StatusColor = () => {
     switch (a2StatusCode) {
       case A2StatusCode.IDLE:
-        return getColor();
+        return getColor("BLUE");
       case A2StatusCode.OFFLINE:
         return getColor();
       case A2StatusCode.DISPENSING:
@@ -209,7 +209,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
   const getA3StatusColor = () => {
     switch (a3StatusCode) {
       case A3StatusCode.IDLE:
-        return getColor();
+        return getColor("BLUE");
       case A3StatusCode.OFFLINE:
         return getColor();
       case A3StatusCode.DISPENSING:

@@ -74,7 +74,7 @@ class Task:
 
                 # =================================== Reset Timers? ================================== #
                 # is buff out triggered? (the hope is that it can detect pots passing through)
-                if is_buff_out_triggered:
+                if not is_buff_out_triggered:
                     # reset empty timer if full
                     buff_out_empty_timer.reset_timer()
                 else:
@@ -94,7 +94,7 @@ class Task:
                         # start a1
                         components.A1.start()
                     else:
-                        if is_buff_out_triggered:
+                        if not is_buff_out_triggered:
                             # is full for too long?
                             if buff_out_full_timer.is_overtime:
                                 self.__update_status_code(StatusCode.FULL_TIMEOUT)
