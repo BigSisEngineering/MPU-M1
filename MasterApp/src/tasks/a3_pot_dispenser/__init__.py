@@ -23,7 +23,7 @@ class StatusCode:
     STARTING = 6
     SW_ERROR = 7
     SW_NOT_HOMED = 8
-    SW_HOMING = 9
+    SW_HOMING = 9  # not in use yet
 
 
 class PulseTimer:
