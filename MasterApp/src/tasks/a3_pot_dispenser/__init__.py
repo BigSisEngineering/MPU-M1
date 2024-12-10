@@ -63,6 +63,9 @@ class Task:
         return "Added {:^3} pots".format(w)
 
     def set_zero(self) -> str:
+        with self.lock_num_pots:
+            self.num_pots = 0
+
         with self.__lock_accumulated_pots:
             self.__accumulated_pots = 0
 
