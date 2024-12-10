@@ -1,6 +1,6 @@
 import threading
 import time
-from typing import List
+from typing import Optional, Dict
 
 from src import components
 from src.components.a3_pot_dispenser import Status, Sensors, GlobalVars
@@ -41,8 +41,8 @@ class Task:
         self.lock_num_pots = threading.Lock()
         self.num_pots: int = 0
 
-        # -------------------------------------------------------- #
         self.loop_thread = threading.Thread(target=self.__loop, daemon=True)
+        self.worker_thread = threading.Thread(target=self.__fetch_num_pots, daemon=True)
 
     @property
     def status(self):
@@ -145,30 +145,22 @@ class Task:
         with self.lock_num_pots:
             self.num_pots += result
 
-    def __get_num_pots(self) -> int:
-        threads: List[threading.Thread] = []
-
-        # ================================== Fetch pot data ================================== #
-        for cage in Cages:
-            threads.append(threading.Thread(target=self.__get_pot_worker, args=(cage,), daemon=True))
-
-        for thread in threads:
-            thread.start()
-
-        for thread in threads:
-            thread.join()
-
-        # ===================================== Get total ==================================== #
-        with self.lock_num_pots:
-            num_pots = self.num_pots
-            self.num_pots = 0
-
-        return num_pots
+    def __fetch_num_pots(self) -> int:
+        # initialize
+        threads: Dict[Cages, threading.Thread] = {
+            cage: threading.Thread(target=self.__get_pot_worker, args=(cage,), daemon=True) for cage in Cages
+        }
+        while True:
+            for cage in Cages:
+                if not threads[cage].is_alive():
+                    threads[cage] = threading.Thread(target=self.__get_pot_worker, args=(cage,), daemon=True)
+                    threads[cage].start()
 
     def __send_pulse(self, remaining: int) -> bool:
         try:
-            # ================================ Fetch Pot Requests ================================ #
-            num_pots = self.__get_num_pots()
+            # =================================== Get num pots =================================== #
+            with self.lock_num_pots:
+                num_pots = self.num_pots
 
             # ================================ Set Zero Requested? =============================== #
             if self.__set_zero_flag:  # reset
@@ -195,3 +187,4 @@ class Task:
     def start(self) -> None:
         CLI.printline(Level.INFO, "({:^10}) Start".format(print_name))
         self.loop_thread.start()
+        self.worker_thread.start()
