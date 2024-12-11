@@ -148,7 +148,7 @@ class Task:
                             self.__update_status_code(StatusCode.SW_ERROR)
                         elif not is_sw_homed:
                             self.__update_status_code(StatusCode.SW_NOT_HOMED)
-                        elif not is_buff_in_full:
+                        elif is_buff_in_full: # no pots
                             self.__update_status_code(StatusCode.WAITING_BUF_IN)
                         elif is_sending_pots:
                             self.__update_status_code(StatusCode.DISPENSING)
