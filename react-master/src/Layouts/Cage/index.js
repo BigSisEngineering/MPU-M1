@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG, DEFAULT_BOOL } from "../../Utils/Utils.js";
@@ -35,71 +34,55 @@ class StatusCode {
   static UNLOADER_WARNING = 17;
 }
 
-function Cage({ row = null, number = null, isSelected, toggleSelected, isCageActionMode }) {
-  const [unloaderStatus, setUnloaderStatus] = useState(DEFAULT_MSG);
-  const [starwheelStatus, setStarwheelStatus] = useState(DEFAULT_MSG);
-  const [maintainenceFlag, setMaintainenceFlag] = useState(DEFAULT_BOOL);
-  const [statusCode, setStatusCode] = useState(-1);
-  //
-  const [loadSensor, setLoadSensor] = useState(-1);
-  const [unloadSensor, setUnloadSensor] = useState(-1);
-  const [bufferSensor, setBufferSensor] = useState(-1);
-  //
-  const [mode, setMode] = useState(DEFAULT_MSG);
-  //
-  const [isLoaded, setIsLoaded] = useState(DEFAULT_BOOL);
+function Cage({ row, number, isSelected, toggleSelected, isCageActionMode }) {
+  let unloaderStatus = DEFAULT_MSG;
+  let starwheelStatus = DEFAULT_MSG;
+  let statusCode = useState(-1);
+  let loadSensor = -1;
+  let unloadSensor = -1;
+  let bufferSensor = -1;
+  let mode = DEFAULT_MSG;
+  let maintainenceFlag = DEFAULT_BOOL;
+  let isLoaded = DEFAULT_BOOL;
 
   const cageHostname = `cage${row - 1}x00${number.toString().padStart(2, "0")}`;
 
   /* ================================================================================== */
   /*                                     Board Data                                     */
   /* ================================================================================== */
-  // data update
   const dictData = useDict(Dicts.cages);
 
-  useEffect(() => {
-    if (dictData) {
-      try {
-        setUnloaderStatus(dictData[cageHostname]["unloader_status"]);
-        setStarwheelStatus(dictData[cageHostname]["star_wheel_status"]);
-        setStatusCode(parseInt(dictData[cageHostname]["status_code"]));
-        //
-        const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
-        setLoadSensor(sensors[0]);
-        setUnloadSensor(sensors[1]);
-        setBufferSensor(sensors[2]);
-        setMode(dictData[cageHostname]["mode"]);
-        setIsLoaded(true);
-      } catch {
-        setUnloaderStatus(DEFAULT_MSG);
-        setStarwheelStatus(DEFAULT_MSG);
-        setStatusCode(-1);
-        setLoadSensor(-1);
-        setUnloadSensor(-1);
-        setBufferSensor(-1);
-        setMode(DEFAULT_MSG);
-        setIsLoaded(false);
-      }
+  if (dictData) {
+    try {
+      unloaderStatus = dictData[cageHostname]["unloader_status"];
+      starwheelStatus = dictData[cageHostname]["star_wheel_status"];
+      statusCode = parseInt(dictData[cageHostname]["status_code"]);
       //
-      setMaintainenceFlag(dictData[cageHostname]["maintainence_flag"]);
-    } else {
-      setUnloaderStatus(DEFAULT_MSG);
-      setStarwheelStatus(DEFAULT_MSG);
-      setStatusCode(-1);
-      setLoadSensor(-1);
-      setUnloadSensor(-1);
-      setBufferSensor(-1);
-      setMode(DEFAULT_MSG);
-      setIsLoaded(false);
+      const sensors = dictData[cageHostname]["sensors_values"].replace(/[()]/g, "").split(",").map(Number);
+      loadSensor = sensors[0];
+      unloadSensor = sensors[1];
+      bufferSensor = sensors[2];
+      mode = dictData[cageHostname]["mode"];
+      isLoaded = true;
+    } catch {
+      unloaderStatus = DEFAULT_MSG;
+      starwheelStatus = DEFAULT_MSG;
+      statusCode = -1;
+      loadSensor = -1;
+      unloadSensor = -1;
+      bufferSensor = -1;
+      mode = DEFAULT_MSG;
+      isLoaded = false;
     }
-  }, [dictData, cageHostname]);
+    //
+    maintainenceFlag = dictData[cageHostname]["maintainence_flag"];
+  }
 
   /* ================================================================================== */
   /*                                   Experiment Dict                                  */
   /* ================================================================================== */
   const dictExperiment = useDict(Dicts.experiment);
 
-  // Read dict
   let sequenceNumber = null;
   let slots = null;
   let maxSlots = null;
@@ -444,7 +427,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
     }
 
     // Full opacity if under 4 minutes (focused cages)
-    if (isUnderFourMinutes && mode == "experiment") {
+    if (isUnderFourMinutes && mode === "experiment") {
       return 100;
     }
     if (!isSelected) {
@@ -457,7 +440,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
     <>
       <div
         className={`subcontent-container ${
-          isSelected ? "selected" : isUnderFourMinutes && mode == "experiment" ? "highlighted" : ""
+          isSelected ? "selected" : isUnderFourMinutes && mode === "experiment" ? "highlighted" : ""
         }`}
         onClick={toggleSelected}
         style={{

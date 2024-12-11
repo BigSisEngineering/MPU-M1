@@ -4,8 +4,8 @@ import { useDict, Dicts } from "../Middleware/get-api.js";
 import Header from "../Layouts/Header/index.js";
 
 // DEBUG FLAG
-let DEBUG = false;
-// let DEBUG = true;
+// let DEBUG = false;
+let DEBUG = true;
 
 function generateDocumentTitle(module, row) {
   switch (module) {
