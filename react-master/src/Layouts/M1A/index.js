@@ -69,7 +69,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A1StatusCode.IDLE:
         return "IDLE";
       case A1StatusCode.OFFLINE:
-        return "OFFLINE";
+        return "🚨 OFFLINE";
       case A1StatusCode.FILLING:
         return "SORTING";
       case A1StatusCode.FILLING_TIMEOUT:
@@ -92,9 +92,9 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
   const getA1StatusColor = () => {
     switch (a1StatusCode) {
       case A1StatusCode.IDLE:
-        return getColor("BLUE");
-      case A1StatusCode.OFFLINE:
         return getColor();
+      case A1StatusCode.OFFLINE:
+        return getColor("RED");
       case A1StatusCode.FILLING:
         return getColor("GREEN");
       case A1StatusCode.FILLING_TIMEOUT:
@@ -119,7 +119,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A2StatusCode.IDLE:
         return "IDLE";
       case A2StatusCode.OFFLINE:
-        return "OFFLINE";
+        return "🚨 OFFLINE";
       case A2StatusCode.DISPENSING:
         return "DISPENSING";
       case A2StatusCode.WAITING_BUF_IN:
@@ -149,9 +149,9 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
   const getA2StatusColor = () => {
     switch (a2StatusCode) {
       case A2StatusCode.IDLE:
-        return getColor("BLUE");
-      case A2StatusCode.OFFLINE:
         return getColor();
+      case A2StatusCode.OFFLINE:
+        return getColor("RED");
       case A2StatusCode.DISPENSING:
         return getColor("GREEN");
       case A2StatusCode.WAITING_BUF_IN:
@@ -183,7 +183,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A3StatusCode.IDLE:
         return "IDLE";
       case A3StatusCode.OFFLINE:
-        return "OFFLINE";
+        return "🚨 OFFLINE";
       case A3StatusCode.DISPENSING:
         return "SENDING POTS";
       case A3StatusCode.COMPUTING:
@@ -208,9 +208,9 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
   const getA3StatusColor = () => {
     switch (a3StatusCode) {
       case A3StatusCode.IDLE:
-        return getColor("BLUE");
-      case A3StatusCode.OFFLINE:
         return getColor();
+      case A3StatusCode.OFFLINE:
+        return getColor("RED");
       case A3StatusCode.DISPENSING:
         return getColor("GREEN");
       case A3StatusCode.COMPUTING:
@@ -255,9 +255,21 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
         <Gap height="3" />
         {displayButtons && (
           <div className="buttons-container">
-            <Button name="Raise Nozzle" onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")} />
-            <Button name="Lower Nozzle" onclick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")} />
-            <Button name="Home SW" onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
+            <Button
+              name="Raise Nozzle"
+              onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")}
+              disable={a1StatusCode == A1StatusCode.OFFLINE}
+            />
+            <Button
+              name="Lower Nozzle"
+              onclick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")}
+              disable={a1StatusCode == A1StatusCode.OFFLINE}
+            />
+            <Button
+              name="Home SW"
+              onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")}
+              disable={a1StatusCode == A1StatusCode.OFFLINE}
+            />
           </div>
         )}
         <Gap height="15" />
@@ -266,7 +278,11 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
         <Gap height="3" />
         {displayButtons && (
           <div className="buttons-container">
-            <Button name="Home SW" onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")} />
+            <Button
+              name="Home SW"
+              onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")}
+              disable={a3StatusCode == A3StatusCode.OFFLINE}
+            />
           </div>
         )}
       </div>

@@ -92,14 +92,14 @@ function ScoreBoard() {
             <Subinfo
               title={`#${bestNum}`}
               content={`Score: ${bestScore}% (${bestSlots}/${14 * 80})`}
-              fontSize={24}
+              fontSize={18}
               gap={20}
             />
           </div>
         )}
         {!isBestExist && (
           <div className="row-container" style={{ justifyContent: "left" }}>
-            <Subinfo title={"No data"} fontSize={24} />
+            <Subinfo title={"No data"} fontSize={18} />
           </div>
         )}
         <Gap height={15} />
@@ -121,14 +121,14 @@ function ScoreBoard() {
             <Subinfo
               title={`#${completedNum}`}
               content={`Score: ${completedScore}% (${completedSlots}/${14 * 80})`}
-              fontSize={24}
+              fontSize={18}
               gap={20}
             />
           </div>
         )}
         {!isCompletedExist && (
           <div className="row-container" style={{ justifyContent: "left" }}>
-            <Subinfo title={"No data"} fontSize={24} />
+            <Subinfo title={"No data"} fontSize={18} />
           </div>
         )}
         <Gap height={15} />
@@ -150,14 +150,14 @@ function ScoreBoard() {
             <Subinfo
               title={`#${minNum}`}
               content={`Score: ${minScore}% (${minSlots}/${14 * 80})`}
-              fontSize={24}
+              fontSize={18}
               gap={20}
             />
           </div>
         )}
         {!isMinExist && (
           <div className="row-container" style={{ justifyContent: "left" }}>
-            <Subinfo title={"No data"} fontSize={24} />
+            <Subinfo title={"No data"} fontSize={18} />
           </div>
         )}
         {isMaxExist && (
@@ -165,7 +165,7 @@ function ScoreBoard() {
             <Subinfo
               title={`#${maxNum}`}
               content={`Score: ${maxScore}% (${maxSlots}/${14 * 80})`}
-              fontSize={24}
+              fontSize={18}
               gap={20}
             />
           </div>

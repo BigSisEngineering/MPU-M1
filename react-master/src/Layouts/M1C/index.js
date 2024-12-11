@@ -45,7 +45,7 @@ function M1C({ row, m1cRunning }) {
         }
         return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
       }
-      return m1cRunning ? getColor("YELLOW") : getColor("BLUE");
+      return m1cRunning ? getColor("YELLOW") : getColor();
     }
     return getColor();
   }
@@ -77,7 +77,7 @@ function M1C({ row, m1cRunning }) {
         }
         return m1cRunning ? getColor("YELLOW") : getColor("YELLOW");
       }
-      return m1cRunning ? getColor("YELLOW") : getColor("BLUE");
+      return m1cRunning ? getColor("YELLOW") : getColor();
     }
     return getColor();
   }
