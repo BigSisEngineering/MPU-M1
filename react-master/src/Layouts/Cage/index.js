@@ -83,18 +83,18 @@ function Cage({ row, number, isSelected, toggleSelected, isCageActionMode }) {
   /* ================================================================================== */
   const dictExperiment = useDict(Dicts.experiment);
 
-  let sequenceNumber = null;
+  // let sequenceNumber = null;
+  // let timeInterval = null;
   let slots = null;
   let maxSlots = null;
   let timeElapsed = null;
-  let timeInterval = null;
 
   if (dictExperiment) {
-    sequenceNumber = dictExperiment[cageHostname]["sequence_number"];
+    // sequenceNumber = dictExperiment[cageHostname]["sequence_number"];
+    // timeInterval = dictExperiment[cageHostname]["sequence_duration"];
     slots = dictExperiment[cageHostname]["slots"];
     maxSlots = dictExperiment[cageHostname]["max_slots"];
     timeElapsed = dictExperiment[cageHostname]["time_elapsed"];
-    timeInterval = dictExperiment[cageHostname]["sequence_duration"];
   }
 
   const slotBarWidth = maxSlots ? (slots / maxSlots) * 100 : 0;
