@@ -393,8 +393,6 @@ class ComputerVision_y10:
         self.topK = 80
         self.input_height = 640
         self.input_width = 640
-        # self.rknn = RKNN() #for tinker
-        # self.rknn = RKNNLite() #for rock
         if use_rknnlite:
             self.rknn = RKNNLite()  # Use RKNNLite if the condition is met
         else:
@@ -455,8 +453,6 @@ class ComputerVision_y10:
         return 1 / (1 + exp(-x))
 
     def postprocess(self, out, img_h, img_w):
-        # print('postprocess ... ')
-
         detectResult = []
         output = []
         for i in range(len(out)):

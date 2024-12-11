@@ -1,111 +1,108 @@
-## BigSis Smart Cage system
+# BigSis Smart Cage system
+The main computer application is developed in Python for the backend and React Js for the frontend. 
 
-### Introduction
-
-### Log
-
-- [v4.10.4] - 31 Jan 2024
-  - Added a time delay to simulate the AI useage
-- [v4.10.3] - 31 Jan 2024
-  - Modify the parallel action of the system
-  - Implement the interval timer check for the dummy
-  - Check the `test_dummy()` and `test_pnp()` in [operation](src/operation/__init__.py)
-- [v4.10.1] - 26 Jan 2024
-  - v4.10.0 created parallel AI with actuation
-  - this version fixed the AWS image backup blur
-  - Ensure the cycle time in range of 3.75s - 4.2s
-- [v4.9.1] - 24 Jan 2024
-  - Fixed the timeout duration for pot in PnP
-- [v4.9.0] - 23 Jan 2024
-  - The images are saved in the RAM
-  - Support AWS image upload in real-time
-- [v4.8.1] - 22 Jan 2024
-  - Fixed the AI input image resolution
-- [v4.8.0] - 22 Jan 2024
-  - Added pot duration timer, Fixed #6.
-  - The photo name will be reflect the system action
-  - if the pot is unloaded by timer, the `CONFIDENCE` and `RESULT` will be `0`
-    `[CAGE_ID]_[DATE][TIME]_0_0.jpg`
-- [v4.7.0] - 22 Jan 2024
-  - Fixed the image naming method
-    `[CAGE_ID]_[DATE][TIME]_[CONFIDENCE]_[RESULT].jpg`
-- [v4.6.0] - 19 Jan 2024
-  - Added AI for PnP
-  - Removed data streaming and capture of dummy
-  - AI time is 0.8 - 1.2s
-- [v4.5.0] - 18 Jan 2024
-  - Clean up the execute thread, ensure operating cycle is 3.6s
-- [v4.4.0] - 17 Jan 2024
-  - Upgraded the image quality
-- [v5.0.0] - 28 May 2024
-  - Removed streamlit. Implemented cycle time for PNP.
-  - javascript for the frontend
-  - implemented find circle algorithm
-  - added 20 sec logic for monfoDB to initialize new session when sensors (buffer and loader) are not triggered for 20 sec
-- [v5.0.1] - 30 May 2024
-  - Reworked setup.sh
-  - Fixed time sync bug
-- [v5.0.2] - 17 June 2024
-  - Display camera error
-  - PNP will not execute if camera is faulty
-- [v5.0.3] - 19 June 2024
-  - Now prevent PNP or DUMMY to start if servos not init
-- [v5.0.4] - 20 June 2024
-  - Init servos at the boot and attempt to re-init if servos errors (max = 3)
-- [v5.0.5] - 24 June 2024
-  - Init servos at the boot and attempt to re-init if servos errors (max = 3) -- bug fix
-  - fixed variable to change sw speed
-- [v5.0.6] - 25 June 2024
-  - Increased camera resolution
-  - dynamic version of the cage on the front end
-- [v5.0.7] - 27 June 2024
-  - fixed sw homing issue on new sw. if homing sensor is high sw will move untill it becomes low & viceversa
-- [v5.0.8] - 27 June 2024
-  - logging image file names
-- [v5.0.9] - 01 July 2024
-  - sensor logic increased to 3600
-- [v5.0.10] - 01 July 2024
-  - other pot count in mongodb
-- [v5.0.11] - 19 July 2024
-  - timer increased to 6h
-- [v5.1.0] - 05 August 2024
-  - changed server to flask
-  - bbox on preview
-  - sw alignment from UI
-- [v5.2.0] - 20 August 2024
-  - added experiment mode
-  - cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(\*'MJPG')) for camera feed
-- [v5.3.0] - 10 September 2024
-  - react front end
-  - yolov10 mode
-  - SW init only if load and buff sensors triggered
-
-### How to use
-
-1. Copy folder
-
-```
-$ scp -r <path to computer> linaro@<hostname>:~/.
+## **Folder Structure**
+```terminal
+Computer
+│
+├── src
+│   ├── BscbAPI             
+│   │   ├── __init__.py             
+│   │   └── BscbAPI.py                  // BigSis Control Board API
+│   ├── CLI                             // For terminal printing
+│   │   └── __init__.py
+│   ├── cloud                           // Data upload to MongoDB
+│   │   └── __init__.py
+│   ├── comm
+│   │   ├── __init__.py
+│   │   └── sensor.py
+│   ├── data                            // Shared Variables
+│   │   └── __init__.py
+│   ├── operation                       // Different modes for the Smart Cage System
+│   │   └── __init__.py
+│   ├── setup                           // System constant parameters
+│   │   ├── __init__.py
+│   │   └── DEFAULT.ini                 // Configuration file
+│   ├── tasks                           // Background loops
+|   │   ├── react app                   
+│   │   │   └── build
+│   │   ├── aws                         // AWS cloud service for image upload
+│   │   │   └── __init__.py
+│   │   ├── camera                      // USB camera handler
+│   │   │   └── __init__.py
+│   │   ├── check_alignment             // check SW alignment (not in use)
+│   │   │   └── __init__.py
+│   │   ├── find_circle                 // Function to mask out everything but the pot
+│   │   │   └── __init__.py
+│   │   └── httpServer                  // HTTP Server with flask 
+│   │       ├── __init__.py
+│   │       ├── httpGetHandler.py
+│   │       └── httpPostHandler.py
+│   └── vision                          // AI with YOLO models
+│       ├── __init__.py
+│       └── prediction.py               // YOLO processing functions
+│
+└── main.py                             // Main file
 ```
 
-2. Connect to remote tinker
+## **Cage UI**
+![alt text](media/image.png)
 
-```
-$ ssh linaro@<hostname>
-```
+### Production Status
+- **Mode:** Displays the operation mode in which the cage is running.
+- **Status:** Indicates the cage status. If everything is functioning normally, it will display 'normal'. Otherwise, it will show an error, a warning, or an action that needs to be performed.
 
-3. Run setup and follow instructions
 
-```
-$ sed -i 's/\r//' /home/linaro/Computer/setup.sh && chmod +x ~/Computer/setup.sh && ~/Computer/setup.sh
-```
+### Commands
+**Note:** These buttons are disabled if the cage is in production mode.
+- ↪️ **Step SW Anti-clockwise:** Moves the SW anti-clockwise.
+- ↩️ **Step SW Clockwise:** Moves the SW clockwise.
+- ⤵️ **Eject Pot:** Ejects the pot.
 
-or
 
-```
-$ sed -i 's/\r//' /home/rock/Computer/setup_rock.sh && chmod +x ~/Computer/setup_rock.sh && sudo ~/Computer/setup_rock.sh
-```
+### Servos Init
+**Note:** These buttons are disabled if the cage is in production mode.
+- **ALL INIT:** This command clears any servo errors first, then retracts the pot unloader to the homing position if it's not already there. Following this, the starwheel will move clockwise until the starwheel homing sensor is triggered.
 
-### TODO
 
-[] Increase the threshold of the star wheel overload
+### SW Alignment
+**Note:** These buttons are disabled when the cage is operating in production mode. They are specifically designed for precisely aligning the pot within the hole. Follow the steps outlined below to ensure proper alignment:
+- **Save Zero:** Resets the StarWheel (SW) offset to zero. This action establishes a baseline reference point for alignment adjustments.
+- **Move SW:** Adjusts the SW to a new position based on the input value provided adjacent to the 'Move SW' button. Experiment with different offset values to align the pot slot accurately with the camera hole.
+- **Save Offset:** Once the optimal offset is achieved, use this option to permanently save the adjustment, ensuring consistent alignment in future operations.
+
+
+
+### Experiment Settings
+- **Set Interval:** This command configures the static time for the cage when it is in 'Experiment' mode.
+- **Set Cycle Time:** This command configures the maximum allowable time to complete a full cycle for one pot, which includes capturing the image, applying AI prediction, saving or uploading data, and moving the servos.
+- **Set Valve Delay:** This command configures the duration of the air pulse emitted into the cage.
+
+
+### Servos & Sensors
+This section visualizes the status of key components: the StarWheel (SW), unloader, buffer sensor, and load sensor through icons.
+
+- **Gear Icons:** 
+  - **Green:** Indicates that the components are functioning correctly.
+  - **Red:** Signals an overload condition in the servos.
+  - **Black:** Shows that the component is disconnected.
+  - **Grey:** Appears immediately after a system restart, indicating that the components are initializing. The progression to an initialized state will be reflected in the 'status' under the production 'Production Status'.
+
+- **Sensor Icons:** 
+  - **Green:** Active when sensors are successfully triggered.
+
+**Important Note:** In production mode, if the sensors are not triggered for any reason, the servos will not operate until the sensors are triggered again, ensuring safe and accurate operation of the cage.
+
+
+### Operation Control
+This section outlines the operational modes available for controlling the processes within the cage:
+- **PNP:** This mode operates continuous processing of pots. It includes capturing images, running AI detection to identify eggs, ejecting pots where eggs are detected, advancing the StarWheel (SW) by one slot, and saving/uploading data.
+- **DUMMY:** This simplified mode does not utilize AI detection and automatically ejects every other pot by default. The frequency of ejection can be adjusted as needed.
+- **EXPERIMENT:** This mode mirrors the PNP operations for 80 pots, involving processes such as image capture, AI detection, ejection based on egg detection and saving/uploading data. After processing 80 pots, the system enters a static operation phase. The cycle then repeats, alternating between active processing and static phases. The duration of each static phase can be adjusted using the 'Set Interval' button.
+
+
+
+
+
+
+
