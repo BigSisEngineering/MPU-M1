@@ -11,10 +11,10 @@ print_name = "C1"
 
 
 class Sensors:
-    BUFF_OUT = 0
-    CHANNEL_1_BUFFER = 1
-    CHANNEL_2_BUFFER = 2
-    CHANNEL_3_BUFFER = 3
+    BUFF_OUT = 3
+    CHANNEL_1_BUFFER = 0
+    CHANNEL_2_BUFFER = 1
+    CHANNEL_3_BUFFER = 2
 
 
 @dataclass
