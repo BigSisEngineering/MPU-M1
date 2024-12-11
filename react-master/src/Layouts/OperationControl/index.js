@@ -1,9 +1,21 @@
 import React from "react";
 import "../../Assets/Styles/styles.css";
-import { httpPOST, exec, getColor } from "../../Utils/Utils.js";
+import { useDict, Dicts } from "../../Middleware/get-api.js";
+import { httpPOST, exec, getColor, DEFAULT_BOOL } from "../../Utils/Utils.js";
 import { Button, HorizontalLine, Gap, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
 
-function OperationControl({ m1aRunning, m1cRunning }) {
+function OperationControl() {
+  /* =================================== Fetch Data =================================== */
+  let m1aRunning = DEFAULT_BOOL;
+  let m1cRunning = DEFAULT_BOOL;
+
+  const dictSystem = useDict(Dicts.system);
+
+  if (dictSystem) {
+    m1aRunning = dictSystem["1a"];
+    m1cRunning = dictSystem["1c"];
+  }
+
   return (
     <>
       <div

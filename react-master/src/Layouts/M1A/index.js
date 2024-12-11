@@ -43,7 +43,7 @@ class A3StatusCode {
   static SW_HOMING = 9;
 }
 
-function M1A({ row, m1aRunning, displayButtons = true }) {
+function M1A({ displayButtons = true }) {
   let a1StatusDict = null;
   let a2StatusDict = null;
   let a3StatusDict = null;
@@ -54,6 +54,8 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
 
   /* =================================== data update ================================== */
   const dictData = useDict(Dicts.m1a);
+  const dictInfo = useDict(Dicts.info);
+  const row = dictInfo ? dictInfo.row : 1;
 
   if (dictData) {
     a1StatusDict = dictData["a1"];
@@ -258,17 +260,17 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
             <Button
               name="Raise Nozzle"
               onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")}
-              disable={a1StatusCode == A1StatusCode.OFFLINE}
+              disable={a1StatusCode === A1StatusCode.OFFLINE}
             />
             <Button
               name="Lower Nozzle"
               onclick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")}
-              disable={a1StatusCode == A1StatusCode.OFFLINE}
+              disable={a1StatusCode === A1StatusCode.OFFLINE}
             />
             <Button
               name="Home SW"
               onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")}
-              disable={a1StatusCode == A1StatusCode.OFFLINE}
+              disable={a1StatusCode === A1StatusCode.OFFLINE}
             />
           </div>
         )}
@@ -281,7 +283,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
             <Button
               name="Home SW"
               onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")}
-              disable={a3StatusCode == A3StatusCode.OFFLINE}
+              disable={a3StatusCode === A3StatusCode.OFFLINE}
             />
           </div>
         )}

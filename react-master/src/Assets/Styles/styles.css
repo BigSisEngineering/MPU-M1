@@ -379,6 +379,58 @@ html {
   z-index: 5000;
 }
 
+/* ====================================== Popup ===================================== */
+.pop-up {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Segoe UI";
+  font-size: 60px;
+  font-weight: bold;
+  background: rgba(87, 71, 54, 0.959);
+  color: #ffffff;
+  padding: 10px 150px;
+  border: 10px solid #f09328;
+  border-radius: 10px;
+  display: none;
+  z-index: 5000;
+  box-shadow: 0 0 50px #01ebdfcc;
+}
+
+.popup-input-box {
+  width: 100px; /* You can adjust this value to the desired size */
+  height: auto; /* Ensure this is equal to the width */
+  box-sizing: border-box; /* Include padding in the element's total width and height */
+  border: 0px solid #ccc; /* Optional: Add a border */
+  border-radius: 5px; /* Optional: Add rounded corners */
+  font-size: 60px; /* Optional: Adjust the font size */
+  margin: auto;
+}
+
+.popup-button {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 8px;
+  width: 100%;
+  background-color: rgba(0, 188, 190, 1);
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Lucida Console";
+  font-size: 35px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+.popup-button:not([disabled]):hover {
+  background-color: rgba(255, 157, 0, 1);
+}
+.popup-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* =================================== Loading Bar ================================== */
 /* Container to hold the loading bar */
 .loading-bar-container {
@@ -418,4 +470,97 @@ html {
   100% {
     width: 0;
   }
+}
+
+/* =================================== Navigation =================================== */
+/* NavStyles.css */
+.nav {
+  padding-left: 30px;
+  border-radius: 10px;
+  font-family: "Segoe UI";
+  font-style: italic;
+}
+
+.nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.nav li {
+  display: inline-block; /* Aligns list items horizontally */
+  margin-right: 30px; /* Space between the items */
+}
+
+.nav a {
+  padding: 5px 30px;
+  padding-bottom: 20px;
+  text-decoration: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 15px;
+  background: linear-gradient(to bottom, rgba(0, 188, 190, 1), rgba(30, 30, 30, 1) 90%);
+}
+
+.nav a:hover {
+  background: linear-gradient(to bottom, rgba(255, 157, 0, 1), rgba(30, 30, 30, 1) 90%);
+}
+
+.nav a.active {
+  font-weight: bold;
+  font-size: 20px;
+  background: linear-gradient(to bottom, rgba(255, 157, 0, 1), rgba(30, 30, 30, 1) 90%);
+}
+
+/* ==================================== Drop Down =================================== */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-button {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 8px;
+  width: 200px;
+  background-color: rgba(0, 188, 190, 1);
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Lucida Console";
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-button:not([disabled]):hover {
+  background-color: rgba(255, 157, 0, 1);
+}
+.dropdown-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid #ffffff;
+  background-color: #000000;
+  list-style-type: none;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 9999; /* Ensure it appears above other elements */
+}
+
+.dropdown-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 157, 0, 1);
 }

@@ -1,11 +1,15 @@
 import React from "react";
 import "../../Assets/Styles/styles.css";
+import { useDict, Dicts } from "../../Middleware/get-api.js";
 import Cage from "../Cage/index.js";
 import CCTV from "../CCTV/index.js";
 import ScoreBoard from "../ScoreBoard/index.js";
 import { Gap } from "../../Components/index.js";
 
-function Cages({ row, isSelected, toggleSelected, isCageActionMode }) {
+function Cages({ isSelected, toggleSelected, isCageActionMode }) {
+  const dictInfo = useDict(Dicts.info);
+  const row = dictInfo ? dictInfo.row : 1;
+
   return (
     <>
       <Gap height={50} />

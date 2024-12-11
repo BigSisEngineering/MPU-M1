@@ -27,7 +27,7 @@ class C2StatusCode {
   static STARTING = 7;
 }
 
-function M1C({ row, m1cRunning }) {
+function M1C() {
   let c1StatusDict = null;
   let c2StatusDict = null;
   let c1StatusCode = null;
@@ -35,6 +35,8 @@ function M1C({ row, m1cRunning }) {
 
   /* =================================== data update ================================== */
   const dictData = useDict(Dicts.m1c);
+  const dictInfo = useDict(Dicts.info);
+  const row = dictInfo ? dictInfo.row : 1;
 
   if (dictData) {
     c1StatusDict = dictData["c1"];

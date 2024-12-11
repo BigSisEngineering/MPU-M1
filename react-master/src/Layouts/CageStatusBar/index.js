@@ -79,7 +79,12 @@ function CageLoadingBar({ title, cageExperimentDict }) {
   );
 }
 
-function CageStatusBar({ row, dictExperiment }) {
+function CageStatusBar() {
+  /* =================================== Fetch Data =================================== */
+  const dictExperiment = useDict(Dicts.experiment);
+  const dictInfo = useDict(Dicts.info);
+  const row = dictInfo ? dictInfo.row : 1;
+
   const [c1ExperimentDict, setC1ExperimentDict] = useState(null);
   const [c2ExperimentDict, setC2ExperimentDict] = useState(null);
   const [c3ExperimentDict, setC3ExperimentDict] = useState(null);

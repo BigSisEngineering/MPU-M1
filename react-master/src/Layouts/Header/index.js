@@ -1,7 +1,6 @@
 import "../../Assets/Styles/styles.css";
-import { HeaderButton } from "../../Components/index.js";
 
-function Header({ module, unit, row, isDisplayOnly, setIsDisplayOnly }) {
+function Header({ module, unit, row }) {
   function generateName(module) {
     switch (module) {
       case 1:
@@ -28,10 +27,6 @@ function Header({ module, unit, row, isDisplayOnly, setIsDisplayOnly }) {
       </div>
       <div className="header-container-text">
         <h2>Row: {row}</h2>
-      </div>
-      <div className="header-container-button">
-        View mode:
-        <HeaderButton name={isDisplayOnly ? "DISPLAY" : "OPERATION"} onclick={() => setIsDisplayOnly(!isDisplayOnly)} />
       </div>
     </div>
   );
