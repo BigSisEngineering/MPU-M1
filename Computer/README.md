@@ -1,5 +1,5 @@
 # BigSis Smart Cage system
-The main computer application is developed in Python for the backend and React Js for the frontend. 
+The main Controller Board (Tinker/Rock/RaspberryPi) application is developed in Python for the backend and React Js for the frontend. 
 
 ## **Folder Structure**
 ```terminal
