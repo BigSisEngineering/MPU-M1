@@ -32,6 +32,7 @@ ACTION_LIST = [
     "MOVE_CW",
     "MOVE_CCW",
     "SET_PAUSE_INTERVAL",
+    "CLEAR_ERROR"
 ]
 
 

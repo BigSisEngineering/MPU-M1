@@ -99,7 +99,7 @@ class Task:
                     self.__status.pot_sensor = has_pot
 
                 # =================================== Reset Timers? ================================== #
-                if not is_buff_in_triggered:
+                if not is_buff_in_triggered:  # pot detected
                     buff_in_empty_timer.reset_timer()
 
                 # ======================================= Run? ======================================= #
@@ -135,7 +135,7 @@ class Task:
                                 self.__update_status_code(StatusCode.SW_NOT_HOMED)
                             elif not is_buff_out_triggered:
                                 self.__update_status_code(StatusCode.WAITING_BUF_OUT)
-                            elif not is_buff_in_triggered:
+                            elif is_buff_in_triggered:  # empty
                                 if buff_in_empty_timer.is_overtime:
                                     self.__update_status_code(StatusCode.WAITING_BUF_IN_TIMEOUT)
                                 else:

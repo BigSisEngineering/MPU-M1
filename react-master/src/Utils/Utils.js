@@ -28,7 +28,7 @@ function getColor(colour) {
     case "ORANGE":
       return "rgba(255, 130, 0, 0.57)";
     default:
-      return "rgba(148, 148, 148, 1)";
+      return "";
   }
 }
 

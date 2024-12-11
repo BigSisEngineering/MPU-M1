@@ -256,11 +256,13 @@ html {
   flex-direction: row;
   justify-content: space-between;
   align-items: left;
+  white-space: nowrap;
 }
 .input-box {
-  width: 100px; /* You can adjust this value to the desired size */
+  height: 30px;
+  width: 80px; /* You can adjust this value to the desired size */
   height: auto; /* Ensure this is equal to the width */
-  padding: 13px;
+  padding: 4px;
   box-sizing: border-box; /* Include padding in the element's total width and height */
   border: 1px solid #ccc; /* Optional: Add a border */
   border-radius: 5px; /* Optional: Add rounded corners */
@@ -299,16 +301,18 @@ html {
 }
 .button {
   display: inline-block;
-  padding: 8px 20px;
-  border-radius: 8px;
+  height: 30px;
   width: 100%;
-  background-color: rgba(0, 188, 190, 1);
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: rgba(0, 188, 190, 0.75);
   color: white;
   text-decoration: none;
   border: none;
   cursor: pointer;
   font-family: "Lucida Console";
   font-size: 18px;
+  white-space: nowrap;
   transition: background-color 0.2s ease;
 }
 .button:not([disabled]):hover {

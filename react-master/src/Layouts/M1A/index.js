@@ -1,9 +1,8 @@
 import React from "react";
-import { useState, useEffect } from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
 import { getColor, DEFAULT_MSG, httpPOST, exec } from "../../Utils/Utils.js";
-import { Gap, HorizontalLine, Button, SubcontentTitle, InfoSameRow } from "../../Components/index.js";
+import { Gap, HorizontalLine, Button, SubcontentTitle, Info } from "../../Components/index.js";
 
 class A1StatusCode {
   static IDLE = 0;
@@ -78,7 +77,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A1StatusCode.FULL:
         return "WAITING FOR POTS TO CLEAR";
       case A1StatusCode.FULL_TIMEOUT:
-        if (a2StatusCode == A2StatusCode.WAITING_BUF_IN || a2StatusCode == A2StatusCode.WAITING_BUF_IN_TIMEOUT)
+        if (a2StatusCode === A2StatusCode.WAITING_BUF_IN || a2StatusCode === A2StatusCode.WAITING_BUF_IN_TIMEOUT)
           return "POT SORTER ALIGNED? CHANNELIZER JAMMED?";
         else return "WAITING FOR POTS TO CLEAR";
       case A1StatusCode.STOPPING:
@@ -103,7 +102,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A1StatusCode.FULL:
         return getColor("YELLOW");
       case A1StatusCode.FULL_TIMEOUT:
-        if (a2StatusCode == A2StatusCode.WAITING_BUF_IN || a2StatusCode == A2StatusCode.WAITING_BUF_IN_TIMEOUT)
+        if (a2StatusCode === A2StatusCode.WAITING_BUF_IN || a2StatusCode === A2StatusCode.WAITING_BUF_IN_TIMEOUT)
           return getColor("RED");
         else return getColor("YELLOW");
       case A1StatusCode.STOPPING:
@@ -126,7 +125,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A2StatusCode.WAITING_BUF_IN:
         return "WAITING FOR POTS TO ENTER";
       case A2StatusCode.WAITING_BUF_IN_TIMEOUT:
-        if (a1StatusCode == A1StatusCode.FULL_TIMEOUT) return "CHANNELIZER JAMMED?";
+        if (a1StatusCode === A1StatusCode.FULL_TIMEOUT) return "CHANNELIZER JAMMED?";
         return "WAITING FOR POTS TO ENTER";
       case A2StatusCode.WAITING_BUF_OUT:
         return "WAITING FOR POTS TO CLEAR";
@@ -158,7 +157,7 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
       case A2StatusCode.WAITING_BUF_IN:
         return getColor("YELLOW");
       case A2StatusCode.WAITING_BUF_IN_TIMEOUT:
-        if (a1StatusCode == A1StatusCode.FULL_TIMEOUT) return getColor("RED");
+        if (a1StatusCode === A1StatusCode.FULL_TIMEOUT) return getColor("RED");
         return getColor("YELLOW");
       case A2StatusCode.WAITING_BUF_OUT:
         return getColor("YELLOW");
@@ -243,20 +242,17 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
         }}
       >
         <SubcontentTitle text={"Diet Tank"} link={`http://10.207.1${row}.10`} />
-        <HorizontalLine />
-        <InfoSameRow title="ⓘ Status" text={"UNDER DEVELOPMENT"} color={getColor("DEFAULT")} />
-        <Gap height="20" />
+        <Info title="ⓘ Status" text={"UNDER DEVELOPMENT"} color={getColor()} />
+        <Gap height="15" />
         <SubcontentTitle text={"Pot Sorter"} link={`http://10.207.1${row}.11`} />
-        <HorizontalLine />
-        <InfoSameRow title="ⓘ Status" text={getA1StatusText()} color={getA1StatusColor()} />
-        <Gap height="20" />
+        <Info title="ⓘ Status" text={getA1StatusText()} color={getA1StatusColor()} />
+        <Gap height="15" />
         <SubcontentTitle text={"Diet Dispenser"} link={`http://10.207.1${row}.12`} />
-        <HorizontalLine />
         {/* <Gap />
         <DisplayImage link={"https://cdn.theorg.com/4fcdc583-1643-4367-9dce-e92104596f1d_thumb.jpg"} width={100} />
         <Gap /> */}
-        <InfoSameRow title="ⓘ Status" text={getA2StatusText()} color={getA2StatusColor()} />
-        <Gap />
+        <Info title="ⓘ Status" text={getA2StatusText()} color={getA2StatusColor()} />
+        <Gap height="3" />
         {displayButtons && (
           <div className="buttons-container">
             <Button name="Raise Nozzle" onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")} />
@@ -264,11 +260,10 @@ function M1A({ row, m1aRunning, displayButtons = true }) {
             <Button name="Home SW" onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")} />
           </div>
         )}
-        <Gap height="20" />
+        <Gap height="15" />
         <SubcontentTitle text={"Pot Dispenser"} link={`http://10.207.1${row}.13`} />
-        <HorizontalLine />
-        <InfoSameRow title="ⓘ Status" text={getA3StatusText()} color={getA3StatusColor()} />
-        <Gap />
+        <Info title="ⓘ Status" text={getA3StatusText()} color={getA3StatusColor()} />
+        <Gap height="3" />
         {displayButtons && (
           <div className="buttons-container">
             <Button name="Home SW" onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")} />

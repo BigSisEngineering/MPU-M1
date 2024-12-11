@@ -19,6 +19,7 @@ class CageActions {
   static experiment_start = "ENABLE_EXPERIMENT";
   static experiment_stop = "DISABLE_EXPERIMENT";
   static experiment_set_pause_interval = "SET_PAUSE_INTERVAL";
+  static clear_error = "CLEAR_ERROR";
 }
 
 function CageControl({ selectAll, clearAll, isSelectedArray, isCageActionMode, setIsCageActionMode }) {
@@ -73,129 +74,153 @@ function CageControl({ selectAll, clearAll, isSelectedArray, isCageActionMode, s
           width: "100%",
         }}
       >
-        {" "}
         <SubcontentTitle text={"⚙ CAGE CONTROL"} />
+        <HorizontalLine />
         <Gap />
         Utility
-        <HorizontalLine />
+        <Gap height={3} />
         <div className="buttons-container">
           <Button name="Select All" onclick={selectAll} />
           <Button name="Clear All" onclick={clearAll} />
           <Button
-            name={isCageActionMode ? "Sensor View" : "Action View"}
+            name={isCageActionMode ? "Action View" : "Sensor View"}
             onclick={() => setIsCageActionMode(!isCageActionMode)}
           />
         </div>
         <Gap />
-        Operation
-        <HorizontalLine />
-        <div className="buttons-container">
-          <Button
-            name="Start PNP"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Start PNP on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.pnp_start)
-              )
-            }
-          />
-          <Button
-            name="Stop PNP"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Stop PNP on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.pnp_stop)
-              )
-            }
-          />
-          <Button
-            name="Start Dummy"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Start DUMMY on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.dummy_start)
-              )
-            }
-          />
-          <Button
-            name="Stop Dummy"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Stop DUMMY on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.dummy_stop)
-              )
-            }
-          />
-          <Button
-            name="Servo Init"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Servo Init on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.servo_init)
-              )
-            }
-          />
+        <div className="row-container">
+          <div className="columns-container" style={{ width: "50%", padding: "0px 0px", paddingRight: "20px" }}>
+            Operation
+            <Gap height={3} />
+            {/* <div className="buttons-container"> */}
+            <Button
+              name="Start PNP"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Start PNP on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.pnp_start)
+                )
+              }
+            />
+            <Gap height={5} />
+            <Button
+              name="Stop PNP"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Stop PNP on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.pnp_stop)
+                )
+              }
+            />
+            <Gap height={5} />
+            <Button
+              name="Start Dummy"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Start DUMMY on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.dummy_start)
+                )
+              }
+            />
+            <Gap height={5} />
+            <Button
+              name="Stop Dummy"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Stop DUMMY on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.dummy_stop)
+                )
+              }
+            />
+            <Gap height={5} />
+            <Button
+              name="Servo Init"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Servo Init on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.servo_init)
+                )
+              }
+            />
+            <Gap height={5} />
+            <Button
+              name="Clear UL Error"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Servo Init on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.clear_error)
+                )
+              }
+            />
+          </div>
+          {/* </div> */}
+          <div className="columns-container" style={{ width: "50%", padding: "0px 0px" }}>
+            Experiment Mode
+            <Gap height={3} />
+            <Button
+              name="Start Experiment"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Start EXPERIMENT on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.experiment_start)
+                )
+              }
+            />
+            <Gap height={5} />
+            <Button
+              name="Stop Experiment"
+              onclick={() =>
+                execFunction(
+                  exec,
+                  `Stop EXPERIMENT on ${getSelectedCages()}`,
+                  httpPOST,
+                  "/operate_cage",
+                  createPOSTBody(CageActions.experiment_stop)
+                )
+              }
+            />
+            <Gap height={2} />
+            <div className="buttons-container">
+              <Button
+                name="Set Pause Interval"
+                onclick={() =>
+                  execFunction(
+                    exec,
+                    `Set PAUSE INTERVAL on ${getSelectedCages()}`,
+                    httpPOST,
+                    "/operate_cage",
+                    createPOSTBody(CageActions.experiment_set_pause_interval, { interval: pauseInterval })
+                  )
+                }
+              />
+              <TextInput value={pauseInterval} onChange={handlePauseInterval} placeholder={"seconds"} />
+            </div>
+          </div>
         </div>
-        <Gap />
-        Experiment Mode
-        <HorizontalLine />
-        <div className="buttons-container">
-          <Button
-            name="Start Experiment"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Start EXPERIMENT on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.experiment_start)
-              )
-            }
-          />
-          <Button
-            name="Stop Experiment"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Stop EXPERIMENT on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.experiment_stop)
-              )
-            }
-          />
-          <Button
-            name="Set Pause Interval"
-            onclick={() =>
-              execFunction(
-                exec,
-                `Set PAUSE INTERVAL on ${getSelectedCages()}`,
-                httpPOST,
-                "/operate_cage",
-                createPOSTBody(CageActions.experiment_set_pause_interval, { interval: pauseInterval })
-              )
-            }
-          />
-          <TextInput value={pauseInterval} onChange={handlePauseInterval} placeholder={"seconds"} />
-        </div>
-        <Gap />
+        {/* <Gap />
         Maintainence
-        <HorizontalLine />
+        <Gap height={3} />
         <div className="buttons-container">
           <Button
             name="Set Flag"
@@ -215,7 +240,8 @@ function CageControl({ selectAll, clearAll, isSelectedArray, isCageActionMode, s
               })
             }
           />
-        </div>
+        </div> */}
+        <Gap />
         (*Note: Affects selected cages only)
       </div>
     </>

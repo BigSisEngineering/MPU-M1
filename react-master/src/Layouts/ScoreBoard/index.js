@@ -1,18 +1,7 @@
 import React from "react";
-import { useState, useEffect } from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
-import { getColor, DEFAULT_MSG, DEFAULT_BOOL } from "../../Utils/Utils.js";
-import {
-  Info,
-  Gap,
-  HorizontalLine,
-  Subinfo,
-  SubcontentTitle,
-  DisplayImage,
-  DisplayCustomEmoji,
-  CustomEmoji,
-} from "../../Components/index.js";
+import { Gap, HorizontalLine, Subinfo } from "../../Components/index.js";
 
 function ScoreBoard() {
   const dictScore = useDict(Dicts.cageScore);
@@ -68,16 +57,32 @@ function ScoreBoard() {
           fontWeight: "bold",
           fontSize: "22px",
           backgroundColor: "rgba(255, 194, 0, 0.35)",
+          overflow: "hidden",
         }}
       >
-        <div className="subcontent-title" style={{ fontStyle: "italic", fontSize: "28px", alignItems: "center" }}>
+        <div
+          className="subcontent-title"
+          style={{
+            fontStyle: "italic",
+            fontSize: "24px",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
           - DAILY SCORE BOARD -
         </div>
         <HorizontalLine />
         <Gap />
         <div
           className="subcontent-info-box"
-          style={{ fontSize: "23px", marginLeft: "0px", background: "rgba(42, 196, 185, 0.8)" }}
+          style={{
+            fontSize: "18px",
+            marginLeft: "0px",
+            background: "rgba(42, 196, 185, 0.8)",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
         >
           BEST
         </div>
@@ -100,7 +105,13 @@ function ScoreBoard() {
         <Gap height={15} />
         <div
           className="subcontent-info-box"
-          style={{ fontSize: "23px", marginLeft: "0px", background: "rgba(42, 196, 185, 0.8)" }}
+          style={{
+            fontSize: "18px",
+            marginLeft: "0px",
+            background: "rgba(42, 196, 185, 0.8)",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
         >
           LAST COMPLETED
         </div>
@@ -123,7 +134,13 @@ function ScoreBoard() {
         <Gap height={15} />
         <div
           className="subcontent-info-box"
-          style={{ fontSize: "23px", marginLeft: "0px", background: "rgba(42, 196, 185, 0.8)" }}
+          style={{
+            fontSize: "18px",
+            marginLeft: "0px",
+            background: "rgba(42, 196, 185, 0.8)",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
         >
           ONGOING
         </div>

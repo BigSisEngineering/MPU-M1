@@ -6,18 +6,16 @@ import { Button, HorizontalLine, Gap, SubcontentTitle, InfoSameRow } from "../..
 function OperationControl({ m1aRunning, m1cRunning }) {
   return (
     <>
-      {" "}
       <div
         className="subcontent-container"
         style={{
-          backgroundColor: "rgba(175, 161, 122, 0.4)",
+          backgroundColor: "rgba(175, 161, 122, 0.3)",
           border: "3px solid rgba(255, 255, 206, 0.7)",
           fontWeight: "bold",
           fontSize: "16px",
           letterSpacing: "0.05em",
         }}
       >
-        {" "}
         <SubcontentTitle text={"⚙ OPERATION CONTROL"} />
         <HorizontalLine />
         <Gap />
@@ -26,7 +24,7 @@ function OperationControl({ m1aRunning, m1cRunning }) {
           text={m1aRunning ? "RUNNING" : "STOPPED"}
           color={m1aRunning ? getColor("GREEN") : getColor("BLUE")}
         />
-        <HorizontalLine />
+        <Gap height="3" />
         <div className="buttons-container">
           <Button
             name="Start"
@@ -55,7 +53,7 @@ function OperationControl({ m1aRunning, m1cRunning }) {
           text={m1cRunning ? "RUNNING" : "STOPPED"}
           color={m1cRunning ? getColor("GREEN") : getColor("BLUE")}
         />
-        <HorizontalLine />
+        <Gap height="3" />
         <div className="buttons-container">
           <Button
             name="Start"

@@ -186,7 +186,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
 
     switch (modeState) {
       case "idle":
-        return getColor("DEFAULT");
+        return getColor();
       case "pnp":
         return getColor("GREEN");
       case "dummy":
@@ -194,7 +194,7 @@ function Cage({ row = null, number = null, isSelected, toggleSelected, isCageAct
       case "experiment":
         return getColor("ORANGE");
       default:
-        return getColor("DEFAULT");
+        return getColor();
     }
   }
 
