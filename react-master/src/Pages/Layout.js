@@ -95,6 +95,11 @@ function Layout() {
               Display
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/Debugging" className="link">
+              Debugging
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <Outlet />

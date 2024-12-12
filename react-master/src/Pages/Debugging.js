@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import "../Assets/Styles/styles.css";
-import M1A from "../Layouts/M1A/index.js";
+import DebuggingM1A from "../Layouts/DebuggingM1A/index.js";
 import M1C from "../Layouts/M1C/index.js";
 import Cages from "../Layouts/Cages/index.js";
-import CageStatusBar from "../Layouts/CageStatusBar/index.js";
 
 function LeftColumn() {
   return (
-    <div className="columns-container" style={{ width: "22%" }}>
-      <M1A displayButtons={false} />
+    <div className="columns-container" style={{ width: "50%" }}>
+      <DebuggingM1A />
       <M1C />
-      <CageStatusBar />
     </div>
   );
 }
@@ -32,7 +30,7 @@ function RightColumn({ isSelected, setIsSelected, toggleSelected, maintainenceFl
   );
 }
 
-function Display() {
+function Debugging() {
   /* ================================ Dummy Cage Select =============================== */
   const [isSelected, setIsSelected] = useState(Array(14).fill(false));
 
@@ -70,4 +68,4 @@ function Display() {
   );
 }
 
-export default Display;
+export default Debugging;

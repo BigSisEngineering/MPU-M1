@@ -69,12 +69,25 @@ function InfoSameRow({ title, text, color }) {
   );
 }
 
-function Subinfo({ title, content, fontSize = 16, gap = 5 }) {
+function Subinfo({ title, content, fontSize = 16, widthPercentage = 100 }) {
   return (
-    <div className="subcontent-subinfo-container" style={{ fontSize: `${fontSize}px` }}>
-      {title}
-      <div className="gap" style={{ width: `${gap}px` }}></div>
-      <div className="display-box">{content}</div>
+    <div className="row-container" style={{ display: "flex", alignItems: "stretch", width: `${widthPercentage}%` }}>
+      <div
+        className="subcontent-subinfo-container"
+        style={{
+          fontSize: `${fontSize}px`,
+          display: "flex",
+          justifyContent: "space-between", // This pushes title to the left and content to the right
+          width: "100%", // Make sure the container stretches across the full width
+        }}
+      >
+        <div className="title" style={{ color: "white" }}>
+          {title}
+        </div>
+        <div className="display-box" style={{ color: "white" }}>
+          {content}
+        </div>
+      </div>
     </div>
   );
 }
