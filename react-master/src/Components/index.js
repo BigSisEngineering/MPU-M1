@@ -26,6 +26,11 @@ class CustomEmoji {
 
 function DisplayImage({ link, width = 100 }) {
   const [imgSrc, setImgSrc] = useState(link);
+
+  useEffect(() => {
+    setImgSrc(link);
+  }, [link]);
+
   const handleError = () => {
     setImgSrc(fallback);
 
@@ -33,29 +38,6 @@ function DisplayImage({ link, width = 100 }) {
       setImgSrc(`${link}?t=${new Date().getTime()}`);
     }, 10000);
   };
-
-  /* ================================================================================== */
-  /*                                     FIXME: LAG                                     */
-  /* ================================================================================== */
-  // useEffect(() => {
-  //   const updateImageSrc = async () => {
-  //     // Simulate any asynchronous operation here if needed
-  //     await new Promise((resolve) => setTimeout(resolve, 100)); // Example of an async operation
-  //     setImgSrc(`${link}?t=${new Date().getTime()}`);
-  //   };
-
-  //   const startUpdating = async () => {
-  //     await updateImageSrc();
-  //     const intervalId = setInterval(async () => {
-  //       await updateImageSrc();
-  //     }, 10000);
-
-  //     return () => clearInterval(intervalId);
-  //   };
-
-  //   startUpdating();
-  // }, [link]);
-  /* ---------------------------------------------------------------------------------- */
 
   return (
     <div className="video-feed-container" style={{ width: `${width}%`, margin: "auto" }}>
