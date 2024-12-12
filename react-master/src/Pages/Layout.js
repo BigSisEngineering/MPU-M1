@@ -2,12 +2,13 @@ import { Outlet, NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDict, Dicts } from "../Middleware/get-api.js";
 import Header from "../Layouts/Header/index.js";
+import AlertBox from "../Layouts/AlertBox/index.js";
 import faviconImg from "../Assets/Media/favicon.ico";
 import Favicon from "react-favicon";
 
 // DEBUG FLAG
-// let DEBUG = false;
-let DEBUG = true;
+let DEBUG = false;
+// let DEBUG = true;
 
 function generateDocumentTitle(module, row) {
   switch (module) {
@@ -82,6 +83,7 @@ function Layout() {
   return (
     <>
       <Favicon url={faviconImg} />
+      <AlertBox />
       <Header module={moduleNumber} unit={"Master"} row={rowNumber} />{" "}
       <nav className="nav">
         <ul>
