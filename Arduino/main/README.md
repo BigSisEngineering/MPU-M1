@@ -72,7 +72,8 @@
 
 
 ### Load and step speed relation
-![Load/ms graph](Inversely%20Proportional%20Fit.png)
+![alt text](InverselyProportionalFit.png)
+
 ```
 Its inversely proportional fit with equation:
 load = (207458.549078)/ms - 3.393769
