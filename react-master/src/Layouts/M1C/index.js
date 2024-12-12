@@ -36,7 +36,7 @@ function M1C() {
   /* =================================== data update ================================== */
   const dictData = useDict(Dicts.m1c);
   const dictInfo = useDict(Dicts.info);
-  const row = dictInfo ? dictInfo.row : 1;
+  const row = dictInfo ? dictInfo["row"] : null;
 
   if (dictData) {
     c1StatusDict = dictData["c1"];

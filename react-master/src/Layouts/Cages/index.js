@@ -8,7 +8,7 @@ import { Gap } from "../../Components/index.js";
 
 function Cages({ isSelected, toggleSelected, isCageActionMode }) {
   const dictInfo = useDict(Dicts.info);
-  const row = dictInfo ? dictInfo.row : 1;
+  const row = dictInfo ? dictInfo["row"] : null;
 
   return (
     <>

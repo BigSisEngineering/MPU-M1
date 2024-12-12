@@ -55,7 +55,7 @@ function M1A({ displayButtons = true }) {
   /* =================================== data update ================================== */
   const dictData = useDict(Dicts.m1a);
   const dictInfo = useDict(Dicts.info);
-  const row = dictInfo ? dictInfo.row : 1;
+  const row = dictInfo ? dictInfo["row"] : null;
 
   if (dictData) {
     a1StatusDict = dictData["a1"];

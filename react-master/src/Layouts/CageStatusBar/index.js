@@ -81,7 +81,7 @@ function CageStatusBar() {
   /* =================================== Fetch Data =================================== */
   const dictExperiment = useDict(Dicts.experiment);
   const dictInfo = useDict(Dicts.info);
-  const row = dictInfo ? dictInfo.row : 1;
+  const row = dictInfo ? dictInfo["row"] : null;
 
   let c1ExperimentDict = null;
   let c2ExperimentDict = null;
