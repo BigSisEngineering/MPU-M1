@@ -33,6 +33,7 @@
 |         |            |     Unload     |        |        |  0x01  |  0x00   |  0x00   |  0x00   |       |       |   STATUS   |
 |         |            |      Home      |        |        |  0x03  |  0x00   |  0x00   |  0x00   |       |       |   STATUS   |
 |         |            |  Reset Error   |        |        |  0x06  |  0x00   |  0x00   |  0x00   |       |       |    ACK     |
+|         |            |  Get position  |        |        |  0x0A  |  0x00   |  0x00   |  0x00   |       |       |    POS     |
 |         |    Valve   |                |        |  0x04  |        |         |         |         |       |       |            |
 |         |            |     Set Delay  |        |        |  0x01  |  0x??   |  0x??   |  0x00   |       |       |    ACK     |
 |         |            |     Turn ON    |        |        |  0x02  |  0x00   |  0x00   |  0x00   |       |       |    ACK     |
@@ -62,9 +63,6 @@
 | ERROR MSG                       | 0xCC | 0x03 | 0x?? | 0x00 | 0x00 | 0x00 | CRC_H | CRC_L |
 | SENSOR MSG                      | 0xCC | 0x03 | 0x?? | 0x?? | 0x?? | 0x?? | CRC_H | CRC_L |
 
-
-### Pinout
-![32u4 Pro Micro Pinout](doc/pro_micro_pinout.jpg)
 
 ### Load and step speed relateion
 ![Load/ms graph](doc/Inversely%20Proportional%20Fit.png)
