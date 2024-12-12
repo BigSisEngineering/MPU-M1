@@ -1,16 +1,23 @@
 
 ```
-├───lib
-│   ├───AnalogSensors
-│   ├───Communication
-│   ├───DebounceInput
-│   ├───Define
-│   ├───Servo
-│   ├───ST3215_Comm
-│   ├───StarWheelServo
-│   ├───UnloaderServo
-│   └───Valve
-└───src
+├───Arduino
+    ├───AnalogSensors.h
+    ├───AnalogSensors.cpp
+    ├───Communication.h
+    ├───Communication.cpp
+    ├───DebounceInput.h
+    ├───Define.h
+    ├───CommDefine.h
+    ├───Servo.h
+    ├───Servo.cpp
+    ├───ST3215_Comm.h
+    ├───ST3215_Comm.cpp
+    ├───StarWheelServo.h
+    ├───StarWheelServo.cpp
+    ├───UnloaderServo.h
+    ├───UnloaderServo.cpp
+    ├───Valve.h
+    ├───Valve.cpp
     └───main.cpp
 ```
 
@@ -64,8 +71,8 @@
 | SENSOR MSG                      | 0xCC | 0x03 | 0x?? | 0x?? | 0x?? | 0x?? | CRC_H | CRC_L |
 
 
-### Load and step speed relateion
-![Load/ms graph](doc/Inversely%20Proportional%20Fit.png)
+### Load and step speed relation
+![Load/ms graph](Inversely%20Proportional%20Fit.png)
 ```
 Its inversely proportional fit with equation:
 load = (207458.549078)/ms - 3.393769
