@@ -250,9 +250,7 @@ void Communication::pri_getUnloaderPosHandler() {
   if (m_unloader == nullptr)
     return;
   int16_t position = m_unloader->getUnloaderPos();
-  // Prepare the response message (no ACTION_READ_POS)
   uint8_t msg[MSG_SIZE] = {HEADER_RESPONS, TARGET_UNLOADER, (uint8_t)(position & 0xFF), (uint8_t)(position >> 8)};
-  // Calculate CRC for message integrity
   uint16_t crc = calculateCRC16(msg, 5);
   msg[5] = crc & 0xFF;
   msg[6] = (crc >> 8) & 0xFF;
@@ -387,22 +385,3 @@ void Communication::pri_valveTurnOffHandler() {
   m_valve->turnOff();
   replyACK();
 }
-
-// void Communication::pri_valvePulseHandler()
-//{
-//  if (m_valve == nullptr) return;
-//
-//  uint16_t delayTime = 0;
-//
-//  switch (m_stMsg.action)
-//  {
-//    case ACTION_SET_DELAY:
-//      delayTime = m_stMsg.params[1] << 8 | m_stMsg.params[0];  // Combine two bytes into delay value
-//      m_valve->setBlastDelay(delayTime);
-//      replyACK();
-//      break;
-//
-//    default:
-//      break;
-//  }
-//}
