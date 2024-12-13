@@ -12,7 +12,7 @@ void Unloader::init() {
 }
 
 void Unloader::setSensor(AnalogSensors *sensorObj) {
-  m_sensorObj = sensorObj; // Set the sensor object
+  m_sensorObj = sensorObj; 
 }
 
 void Unloader::setSensorPins(uint8_t num_of_sensors, const uint8_t *sensor_pins) {
@@ -23,12 +23,12 @@ void Unloader::setSensorPins(uint8_t num_of_sensors, const uint8_t *sensor_pins)
 }
 
 void Unloader::setServo(Servo *ar_servo) {
-  m_servo = ar_servo; // Set the servo object
+  m_servo = ar_servo; 
 }
 
 void Unloader::checkSensor() {
   if (m_sensorObj) {
-    uint8_t sensorValue = m_sensorObj->getValue(1); // Assuming index 2 for third sensor
+    uint8_t sensorValue = m_sensorObj->getValue(1); // index 2 for third sensor
     if (sensorValue < 100) {                        // Adjust this threshold as needed
       sensorTriggered = true;
     } else {
