@@ -68,7 +68,7 @@ html {
   display: flex;
   align-items: center; /* Vertically center items */
   justify-content: center; /* Horizontally center items */
-  height: 100vh; /* Make the container take up the full height of the viewport */
+  height: 100dvh; /* Make the container take up the full height of the viewport */
   font-size: 72px;
 }
 

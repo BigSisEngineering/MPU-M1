@@ -191,7 +191,7 @@ function M1A({ displayButtons = true }) {
       case A3StatusCode.COMPUTING:
         return "GATHERING INFORMATION";
       case A3StatusCode.WAITING_BUF_IN:
-        return "WAITING FOR POTS TO CLEAR";
+        return "WAITING FOR POTS TO FILL UP";
       case A3StatusCode.STOPPING:
         return "STOPPING";
       case A3StatusCode.STARTING:

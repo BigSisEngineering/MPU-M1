@@ -1,16 +1,17 @@
 import React from "react";
 import "../../Assets/Styles/styles.css";
 import { useDict, Dicts } from "../../Middleware/get-api.js";
-import { getColor, DEFAULT_MSG, httpPOST, exec } from "../../Utils/Utils.js";
+import { DEFAULT_MSG } from "../../Utils/Utils.js";
+import m1aSensors from "../../Assets/Media/m1a_sensors.png";
 import {
   Gap,
   HorizontalLine,
-  Button,
   SubcontentTitle,
-  Info,
   DisplayCustomEmoji,
   CustomEmoji,
   Subinfo,
+  Info,
+  DisplayImage,
 } from "../../Components/index.js";
 
 class A1StatusCode {
@@ -52,7 +53,7 @@ class A3StatusCode {
   static SW_HOMING = 9;
 }
 
-function DebuggingM1A({ displayButtons = true }) {
+function DebuggingM1A() {
   let a1StatusDict = null;
   let a2StatusDict = null;
   let a3StatusDict = null;
@@ -78,112 +79,52 @@ function DebuggingM1A({ displayButtons = true }) {
   const getA1StatusText = () => {
     switch (a1StatusCode) {
       case A1StatusCode.IDLE:
-        return "IDLE";
+        return "Pot Sorter is in IDLE mode.";
       case A1StatusCode.OFFLINE:
-        return "🚨 OFFLINE";
+        return "DUET is offline.";
       case A1StatusCode.FILLING:
-        return "SORTING";
+        return "Transfer belt should be moving.";
       case A1StatusCode.FILLING_TIMEOUT:
-        return "REFILL POTS!";
+        return "Transfer belt should be moving. It's been more than 30 seconds since a pot passed through the output buffer.";
       case A1StatusCode.FULL:
-        return "WAITING FOR POTS TO CLEAR";
+        return "Pots are filled up to the buffer.";
       case A1StatusCode.FULL_TIMEOUT:
-        if (a2StatusCode === A2StatusCode.WAITING_BUF_IN || a2StatusCode === A2StatusCode.WAITING_BUF_IN_TIMEOUT)
-          return "POT SORTER ALIGNED? CHANNELIZER JAMMED?";
-        else return "WAITING FOR POTS TO CLEAR";
+        return "Pots are filled up to the buffer for more than 30 seconds.";
       case A1StatusCode.STOPPING:
-        return "STOPPING";
+        return "Pot Sorter is stopping.";
       case A1StatusCode.STARTING:
-        return "STARTING";
+        return "Pot Sorter is starting.";
       default:
         return DEFAULT_MSG;
-    }
-  };
-
-  const getA1StatusColor = () => {
-    switch (a1StatusCode) {
-      case A1StatusCode.IDLE:
-        return getColor();
-      case A1StatusCode.OFFLINE:
-        return getColor("RED");
-      case A1StatusCode.FILLING:
-        return getColor("GREEN");
-      case A1StatusCode.FILLING_TIMEOUT:
-        return getColor("RED");
-      case A1StatusCode.FULL:
-        return getColor("YELLOW");
-      case A1StatusCode.FULL_TIMEOUT:
-        if (a2StatusCode === A2StatusCode.WAITING_BUF_IN || a2StatusCode === A2StatusCode.WAITING_BUF_IN_TIMEOUT)
-          return getColor("RED");
-        else return getColor("YELLOW");
-      case A1StatusCode.STOPPING:
-        return getColor("YELLOW");
-      case A1StatusCode.STARTING:
-        return getColor("YELLOW");
-      default:
-        return getColor();
     }
   };
 
   const getA2StatusText = () => {
     switch (a2StatusCode) {
       case A2StatusCode.IDLE:
-        return "IDLE";
+        return "Diet Dispenser is in IDLE mode.";
       case A2StatusCode.OFFLINE:
-        return "🚨 OFFLINE";
+        return "DUET is offline.";
       case A2StatusCode.DISPENSING:
-        return "DISPENSING";
+        return "Diet dispenser is dispensing.";
       case A2StatusCode.WAITING_BUF_IN:
-        return "WAITING FOR POTS TO ENTER";
+        return "Waiting for pots to get past the channelizer.";
       case A2StatusCode.WAITING_BUF_IN_TIMEOUT:
-        if (a1StatusCode === A1StatusCode.FULL_TIMEOUT) return "CHANNELIZER JAMMED?";
-        return "WAITING FOR POTS TO ENTER";
+        return "System has been waiting for pots to get past the channelizer for more than 30 seconds. ";
       case A2StatusCode.WAITING_BUF_OUT:
-        return "WAITING FOR POTS TO CLEAR";
+        return "Waiting for pots to cleared from the output.";
       case A2StatusCode.STOPPING:
-        return "STOPPING";
+        return "Diet Dispenser is stopping.";
       case A2StatusCode.STARTING:
-        return "STARTING";
+        return "Diet Dispenser is starting.";
       case A2StatusCode.SW_ERROR:
-        return "SW ERROR";
+        return "Starwheel Error detected.";
       case A2StatusCode.SW_NOT_HOMED:
-        return "SW NOT HOMED";
+        return "Starwheel is not homed.";
       case A2StatusCode.DISPENSER_NOT_HOMED:
-        return "DISPENSER NOT HOMED";
+        return "Nozzle axis is raised.";
       case A2StatusCode.SW_HOMING:
-        return "SW HOMING";
-      default:
-        return DEFAULT_MSG;
-    }
-  };
-
-  const getA2StatusColor = () => {
-    switch (a2StatusCode) {
-      case A2StatusCode.IDLE:
-        return getColor();
-      case A2StatusCode.OFFLINE:
-        return getColor("RED");
-      case A2StatusCode.DISPENSING:
-        return getColor("GREEN");
-      case A2StatusCode.WAITING_BUF_IN:
-        return getColor("YELLOW");
-      case A2StatusCode.WAITING_BUF_IN_TIMEOUT:
-        if (a1StatusCode === A1StatusCode.FULL_TIMEOUT) return getColor("RED");
-        return getColor("YELLOW");
-      case A2StatusCode.WAITING_BUF_OUT:
-        return getColor("YELLOW");
-      case A2StatusCode.STOPPING:
-        return getColor("YELLOW");
-      case A2StatusCode.STARTING:
-        return getColor("YELLOW");
-      case A2StatusCode.SW_ERROR:
-        return getColor("RED");
-      case A2StatusCode.SW_NOT_HOMED:
-        return getColor("RED");
-      case A2StatusCode.DISPENSER_NOT_HOMED:
-        return getColor("RED");
-      case A2StatusCode.SW_HOMING:
-        return getColor("YELLOW");
+        return "Starwheel is homing. (It takes 50s in total, even after it's visibly homed)";
       default:
         return DEFAULT_MSG;
     }
@@ -192,55 +133,32 @@ function DebuggingM1A({ displayButtons = true }) {
   const getA3StatusText = () => {
     switch (a3StatusCode) {
       case A3StatusCode.IDLE:
-        return "IDLE";
+        return "Pot Dispenser is in IDLE mode.";
       case A3StatusCode.OFFLINE:
-        return "🚨 OFFLINE";
+        return "DUET is offline.";
       case A3StatusCode.DISPENSING:
-        return "SENDING POTS";
+        return "Pots are being sent.";
       case A3StatusCode.COMPUTING:
-        return "GATHERING INFORMATION";
+        return "System is fetching data from the cages.";
       case A3StatusCode.WAITING_BUF_IN:
-        return "WAITING FOR POTS TO CLEAR";
+        return "Waiting for pots to fill up to the buffer.";
       case A3StatusCode.STOPPING:
-        return "STOPPING";
+        return "Pot Dispenser is stopping.";
       case A3StatusCode.STARTING:
-        return "STARTING";
+        return "Pot Dispenser is starting.";
       case A3StatusCode.SW_ERROR:
-        return "SW ERROR";
+        return "Starwheel Error detected.";
       case A3StatusCode.SW_NOT_HOMED:
-        return "SW NOT HOMED";
+        return "Starwheel not homed.";
       case A3StatusCode.SW_HOMING:
-        return "SW HOMING";
+        return "Starwheel is homing. (It takes 50s in total, even after it's visibly homed)";
       default:
         return DEFAULT_MSG;
     }
   };
 
-  const getA3StatusColor = () => {
-    switch (a3StatusCode) {
-      case A3StatusCode.IDLE:
-        return getColor();
-      case A3StatusCode.OFFLINE:
-        return getColor("RED");
-      case A3StatusCode.DISPENSING:
-        return getColor("GREEN");
-      case A3StatusCode.COMPUTING:
-        return getColor("YELLOW");
-      case A3StatusCode.WAITING_BUF_IN:
-        return getColor("YELLOW");
-      case A3StatusCode.STOPPING:
-        return getColor("YELLOW");
-      case A3StatusCode.STARTING:
-        return getColor("YELLOW");
-      case A3StatusCode.SW_ERROR:
-        return getColor("RED");
-      case A3StatusCode.SW_NOT_HOMED:
-        return getColor("RED");
-      case A3StatusCode.SW_HOMING:
-        return getColor("YELLOW");
-      default:
-        return getColor();
-    }
+  const getEmoji = (bool) => {
+    return bool ? CustomEmoji.green_circle : CustomEmoji.red_circle;
   };
 
   return (
@@ -252,82 +170,95 @@ function DebuggingM1A({ displayButtons = true }) {
           letterSpacing: "0.05em",
         }}
       >
+        <SubcontentTitle text={"Sensor Map"} />
+        <HorizontalLine />
+        <Gap height="3" />
+        <DisplayImage link={m1aSensors} width={80} height={35} opacity={0.7} />
+        <Gap height="15" />
         <SubcontentTitle text={"Diet Tank"} link={`http://10.207.1${row}.10`} />
-        <Info title="ⓘ Status" text={"UNDER DEVELOPMENT"} color={getColor()} />
+        <HorizontalLine />
         <Gap height="15" />
         <SubcontentTitle text={"Pot Sorter"} link={`http://10.207.1${row}.11`} />
-        <Info title="ⓘ Status" text={getA1StatusText()} color={getA1StatusColor()} />
-
-        <div className="row-container" style={{ padding: "0px 0px" }}>
+        <HorizontalLine />
+        <div className="row-container" style={{ padding: "0px 20px" }}>
           <Subinfo
-            title="OUTPUT BUFFER"
-            content={<DisplayCustomEmoji emoji={CustomEmoji.green_circle} />}
-            widthPercentage={40}
+            title="⦾ OUTPUT BUFFER"
+            content={
+              <DisplayCustomEmoji
+                emoji={a1StatusDict ? getEmoji(a1StatusDict["buff_out"]) : CustomEmoji.black_circle}
+              />
+            }
+            widthPercentage={90}
           />
+        </div>
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo title="ⓢ STATUS" content={getA1StatusText()} widthPercentage={90} />
         </div>
 
         <Gap height="15" />
         <SubcontentTitle text={"Diet Dispenser"} link={`http://10.207.1${row}.12`} />
-        {/* <Gap />
-        <DisplayImage link={"https://cdn.theorg.com/4fcdc583-1643-4367-9dce-e92104596f1d_thumb.jpg"} width={100} />
-        <Gap /> */}
-        <Info title="ⓘ Status" text={getA2StatusText()} color={getA2StatusColor()} />
+        <HorizontalLine />
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo
+            title="⦾ INPUT BUFFER"
+            content={
+              <DisplayCustomEmoji emoji={a2StatusDict ? getEmoji(a2StatusDict["buff_in"]) : CustomEmoji.black_circle} />
+            }
+            widthPercentage={90}
+          />
+        </div>
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo
+            title="⦾ OUTPUT BUFFER"
+            content={
+              <DisplayCustomEmoji
+                emoji={a2StatusDict ? getEmoji(a2StatusDict["buff_out"]) : CustomEmoji.black_circle}
+              />
+            }
+            widthPercentage={90}
+          />
+        </div>
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo
+            title="⦾ POT SENSOR"
+            content={
+              <DisplayCustomEmoji
+                emoji={a2StatusDict ? getEmoji(a2StatusDict["pot_sensor"]) : CustomEmoji.black_circle}
+              />
+            }
+            widthPercentage={90}
+          />
+        </div>
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo title="ⓢ STATUS" content={getA2StatusText()} widthPercentage={90} />
+        </div>
 
-        <div className="row-container" style={{ padding: "0px 0px" }}>
-          <Subinfo
-            title="INPUT BUFFER"
-            content={<DisplayCustomEmoji emoji={CustomEmoji.green_circle} />}
-            widthPercentage={40}
-          />
-        </div>
-        <div className="row-container" style={{ padding: "0px 0px" }}>
-          <Subinfo
-            title="OUTPUT BUFFER"
-            content={<DisplayCustomEmoji emoji={CustomEmoji.green_circle} />}
-            widthPercentage={40}
-          />
-        </div>
-        <div className="row-container" style={{ padding: "0px 0px" }}>
-          <Subinfo
-            title="POT SENSOR"
-            content={<DisplayCustomEmoji emoji={CustomEmoji.green_circle} />}
-            widthPercentage={40}
-          />
-        </div>
-
-        <Gap height="3" />
-        {displayButtons && (
-          <div className="buttons-container">
-            <Button
-              name="Raise Nozzle"
-              onclick={() => exec("Raise Nozzle", httpPOST, "/raise_nozzle")}
-              disable={a1StatusCode === A1StatusCode.OFFLINE}
-            />
-            <Button
-              name="Lower Nozzle"
-              onclick={() => exec("Lower Nozzle", httpPOST, "/lower_nozzle")}
-              disable={a1StatusCode === A1StatusCode.OFFLINE}
-            />
-            <Button
-              name="Home SW"
-              onclick={() => exec("Home Diet Dispenser Starwheel", httpPOST, "/home_a2_sw")}
-              disable={a1StatusCode === A1StatusCode.OFFLINE}
-            />
-          </div>
-        )}
         <Gap height="15" />
         <SubcontentTitle text={"Pot Dispenser"} link={`http://10.207.1${row}.13`} />
-        <Info title="ⓘ Status" text={getA3StatusText()} color={getA3StatusColor()} />
-        <Gap height="3" />
-        {displayButtons && (
-          <div className="buttons-container">
-            <Button
-              name="Home SW"
-              onclick={() => exec("Home Pot Dispenser Starwheel", httpPOST, "/home_a3_sw")}
-              disable={a3StatusCode === A3StatusCode.OFFLINE}
-            />
-          </div>
-        )}
+        <HorizontalLine />
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo
+            title="⦾ INPUT BUFFER"
+            content={
+              <DisplayCustomEmoji emoji={a3StatusDict ? getEmoji(a3StatusDict["buff_in"]) : CustomEmoji.black_circle} />
+            }
+            widthPercentage={90}
+          />
+        </div>
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo
+            title="⦾ POT SENSOR"
+            content={
+              <DisplayCustomEmoji
+                emoji={a3StatusDict ? getEmoji(a3StatusDict["pot_sensor"]) : CustomEmoji.black_circle}
+              />
+            }
+            widthPercentage={90}
+          />
+        </div>
+        <div className="row-container" style={{ padding: "0px 20px" }}>
+          <Subinfo title="ⓢ STATUS" content={getA3StatusText()} widthPercentage={90} />
+        </div>
       </div>
     </>
   );

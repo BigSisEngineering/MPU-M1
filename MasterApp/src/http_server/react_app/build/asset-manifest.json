@@ -1,10 +1,12 @@
 {
   "files": {
-    "main.css": "/static/css/main.af4c8ea4.css",
-    "main.js": "/static/js/main.2304710e.js",
+    "main.css": "/static/css/main.d36a4773.css",
+    "main.js": "/static/js/main.b01b8e62.js",
     "static/js/453.2a82e7ac.chunk.js": "/static/js/453.2a82e7ac.chunk.js",
     "static/media/favicon.ico": "/static/media/favicon.40398f4fd4cc2168a22b.ico",
     "static/media/404-or-page-f6738564cf.jpg": "/static/media/404-or-page-f6738564cf.3d1c8451543b644687be.jpg",
+    "static/media/m1a_sensors.png": "/static/media/m1a_sensors.10d1161976834713e131.png",
+    "static/media/m1c_sensors.png": "/static/media/m1c_sensors.924cc96ba9d8dff42a71.png",
     "static/media/emergency-stop.jpg": "/static/media/emergency-stop.fc24091bff7ea1533568.jpg",
     "static/media/red-circle.png": "/static/media/red-circle.20df1ca4e90335ab8022.png",
     "static/media/green-circle.png": "/static/media/green-circle.5a72a54817badd20db2e.png",
@@ -13,12 +15,12 @@
     "static/media/black-circle.png": "/static/media/black-circle.7cdadb0df4b556194db0.png",
     "static/media/grey-circle.png": "/static/media/grey-circle.082abc35c901487fd90c.png",
     "index.html": "/index.html",
-    "main.af4c8ea4.css.map": "/static/css/main.af4c8ea4.css.map",
-    "main.2304710e.js.map": "/static/js/main.2304710e.js.map",
+    "main.d36a4773.css.map": "/static/css/main.d36a4773.css.map",
+    "main.b01b8e62.js.map": "/static/js/main.b01b8e62.js.map",
     "453.2a82e7ac.chunk.js.map": "/static/js/453.2a82e7ac.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.af4c8ea4.css",
-    "static/js/main.2304710e.js"
+    "static/css/main.d36a4773.css",
+    "static/js/main.b01b8e62.js"
   ]
 }

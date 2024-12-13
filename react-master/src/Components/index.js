@@ -24,7 +24,7 @@ class CustomEmoji {
   static black_rectangle = black_rectangle;
 }
 
-function DisplayImage({ link, width = 100 }) {
+function DisplayImage({ link, width = 100, height = 80, opacity = 1 }) {
   const [imgSrc, setImgSrc] = useState(link);
 
   useEffect(() => {
@@ -40,8 +40,11 @@ function DisplayImage({ link, width = 100 }) {
   };
 
   return (
-    <div className="video-feed-container" style={{ width: `${width}%`, margin: "auto" }}>
-      <img src={imgSrc} alt="not found" onError={handleError} />
+    <div
+      className="video-feed-container"
+      style={{ width: `${width}%`, paddingTop: `${height}%`, margin: "auto", backgroundColor: "black" }}
+    >
+      <img src={imgSrc} alt="not found" onError={handleError} style={{ opacity: `${opacity}` }} />
     </div>
   );
 }

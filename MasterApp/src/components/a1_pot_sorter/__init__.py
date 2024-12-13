@@ -22,7 +22,7 @@ class Status:
     buff_out: bool = field(default=False)
 
     def dict(self):
-        return {k: str(v) for k, v in asdict(self).items()}
+        return {k: v for k, v in asdict(self).items()}
 
 
 class API(HTTPDuet):
