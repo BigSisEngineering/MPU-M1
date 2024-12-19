@@ -8,7 +8,7 @@ Computer
 ├── src
 │   ├── BscbAPI             
 │   │   ├── __init__.py             
-│   │   └── BscbAPI.py                  // BigSis Control Board API
+│   │   └── BscbAPI.py                  // BigSis Control Board API (to communicate with arduino)
 │   ├── CLI                             // For terminal printing
 │   │   └── __init__.py
 │   ├── cloud                           // Data upload to MongoDB
