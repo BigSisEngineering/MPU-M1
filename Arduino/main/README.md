@@ -20,7 +20,8 @@
     ├───Valve.cpp
     └───main.cpp
 ```
-
+### Flowchart
+![alt text](subprocess_flow_chart.jpg)
 
 
 ### Communication Protocol

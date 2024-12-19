@@ -18,15 +18,15 @@ Computer
 │   │   └── sensor.py
 │   ├── data                            // Shared Variables
 │   │   └── __init__.py
-│   ├── operation                       // Different modes for the Smart Cage System
+│   ├── operation                       // Different modes for production
 │   │   └── __init__.py
-│   ├── setup                           // System constant parameters
+│   ├── setup                           // System config/constant parameters
 │   │   ├── __init__.py
 │   │   └── DEFAULT.ini                 // Configuration file
 │   ├── tasks                           // Background loops
-|   │   ├── react app                   
+|   │   ├── react app                   //front-end in react Javascript
 │   │   │   └── build
-│   │   ├── aws                         // AWS cloud service for image upload
+│   │   ├── aws                         // AWS cloud service for image upload to S3 bucket
 │   │   │   └── __init__.py
 │   │   ├── camera                      // USB camera handler
 │   │   │   └── __init__.py
@@ -36,8 +36,8 @@ Computer
 │   │   │   └── __init__.py
 │   │   └── httpServer                  // HTTP Server with flask 
 │   │       ├── __init__.py
-│   │       ├── httpGetHandler.py
-│   │       └── httpPostHandler.py
+│   │       ├── httpGetHandler.py       //get request
+│   │       └── httpPostHandler.py      //post request
 │   └── vision                          // AI with YOLO models
 │       ├── __init__.py
 │       └── prediction.py               // YOLO processing functions
