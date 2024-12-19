@@ -100,6 +100,15 @@ This section outlines the operational modes available for controlling the proces
 - **DUMMY:** This simplified mode does not utilize AI detection and automatically ejects every other pot by default. The frequency of ejection can be adjusted as needed.
 - **EXPERIMENT:** This mode mirrors the PNP operations for 80 pots, involving processes such as image capture, AI detection, ejection based on egg detection and saving/uploading data. After processing 80 pots, the system enters a static operation phase. The cycle then repeats, alternating between active processing and static phases. The duration of each static phase can be adjusted using the 'Set Interval' button.
 
+## **Hardware Installation**
+![alt text](media/cage_control_box_content.jpg)
+![alt text](media/cage_external_content.jpg)
+![alt text](media/sensor_connection.jpg)
+
+## **Wiring**
+![alt text](media/overview_wiring_diagram.jpg)
+![alt text](media/Bscb_wiring.jpg)
+![alt text](media/tinker_wiring.jpg)
 
 
 
